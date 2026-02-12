@@ -1,0 +1,4427 @@
+{
+  "title": "JavaScript Fundamentals",
+  "description": "Master core JavaScript concepts including debouncing, throttling, currying, and async programming with detailed explanations and code implementations",
+  "topics": [
+    {
+      "id": "destructuring",
+      "title": "Object Destructuring",
+      "category": "Object Operations",
+      "description": "Extracts properties from objects into distinct variables.",
+      "explanation": "Extracts properties from objects into distinct variables.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+      "implementation": "const user = {name: 'John', age: 30, email: 'john@example.com'};\nconst {name, age} = user;\n\n// With renaming\nconst {name: userName, age: userAge} = user;\n\n// With default values\nconst {name, country = 'USA'} = user;",
+      "example": "function greet({name, age}) {\n  console.log(`Hello ${name}, you are ${age} years old`);\n}\ngreet({name: 'John', age: 30});",
+      "useCase": "Function parameters, importing specific exports, extracting API response data",
+      "interviewQuestions": [
+        {
+          "question": "What is object destructuring and why is it useful?",
+          "answer": "Object destructuring extracts object properties into local variables with concise syntax, reducing repetitive property access and improving readability."
+        },
+        {
+          "question": "How do you rename a destructured property?",
+          "answer": "Use alias syntax: const { name: userName } = user; this keeps source key as name and local variable as userName."
+        },
+        {
+          "question": "How do default values work in destructuring?",
+          "answer": "Defaults are used only when extracted value is undefined, not when it is null, false, or 0."
+        },
+        {
+          "question": "What is a common bug with nested destructuring?",
+          "answer": "Destructuring nested keys without guarding can throw if parent object is undefined. Use defaults or optional chaining before destructuring deeply."
+        },
+        {
+          "question": "How would you destructure function parameters safely?",
+          "answer": "Use function signature defaults, e.g. function f({a} = {}) so call sites without argument do not crash."
+        },
+        {
+          "question": "How do you destructure nested objects?",
+          "answer": "Use nested pattern syntax, e.g. const { profile: { email } } = user, and guard missing parents with defaults."
+        },
+        {
+          "question": "Can destructuring be used with arrays and objects together?",
+          "answer": "Yes. You can destructure arrays by position and objects by key in the same statement."
+        },
+        {
+          "question": "What happens when you destructure a missing property?",
+          "answer": "The value becomes undefined unless a default value is provided in the pattern."
+        },
+        {
+          "question": "How do you skip elements in array destructuring?",
+          "answer": "Use commas as placeholders, e.g. const [first, , third] = arr."
+        },
+        {
+          "question": "Why is destructuring useful in API response handling?",
+          "answer": "It extracts needed fields directly and keeps transformation code concise and readable."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict output: const [a,,c=9] = [1,2]; console.log(a,c);",
+          "answer": "1 9",
+          "code": "const [a,,c=9] = [1,2];\nconsole.log(a,c);",
+          "output": "1 9"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: const {x:{y}= {y:7}} = {}; console.log(y);",
+          "answer": "7",
+          "code": "const {x:{y}= {y:7}} = {};\nconsole.log(y);",
+          "output": "7"
+        },
+        {
+          "type": "implement",
+          "question": "Write swap([a,b]) returning [b,a] using destructuring assignment.",
+          "answer": "Use temporary-less swap with [a,b] = [b,a]."
+        },
+        {
+          "type": "implement",
+          "question": "Build function getConfig({host=\"localhost\", port=3000}={}) returning normalized config."
+        },
+        {
+          "type": "debug",
+          "question": "Fix crash: function f({x}) { return x; } called as f().",
+          "answer": "Use function f({x} = {}) { return x; }."
+        },
+        {
+          "type": "debug",
+          "question": "Fix invalid syntax: const {a:b:c} = obj;",
+          "answer": "Use const { a: b } = obj; then use b."
+        },
+        {
+          "type": "refactor",
+          "question": "Refactor repeated user.name and user.email reads into concise syntax.",
+          "answer": "Use const { name, email } = user once."
+        },
+        {
+          "type": "scenario",
+          "question": "Given API payload {data:{items,meta}}, extract items and page in one line with defaults."
+        },
+        {
+          "type": "scenario",
+          "question": "How will you destructure optional function param to avoid runtime error?",
+          "answer": "Provide default empty object in parameter signature."
+        },
+        {
+          "type": "tricky",
+          "question": "Does default value apply when source value is null?",
+          "answer": "No. Defaults only apply for undefined."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Swap two numbers without temp variable using array destructuring.",
+          "answer": "Use [a, b] = [b, a].",
+          "code": "let a = 10;\nlet b = 25;\n[a, b] = [b, a];\nconsole.log(a, b);",
+          "output": "25 10"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Extract name and city from user object with defaults.",
+          "code": "const user = { name: \"Jitender\" };\nconst { name, city = \"Unknown\" } = user;\nconsole.log(name, city);",
+          "output": "Jitender Unknown"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Destructure nested API response to read first product title safely.",
+          "code": "const response = { data: { products: [{ title: \"Laptop\" }] } };\nconst { data: { products: [{ title } = {}] = [] } = {} } = response;\nconsole.log(title);",
+          "output": "Laptop"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Build function that returns {id, email} from input object parameter using destructuring.",
+          "code": "function pickIdEmail({ id, email }) {\n  return { id, email };\n}\nconsole.log(pickIdEmail({ id: 7, email: \"a@b.com\", role: \"admin\" }));",
+          "output": "{ id: 7, email: \"a@b.com\" }"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Convert array [first, second, third] into object using destructuring.",
+          "code": "const arr = [\"red\", \"green\", \"blue\"];\nconst [first, second, third] = arr;\nconst result = { first, second, third };\nconsole.log(result);",
+          "output": "{ first: \"red\", second: \"green\", third: \"blue\" }"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Skip middle values and print first and last using destructuring.",
+          "code": "const nums = [10, 20, 30, 40, 50];\nconst [first, , , , last] = nums;\nconsole.log(first, last);",
+          "output": "10 50"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Destructure object key and rename variable (name -> fullName).",
+          "code": "const profile = { name: \"Ravi\", exp: 3 };\nconst { name: fullName, exp } = profile;\nconsole.log(fullName, exp);",
+          "output": "Ravi 3"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Write function with safe default parameter destructuring.",
+          "code": "function connect({ host = \"localhost\", port = 5432 } = {}) {\n  return `${host}:${port}`;\n}\nconsole.log(connect());\nconsole.log(connect({ host: \"db.local\" }));",
+          "output": "localhost:5432\ndb.local:5432"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Destructure top 2 elements and store rest in a new array.",
+          "code": "const scores = [98, 91, 88, 80, 75];\nconst [top1, top2, ...others] = scores;\nconsole.log(top1, top2, others);",
+          "output": "98 91 [ 88, 80, 75 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Extract date parts from \"YYYY-MM-DD\" string using destructuring.",
+          "code": "const date = \"2026-02-12\";\nconst [year, month, day] = date.split(\"-\");\nconsole.log(year, month, day);",
+          "output": "2026 02 12"
+        }
+      ]
+    },
+    {
+      "id": "spread-rest",
+      "title": "Spread & Rest Operators",
+      "category": "Object Operations",
+      "description": "Spread (...) expands arrays/objects. Rest (...) collects multiple elements.",
+      "explanation": "Spread (...) expands arrays/objects. Rest (...) collects multiple elements.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+      "implementation": "// Spread\nconst arr1 = [1, 2, 3];\nconst arr2 = [...arr1, 4, 5]; // [1,2,3,4,5]\n\nconst obj1 = {a: 1, b: 2};\nconst obj2 = {...obj1, c: 3}; // {a:1, b:2, c:3}\n\n// Rest\nfunction sum(...numbers) {\n  return numbers.reduce((a, b) => a + b, 0);\n}",
+      "example": "// Merging arrays\nconst combined = [...array1, ...array2];\n\n// Copying objects\nconst copy = {...original};\n\n// Function with any number of args\nconst max = Math.max(...numbers);",
+      "useCase": "Cloning objects/arrays, merging data, function arguments",
+      "interviewQuestions": [
+        {
+          "question": "What is the difference between spread and rest operators?",
+          "answer": "Spread expands an iterable/object into individual elements. Rest collects remaining elements into an array/object."
+        },
+        {
+          "question": "Is object spread a deep copy?",
+          "answer": "No. It is a shallow copy. Nested objects keep shared references unless cloned separately."
+        },
+        {
+          "question": "When should you use rest parameters in functions?",
+          "answer": "When function arity is variable or you want to pass any number of args without arguments object."
+        },
+        {
+          "question": "How does spread help immutable updates?",
+          "answer": "It creates new arrays/objects while keeping unchanged references for unaffected branches."
+        },
+        {
+          "question": "What is a common interview trap with spread on arrays of objects?",
+          "answer": "Copying array with [...arr] still shares inner object references, so nested mutations affect original objects."
+        },
+        {
+          "question": "How does spread behave with function arguments?",
+          "answer": "It expands iterable items as separate arguments, e.g. fn(...arr)."
+        },
+        {
+          "question": "Can rest be used in object destructuring?",
+          "answer": "Yes. const { id, ...rest } = obj collects remaining own enumerable props into rest."
+        },
+        {
+          "question": "What is parameter order rule for rest?",
+          "answer": "Rest must be the last parameter in function signature or pattern."
+        },
+        {
+          "question": "How do you immutably remove one key from object?",
+          "answer": "Use destructuring + rest: const { removeKey, ...next } = obj."
+        },
+        {
+          "question": "What is a common bug with nested state and spread?",
+          "answer": "Only top-level copy is made; nested structures still share references."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict output: const o={a:1,b:2}; const p={...o,b:9}; console.log(p.b);",
+          "answer": "9",
+          "code": "const o={a:1,b:2};\nconst p={...o,b:9};\nconsole.log(p.b);",
+          "output": "9"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: function f(a,...r){console.log(r.length)}; f(1,2,3,4);",
+          "answer": "3",
+          "code": "function f(a,...r){console.log(r.length)}\nf(1,2,3,4);",
+          "output": "3"
+        },
+        {
+          "type": "implement",
+          "question": "Implement mergeOptions(defaults, overrides) immutably.",
+          "answer": "Return { ...defaults, ...overrides }."
+        },
+        {
+          "type": "implement",
+          "question": "Implement omit(obj, keys) returning object without selected keys."
+        },
+        {
+          "type": "debug",
+          "question": "A copied array of objects mutates original. Why?",
+          "answer": "Spread makes shallow copy only."
+        },
+        {
+          "type": "debug",
+          "question": "Why does nested object in spread still change original after mutation?",
+          "answer": "Nested refs are shared unless explicitly cloned."
+        },
+        {
+          "type": "refactor",
+          "question": "Refactor reducer update to immutable spread style."
+        },
+        {
+          "type": "scenario",
+          "question": "You need variable args sum(...nums). Implement with rest."
+        },
+        {
+          "type": "tricky",
+          "question": "Can rest parameter be anywhere in function arguments?",
+          "answer": "No, it must be last."
+        },
+        {
+          "type": "tricky",
+          "question": "Is object spread a deep clone?",
+          "answer": "No, shallow clone only."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Merge two arrays and remove duplicates using spread + Set.",
+          "code": "const a = [1, 2, 3];\nconst b = [3, 4, 5];\nconst merged = [...new Set([...a, ...b])];\nconsole.log(merged);",
+          "output": "[ 1, 2, 3, 4, 5 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Clone object and override one property without mutation.",
+          "code": "const user = { name: \"Sam\", role: \"user\" };\nconst updated = { ...user, role: \"admin\" };\nconsole.log(user.role, updated.role);",
+          "output": "user admin"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Sum variable arguments using rest parameter.",
+          "code": "function sum(...nums) {\n  return nums.reduce((a, b) => a + b, 0);\n}\nconsole.log(sum(1, 2, 3, 4));",
+          "output": "10"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Remove property password from object using rest destructuring.",
+          "code": "const account = { id: 1, email: \"x@y.com\", password: \"secret\" };\nconst { password, ...safeAccount } = account;\nconsole.log(safeAccount);",
+          "output": "{ id: 1, email: \"x@y.com\" }"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Append item immutably to existing list.",
+          "code": "const tasks = [\"read\", \"code\"];\nconst next = [...tasks, \"sleep\"];\nconsole.log(tasks, next);",
+          "output": "[ \"read\", \"code\" ] [ \"read\", \"code\", \"sleep\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Merge config objects where env overrides defaults.",
+          "code": "const defaults = { host: \"localhost\", port: 3000, secure: false };\nconst env = { port: 8080, secure: true };\nconst config = { ...defaults, ...env };\nconsole.log(config);",
+          "output": "{ host: \"localhost\", port: 8080, secure: true }"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Convert Math.max usage from array by spreading args.",
+          "code": "const nums = [5, 2, 9, 1];\nconsole.log(Math.max(...nums));",
+          "output": "9"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Write logger(level, ...messages) using rest.",
+          "code": "function logger(level, ...messages) {\n  console.log(`[${level}]`, messages.join(\" | \"));\n}\nlogger(\"INFO\", \"server up\", \"port 3000\");",
+          "output": "[INFO] server up | port 3000"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Demonstrate shallow copy behavior with nested object in spread.",
+          "code": "const original = { profile: { city: \"Pune\" } };\nconst copy = { ...original };\ncopy.profile.city = \"Delhi\";\nconsole.log(original.profile.city);",
+          "output": "Delhi"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Build function prependAndAppend(arr, start, end) returning new array.",
+          "code": "function prependAndAppend(arr, start, end) {\n  return [start, ...arr, end];\n}\nconsole.log(prependAndAppend([2, 3, 4], 1, 5));",
+          "output": "[ 1, 2, 3, 4, 5 ]"
+        }
+      ]
+    },
+    {
+      "id": "object-methods",
+      "title": "Object.keys/values/entries",
+      "category": "Object Operations",
+      "description": "Methods to iterate over object properties.",
+      "explanation": "Methods to iterate over object properties.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+      "implementation": "const user = {name: 'John', age: 30, city: 'NYC'};\n\nObject.keys(user);    // ['name', 'age', 'city']\nObject.values(user);  // ['John', 30, 'NYC']\nObject.entries(user); // [['name','John'], ['age',30], ['city','NYC']]",
+      "example": "const scores = {math: 90, science: 85, history: 88};\n\nObject.entries(scores).forEach(([subject, score]) => {\n  console.log(`${subject}: ${score}`);\n});\n\nconst total = Object.values(scores).reduce((a, b) => a + b);",
+      "useCase": "Iterating objects, converting to arrays, filtering object properties",
+      "interviewQuestions": [
+        {
+          "question": "When to use Object.keys vs Object.values vs Object.entries?",
+          "answer": "Use keys for property names, values for value lists, entries for key-value iteration and transformations."
+        },
+        {
+          "question": "Do these methods include inherited properties?",
+          "answer": "No. They return only own enumerable properties of the object."
+        },
+        {
+          "question": "How can you transform an object using Object.entries?",
+          "answer": "Convert to entries, map/filter entries, then rebuild with Object.fromEntries."
+        },
+        {
+          "question": "What order does Object.keys return?",
+          "answer": "Numeric-like keys are ordered ascending first, then string keys by insertion order."
+        },
+        {
+          "question": "What is a common edge case with Object.entries and symbol keys?",
+          "answer": "Symbol keys are not included by Object.keys/values/entries; use Object.getOwnPropertySymbols when needed."
+        },
+        {
+          "question": "How to iterate key-value pairs safely?",
+          "answer": "Use for (const [k,v] of Object.entries(obj)) for predictable own enumerable iteration."
+        },
+        {
+          "question": "When is Object.fromEntries useful?",
+          "answer": "After mapping/filtering entries, convert back to object using Object.fromEntries(entries)."
+        },
+        {
+          "question": "Does Object.keys include non-enumerable fields?",
+          "answer": "No. It includes only own enumerable string-keyed properties."
+        },
+        {
+          "question": "How to get property descriptors?",
+          "answer": "Use Object.getOwnPropertyDescriptors(obj) when attributes like writable/configurable matter."
+        },
+        {
+          "question": "How to include symbols while iterating all own keys?",
+          "answer": "Use Reflect.ownKeys(obj) to include string keys and symbol keys."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict output: Object.keys({2:\"b\",1:\"a\",x:\"c\"})",
+          "answer": "[\"1\",\"2\",\"x\"]",
+          "output": "[\"1\",\"2\",\"x\"]"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: Object.values({a:1,b:2}).reduce((s,n)=>s+n,0)",
+          "answer": "3",
+          "output": "3"
+        },
+        {
+          "type": "implement",
+          "question": "Write toPairs(obj) using Object.entries."
+        },
+        {
+          "type": "implement",
+          "question": "Create pickBy(obj, predicate) using entries + fromEntries."
+        },
+        {
+          "type": "debug",
+          "question": "for...in iterates unexpected prototype keys. Fix iteration.",
+          "answer": "Use Object.entries/keys or hasOwnProperty check."
+        },
+        {
+          "type": "debug",
+          "question": "Need symbol keys too while iterating. Which API?",
+          "answer": "Use Reflect.ownKeys(obj)."
+        },
+        {
+          "type": "refactor",
+          "question": "Convert object values to total using Object.values + reduce."
+        },
+        {
+          "type": "scenario",
+          "question": "Convert query params object to query string using Object.entries."
+        },
+        {
+          "type": "tricky",
+          "question": "Do Object.keys/values/entries include inherited properties?",
+          "answer": "No, only own enumerable properties."
+        },
+        {
+          "type": "tricky",
+          "question": "Do Object.entries include symbol keys?",
+          "answer": "No. Use Reflect.ownKeys for symbols."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Print all keys from object using Object.keys.",
+          "code": "const obj = { name: \"A\", age: 20, city: \"B\" };\nconsole.log(Object.keys(obj));",
+          "output": "[ \"name\", \"age\", \"city\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Calculate sum of all numeric values using Object.values.",
+          "code": "const marks = { math: 90, sci: 85, eng: 95 };\nconst total = Object.values(marks).reduce((a, b) => a + b, 0);\nconsole.log(total);",
+          "output": "270"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Loop key-value pairs using Object.entries.",
+          "code": "const user = { id: 1, name: \"Amit\" };\nfor (const [k, v] of Object.entries(user)) {\n  console.log(k, v);\n}",
+          "output": "id 1\nname Amit"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Convert object to query string using entries.",
+          "code": "const params = { q: \"js\", page: 2 };\nconst qs = new URLSearchParams(Object.entries(params)).toString();\nconsole.log(qs);",
+          "output": "q=js&page=2"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Filter object keys whose values are numbers only.",
+          "code": "const mixed = { a: 1, b: \"x\", c: 3, d: true };\nconst onlyNums = Object.fromEntries(Object.entries(mixed).filter(([, v]) => typeof v === \"number\"));\nconsole.log(onlyNums);",
+          "output": "{ a: 1, c: 3 }"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Invert object (key<->value) using entries/fromEntries.",
+          "code": "const roleById = { 1: \"admin\", 2: \"user\" };\nconst idByRole = Object.fromEntries(Object.entries(roleById).map(([k, v]) => [v, k]));\nconsole.log(idByRole);",
+          "output": "{ admin: \"1\", user: \"2\" }"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Count object properties using Object.keys length.",
+          "code": "const cart = { apple: 2, banana: 3, orange: 1 };\nconsole.log(Object.keys(cart).length);",
+          "output": "3"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Create array of \"key:value\" strings from object.",
+          "code": "const env = { NODE_ENV: \"dev\", PORT: 3000 };\nconst lines = Object.entries(env).map(([k, v]) => `${k}:${v}`);\nconsole.log(lines);",
+          "output": "[ \"NODE_ENV:dev\", \"PORT:3000\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Check if all values are non-empty strings.",
+          "code": "const form = { first: \"A\", last: \"B\" };\nconst valid = Object.values(form).every(v => typeof v === \"string\" && v.trim() !== \"\");\nconsole.log(valid);",
+          "output": "true"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Build object from transformed entries (uppercase keys).",
+          "code": "const input = { a: 1, b: 2 };\nconst upper = Object.fromEntries(Object.entries(input).map(([k, v]) => [k.toUpperCase(), v]));\nconsole.log(upper);",
+          "output": "{ A: 1, B: 2 }"
+        }
+      ]
+    },
+    {
+      "id": "strings",
+      "category": "Core Language",
+      "title": "Strings",
+      "description": "Master JavaScript string fundamentals and methods used heavily in interviews and production code.",
+      "explanation": "Strings are immutable sequences of UTF-16 code units in JavaScript. Interview focus includes immutability, common methods (slice, substring, split, replace, includes, startsWith, endsWith, trim), template literals, regex usage, and output-based edge cases.\n\nKey points:\n- Strings are immutable; operations return new strings.\n- Prefer clear method choices (slice vs substring).\n- Template literals improve readability and interpolation.\n- Be careful with case sensitivity and locale operations.",
+      "implementation": "const str = \"  JavaScript Interview  \";\nconst clean = str.trim().toLowerCase();\nconst words = clean.split(\" \");\nconst slug = words.join(\"-\");\nconsole.log(slug);",
+      "example": "const email = \"USER@Example.com\";\nconst normalized = email.trim().toLowerCase();\nconsole.log(normalized.endsWith(\"@example.com\")); // true",
+      "useCase": "Input normalization, search, parsing, slug generation, validation, formatting.",
+      "interviewQuestions": [
+        {
+          "question": "Are JavaScript strings mutable?",
+          "answer": "No. Strings are immutable. Any transformation returns a new string."
+        },
+        {
+          "question": "Difference between slice and substring?",
+          "answer": "slice supports negative indexes; substring swaps start/end if needed and treats negatives as 0."
+        },
+        {
+          "question": "When to use template literals?",
+          "answer": "For interpolation, multiline strings, and improved readability over concatenation."
+        },
+        {
+          "question": "How does split behave with empty separator?",
+          "answer": "It splits into individual UTF-16 code units (characters for many common cases)."
+        },
+        {
+          "question": "How to do case-insensitive search safely?",
+          "answer": "Normalize both source and query (usually toLowerCase) before includes/indexOf."
+        },
+        {
+          "question": "What does trim remove?",
+          "answer": "Leading and trailing whitespace only, not inner spaces."
+        },
+        {
+          "question": "replace vs replaceAll?",
+          "answer": "replace replaces first match unless regex global flag used; replaceAll replaces all literal matches."
+        },
+        {
+          "question": "How to reverse a string quickly?",
+          "answer": "str.split(\"\").reverse().join(\"\") for basic cases."
+        },
+        {
+          "question": "What is localeCompare used for?",
+          "answer": "Locale-aware string comparison for sorting and internationalization."
+        },
+        {
+          "question": "Common bug in string comparison?",
+          "answer": "Forgetting normalization (case/whitespace) before comparing user input."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Output: \"abc\".toUpperCase()",
+          "answer": "ABC",
+          "output": "ABC"
+        },
+        {
+          "type": "output",
+          "question": "Output: \"  hi  \".trim().length",
+          "answer": "2",
+          "output": "2"
+        },
+        {
+          "type": "implement",
+          "question": "Implement isPalindrome(str) ignoring spaces and case."
+        },
+        {
+          "type": "implement",
+          "question": "Implement countVowels(str)."
+        },
+        {
+          "type": "debug",
+          "question": "Bug: using replace(\"a\",\"x\") expected all replacements.",
+          "answer": "Use replaceAll or global regex."
+        },
+        {
+          "type": "debug",
+          "question": "Bug: case-sensitive includes fails user search.",
+          "answer": "Normalize with toLowerCase."
+        },
+        {
+          "type": "scenario",
+          "question": "Generate SEO slug from title string."
+        },
+        {
+          "type": "scenario",
+          "question": "Mask email username except first 2 chars."
+        },
+        {
+          "type": "tricky",
+          "question": "Is \"abc\"[0] assignable?",
+          "answer": "No, strings are immutable."
+        },
+        {
+          "type": "tricky",
+          "question": "Difference between == and === for strings?",
+          "answer": "Usually same for primitive strings; === avoids coercion for mixed types."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Reverse a string.",
+          "code": "const s=\"javascript\";\nconsole.log(s.split(\"\").reverse().join(\"\"));",
+          "output": "tpircsavaj"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Check palindrome.",
+          "code": "function isPalindrome(str){\n  const c=str.toLowerCase().replace(/\\s+/g,\"\");\n  return c===c.split(\"\").reverse().join(\"\");\n}\nconsole.log(isPalindrome(\"Never odd or even\"));",
+          "output": "true"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Count vowels.",
+          "code": "function countVowels(s){\n  return (s.match(/[aeiou]/gi)||[]).length;\n}\nconsole.log(countVowels(\"Interview\"));",
+          "output": "4"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Convert sentence to slug.",
+          "code": "const title=\"JavaScript String Methods\";\nconst slug=title.toLowerCase().trim().replace(/\\s+/g,\"-\");\nconsole.log(slug);",
+          "output": "javascript-string-methods"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Capitalize first letter of each word.",
+          "code": "const s=\"hello world\";\nconst out=s.split(\" \").map(w=>w[0].toUpperCase()+w.slice(1)).join(\" \");\nconsole.log(out);",
+          "output": "Hello World"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Remove duplicate characters.",
+          "code": "const s=\"aabbccdde\";\nconsole.log([...new Set(s)].join(\"\"));",
+          "output": "abcde"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Frequency map of characters.",
+          "code": "const s=\"banana\";\nconst freq=[...s].reduce((a,c)=>{a[c]=(a[c]||0)+1;return a;},{});\nconsole.log(freq);",
+          "output": "{ b: 1, a: 3, n: 2 }"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Check substring exists case-insensitively.",
+          "code": "const text=\"Frontend Interview\";\nconst q=\"interview\";\nconsole.log(text.toLowerCase().includes(q.toLowerCase()));",
+          "output": "true"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Mask phone number except last 4.",
+          "code": "const phone=\"9876543210\";\nconsole.log(phone.slice(0,-4).replace(/./g,\"*\")+phone.slice(-4));",
+          "output": "******3210"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Parse CSV line into array.",
+          "code": "const line=\"js,react,next\";\nconsole.log(line.split(\",\"));",
+          "output": "[ \"js\", \"react\", \"next\" ]"
+        }
+      ]
+    },
+    {
+      "id": "functions",
+      "category": "Core Language",
+      "title": "Functions",
+      "description": "Understand function declarations, expressions, arrow functions, closures, higher-order functions, and this binding.",
+      "explanation": "Functions are first-class citizens in JavaScript: they can be assigned, passed, and returned. Interviews focus on declaration vs expression hoisting, arrow function this behavior, closure patterns, call/apply/bind, and higher-order function design.\n\nKey points:\n- Declarations are hoisted with definitions.\n- Function expressions are hoisted as variables only.\n- Arrow functions do not bind their own this/arguments.\n- Closures capture lexical scope.",
+      "implementation": "function greet(name){\n  return `Hello ${name}`;\n}\nconst shout = function(msg){\n  return msg.toUpperCase();\n};\nconst add = (a,b) => a+b;\nconsole.log(greet(\"Dev\"), shout(\"js\"), add(2,3));",
+      "example": "function multiplier(factor){\n  return function(value){\n    return value * factor;\n  };\n}\nconst double = multiplier(2);\nconsole.log(double(8)); // 16",
+      "useCase": "Abstraction, callbacks, reusable utilities, event handlers, functional composition.",
+      "interviewQuestions": [
+        {
+          "question": "Function declaration vs function expression?",
+          "answer": "Declaration is hoisted with body; expression depends on variable initialization timing."
+        },
+        {
+          "question": "Arrow function this behavior?",
+          "answer": "Arrow inherits lexical this from surrounding scope."
+        },
+        {
+          "question": "What is closure?",
+          "answer": "A function retaining access to outer lexical variables after outer function execution ends."
+        },
+        {
+          "question": "call vs apply vs bind?",
+          "answer": "call/apply invoke immediately with context; bind returns new bound function."
+        },
+        {
+          "question": "What is higher-order function?",
+          "answer": "Function that takes/returns another function."
+        },
+        {
+          "question": "Can functions be passed as arguments?",
+          "answer": "Yes, functions are first-class values."
+        },
+        {
+          "question": "What is IIFE and use-case?",
+          "answer": "Immediately Invoked Function Expression, used for isolated scope."
+        },
+        {
+          "question": "Default params benefit?",
+          "answer": "Avoid undefined handling boilerplate and provide safer API."
+        },
+        {
+          "question": "Rest params vs arguments object?",
+          "answer": "Rest gives real array and cleaner syntax; arguments is array-like and unavailable in arrows."
+        },
+        {
+          "question": "Common this bug in methods?",
+          "answer": "Losing object context when method is passed as callback unbound."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Output: (function(){return typeof arguments})();",
+          "answer": "object",
+          "output": "object"
+        },
+        {
+          "type": "output",
+          "question": "Output: (()=>typeof arguments)()",
+          "answer": "depends on outer scope; arrow has no own arguments."
+        },
+        {
+          "type": "implement",
+          "question": "Implement once(fn) utility executing function only first time."
+        },
+        {
+          "type": "implement",
+          "question": "Implement compose(f,g) returning x => f(g(x))."
+        },
+        {
+          "type": "debug",
+          "question": "Method loses this inside setTimeout callback. Fix?",
+          "answer": "Use arrow callback or bind(this)."
+        },
+        {
+          "type": "debug",
+          "question": "Function expression called before assignment. Why error?",
+          "answer": "Variable hoisted but value undefined until assignment."
+        },
+        {
+          "type": "scenario",
+          "question": "Create reusable logger(prefix) using closure."
+        },
+        {
+          "type": "scenario",
+          "question": "Refactor duplicate tax calculations with higher-order function."
+        },
+        {
+          "type": "tricky",
+          "question": "Are arrow functions suitable as constructors?",
+          "answer": "No, they cannot be used with new."
+        },
+        {
+          "type": "tricky",
+          "question": "Can function declaration appear inside blocks?",
+          "answer": "Yes in modern JS, but behavior historically varied; prefer clarity."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Function declaration add(a,b).",
+          "code": "function add(a,b){ return a+b; }\nconsole.log(add(2,5));",
+          "output": "7"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Function expression multiply.",
+          "code": "const multiply = function(a,b){ return a*b; };\nconsole.log(multiply(3,4));",
+          "output": "12"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Arrow function square.",
+          "code": "const square = n => n*n;\nconsole.log(square(9));",
+          "output": "81"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Closure counter.",
+          "code": "function counter(){ let c=0; return ()=>++c; }\nconst inc=counter();\nconsole.log(inc(), inc(), inc());",
+          "output": "1 2 3"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: call/apply/bind demo.",
+          "code": "function greet(msg){ console.log(msg + \" \" + this.name); }\nconst user={name:\"Jitender\"};\ngreet.call(user,\"Hi\");\ngreet.apply(user,[\"Hello\"]);\nconst b=greet.bind(user,\"Welcome\"); b();",
+          "output": "Hi Jitender\nHello Jitender\nWelcome Jitender"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Higher-order function mapByKey.",
+          "code": "const mapByKey = key => arr => arr.map(x=>x[key]);\nconsole.log(mapByKey(\"id\")([{id:1},{id:2}]));",
+          "output": "[ 1, 2 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: once(fn) implementation.",
+          "code": "function once(fn){ let done=false,res; return (...a)=> done?res:(done=true,res=fn(...a)); }\nconst init=once(()=>\"INIT\");\nconsole.log(init(), init());",
+          "output": "INIT INIT"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Debounce-like wrapper with function closure state.",
+          "code": "function withCount(fn){ let n=0; return (...a)=>{ n++; return fn(n,...a); }; }\nconst f=withCount((n,v)=>`${n}:${v}`);\nconsole.log(f(\"A\"), f(\"B\"));",
+          "output": "1:A 2:B"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Currying with functions topic (sum3).",
+          "code": "const sum3=a=>b=>c=>a+b+c;\nconsole.log(sum3(1)(2)(3));",
+          "output": "6"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Compose two functions.",
+          "code": "const compose=(f,g)=>x=>f(g(x));\nconst double=x=>x*2;\nconst plus1=x=>x+1;\nconsole.log(compose(double,plus1)(4));",
+          "output": "10"
+        }
+      ]
+    },
+    {
+      "id": "map",
+      "title": "Array.map()",
+      "category": "Array Methods",
+      "description": "Creates a new array with the results of calling a function on every element.",
+      "explanation": "Creates a new array with the results of calling a function on every element.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+      "implementation": "const numbers = [1, 2, 3, 4];\nconst doubled = numbers.map(num => num * 2);\n// [2, 4, 6, 8]",
+      "example": "const users = [{name: 'John', age: 25}, {name: 'Jane', age: 30}];\nconst names = users.map(user => user.name);\n// ['John', 'Jane']",
+      "useCase": "Transforming data, extracting properties from objects",
+      "interviewQuestions": [
+        {
+          "question": "What does Array.map return?",
+          "answer": "A new array of the same length where each item is transformed by the callback result."
+        },
+        {
+          "question": "Why is map preferred over forEach for transformations?",
+          "answer": "map is declarative, chainable, and communicates that output array is the goal."
+        },
+        {
+          "question": "What are common mistakes with map in React rendering?",
+          "answer": "Forgetting return in callback or forgetting stable key assignment in rendered lists."
+        },
+        {
+          "question": "Can map mutate source array?",
+          "answer": "The method itself does not mutate source, but callback can mutate objects by reference if you do it explicitly."
+        },
+        {
+          "question": "When not to use map?",
+          "answer": "Do not use map when you ignore the returned array. Use forEach or for...of for side effects only."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict: [1,2,3].map(n=>n*2)",
+          "answer": "[2,4,6]",
+          "output": "[2,4,6]"
+        },
+        {
+          "type": "implement",
+          "question": "Map users array to usernames array.",
+          "code": "const usernames = users.map(u => u.username);"
+        },
+        {
+          "type": "debug",
+          "question": "Fix map callback that returns undefined due to braces.",
+          "answer": "Add explicit return inside braces or remove braces for implicit return."
+        },
+        {
+          "type": "scenario",
+          "question": "You need transform API payload to UI card model using map. Draft mapping fields.",
+          "answer": "Return new object with only required fields and formatted values."
+        },
+        {
+          "type": "output",
+          "question": "Predict output: [1,2,3].map((n,i)=>n+i)",
+          "answer": "[1,3,5]",
+          "output": "[1,3,5]"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: [1,2].map(function(){ return this.x }, {x:7})",
+          "answer": "[7,7]",
+          "output": "[7,7]"
+        },
+        {
+          "type": "implement",
+          "question": "Implement toCurrency(prices) using map to return strings like \"$10.00\"."
+        },
+        {
+          "type": "implement",
+          "question": "Map products to {id, label} where label is `${name} - ${price}`."
+        },
+        {
+          "type": "debug",
+          "question": "Fix map callback using braces without return causing undefined entries.",
+          "answer": "Add explicit return or use implicit return with parentheses."
+        },
+        {
+          "type": "debug",
+          "question": "Map over sparse array behaves unexpectedly. Why?",
+          "answer": "map skips empty slots in sparse arrays."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Double all numbers using map.",
+          "code": "const nums=[1,2,3,4];\nconst doubled=nums.map(n=>n*2);\nconsole.log(doubled);",
+          "output": "[ 2, 4, 6, 8 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Convert names to uppercase.",
+          "code": "const names=[\"jit\",\"ram\"];\nconsole.log(names.map(n=>n.toUpperCase()));",
+          "output": "[ \"JIT\", \"RAM\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Extract ids from object list.",
+          "code": "const users=[{id:1,name:\"A\"},{id:2,name:\"B\"}];\nconsole.log(users.map(u=>u.id));",
+          "output": "[ 1, 2 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Format prices to 2 decimal strings.",
+          "code": "const prices=[10,15.5,3];\nconsole.log(prices.map(p=>`$${p.toFixed(2)}`));",
+          "output": "[ \"$10.00\", \"$15.50\", \"$3.00\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Add index to each element text.",
+          "code": "const arr=[\"a\",\"b\",\"c\"];\nconsole.log(arr.map((v,i)=>`${i}:${v}`));",
+          "output": "[ \"0:a\", \"1:b\", \"2:c\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Create boolean pass/fail from marks >= 40.",
+          "code": "const marks=[30,40,90];\nconsole.log(marks.map(m=>m>=40));",
+          "output": "[ false, true, true ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Map nested object array to labels.",
+          "code": "const p=[{name:\"Pen\",price:10},{name:\"Book\",price:50}];\nconsole.log(p.map(x=>`${x.name}-${x.price}`));",
+          "output": "[ \"Pen-10\", \"Book-50\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Parse numeric strings to numbers.",
+          "code": "const s=[\"1\",\"2\",\"3\"];\nconsole.log(s.map(Number));",
+          "output": "[ 1, 2, 3 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Map dates to year values.",
+          "code": "const dates=[\"2024-01-01\",\"2026-02-12\"];\nconsole.log(dates.map(d=>new Date(d).getFullYear()));",
+          "output": "[ 2024, 2026 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Build slug list from titles.",
+          "code": "const titles=[\"Hello World\",\"JS Interview\"];\nconst slugs=titles.map(t=>t.toLowerCase().replace(/\\s+/g,\"-\"));\nconsole.log(slugs);",
+          "output": "[ \"hello-world\", \"js-interview\" ]"
+        }
+      ]
+    },
+    {
+      "id": "filter",
+      "title": "Array.filter()",
+      "category": "Array Methods",
+      "description": "Creates a new array with elements that pass a test condition.",
+      "explanation": "Creates a new array with elements that pass a test condition.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+      "implementation": "const numbers = [1, 2, 3, 4, 5, 6];\nconst evens = numbers.filter(num => num % 2 === 0);\n// [2, 4, 6]",
+      "example": "const products = [\n  {name: 'Laptop', price: 1000},\n  {name: 'Mouse', price: 25}\n];\nconst expensive = products.filter(p => p.price > 50);",
+      "useCase": "Filtering lists, searching, removing unwanted items",
+      "interviewQuestions": [
+        {
+          "question": "How does Array.filter work?",
+          "answer": "It returns a new array containing only elements for which callback returns truthy."
+        },
+        {
+          "question": "What is the time complexity of filter?",
+          "answer": "O(n), because each element is checked once."
+        },
+        {
+          "question": "How do you remove falsy values quickly?",
+          "answer": "Use arr.filter(Boolean), which keeps only truthy values."
+        },
+        {
+          "question": "What is a subtle bug with filter and object mutation?",
+          "answer": "Filtering does not clone elements. Mutating returned objects can affect original referenced objects."
+        },
+        {
+          "question": "How to combine map and filter efficiently?",
+          "answer": "Use reduce for single pass when performance matters, or keep map/filter for readability in normal cases."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict: [0,1,2,3].filter(Boolean)",
+          "answer": "[1,2,3]",
+          "output": "[1,2,3]"
+        },
+        {
+          "type": "implement",
+          "question": "Filter active users only from users list.",
+          "code": "const active = users.filter(u => u.active);"
+        },
+        {
+          "type": "debug",
+          "question": "Filter callback returns object instead of boolean. Is it valid?",
+          "answer": "Yes, object is truthy; but return explicit boolean for clarity."
+        },
+        {
+          "type": "refactor",
+          "question": "Refactor if-push loop into filter expression.",
+          "answer": "Use source.filter(predicate) instead of manual accumulator loop."
+        },
+        {
+          "type": "output",
+          "question": "Predict output: [1,2,3,4].filter(n=>n%2===0)",
+          "answer": "[2,4]",
+          "output": "[2,4]"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: [\"\", \"a\", 0, 5].filter(Boolean)",
+          "answer": "[\"a\",5]",
+          "output": "[\"a\",5]"
+        },
+        {
+          "type": "implement",
+          "question": "Filter products in stock and price > 100."
+        },
+        {
+          "type": "implement",
+          "question": "Implement removeDuplicates(arr) using filter + indexOf."
+        },
+        {
+          "type": "debug",
+          "question": "Filter callback forgets return in braces. What happens?",
+          "answer": "All results become falsey and output can become empty array."
+        },
+        {
+          "type": "debug",
+          "question": "Filtering objects then mutating item changes source data. Why?",
+          "answer": "Objects are referenced; filter does not deep clone items."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Keep even numbers only.",
+          "code": "const nums=[1,2,3,4,5,6];\nconsole.log(nums.filter(n=>n%2===0));",
+          "output": "[ 2, 4, 6 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Filter words longer than 4 chars.",
+          "code": "const words=[\"js\",\"react\",\"node\",\"api\"];\nconsole.log(words.filter(w=>w.length>4));",
+          "output": "[ \"react\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Filter active users.",
+          "code": "const users=[{name:\"A\",active:true},{name:\"B\",active:false}];\nconsole.log(users.filter(u=>u.active));",
+          "output": "[ { name: \"A\", active: true } ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Remove falsy values.",
+          "code": "const mixed=[0,1,\"\", \"ok\", null, 7];\nconsole.log(mixed.filter(Boolean));",
+          "output": "[ 1, \"ok\", 7 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Filter products with stock > 0.",
+          "code": "const p=[{n:\"Pen\",s:0},{n:\"Book\",s:3}];\nconsole.log(p.filter(x=>x.s>0));",
+          "output": "[ { n: \"Book\", s: 3 } ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Keep unique numbers using filter.",
+          "code": "const arr=[1,2,2,3,1,4];\nconst unique=arr.filter((v,i,a)=>a.indexOf(v)===i);\nconsole.log(unique);",
+          "output": "[ 1, 2, 3, 4 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Filter emails ending with @gmail.com.",
+          "code": "const emails=[\"a@gmail.com\",\"b@yahoo.com\"];\nconsole.log(emails.filter(e=>e.endsWith(\"@gmail.com\")));",
+          "output": "[ \"a@gmail.com\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Filter numbers between 10 and 20.",
+          "code": "const nums=[5,12,19,25];\nconsole.log(nums.filter(n=>n>=10&&n<=20));",
+          "output": "[ 12, 19 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Filter objects by category.",
+          "code": "const items=[{c:\"A\"},{c:\"B\"},{c:\"A\"}];\nconsole.log(items.filter(i=>i.c===\"A\"));",
+          "output": "[ { c: \"A\" }, { c: \"A\" } ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Exclude blocked usernames list.",
+          "code": "const users=[\"ram\",\"sam\",\"tom\"];\nconst blocked=[\"sam\"];\nconsole.log(users.filter(u=>!blocked.includes(u)));",
+          "output": "[ \"ram\", \"tom\" ]"
+        }
+      ]
+    },
+    {
+      "id": "find-findindex",
+      "title": "Array.find() & findIndex()",
+      "category": "Array Methods",
+      "description": "find() returns the first element that satisfies the condition. findIndex() returns its index.",
+      "explanation": "find() returns the first element that satisfies the condition. findIndex() returns its index.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+      "implementation": "const users = [\n  {id: 1, name: 'John'},\n  {id: 2, name: 'Jane'}\n];\nconst user = users.find(u => u.id === 2);\nconst index = users.findIndex(u => u.id === 2);",
+      "example": "const numbers = [5, 12, 8, 130, 44];\nconst found = numbers.find(n => n > 10); // 12\nconst foundIndex = numbers.findIndex(n => n > 10); // 1",
+      "useCase": "Searching specific items, locating array positions",
+      "interviewQuestions": [
+        {
+          "question": "Difference between find and filter?",
+          "answer": "find returns first matching element; filter returns all matching elements."
+        },
+        {
+          "question": "What does find return when no match exists?",
+          "answer": "undefined. findIndex returns -1 when no match exists."
+        },
+        {
+          "question": "When is find preferable for performance?",
+          "answer": "When only first match is needed because it short-circuits."
+        },
+        {
+          "question": "How to safely use find result?",
+          "answer": "Check for undefined before property access or use optional chaining."
+        },
+        {
+          "question": "What is an interview follow-up after find?",
+          "answer": "Compare with some/every and explain short-circuit behavior and intent."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict: [5,10,15].find(n=>n>9)",
+          "answer": "10",
+          "output": "10"
+        },
+        {
+          "type": "implement",
+          "question": "Find first overdue invoice by dueDate.",
+          "code": "const overdue = invoices.find(i => i.dueDate < now);"
+        },
+        {
+          "type": "debug",
+          "question": "findIndex returns -1 then used directly as array index. Fix?",
+          "answer": "Check for -1 before indexing, otherwise handle not found branch."
+        },
+        {
+          "type": "scenario",
+          "question": "Need boolean existence check only. Use find or some?",
+          "answer": "Use some() since intent is existence and it returns boolean directly."
+        },
+        {
+          "type": "output",
+          "question": "Predict output: [4,8,12].find(n=>n>20)",
+          "answer": "undefined",
+          "output": "undefined"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: [4,8,12].findIndex(n=>n>10)",
+          "answer": "2",
+          "output": "2"
+        },
+        {
+          "type": "implement",
+          "question": "Find first user by email from users array."
+        },
+        {
+          "type": "implement",
+          "question": "Find index of cart item by id, replace item immutably if found."
+        },
+        {
+          "type": "debug",
+          "question": "Accessing .name on find result throws. Fix?",
+          "answer": "Handle undefined result before property access."
+        },
+        {
+          "type": "debug",
+          "question": "Using findIndex result directly without -1 check causes bug. Fix?",
+          "answer": "Guard for -1 before using as array index."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Find first number > 50.",
+          "code": "const nums=[10,40,70,80];\nconsole.log(nums.find(n=>n>50));",
+          "output": "70"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Find first admin user object.",
+          "code": "const users=[{r:\"user\"},{r:\"admin\"}];\nconsole.log(users.find(u=>u.r===\"admin\"));",
+          "output": "{ r: \"admin\" }"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Find index of item id=3.",
+          "code": "const items=[{id:1},{id:3},{id:4}];\nconsole.log(items.findIndex(i=>i.id===3));",
+          "output": "1"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Return fallback when find gives undefined.",
+          "code": "const arr=[1,2,3];\nconst found=arr.find(n=>n>10) ?? \"Not found\";\nconsole.log(found);",
+          "output": "Not found"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Update first matching task by findIndex immutably.",
+          "code": "const tasks=[{id:1,d:false},{id:2,d:false}];\nconst idx=tasks.findIndex(t=>t.id===2);\nconst next=idx===-1?tasks:[...tasks.slice(0,idx),{...tasks[idx],d:true},...tasks.slice(idx+1)];\nconsole.log(next);",
+          "output": "[ { id: 1, d: false }, { id: 2, d: true } ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Find first string containing \"js\".",
+          "code": "const tags=[\"react\",\"js-core\",\"node\"];\nconsole.log(tags.find(t=>t.includes(\"js\")));",
+          "output": "js-core"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Find index of first negative number.",
+          "code": "const nums=[5,3,-2,-8];\nconsole.log(nums.findIndex(n=>n<0));",
+          "output": "2"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Search user by email in array.",
+          "code": "const users=[{email:\"a@x.com\"},{email:\"b@y.com\"}];\nconsole.log(users.find(u=>u.email===\"b@y.com\"));",
+          "output": "{ email: \"b@y.com\" }"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Find first order with status pending.",
+          "code": "const orders=[{id:1,s:\"done\"},{id:2,s:\"pending\"}];\nconsole.log(orders.find(o=>o.s===\"pending\"));",
+          "output": "{ id: 2, s: \"pending\" }"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Use findIndex for insertion position by condition.",
+          "code": "const arr=[5,10,20,30];\nconst idx=arr.findIndex(n=>n>15);\nconsole.log(idx);",
+          "output": "2"
+        }
+      ]
+    },
+    {
+      "id": "reduce",
+      "title": "Array.reduce()",
+      "category": "Array Methods",
+      "description": "Executes a reducer function on each element, resulting in a single output value.",
+      "explanation": "Executes a reducer function on each element, resulting in a single output value.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+      "implementation": "const numbers = [1, 2, 3, 4];\nconst sum = numbers.reduce((acc, curr) => acc + curr, 0);\n// 10",
+      "example": "const cart = [\n  {item: 'book', price: 10},\n  {item: 'pen', price: 2}\n];\nconst total = cart.reduce((sum, item) => sum + item.price, 0);\n// 12",
+      "useCase": "Calculating totals, flattening arrays, grouping data",
+      "interviewQuestions": [
+        {
+          "question": "What is reduce used for?",
+          "answer": "To fold an array into a single accumulated result such as number, object, map, or array."
+        },
+        {
+          "question": "Why is initial value important in reduce?",
+          "answer": "It avoids edge-case bugs on empty arrays and makes accumulator type explicit."
+        },
+        {
+          "question": "Common reduce interview tasks?",
+          "answer": "Sum, groupBy, flatten, frequency counter, composing pipelines."
+        },
+        {
+          "question": "How to debug hard-to-read reduce logic?",
+          "answer": "Name accumulator clearly, return immutable updates, and log intermediate accumulator states."
+        },
+        {
+          "question": "When should reduce be avoided?",
+          "answer": "When it harms readability for simple transformations where map/filter are clearer."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict: [1,2,3].reduce((a,b)=>a+b,0)",
+          "answer": "6",
+          "output": "6"
+        },
+        {
+          "type": "implement",
+          "question": "Create frequency map from words array using reduce.",
+          "code": "const freq = words.reduce((acc,w)=>{\n  acc[w]=(acc[w]||0)+1;\n  return acc;\n}, {});"
+        },
+        {
+          "type": "debug",
+          "question": "Reduce on empty array without initial value throws. Fix?",
+          "answer": "Provide initial value based on accumulator type."
+        },
+        {
+          "type": "refactor",
+          "question": "Combine filter+map into one reduce for performance-sensitive path.",
+          "answer": "Use conditional push inside reduce accumulator array."
+        },
+        {
+          "type": "output",
+          "question": "Predict output: [1,2,3].reduce((a,b)=>a+b,0)",
+          "answer": "6",
+          "output": "6"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: [1,2,3].reduce((a,b)=>a*b)",
+          "answer": "6",
+          "output": "6"
+        },
+        {
+          "type": "implement",
+          "question": "Implement sum(arr) using reduce."
+        },
+        {
+          "type": "implement",
+          "question": "Implement groupBy(arr, key) using reduce."
+        },
+        {
+          "type": "debug",
+          "question": "Reduce on empty array throws error. How to fix?",
+          "answer": "Provide an initial accumulator value."
+        },
+        {
+          "type": "debug",
+          "question": "Accumulator returns undefined in one branch. Impact?",
+          "answer": "Next iteration receives undefined, causing runtime bugs."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Sum array using reduce.",
+          "code": "const nums=[10,20,30];\nconst total=nums.reduce((a,b)=>a+b,0);\nconsole.log(total);",
+          "output": "60"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Multiply all numbers using reduce.",
+          "code": "const nums=[2,3,4];\nconsole.log(nums.reduce((a,b)=>a*b,1));",
+          "output": "24"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Find max value using reduce.",
+          "code": "const nums=[8,3,15,9];\nconst max=nums.reduce((m,n)=>n>m?n:m);\nconsole.log(max);",
+          "output": "15"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Flatten nested array one level using reduce.",
+          "code": "const nested=[[1,2],[3,4],[5]];\nconst flat=nested.reduce((acc,c)=>acc.concat(c),[]);\nconsole.log(flat);",
+          "output": "[ 1, 2, 3, 4, 5 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Build frequency map of characters.",
+          "code": "const str=\"aabca\";\nconst freq=[...str].reduce((acc,ch)=>{acc[ch]=(acc[ch]||0)+1;return acc;},{});\nconsole.log(freq);",
+          "output": "{ a: 3, b: 1, c: 1 }"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Group users by role using reduce.",
+          "code": "const users=[{n:\"A\",r:\"dev\"},{n:\"B\",r:\"qa\"},{n:\"C\",r:\"dev\"}];\nconst grouped=users.reduce((acc,u)=>{(acc[u.r]??=[]).push(u.n);return acc;},{});\nconsole.log(grouped);",
+          "output": "{ dev: [ \"A\", \"C\" ], qa: [ \"B\" ] }"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Convert object entries array to object using reduce.",
+          "code": "const entries=[[\"a\",1],[\"b\",2]];\nconst obj=entries.reduce((acc,[k,v])=>{acc[k]=v;return acc;},{});\nconsole.log(obj);",
+          "output": "{ a: 1, b: 2 }"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Count total cart value.",
+          "code": "const cart=[{p:100,q:2},{p:50,q:1}];\nconst total=cart.reduce((sum,i)=>sum+i.p*i.q,0);\nconsole.log(total);",
+          "output": "250"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Remove duplicates with reduce.",
+          "code": "const arr=[1,2,2,3,1];\nconst uniq=arr.reduce((acc,n)=>acc.includes(n)?acc:[...acc,n],[]);\nconsole.log(uniq);",
+          "output": "[ 1, 2, 3 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Compose sentence from words array.",
+          "code": "const words=[\"JS\",\"is\",\"awesome\"];\nconst s=words.reduce((acc,w)=>acc?`${acc} ${w}`:w,\"\");\nconsole.log(s);",
+          "output": "JS is awesome"
+        }
+      ]
+    },
+    {
+      "id": "currying",
+      "title": "Currying",
+      "description": "Currying is a functional programming technique that transforms a function with multiple arguments into a sequence of functions, each taking a single argument. It allows you to create specialized versions of functions by partially applying arguments. For example, a function add(a, b, c) becomes curriedAdd(a)(b)(c). This enables powerful function composition and reusability patterns.",
+      "explanation": "Currying transforms a function that takes multiple arguments into a sequence of functions that each take a single argument. This is a cornerstone of functional programming.\n\nBenefits:\n- Create specialized functions by partial application\n- Better function composition\n- More reusable code\n- Cleaner function signatures\n- Easier to test and reason about\n\nReal-world applications:\n- Event handlers with preset values\n- Configuration functions\n- Higher-order components in React\n- Middleware patterns\n- API request builders",
+      "implementation": "function curry(func) {\n  return function curried(...args) {\n    if (args.length >= func.length) {\n      return func.apply(this, args);\n    }\n    return function(...nextArgs) {\n      return curried.apply(this, args.concat(nextArgs));\n    };\n  };\n}",
+      "example": "// Basic example\nconst add = (a, b, c) => a + b + c;\nconst curriedAdd = curry(add);\n\nconsole.log(curriedAdd(1)(2)(3)); // 6\nconsole.log(curriedAdd(1, 2)(3)); // 6\nconsole.log(curriedAdd(1)(2, 3)); // 6\n\n// Practical example\nconst multiply = (a, b) => a * b;\nconst curriedMultiply = curry(multiply);\n\n// Create specialized functions\nconst double = curriedMultiply(2);\nconst triple = curriedMultiply(3);\n\nconsole.log(double(5)); // 10\nconsole.log(triple(5)); // 15\n\n// Event handler example\nconst handleClick = curry((id, event) => {\n  console.log(`Button ${id} clicked`);\n});\n\nconst handleButton1 = handleClick('button1');\nconst handleButton2 = handleClick('button2');",
+      "useCase": "Function composition, creating specialized functions, event handlers, configuration builders",
+      "interviewQuestions": [
+        {
+          "question": "What is currying?",
+          "answer": "Transforming f(a,b,c) into f(a)(b)(c) so arguments can be partially applied."
+        },
+        {
+          "question": "Difference between currying and partial application?",
+          "answer": "Currying enforces unary steps. Partial application fixes some arguments without requiring unary function chain."
+        },
+        {
+          "question": "Real use cases of currying in JS apps?",
+          "answer": "Configurable validators, reusable event handlers, and composable utility functions."
+        },
+        {
+          "question": "How does function.length help curry implementations?",
+          "answer": "It indicates declared parameter count, used to decide when enough args are collected."
+        },
+        {
+          "question": "What is a caveat of currying in modern codebases?",
+          "answer": "Overusing it can reduce readability for teammates not used to functional patterns."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict: const add=a=>b=>a+b; console.log(add(2)(3));",
+          "answer": "5",
+          "output": "5"
+        },
+        {
+          "type": "implement",
+          "question": "Create multiply(a)(b) curry function.",
+          "code": "const multiply = a => b => a * b;"
+        },
+        {
+          "type": "scenario",
+          "question": "Create validator minLength(n)(value) returning boolean.",
+          "code": "const minLength = n => value => value.length >= n;"
+        },
+        {
+          "type": "debug",
+          "question": "Currying util fails for optional args. Why?",
+          "answer": "Arity-based completion using function.length may not suit optional/default params."
+        },
+        {
+          "type": "output",
+          "question": "Predict output: const add=a=>b=>a+b; console.log(add(3)(4));",
+          "answer": "7",
+          "output": "7"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: const mul=a=>b=>c=>a*b*c; mul(2)(3)(4)",
+          "answer": "24",
+          "output": "24"
+        },
+        {
+          "type": "implement",
+          "question": "Implement simple curryAdd(a)(b)."
+        },
+        {
+          "type": "implement",
+          "question": "Implement priceWithTax(tax)(price) function."
+        },
+        {
+          "type": "debug",
+          "question": "Currying util fails for optional params. Why?",
+          "answer": "Arity detection via function.length may not match optional/default arguments."
+        },
+        {
+          "type": "debug",
+          "question": "Curried function logs stale value in closure. Why?",
+          "answer": "Captured outer variable changed unexpectedly; pass value explicitly to avoid stale closures."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Basic curried add function.",
+          "code": "const add=a=>b=>a+b;\nconsole.log(add(5)(7));",
+          "output": "12"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Curried multiply function with 3 args.",
+          "code": "const mul=a=>b=>c=>a*b*c;\nconsole.log(mul(2)(3)(4));",
+          "output": "24"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Curried tax calculator.",
+          "code": "const withTax=tax=>price=>price+price*tax;\nconsole.log(withTax(0.18)(100));",
+          "output": "118"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Curried greeting by locale.",
+          "code": "const greet=locale=>name=>locale===\"hi\"?`Namaste ${name}`:`Hello ${name}`;\nconsole.log(greet(\"hi\")(\"Jitender\"));",
+          "output": "Namaste Jitender"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Curried startsWith checker.",
+          "code": "const startsWith=prefix=>str=>str.startsWith(prefix);\nconsole.log(startsWith(\"pre\")(\"prefix\"));",
+          "output": "true"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Build reusable discount function via currying.",
+          "code": "const discount=rate=>price=>price-(price*rate);\nconst tenOff=discount(0.10);\nconsole.log(tenOff(500));",
+          "output": "450"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Curried power function.",
+          "code": "const power=exp=>base=>base**exp;\nconst square=power(2);\nconsole.log(square(9));",
+          "output": "81"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Curried formatter with prefix and suffix.",
+          "code": "const formatter=pre=>suf=>val=>`${pre}${val}${suf}`;\nconsole.log(formatter(\"<\",\">\")(\"tag\"));",
+          "output": "<tag>"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Generic curry utility for 2 args.",
+          "code": "function curry2(fn){return a=>b=>fn(a,b)}\nconst sub=curry2((a,b)=>a-b);\nconsole.log(sub(10)(4));",
+          "output": "6"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Curried validator min length.",
+          "code": "const minLen=n=>value=>value.length>=n;\nconsole.log(minLen(5)(\"hello\"));",
+          "output": "true"
+        }
+      ]
+    },
+    {
+      "id": "promises",
+      "title": "Promises",
+      "description": "Promises represent the eventual completion or failure of an asynchronous operation. They provide a cleaner way to handle async code compared to callbacks, avoiding callback hell.",
+      "explanation": "A Promise is an object representing the eventual completion or failure of an asynchronous operation. It's a proxy for a value not necessarily known when the promise is created.\n\nPromise States:\n1. Pending: Initial state, neither fulfilled nor rejected\n2. Fulfilled: Operation completed successfully\n3. Rejected: Operation failed\n\nPromises solve the callback hell problem by allowing you to chain operations using .then() and handle errors with .catch().\n\nKey advantages:\n- Better error handling with .catch()\n- Chainable operations with .then()\n- Multiple promises with Promise.all()\n- Race conditions with Promise.race()\n- Cleaner, more readable code",
+      "implementation": "const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const success = true;\n    if (success) {\n      resolve('Operation successful!');\n    } else {\n      reject('Operation failed!');\n    }\n  }, 1000);\n});\n\npromise\n  .then(result => console.log(result))\n  .catch(error => console.error(error))\n  .finally(() => console.log('Done'));",
+      "example": "// API call example\nfunction fetchUser(userId) {\n  return new Promise((resolve, reject) => {\n    fetch(`/api/users/${userId}`)\n      .then(response => {\n        if (!response.ok) {\n          reject('User not found');\n        }\n        return response.json();\n      })\n      .then(data => resolve(data))\n      .catch(error => reject(error));\n  });\n}\n\n// Chaining promises\nfetchUser(1)\n  .then(user => {\n    console.log('User:', user);\n    return fetchUserPosts(user.id);\n  })\n  .then(posts => {\n    console.log('Posts:', posts);\n  })\n  .catch(error => {\n    console.error('Error:', error);\n  });",
+      "useCase": "API calls, file operations, timers, async operations, chaining async tasks",
+      "interviewQuestions": [
+        {
+          "question": "What are Promise states?",
+          "answer": "pending, fulfilled, rejected. State is immutable after settle."
+        },
+        {
+          "question": "How does .catch propagate in chains?",
+          "answer": "It catches rejections from previous links and can recover by returning value/promise."
+        },
+        {
+          "question": "Difference between then(onFulfilled, onRejected) and catch?",
+          "answer": "catch is preferred for centralized error flow and readability."
+        },
+        {
+          "question": "How do you wrap callback APIs in Promise?",
+          "answer": "Create new Promise and call resolve/reject from callback branches."
+        },
+        {
+          "question": "What is an anti-pattern with promises?",
+          "answer": "Nesting chains instead of returning promises, which breaks composition."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict output order: Promise.resolve().then(()=>console.log(\"A\")); console.log(\"B\");",
+          "answer": "B then A",
+          "output": "B\nA"
+        },
+        {
+          "type": "implement",
+          "question": "Wrap setTimeout in delay(ms) returning Promise.",
+          "code": "function delay(ms){\n  return new Promise(resolve => setTimeout(resolve, ms));\n}"
+        },
+        {
+          "type": "debug",
+          "question": "Promise chain stops after then. Cause?",
+          "answer": "Likely forgot return in then callback, breaking chain value flow."
+        },
+        {
+          "type": "scenario",
+          "question": "Need retry API promise 3 times. What structure?",
+          "answer": "Use recursive/loop retry wrapper that catches failure and retries until max attempts."
+        },
+        {
+          "type": "output",
+          "question": "Predict output: Promise.reject(\"X\").catch(e=>e+\"!\").then(console.log)",
+          "answer": "X!",
+          "output": "X!"
+        },
+        {
+          "type": "implement",
+          "question": "Implement delay(ms) returning Promise resolved after ms."
+        },
+        {
+          "type": "implement",
+          "question": "Wrap callback-style setTimeout in Promise and log result."
+        },
+        {
+          "type": "debug",
+          "question": "Promise chain stops unexpectedly after then. Fix?",
+          "answer": "Return value/promise from then callback so chain continues."
+        },
+        {
+          "type": "debug",
+          "question": "Unhandled rejection appears even with catch in another function. Why?",
+          "answer": "The rejected promise path was not returned/awaited in caller chain."
+        },
+        {
+          "type": "refactor",
+          "question": "Refactor nested then callbacks to flat chain with proper returns."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Create resolved promise and print value.",
+          "code": "Promise.resolve(\"Done\").then(console.log);",
+          "output": "Done"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Create rejected promise and handle with catch.",
+          "code": "Promise.reject(\"Fail\").catch(err=>console.log(\"Handled:\",err));",
+          "output": "Handled: Fail"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Implement delay promise and await result.",
+          "code": "const delay=ms=>new Promise(r=>setTimeout(r,ms));\ndelay(100).then(()=>console.log(\"After 100ms\"));",
+          "output": "After 100ms"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Chain promises for arithmetic operations.",
+          "code": "Promise.resolve(5)\n .then(n=>n*2)\n .then(n=>n+1)\n .then(console.log);",
+          "output": "11"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Demonstrate finally in promise chain.",
+          "code": "Promise.resolve(\"ok\")\n .then(v=>console.log(v))\n .finally(()=>console.log(\"cleanup\"));",
+          "output": "ok\ncleanup"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Wrap setTimeout in Promise function.",
+          "code": "function wait(msg,ms){\n  return new Promise(res=>setTimeout(()=>res(msg),ms));\n}\nwait(\"hello\",50).then(console.log);",
+          "output": "hello"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Promise.all with two resolved promises.",
+          "code": "Promise.all([Promise.resolve(1), Promise.resolve(2)])\n .then(v=>console.log(v));",
+          "output": "[ 1, 2 ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Promise.race timeout example.",
+          "code": "const fast=Promise.resolve(\"fast\");\nconst slow=new Promise(r=>setTimeout(()=>r(\"slow\"),100));\nPromise.race([fast,slow]).then(console.log);",
+          "output": "fast"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Convert callback API to Promise.",
+          "code": "function asyncDouble(n){\n  return new Promise(res=>setTimeout(()=>res(n*2),50));\n}\nasyncDouble(6).then(console.log);",
+          "output": "12"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Handle thrown error in then chain.",
+          "code": "Promise.resolve(1)\n .then(()=>{throw new Error(\"boom\")})\n .catch(e=>console.log(e.message));",
+          "output": "boom"
+        }
+      ]
+    },
+    {
+      "id": "async-await",
+      "title": "Async/Await",
+      "description": "Async/await is syntactic sugar built on top of Promises that makes asynchronous code look and behave like synchronous code, making it easier to read and write.",
+      "explanation": "Async/await is modern JavaScript syntax for working with Promises. The async keyword makes a function return a Promise, while await pauses execution until a Promise resolves.\n\nKey concepts:\n- async functions always return a Promise\n- await can only be used inside async functions\n- await pauses execution until Promise resolves\n- Errors are handled with try/catch blocks\n- Much more readable than .then() chains\n\nBest practices:\n- Always use try/catch for error handling\n- Don't await unnecessarily in loops\n- Use Promise.all() for parallel operations\n- Return early to avoid unnecessary awaits\n- Handle errors at appropriate levels",
+      "implementation": "async function fetchData() {\n  try {\n    const response = await fetch('/api/data');\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('Error:', error);\n    throw error;\n  }\n}",
+      "example": "// Sequential operations\nasync function getUserWithPosts(userId) {\n  try {\n    const user = await fetchUser(userId);\n    const posts = await fetchUserPosts(userId);\n    const comments = await fetchUserComments(userId);\n    \n    return { user, posts, comments };\n  } catch (error) {\n    console.error('Failed to load user data:', error);\n  }\n}\n\n// Parallel operations (faster!)\nasync function getUserDataParallel(userId) {\n  try {\n    const [user, posts, comments] = await Promise.all([\n      fetchUser(userId),\n      fetchUserPosts(userId),\n      fetchUserComments(userId)\n    ]);\n    \n    return { user, posts, comments };\n  } catch (error) {\n    console.error('Failed to load user data:', error);\n  }\n}",
+      "useCase": "API calls, database queries, file operations, any async operation requiring clean code",
+      "interviewQuestions": [
+        {
+          "question": "How is async/await related to promises?",
+          "answer": "async functions return promises; await pauses inside async until promise settles."
+        },
+        {
+          "question": "How do you handle errors in async/await?",
+          "answer": "Use try/catch around await or attach .catch at call site for centralized handling."
+        },
+        {
+          "question": "Why can await in loops be slow?",
+          "answer": "It serializes operations. Use Promise.all for parallelizable tasks."
+        },
+        {
+          "question": "What happens if you forget await?",
+          "answer": "You pass unresolved promise forward, often causing logic bugs or unexpected output."
+        },
+        {
+          "question": "What is best practice for top-level async flows?",
+          "answer": "Keep async boundaries explicit, handle cancellation/timeouts, and always surface actionable errors."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict: async function f(){return 7} f().then(console.log)",
+          "answer": "7",
+          "output": "7"
+        },
+        {
+          "type": "implement",
+          "question": "Write getJson(url) using async/await with error throw on !ok.",
+          "code": "async function getJson(url){\n  const res = await fetch(url);\n  if(!res.ok) throw new Error(\"Request failed\");\n  return res.json();\n}"
+        },
+        {
+          "type": "debug",
+          "question": "Unhandled rejection still appears with try/catch. Why?",
+          "answer": "Promise may be created but not awaited inside try block, so rejection escapes."
+        },
+        {
+          "type": "refactor",
+          "question": "Convert nested then-chain to async/await while keeping error handling.",
+          "answer": "Move sequence into async function with await calls and a single try/catch."
+        },
+        {
+          "type": "output",
+          "question": "Predict output order: async function f(){console.log(\"A\"); await Promise.resolve(); console.log(\"B\")} f(); console.log(\"C\")",
+          "answer": "A, C, B",
+          "output": "A\nC\nB"
+        },
+        {
+          "type": "output",
+          "question": "What is returned by async function when returning 10?",
+          "answer": "A Promise resolved with 10."
+        },
+        {
+          "type": "implement",
+          "question": "Implement fetchJson(url) with async/await and !ok error throw."
+        },
+        {
+          "type": "implement",
+          "question": "Write async function that fetches users then posts sequentially."
+        },
+        {
+          "type": "debug",
+          "question": "Unhandled rejection still occurs even with try/catch. Why?",
+          "answer": "Promise was not awaited inside try block or function caller did not await/catch."
+        },
+        {
+          "type": "debug",
+          "question": "Parallel tasks run slowly. Cause?",
+          "answer": "Using await in loop serializes calls; use Promise.all for parallel execution."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Basic async function returning value.",
+          "code": "async function f(){ return 42; }\nf().then(console.log);",
+          "output": "42"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Await resolved promise and print.",
+          "code": "async function run(){\n  const v = await Promise.resolve(\"ok\");\n  console.log(v);\n}\nrun();",
+          "output": "ok"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Async error handling with try/catch.",
+          "code": "async function run(){\n  try {\n    await Promise.reject(new Error(\"fail\"));\n  } catch(e){\n    console.log(e.message);\n  }\n}\nrun();",
+          "output": "fail"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Sequential async tasks.",
+          "code": "const wait = ms => new Promise(r=>setTimeout(r,ms));\nasync function seq(){\n  await wait(10);\n  console.log(\"first\");\n  await wait(10);\n  console.log(\"second\");\n}\nseq();",
+          "output": "first\nsecond"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Parallel async tasks with Promise.all + await.",
+          "code": "const a=Promise.resolve(1);\nconst b=Promise.resolve(2);\n(async()=>{\n  const [x,y]=await Promise.all([a,b]);\n  console.log(x+y);\n})();",
+          "output": "3"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Async wrapper for JSON parse simulation.",
+          "code": "async function parseAsync(str){\n  return JSON.parse(str);\n}\nparseAsync(\"{\\\"x\\\":1}\").then(v=>console.log(v.x));",
+          "output": "1"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Retry once on failure with async/await.",
+          "code": "let tries=0;\nasync function task(){\n  tries++;\n  if(tries===1) throw new Error(\"retry\");\n  return \"success\";\n}\n(async()=>{\n  try{ await task(); }catch{ console.log(await task()); }\n})();",
+          "output": "success"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Convert then-chain to async/await result.",
+          "code": "const get=()=>Promise.resolve(5);\n(async()=>{\n  const v = await get();\n  console.log(v*2);\n})();",
+          "output": "10"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Await in loop (sequential) demo.",
+          "code": "const wait=ms=>new Promise(r=>setTimeout(r,ms));\n(async()=>{\n  for(const n of [1,2,3]){\n    await wait(5);\n    console.log(n);\n  }\n})();",
+          "output": "1\n2\n3"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Top-level style async IIFE with final log.",
+          "code": "(async()=>{\n  const a = await Promise.resolve(\"JS\");\n  console.log(`${a} async`);\n})();",
+          "output": "JS async"
+        }
+      ]
+    },
+    {
+      "id": "promise-all",
+      "title": "Promise.all() & Promise.race()",
+      "category": "Async Programming",
+      "description": "Promise.all waits for all promises. Promise.race returns the first settled promise.",
+      "explanation": "Promise.all waits for all promises. Promise.race returns the first settled promise.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+      "implementation": "// Promise.all - waits for all\nconst results = await Promise.all([\n  fetch('/api/users'),\n  fetch('/api/posts'),\n  fetch('/api/comments')\n]);\n\n// Promise.race - first to complete\nconst fastest = await Promise.race([\n  fetch('/api/server1'),\n  fetch('/api/server2')\n]);",
+      "example": "async function loadPageData() {\n  try {\n    const [users, products, settings] = await Promise.all([\n      fetchUsers(),\n      fetchProducts(),\n      fetchSettings()\n    ]);\n    return {users, products, settings};\n  } catch (error) {\n    console.error('Failed to load:', error);\n  }\n}",
+      "useCase": "Parallel API calls, loading multiple resources, timeout implementations",
+      "interviewQuestions": [
+        {
+          "question": "When to use Promise.all?",
+          "answer": "When tasks are independent and all results are required together."
+        },
+        {
+          "question": "What happens if one Promise.all task rejects?",
+          "answer": "Whole Promise.all rejects immediately with that rejection reason."
+        },
+        {
+          "question": "Difference between all and allSettled?",
+          "answer": "all fails-fast; allSettled always resolves with status/result for each input."
+        },
+        {
+          "question": "When to use Promise.race?",
+          "answer": "For timeout patterns or taking fastest response among alternatives."
+        },
+        {
+          "question": "What is a production concern with Promise.all on huge arrays?",
+          "answer": "Unbounded concurrency can overload APIs or memory; use controlled batching."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Predict Promise.all([Promise.resolve(1), 2]) result.",
+          "answer": "[1, 2]",
+          "output": "[1,2]"
+        },
+        {
+          "type": "implement",
+          "question": "Fetch users and posts in parallel with Promise.all.",
+          "code": "const [users, posts] = await Promise.all([fetchUsers(), fetchPosts()]);"
+        },
+        {
+          "type": "debug",
+          "question": "One Promise.all task fails and all data is lost. Alternative?",
+          "answer": "Use Promise.allSettled to collect success/failure of each task."
+        },
+        {
+          "type": "scenario",
+          "question": "Implement timeout wrapper using Promise.race.",
+          "code": "function withTimeout(p, ms){\n  return Promise.race([p, new Promise((_,r)=>setTimeout(()=>r(new Error(\"Timeout\")), ms))]);\n}"
+        },
+        {
+          "type": "output",
+          "question": "Predict output: await Promise.all([Promise.resolve(1), 2])",
+          "answer": "[1,2]",
+          "output": "[1,2]"
+        },
+        {
+          "type": "output",
+          "question": "Promise.race between 50ms and 200ms promises resolves with?",
+          "answer": "The 50ms promise result."
+        },
+        {
+          "type": "implement",
+          "question": "Implement loadDashboardData() with Promise.all(users, stats, notifications)."
+        },
+        {
+          "type": "implement",
+          "question": "Write withTimeout(promise, ms) using Promise.race."
+        },
+        {
+          "type": "debug",
+          "question": "One Promise.all task rejects and all fail. Alternative?",
+          "answer": "Use Promise.allSettled to collect all outcomes."
+        },
+        {
+          "type": "debug",
+          "question": "Order of Promise.all results seems wrong. Why?",
+          "answer": "Results are returned by input order, not completion order."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Promise.all with two resolved values.",
+          "code": "Promise.all([Promise.resolve(\"A\"), Promise.resolve(\"B\")])\n  .then(console.log);",
+          "output": "[ \"A\", \"B\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Promise.all rejection behavior.",
+          "code": "Promise.all([Promise.resolve(1), Promise.reject(\"X\")])\n  .then(console.log)\n  .catch(console.log);",
+          "output": "X"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Promise.all order is input order, not finish order.",
+          "code": "const slow=new Promise(r=>setTimeout(()=>r(\"slow\"),50));\nconst fast=Promise.resolve(\"fast\");\nPromise.all([slow,fast]).then(console.log);",
+          "output": "[ \"slow\", \"fast\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Promise.race fastest response demo.",
+          "code": "const p1=new Promise(r=>setTimeout(()=>r(\"one\"),100));\nconst p2=new Promise(r=>setTimeout(()=>r(\"two\"),20));\nPromise.race([p1,p2]).then(console.log);",
+          "output": "two"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Timeout wrapper with race.",
+          "code": "function withTimeout(p,ms){\n  return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(\"timeout\"),ms))]);\n}\nwithTimeout(new Promise(r=>setTimeout(()=>r(\"ok\"),30)),10).catch(console.log);",
+          "output": "timeout"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Promise.allSettled status inspection.",
+          "code": "Promise.allSettled([Promise.resolve(1), Promise.reject(\"e\")])\n  .then(res=>console.log(res.map(x=>x.status)));",
+          "output": "[ \"fulfilled\", \"rejected\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Parallel API simulation with Promise.all.",
+          "code": "const api=(v,ms)=>new Promise(r=>setTimeout(()=>r(v),ms));\nPromise.all([api(\"users\",20),api(\"posts\",10)]).then(console.log);",
+          "output": "[ \"users\", \"posts\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Race rejection if fastest promise rejects.",
+          "code": "const a=new Promise((_,rej)=>setTimeout(()=>rej(\"bad\"),10));\nconst b=new Promise(r=>setTimeout(()=>r(\"good\"),50));\nPromise.race([a,b]).catch(console.log);",
+          "output": "bad"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: allSettled to split success and failures.",
+          "code": "Promise.allSettled([Promise.resolve(10), Promise.reject(\"E\")])\n.then(r=>{\n  const ok=r.filter(x=>x.status===\"fulfilled\").map(x=>x.value);\n  const err=r.filter(x=>x.status===\"rejected\").map(x=>x.reason);\n  console.log(ok, err);\n});",
+          "output": "[ 10 ] [ \"E\" ]"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Promise.any-like fallback with race of resolved tasks (simple).",
+          "code": "const p1=new Promise(r=>setTimeout(()=>r(\"backup\"),40));\nconst p2=new Promise(r=>setTimeout(()=>r(\"primary\"),20));\nPromise.race([p1,p2]).then(console.log);",
+          "output": "primary"
+        }
+      ]
+    },
+    {
+      "id": "debouncing",
+      "title": "Debouncing",
+      "description": "Debouncing limits the rate at which a function is executed. It delays execution until after a specified time period has elapsed since the last invocation. Imagine typing in a search box - without debouncing, a search request would fire for every keystroke. With debouncing, the search only fires after you've stopped typing for a specified duration (e.g., 300ms).",
+      "explanation": "Debouncing is essential for optimizing performance in scenarios where rapid consecutive function calls would be wasteful or harmful. The technique works by setting a timer each time the function is called, and clearing any existing timer. Only when the timer completes without interruption does the function actually execute.\n\nKey benefits:\n- Reduces unnecessary API calls\n- Improves application performance\n- Enhances user experience by preventing jank\n- Saves bandwidth and server resources\n\nHow it works:\n1. User triggers an event (e.g., typing)\n2. Timer starts/resets\n3. If user triggers again before timer ends, reset timer\n4. When user stops, timer completes\n5. Function finally executes",
+      "implementation": "function debounce(func, delay) {\n  let timeoutId;\n  return function(...args) {\n    clearTimeout(timeoutId);\n    timeoutId = setTimeout(() => {\n      func.apply(this, args);\n    }, delay);\n  };\n}",
+      "example": "// Search implementation\nconst searchInput = debounce((query) => {\n  console.log('Searching for:', query);\n  // Make API call here\n  fetch(`/api/search?q=${query}`);\n}, 300);\n\n// Usage in React\nconst handleSearch = (e) => {\n  searchInput(e.target.value);\n};\n\n// Only executes after 300ms of no typing\n<input onChange={handleSearch} />",
+      "useCase": "Search inputs, window resize events, auto-save features, form validation",
+      "interviewQuestions": [
+        {
+          "question": "When should debouncing be used?",
+          "answer": "When repeated rapid events should trigger action only after user stops firing events."
+        },
+        {
+          "question": "Debounce vs throttle in one sentence?",
+          "answer": "Debounce waits for silence; throttle guarantees periodic execution during activity."
+        },
+        {
+          "question": "Leading vs trailing debounce?",
+          "answer": "Leading fires immediately then waits; trailing fires after the quiet period ends."
+        },
+        {
+          "question": "What memory bug appears in naive debounce?",
+          "answer": "Uncleared timers in component lifecycle can leak work; clear on cleanup/unmount."
+        },
+        {
+          "question": "Where is debounce dangerous?",
+          "answer": "Critical actions where delayed execution harms UX or correctness, e.g., urgent controls."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "In trailing debounce(300ms), user types continuously for 2s. How many calls?",
+          "answer": "One call after typing stops (if no pauses >= 300ms)."
+        },
+        {
+          "type": "implement",
+          "question": "Implement debounce(fn, delay).",
+          "code": "function debounce(fn, delay){\n  let t;\n  return (...args)=>{\n    clearTimeout(t);\n    t=setTimeout(()=>fn(...args), delay);\n  };\n}"
+        },
+        {
+          "type": "debug",
+          "question": "Debounced React handler uses stale state. Fix?",
+          "answer": "Use refs/functional updates or recreate handler carefully with dependencies."
+        },
+        {
+          "type": "scenario",
+          "question": "Search API should not fire on every keypress. Apply debounce with 300ms.",
+          "answer": "Wrap search trigger in debounced function and call from input change."
+        },
+        {
+          "type": "output",
+          "question": "User types continuously for 2s with trailing debounce(300). Calls executed?",
+          "answer": "1 final call after typing stops."
+        },
+        {
+          "type": "output",
+          "question": "Debounce with leading=true,trailing=false on quick burst gives?",
+          "answer": "Only immediate first call in each burst window."
+        },
+        {
+          "type": "implement",
+          "question": "Implement debounce(fn, delay) trailing version."
+        },
+        {
+          "type": "implement",
+          "question": "Implement debounce with cancel() support."
+        },
+        {
+          "type": "debug",
+          "question": "Debounced handler in React uses stale props/state. Fix?",
+          "answer": "Use refs/functional updates or recreate debounced callback with correct dependencies."
+        },
+        {
+          "type": "debug",
+          "question": "Memory leak in debounced component. Why?",
+          "answer": "Pending timer not cleared on unmount; cleanup must clearTimeout."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Basic trailing debounce utility.",
+          "code": "function debounce(fn,delay){\n  let t;\n  return (...args)=>{\n    clearTimeout(t);\n    t=setTimeout(()=>fn(...args),delay);\n  };\n}\nconst log=debounce(v=>console.log(v),50);\nlog(\"A\"); log(\"B\"); setTimeout(()=>log(\"C\"),10);",
+          "output": "C"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Debounced search simulation.",
+          "code": "function debounce(fn, d){let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a),d);};}\nconst search=debounce(q=>console.log(\"search:\",q),80);\nsearch(\"j\"); search(\"js\"); search(\"js \"); search(\"js interview\");",
+          "output": "search: js interview"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Debounce with cancel method.",
+          "code": "function makeDebounce(fn,d){\n  let t;\n  const wrapped=(...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a),d);};\n  wrapped.cancel=()=>clearTimeout(t);\n  return wrapped;\n}\nconst d=makeDebounce(console.log,50);\nd(\"will-cancel\"); d.cancel();",
+          "output": "(no output)"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Debounce resize handler mock.",
+          "code": "function debounce(fn,d){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),d)}}\nconst onResize=debounce(()=>console.log(\"recalculate layout\"),60);\nonResize(); onResize(); onResize();",
+          "output": "recalculate layout"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Compare direct call vs debounced call count.",
+          "code": "let direct=0, deb=0;\nconst inc=()=>deb++;\nfunction debounce(fn,d){let t;return()=>{clearTimeout(t);t=setTimeout(fn,d)}}\nconst d=debounce(inc,40);\nfor(let i=0;i<5;i++){direct++; d();}\nsetTimeout(()=>console.log(direct,deb),60);",
+          "output": "5 1"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Leading debounce variant (simple).",
+          "code": "function debounceLeading(fn,d){\n  let t=null;\n  return (...a)=>{\n    if(!t) fn(...a);\n    clearTimeout(t);\n    t=setTimeout(()=>{t=null;},d);\n  };\n}\nconst fn=debounceLeading(console.log,50);\nfn(\"A\"); fn(\"B\"); fn(\"C\");",
+          "output": "A"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Debounced autosave mock.",
+          "code": "function debounce(fn,d){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),d)}}\nconst save=debounce(content=>console.log(\"saved:\",content),70);\nsave(\"v1\"); save(\"v2\"); save(\"final\");",
+          "output": "saved: final"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Debounce input validation.",
+          "code": "function debounce(fn,d){let t;return(v)=>{clearTimeout(t);t=setTimeout(()=>fn(v),d)}}\nconst validate=debounce(v=>console.log(v.length>=3),40);\nvalidate(\"j\"); validate(\"js\"); validate(\"js1\");",
+          "output": "true"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Debounce with preserved this using apply.",
+          "code": "function debounce(fn,d){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),d)}}\nconst obj={x:5,print(v){console.log(this.x,v)}};\nobj.d=debounce(obj.print,30);\nobj.d(\"ok\");",
+          "output": "5 ok"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Debounced API call simulator with promise.",
+          "code": "function debounce(fn,d){let t;return(...a)=>new Promise(res=>{clearTimeout(t);t=setTimeout(()=>res(fn(...a)),d);});}\nconst api=q=>`result:${q}`;\nconst d=debounce(api,40);\nd(\"a\"); d(\"ab\"); d(\"abc\").then(console.log);",
+          "output": "result:abc"
+        }
+      ]
+    },
+    {
+      "id": "throttling",
+      "title": "Throttling",
+      "description": "Throttling ensures a function is called at most once in a specified time period, no matter how many times it's triggered. Unlike debouncing (which delays until calm), throttling executes immediately and then enforces a cooldown. Think of it like a rate limiter - if you throttle to 1 second, the function can only run once per second maximum, even if triggered 100 times.",
+      "explanation": "Throttling is perfect for events that fire continuously but you only need to respond to them at regular intervals. The key difference from debouncing is that throttling guarantees execution at regular intervals during continuous triggering.\n\nKey differences from debouncing:\n- Throttling: Executes at regular intervals DURING activity\n- Debouncing: Executes once AFTER activity stops\n\nUse throttling when:\n- You need periodic updates during continuous activity\n- Scroll position tracking\n- Mouse movement tracking\n- Resize events where you want intermediate updates\n\nUse debouncing when:\n- You only care about the final state\n- Search input\n- Text field auto-save\n- Form validation",
+      "implementation": "function throttle(func, limit) {\n  let inThrottle;\n  return function(...args) {\n    if (!inThrottle) {\n      func.apply(this, args);\n      inThrottle = true;\n      setTimeout(() => inThrottle = false, limit);\n    }\n  };\n}",
+      "example": "// Scroll tracking\nconst handleScroll = throttle(() => {\n  const scrollY = window.scrollY;\n  console.log('Scroll position:', scrollY);\n  \n  // Update progress bar\n  updateProgressBar(scrollY);\n}, 1000);\n\nwindow.addEventListener('scroll', handleScroll);\n\n// Mouse move tracking\nconst trackMouse = throttle((e) => {\n  console.log('Mouse at:', e.clientX, e.clientY);\n}, 100);",
+      "useCase": "Scroll events, button clicks, API rate limiting, mouse tracking, game loop updates",
+      "interviewQuestions": [
+        {
+          "question": "When is throttling better than debouncing?",
+          "answer": "When you need regular updates during continuous events like scroll or mousemove."
+        },
+        {
+          "question": "How does throttle protect performance?",
+          "answer": "It limits handler execution rate, reducing layout/repaint and expensive calculations."
+        },
+        {
+          "question": "What is trailing call behavior in throttle?",
+          "answer": "After cooldown, final call can run with latest args if throttle implementation supports it."
+        },
+        {
+          "question": "A common bug in throttle implementations?",
+          "answer": "Losing last invocation context/args or dropping critical final event state."
+        },
+        {
+          "question": "How to test throttle correctly?",
+          "answer": "Use fake timers and assert call counts plus timing boundaries."
+        },
+        {
+          "question": "What problem does throttling solve?",
+          "answer": "It prevents expensive handlers from running too frequently during high-frequency events."
+        },
+        {
+          "question": "How is throttle different from debounce for UX?",
+          "answer": "Throttle gives periodic feedback; debounce delays feedback until inactivity."
+        },
+        {
+          "question": "What are leading and trailing options?",
+          "answer": "Leading runs at start of interval; trailing runs once with latest args at interval end."
+        },
+        {
+          "question": "Why might trailing throttle be needed for scroll progress?",
+          "answer": "Without trailing call, final state can be missed."
+        },
+        {
+          "question": "How do you preserve context in throttle wrappers?",
+          "answer": "Use regular function and invoke callback via fn.apply(this,args)."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "Throttle interval 1000ms, event fires continuously for 2500ms. Approx calls?",
+          "answer": "Around 2-3 calls depending on leading/trailing config."
+        },
+        {
+          "type": "output",
+          "question": "Difference in behavior: throttle executes during activity or after activity?",
+          "answer": "During activity at controlled intervals."
+        },
+        {
+          "type": "implement",
+          "question": "Implement basic leading throttle(fn, limit)."
+        },
+        {
+          "type": "implement",
+          "question": "Implement throttle with trailing execution support."
+        },
+        {
+          "type": "debug",
+          "question": "Final scroll position is not updated with throttle. Fix?",
+          "answer": "Add trailing call with last arguments."
+        },
+        {
+          "type": "debug",
+          "question": "Throttled callback loses this context. Fix?",
+          "answer": "Use fn.apply(this,args) inside wrapped function."
+        },
+        {
+          "type": "refactor",
+          "question": "Refactor direct scroll handler to throttled handler for performance."
+        },
+        {
+          "type": "scenario",
+          "question": "Design mousemove analytics with throttle and batching."
+        },
+        {
+          "type": "tricky",
+          "question": "Throttle vs debounce one-line difference?",
+          "answer": "Throttle limits rate; debounce waits for inactivity."
+        },
+        {
+          "type": "tricky",
+          "question": "Can throttling still drop intermediate event values?",
+          "answer": "Yes, unless implementation stores latest args for trailing call."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Basic throttle implementation.",
+          "code": "function throttle(fn, limit){\n  let waiting=false;\n  return (...args)=>{\n    if(waiting) return;\n    waiting=true;\n    fn(...args);\n    setTimeout(()=>waiting=false, limit);\n  };\n}\nconst t=throttle(console.log,100);\nt(\"A\"); t(\"B\");",
+          "output": "A"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Throttled scroll handler simulation.",
+          "code": "function throttle(fn,limit){let w=false;return(...a)=>{if(w)return;w=true;fn(...a);setTimeout(()=>w=false,limit)}}\nlet calls=0;\nconst onScroll=throttle(()=>{calls++; console.log(\"scroll\",calls)},80);\nfor(let i=0;i<5;i++) onScroll();",
+          "output": "scroll 1"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Throttle with preserved context.",
+          "code": "function throttle(fn,limit){let w=false;return function(...a){if(w)return;w=true;fn.apply(this,a);setTimeout(()=>w=false,limit)}}\nconst obj={x:10,log(){console.log(this.x)}};\nobj.t=throttle(obj.log,50);\nobj.t();",
+          "output": "10"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Count direct vs throttled calls.",
+          "code": "let direct=0, thr=0;\nfunction throttle(fn,l){let w=false;return()=>{if(w)return;w=true;fn();setTimeout(()=>w=false,l)}}\nconst t=throttle(()=>thr++,60);\nfor(let i=0;i<10;i++){direct++; t();}\nsetTimeout(()=>console.log(direct,thr),80);",
+          "output": "10 1"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: Throttle periodic API poll trigger.",
+          "code": "function throttle(fn,l){let w=false;return(...a)=>{if(w)return;w=true;fn(...a);setTimeout(()=>w=false,l)}}\nconst hit=throttle((q)=>console.log(\"api\",q),100);\nhit(\"a\"); hit(\"ab\"); hit(\"abc\");",
+          "output": "api a"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Trailing throttle version (simple).",
+          "code": "function throttleTrailing(fn,limit){\n  let waiting=false,lastArgs=null;\n  return (...args)=>{\n    if(waiting){lastArgs=args;return;}\n    fn(...args); waiting=true;\n    setTimeout(()=>{waiting=false; if(lastArgs){ const a=lastArgs; lastArgs=null; fn(...a);} },limit);\n  };\n}\nconst t=throttleTrailing(console.log,50);\nt(\"A\"); t(\"B\");",
+          "output": "A\nB"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Throttled window resize mock.",
+          "code": "function throttle(fn,l){let w=false;return()=>{if(w)return;w=true;fn();setTimeout(()=>w=false,l)}}\nconst onResize=throttle(()=>console.log(\"layout updated\"),70);\nonResize(); onResize(); onResize();",
+          "output": "layout updated"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Throttle button click spam.",
+          "code": "function throttle(fn,l){let w=false;return()=>{if(w)return;w=true;fn();setTimeout(()=>w=false,l)}}\nconst submit=throttle(()=>console.log(\"submitted\"),120);\nsubmit(); submit(); submit();",
+          "output": "submitted"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Throttled mouse tracker sample.",
+          "code": "function throttle(fn,l){let w=false;return(v)=>{if(w)return;w=true;fn(v);setTimeout(()=>w=false,l)}}\nconst track=throttle(v=>console.log(\"x\",v),50);\ntrack(10); track(20); track(30);",
+          "output": "x 10"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Compare debounce vs throttle quickly.",
+          "code": "function throttle(fn,l){let w=false;return()=>{if(w)return;w=true;fn();setTimeout(()=>w=false,l)}}\nlet c=0;\nconst t=throttle(()=>{c++;console.log(c)},40);\nfor(let i=0;i<5;i++) t();",
+          "output": "1"
+        }
+      ]
+    },
+    {
+      "id": "local-storage",
+      "category": "Browser APIs",
+      "title": "Local Storage and Session Storage",
+      "description": "Learn browser storage APIs for persisting client-side data, including JSON serialization and common interview pitfalls.",
+      "explanation": "localStorage and sessionStorage are key-value string stores in browsers. localStorage persists across tabs/browser restarts; sessionStorage persists only for tab session.\n\nKey points:\n- Values are strings; serialize objects with JSON.stringify.\n- localStorage is synchronous and can block if overused.\n- Use try/catch for JSON parsing and storage quota issues.\n- Avoid storing sensitive tokens directly if security posture is weak.",
+      "implementation": "const user = { id: 1, name: \"Jitender\" };\nlocalStorage.setItem(\"user\", JSON.stringify(user));\nconst restored = JSON.parse(localStorage.getItem(\"user\") || \"null\");\nconsole.log(restored?.name);",
+      "example": "sessionStorage.setItem(\"draft\", \"hello\");\nconsole.log(sessionStorage.getItem(\"draft\"));\nsessionStorage.removeItem(\"draft\");",
+      "useCase": "Theme preference, draft forms, lightweight caching, onboarding flags, client settings.",
+      "interviewQuestions": [
+        {
+          "question": "localStorage vs sessionStorage?",
+          "answer": "localStorage persists across browser sessions; sessionStorage is per-tab and cleared when tab closes."
+        },
+        {
+          "question": "Can we store objects directly?",
+          "answer": "No, store as JSON string via JSON.stringify and parse on retrieval."
+        },
+        {
+          "question": "Is localStorage async?",
+          "answer": "No, it is synchronous."
+        },
+        {
+          "question": "What data type does getItem return?",
+          "answer": "String or null if key not found."
+        },
+        {
+          "question": "How to clear one key vs all keys?",
+          "answer": "removeItem(key) for one key, clear() for all keys."
+        },
+        {
+          "question": "Security concern of localStorage?",
+          "answer": "XSS can read stored data; avoid storing highly sensitive tokens in unsafe contexts."
+        },
+        {
+          "question": "Storage size limitation?",
+          "answer": "Browser-dependent, typically around 5MB per origin."
+        },
+        {
+          "question": "What event tracks storage changes?",
+          "answer": "window storage event for cross-tab updates."
+        },
+        {
+          "question": "How to handle malformed JSON in storage?",
+          "answer": "Use try/catch around JSON.parse with safe fallback."
+        },
+        {
+          "question": "When to avoid localStorage?",
+          "answer": "High-frequency writes or sensitive data requirements."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "output",
+          "question": "What does localStorage.getItem(\"missing\") return?",
+          "answer": "null",
+          "output": "null"
+        },
+        {
+          "type": "output",
+          "question": "If localStorage.setItem(\"x\", 1), stored value type?",
+          "answer": "String \"1\""
+        },
+        {
+          "type": "implement",
+          "question": "Implement saveJSON(key, value) and loadJSON(key, fallback)."
+        },
+        {
+          "type": "implement",
+          "question": "Implement toggleTheme using localStorage persistence."
+        },
+        {
+          "type": "debug",
+          "question": "JSON.parse throws from corrupted storage data. Fix?",
+          "answer": "Wrap parse in try/catch and fallback to defaults."
+        },
+        {
+          "type": "debug",
+          "question": "Stored object appears as [object Object]. Why?",
+          "answer": "Object was stored without JSON.stringify."
+        },
+        {
+          "type": "scenario",
+          "question": "Save form draft and restore on reload."
+        },
+        {
+          "type": "scenario",
+          "question": "Sync logout across tabs using storage event."
+        },
+        {
+          "type": "tricky",
+          "question": "Is storage shared across different domains?",
+          "answer": "No, it is origin-scoped."
+        },
+        {
+          "type": "tricky",
+          "question": "Can storage API be unavailable?",
+          "answer": "Yes in some privacy modes or restricted environments; code defensively."
+        }
+      ],
+      "programExercises": [
+        {
+          "type": "program",
+          "question": "Program 1: Save and read simple string from localStorage.",
+          "code": "localStorage.setItem(\"lang\",\"js\");\nconsole.log(localStorage.getItem(\"lang\"));",
+          "output": "js"
+        },
+        {
+          "type": "program",
+          "question": "Program 2: Save object in localStorage.",
+          "code": "const user={id:1,name:\"Dev\"};\nlocalStorage.setItem(\"user\",JSON.stringify(user));\nconsole.log(JSON.parse(localStorage.getItem(\"user\")).name);",
+          "output": "Dev"
+        },
+        {
+          "type": "program",
+          "question": "Program 3: Remove key from storage.",
+          "code": "localStorage.setItem(\"temp\",\"123\");\nlocalStorage.removeItem(\"temp\");\nconsole.log(localStorage.getItem(\"temp\"));",
+          "output": "null"
+        },
+        {
+          "type": "program",
+          "question": "Program 4: Clear all storage keys.",
+          "code": "localStorage.setItem(\"a\",\"1\");\nlocalStorage.setItem(\"b\",\"2\");\nlocalStorage.clear();\nconsole.log(localStorage.length);",
+          "output": "0"
+        },
+        {
+          "type": "program",
+          "question": "Program 5: sessionStorage basic save/read.",
+          "code": "sessionStorage.setItem(\"draft\",\"hello\");\nconsole.log(sessionStorage.getItem(\"draft\"));",
+          "output": "hello"
+        },
+        {
+          "type": "program",
+          "question": "Program 6: Safe JSON loader with fallback.",
+          "code": "function loadJSON(key,fallback){\n  try{\n    const raw=localStorage.getItem(key);\n    return raw?JSON.parse(raw):fallback;\n  }catch{\n    return fallback;\n  }\n}\nconsole.log(loadJSON(\"missing\",[]));",
+          "output": "[]"
+        },
+        {
+          "type": "program",
+          "question": "Program 7: Persist theme preference.",
+          "code": "function setTheme(theme){ localStorage.setItem(\"theme\",theme); }\nfunction getTheme(){ return localStorage.getItem(\"theme\") || \"light\"; }\nsetTheme(\"dark\");\nconsole.log(getTheme());",
+          "output": "dark"
+        },
+        {
+          "type": "program",
+          "question": "Program 8: Increment page visit counter in localStorage.",
+          "code": "const key=\"visits\";\nconst n=Number(localStorage.getItem(key)||0)+1;\nlocalStorage.setItem(key,String(n));\nconsole.log(localStorage.getItem(key));",
+          "output": "1 (or incremented value)"
+        },
+        {
+          "type": "program",
+          "question": "Program 9: Store array and append new value.",
+          "code": "const key=\"skills\";\nconst arr=JSON.parse(localStorage.getItem(key)||\"[]\");\narr.push(\"javascript\");\nlocalStorage.setItem(key,JSON.stringify(arr));\nconsole.log(JSON.parse(localStorage.getItem(key)));",
+          "output": "[ \"javascript\" ] (or appended list)"
+        },
+        {
+          "type": "program",
+          "question": "Program 10: Listen storage event (cross-tab sync).",
+          "code": "window.addEventListener(\"storage\", (e) => {\n  if (e.key === \"auth\") console.log(\"Auth changed\", e.newValue);\n});",
+          "output": "Logs when key changes in another tab"
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "id": 1,
+      "question": "What is the main difference between debouncing and throttling?",
+      "options": [
+        "Debouncing delays execution until calm, throttling limits execution frequency",
+        "Debouncing is faster than throttling",
+        "Throttling only works with events, debouncing works with any function",
+        "They are the same thing with different names"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Debouncing delays function execution until after a period of inactivity, while throttling ensures the function executes at most once per specified time interval."
+    },
+    {
+      "id": 2,
+      "question": "What is the output of: typeof null?",
+      "options": [
+        "'null'",
+        "'object'",
+        "'undefined'",
+        "'number'"
+      ],
+      "correctAnswer": 1,
+      "explanation": "This is a known JavaScript bug. typeof null returns 'object' due to a legacy implementation issue that can't be fixed for backward compatibility."
+    },
+    {
+      "id": 3,
+      "question": "What is a closure in JavaScript?",
+      "options": [
+        "A way to close browser windows",
+        "A function that has access to variables in its outer scope",
+        "A method to end a loop",
+        "A type of object"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A closure is a function that has access to variables in its outer (enclosing) lexical scope, even after the outer function has returned."
+    },
+    {
+      "id": 4,
+      "question": "What will console.log(0.1 + 0.2 === 0.3) output?",
+      "options": [
+        "true",
+        "false",
+        "undefined",
+        "NaN"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Due to floating-point precision issues in JavaScript, 0.1 + 0.2 actually equals 0.30000000000000004, not 0.3."
+    },
+    {
+      "id": 5,
+      "question": "What does 'use strict' do in JavaScript?",
+      "options": [
+        "Makes code run faster",
+        "Enables strict mode which catches common coding errors",
+        "Compiles code to machine language",
+        "Enables ES6 features"
+      ],
+      "correctAnswer": 1,
+      "explanation": "'use strict' enables strict mode, which catches common coding mistakes, prevents use of reserved keywords, and disallows certain unsafe actions."
+    },
+    {
+      "id": 6,
+      "question": "What is the difference between == and ===?",
+      "options": [
+        "No difference",
+        "== checks value and type, === only checks value",
+        "=== checks value and type, == only checks value",
+        "=== is faster than =="
+      ],
+      "correctAnswer": 2,
+      "explanation": "=== (strict equality) checks both value and type without type coercion, while == (loose equality) performs type coercion before comparison."
+    },
+    {
+      "id": 7,
+      "question": "What is hoisting in JavaScript?",
+      "options": [
+        "Moving functions to top of file",
+        "Variable and function declarations are moved to top of scope during compilation",
+        "Lifting heavy objects",
+        "A design pattern"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Hoisting is JavaScript's behavior of moving declarations to the top of their scope before code execution. Variables declared with var and function declarations are hoisted."
+    },
+    {
+      "id": 8,
+      "question": "What will this code output? console.log([] + [])",
+      "options": [
+        "[]",
+        "''",
+        "'[][]'",
+        "undefined"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When adding arrays, JavaScript converts them to strings. Empty arrays become empty strings, so '' + '' = ''."
+    },
+    {
+      "id": 9,
+      "question": "What is the purpose of Promise.all()?",
+      "options": [
+        "Execute promises one after another",
+        "Execute multiple promises in parallel and wait for all to complete",
+        "Cancel all promises",
+        "Create a new promise"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Promise.all() takes an array of promises and returns a single promise that resolves when all input promises have resolved, or rejects if any promise rejects."
+    },
+    {
+      "id": 10,
+      "question": "What does the spread operator (...) do?",
+      "options": [
+        "Spreads butter",
+        "Expands an iterable into individual elements",
+        "Creates a range of numbers",
+        "Multiplies values"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The spread operator (...) expands an iterable (like an array) into individual elements. It's useful for copying arrays, combining arrays, and passing array elements as function arguments."
+    },
+    {
+      "id": 11,
+      "question": "What is the difference between let, const, and var?",
+      "options": [
+        "No difference, just preference",
+        "let and const are block-scoped, var is function-scoped",
+        "const is faster than let and var",
+        "var is the newest syntax"
+      ],
+      "correctAnswer": 1,
+      "explanation": "let and const are block-scoped and not hoisted to the top. var is function-scoped and hoisted. const cannot be reassigned after declaration."
+    },
+    {
+      "id": 12,
+      "question": "What is the output of: console.log(typeof NaN)?",
+      "options": [
+        "'NaN'",
+        "'number'",
+        "'undefined'",
+        "'object'"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NaN (Not-a-Number) ironically has the type 'number' in JavaScript. It's a special numeric value representing an invalid number."
+    },
+    {
+      "id": 13,
+      "question": "What does Array.prototype.map() return?",
+      "options": [
+        "The same array modified",
+        "A new array with transformed elements",
+        "Nothing (undefined)",
+        "An object"
+      ],
+      "correctAnswer": 1,
+      "explanation": "map() creates and returns a new array with the results of calling a provided function on every element. It doesn't modify the original array."
+    },
+    {
+      "id": 14,
+      "question": "What is event delegation?",
+      "options": [
+        "Passing events between functions",
+        "Attaching a single event listener to a parent to handle events on children",
+        "Preventing default events",
+        "Creating custom events"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Event delegation uses event bubbling to handle events at a higher level in the DOM. You attach an event listener to a parent element to manage events from its children."
+    },
+    {
+      "id": 15,
+      "question": "What is the purpose of the 'this' keyword?",
+      "options": [
+        "References the current file",
+        "References the context in which a function is called",
+        "References the global object always",
+        "References the parent function"
+      ],
+      "correctAnswer": 1,
+      "explanation": "'this' refers to the object that is executing the current function. Its value depends on how the function is called (method, regular function, arrow function, etc.)."
+    },
+    {
+      "id": 16,
+      "question": "What is the difference between .call(), .apply(), and .bind()?",
+      "options": [
+        "They are the same",
+        ".call() and .apply() invoke immediately with different argument formats, .bind() returns a new function",
+        ".bind() is deprecated",
+        "They only work with classes"
+      ],
+      "correctAnswer": 1,
+      "explanation": ".call() invokes function with arguments separated by commas. .apply() uses array of arguments. .bind() returns a new function with 'this' bound without invoking."
+    },
+    {
+      "id": 17,
+      "question": "What is the output of: console.log(1 + '1')?",
+      "options": [
+        "2",
+        "'11'",
+        "11",
+        "Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "When adding a number and string, JavaScript converts the number to a string and performs concatenation, resulting in '11'."
+    },
+    {
+      "id": 18,
+      "question": "What is a callback function?",
+      "options": [
+        "A function that calls itself",
+        "A function passed as an argument to another function",
+        "A function that returns a value",
+        "A deprecated pattern"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A callback is a function passed as an argument to another function, to be executed later, often after an asynchronous operation completes."
+    },
+    {
+      "id": 19,
+      "question": "What does Object.freeze() do?",
+      "options": [
+        "Stops JavaScript execution",
+        "Makes an object immutable (prevents modifications)",
+        "Converts object to string",
+        "Copies an object"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.freeze() makes an object immutable. You can't add, delete, or modify its properties. Nested objects are not frozen unless explicitly frozen."
+    },
+    {
+      "id": 20,
+      "question": "What is the event loop in JavaScript?",
+      "options": [
+        "A loop that processes events",
+        "Mechanism that handles async operations and callback execution",
+        "A for loop variant",
+        "A DOM event handler"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The event loop is JavaScript's concurrency model. It continuously checks the call stack and task queues, executing callbacks when the stack is empty."
+    },
+    {
+      "id": 21,
+      "question": "What is destructuring in JavaScript?",
+      "options": [
+        "Deleting objects",
+        "Extracting values from arrays or objects into distinct variables",
+        "Breaking code into modules",
+        "A debugging technique"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Destructuring allows unpacking values from arrays or properties from objects into distinct variables using a concise syntax."
+    },
+    {
+      "id": 22,
+      "question": "What does Array.prototype.filter() do?",
+      "options": [
+        "Removes all elements",
+        "Creates array with elements that pass a test",
+        "Modifies original array",
+        "Sorts array elements"
+      ],
+      "correctAnswer": 1,
+      "explanation": "filter() creates a new array with all elements that pass the test implemented by the provided function. It doesn't modify the original array."
+    },
+    {
+      "id": 23,
+      "question": "What is the temporal dead zone?",
+      "options": [
+        "A timezone issue",
+        "Period between scope entry and declaration where let/const variables can't be accessed",
+        "A debugging tool",
+        "A performance issue"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The temporal dead zone is the period from entering a scope until a let/const variable is declared, where accessing the variable throws a ReferenceError."
+    },
+    {
+      "id": 24,
+      "question": "What is a pure function?",
+      "options": [
+        "A function without bugs",
+        "Function that always returns same output for same input with no side effects",
+        "A built-in function",
+        "A function with one parameter"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A pure function always returns the same result for the same arguments and has no side effects (doesn't modify external state)."
+    },
+    {
+      "id": 25,
+      "question": "What does Array.prototype.reduce() do?",
+      "options": [
+        "Reduces array size",
+        "Executes reducer function on array to produce single output value",
+        "Removes duplicates",
+        "Filters negative numbers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "reduce() executes a reducer function on each array element, resulting in a single output value. It's useful for summing, flattening arrays, or any accumulation operation."
+    },
+    {
+      "id": 26,
+      "question": "What is the difference between null and undefined?",
+      "options": [
+        "They are exactly the same",
+        "null is assigned, undefined means no value has been assigned",
+        "undefined is newer than null",
+        "null is a string, undefined is not"
+      ],
+      "correctAnswer": 1,
+      "explanation": "undefined means a variable has been declared but not assigned a value. null is an assignment value representing intentional absence of any object value."
+    },
+    {
+      "id": 27,
+      "question": "What does the 'new' keyword do?",
+      "options": [
+        "Creates a new file",
+        "Creates a new instance of an object from constructor function",
+        "Updates existing object",
+        "Declares new variable"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The 'new' keyword creates an instance of a user-defined object type or built-in object that has a constructor function. It sets up the prototype chain properly."
+    },
+    {
+      "id": 28,
+      "question": "What is memoization?",
+      "options": [
+        "Remembering code",
+        "Caching function results to avoid repeated calculations",
+        "Memory management",
+        "A debugging technique"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Memoization is an optimization technique that stores function results for specific inputs, returning cached result when same input occurs again instead of recalculating."
+    },
+    {
+      "id": 29,
+      "question": "What does Promise.race() do?",
+      "options": [
+        "Compares promise speeds",
+        "Returns promise that resolves/rejects first from array of promises",
+        "Creates racing game",
+        "Cancels slowest promise"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Promise.race() returns a promise that resolves or rejects as soon as one of the promises in the iterable resolves or rejects, with the value/reason from that promise."
+    },
+    {
+      "id": 30,
+      "question": "What is the purpose of Symbol in JavaScript?",
+      "options": [
+        "Mathematical operations",
+        "Creating unique identifiers, especially for object properties",
+        "Text formatting",
+        "Creating emojis"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Symbol is a primitive data type that creates unique, immutable values, commonly used as unique property keys to avoid naming collisions."
+    },
+    {
+      "id": 31,
+      "question": "What is the output of: console.log(![])?",
+      "options": [
+        "true",
+        "false",
+        "undefined",
+        "[]"
+      ],
+      "correctAnswer": 1,
+      "explanation": "An empty array is a truthy value in JavaScript. The ! operator negates it, so ![] evaluates to false."
+    },
+    {
+      "id": 32,
+      "question": "What does Array.isArray() do?",
+      "options": [
+        "Converts to array",
+        "Checks if value is an array",
+        "Counts array elements",
+        "Sorts array"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Array.isArray() determines whether the passed value is an Array, returning true or false. It's more reliable than typeof for checking arrays."
+    },
+    {
+      "id": 33,
+      "question": "What is a generator function?",
+      "options": [
+        "Function that generates random numbers",
+        "Function that can pause execution and resume later using yield",
+        "Function that creates other functions",
+        "Built-in utility function"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Generator functions (function*) can pause execution with yield keyword and resume later. They return a generator object that conforms to iterator protocol."
+    },
+    {
+      "id": 34,
+      "question": "What does Object.assign() do?",
+      "options": [
+        "Deletes object properties",
+        "Copies properties from source objects to target object",
+        "Creates new object type",
+        "Assigns object to variable"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.assign() copies all enumerable own properties from one or more source objects to a target object. It's commonly used for shallow cloning or merging objects."
+    },
+    {
+      "id": 35,
+      "question": "What is the difference between forEach and map?",
+      "options": [
+        "No difference",
+        "forEach executes function on each element, map returns new array",
+        "map is slower",
+        "forEach is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "forEach() executes a function on each element and returns undefined. map() creates and returns a new array with transformed elements."
+    },
+    {
+      "id": 36,
+      "question": "What is a WeakMap?",
+      "options": [
+        "A slow Map",
+        "Map with weak references to keys allowing garbage collection",
+        "Map with limited size",
+        "Deprecated data structure"
+      ],
+      "correctAnswer": 1,
+      "explanation": "WeakMap holds weak references to keys (must be objects), allowing them to be garbage collected if no other references exist. Values can be any type."
+    },
+    {
+      "id": 37,
+      "question": "What does the finally block do in try-catch?",
+      "options": [
+        "Catches remaining errors",
+        "Executes code regardless of try-catch outcome",
+        "Prevents errors",
+        "Only runs on errors"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The finally block executes after try and catch blocks, regardless of whether an exception was thrown or caught. It's useful for cleanup operations."
+    },
+    {
+      "id": 38,
+      "question": "What is the rest parameter in functions?",
+      "options": [
+        "Parameter that sleeps",
+        "Syntax (...args) that collects remaining arguments into array",
+        "Optional parameter",
+        "Last parameter only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Rest parameters (...args) allow representing an indefinite number of arguments as an array. It must be the last parameter in function definition."
+    },
+    {
+      "id": 39,
+      "question": "What does JSON.stringify() do?",
+      "options": [
+        "Parses JSON",
+        "Converts JavaScript value to JSON string",
+        "Validates JSON",
+        "Minifies JSON"
+      ],
+      "correctAnswer": 1,
+      "explanation": "JSON.stringify() converts a JavaScript object or value to a JSON string. It's often used when sending data to a server or for deep cloning simple objects."
+    },
+    {
+      "id": 40,
+      "question": "What is a Set in JavaScript?",
+      "options": [
+        "An array",
+        "Collection that stores unique values of any type",
+        "A function",
+        "An object method"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Set is a collection of unique values. Any duplicate values are ignored. It provides methods like add(), delete(), has(), and can be iterated."
+    },
+    {
+      "id": 41,
+      "question": "What is the output of: console.log([] == false)?",
+      "options": [
+        "false",
+        "true",
+        "undefined",
+        "Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Due to type coercion, empty array converts to empty string, which converts to 0, and false also converts to 0. So 0 == 0 is true."
+    },
+    {
+      "id": 42,
+      "question": "What does Object.keys() return?",
+      "options": [
+        "Object values",
+        "Array of object's own enumerable property names",
+        "Number of properties",
+        "Object type"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.keys() returns an array of a given object's own enumerable property names, in the same order as a normal loop would."
+    },
+    {
+      "id": 43,
+      "question": "What is the module pattern?",
+      "options": [
+        "CSS pattern",
+        "Design pattern that provides encapsulation and private state",
+        "Import/export syntax",
+        "File organization"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The module pattern uses closures to create private variables and methods, exposing only a public API. It helps organize code and avoid global namespace pollution."
+    },
+    {
+      "id": 44,
+      "question": "What does Array.prototype.some() do?",
+      "options": [
+        "Returns some elements",
+        "Tests whether at least one element passes the test",
+        "Returns random elements",
+        "Removes some elements"
+      ],
+      "correctAnswer": 1,
+      "explanation": "some() tests whether at least one element in the array passes the test implemented by the provided function. Returns true or false."
+    },
+    {
+      "id": 45,
+      "question": "What is the difference between slice and splice?",
+      "options": [
+        "No difference",
+        "slice returns new array without modifying, splice modifies original",
+        "splice is deprecated",
+        "slice only works on strings"
+      ],
+      "correctAnswer": 1,
+      "explanation": "slice() returns a shallow copy of portion of array without modifying original. splice() changes original array by removing, replacing, or adding elements."
+    },
+    {
+      "id": 46,
+      "question": "What is IIFE (Immediately Invoked Function Expression)?",
+      "options": [
+        "A delayed function",
+        "Function that executes immediately after definition",
+        "Anonymous function",
+        "Recursive function"
+      ],
+      "correctAnswer": 1,
+      "explanation": "IIFE is a function that runs immediately after it's defined. Syntax: (function(){ ... })() or (() => { ... })(). Used to create private scope."
+    },
+    {
+      "id": 47,
+      "question": "What does Array.prototype.every() do?",
+      "options": [
+        "Returns every element",
+        "Tests whether all elements pass the test",
+        "Loops forever",
+        "Creates copy of array"
+      ],
+      "correctAnswer": 1,
+      "explanation": "every() tests whether all elements in the array pass the test implemented by the provided function. Returns true if all pass, false otherwise."
+    },
+    {
+      "id": 48,
+      "question": "What is the difference between arguments and rest parameters?",
+      "options": [
+        "No difference",
+        "arguments is array-like object, rest parameters are real arrays",
+        "rest parameters are deprecated",
+        "arguments work in arrow functions"
+      ],
+      "correctAnswer": 1,
+      "explanation": "arguments is an array-like object available in regular functions. Rest parameters (...args) are actual arrays and work in arrow functions, making them more flexible."
+    },
+    {
+      "id": 49,
+      "question": "What does isNaN() do?",
+      "options": [
+        "Creates NaN",
+        "Checks if value is NaN after type coercion",
+        "Removes NaN from array",
+        "Converts to NaN"
+      ],
+      "correctAnswer": 1,
+      "explanation": "isNaN() checks if a value is NaN after attempting type coercion. Number.isNaN() is stricter and doesn't coerce, only returns true for actual NaN."
+    },
+    {
+      "id": 50,
+      "question": "What is the prototype chain?",
+      "options": [
+        "Chain of function calls",
+        "Mechanism where objects inherit properties from other objects",
+        "Linked list data structure",
+        "Error handling chain"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The prototype chain is how JavaScript objects inherit features from one another. When accessing a property, JS looks up the chain until it finds the property or reaches null."
+    },
+    {
+      "id": 51,
+      "question": "What does Object.create() do?",
+      "options": [
+        "Deletes object",
+        "Creates new object with specified prototype",
+        "Copies object",
+        "Freezes object"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.create() creates a new object with the specified prototype object and properties. It's useful for setting up inheritance without using constructors."
+    },
+    {
+      "id": 52,
+      "question": "What is the difference between function declaration and expression?",
+      "options": [
+        "No difference",
+        "Declarations are hoisted, expressions are not",
+        "Expressions are faster",
+        "Declarations are deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Function declarations are fully hoisted (can be called before definition). Function expressions (including arrow functions) are not hoisted and must be defined before use."
+    },
+    {
+      "id": 53,
+      "question": "What does Array.from() do?",
+      "options": [
+        "Gets array from server",
+        "Creates array from array-like or iterable object",
+        "Converts array to object",
+        "Removes array elements"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Array.from() creates a new, shallow-copied Array instance from an array-like or iterable object (like NodeList, Set, Map, or string)."
+    },
+    {
+      "id": 54,
+      "question": "What is short-circuit evaluation?",
+      "options": [
+        "Fast code execution",
+        "Logical operators stop evaluating once result is determined",
+        "Breaking out of loops",
+        "Error handling"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Short-circuit evaluation means && stops at first falsy value, || stops at first truthy value, without evaluating remaining expressions. Useful for default values and conditionals."
+    },
+    {
+      "id": 55,
+      "question": "What does the delete operator do?",
+      "options": [
+        "Deletes files",
+        "Removes property from object",
+        "Deletes variables",
+        "Clears memory"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The delete operator removes a property from an object. It returns true if successful, false otherwise. It doesn't delete variables or functions."
+    },
+    {
+      "id": 56,
+      "question": "What is the comma operator?",
+      "options": [
+        "Creates lists",
+        "Evaluates multiple expressions, returns last one",
+        "Separates parameters",
+        "Concatenates strings"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The comma operator evaluates each operand from left to right and returns the value of the last operand. Rarely used except in for loops."
+    },
+    {
+      "id": 57,
+      "question": "What is a polyfill?",
+      "options": [
+        "Performance optimizer",
+        "Code that implements feature not natively supported by browser",
+        "Security patch",
+        "Testing tool"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A polyfill is code that implements a feature on browsers that don't support it natively. It provides backward compatibility for newer JavaScript features."
+    },
+    {
+      "id": 58,
+      "question": "What does String.prototype.trim() do?",
+      "options": [
+        "Shortens string length",
+        "Removes whitespace from both ends of string",
+        "Converts to lowercase",
+        "Removes all spaces"
+      ],
+      "correctAnswer": 1,
+      "explanation": "trim() removes whitespace from both ends of a string. trimStart() and trimEnd() remove from beginning or end only. It doesn't modify original string."
+    },
+    {
+      "id": 59,
+      "question": "What is the difference between Map and Object?",
+      "options": [
+        "No difference",
+        "Map allows any type as key, maintains insertion order, has size property",
+        "Object is newer",
+        "Map is slower"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Map allows any value (including objects) as keys, maintains insertion order, has size property, and better performance for frequent additions/deletions. Objects have prototype properties."
+    },
+    {
+      "id": 60,
+      "question": "What does the in operator do?",
+      "options": [
+        "Logs in user",
+        "Checks if property exists in object or its prototype chain",
+        "Adds property to object",
+        "Imports module"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The 'in' operator returns true if the specified property is in the object or its prototype chain. Different from hasOwnProperty() which checks only own properties."
+    },
+    {
+      "id": 61,
+      "question": "What is BigInt used for?",
+      "options": [
+        "Large files",
+        "Representing integers larger than Number.MAX_SAFE_INTEGER",
+        "Performance",
+        "Binary operations"
+      ],
+      "correctAnswer": 1,
+      "explanation": "BigInt is a numeric primitive that can represent integers with arbitrary precision, beyond the safe integer limit of Number (2^53 - 1). Created with n suffix or BigInt()."
+    },
+    {
+      "id": 62,
+      "question": "What does Array.prototype.flat() do?",
+      "options": [
+        "Removes duplicates",
+        "Flattens nested arrays into single-level array",
+        "Sorts array",
+        "Removes falsy values"
+      ],
+      "correctAnswer": 1,
+      "explanation": "flat() creates a new array with all sub-array elements concatenated into it recursively up to specified depth. Default depth is 1. flat(Infinity) flattens all levels."
+    },
+    {
+      "id": 63,
+      "question": "What is the optional chaining operator (?.)? ",
+      "options": [
+        "Ternary operator",
+        "Safely accesses nested properties without checking each level",
+        "Question mark operator",
+        "Comparison operator"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Optional chaining (?.) allows reading value of property deep within object chain without validating each reference. Returns undefined if reference is nullish instead of throwing error."
+    },
+    {
+      "id": 64,
+      "question": "What does the nullish coalescing operator (??) do?",
+      "options": [
+        "Checks null values",
+        "Returns right operand when left is null or undefined",
+        "Creates null values",
+        "Compares null and undefined"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Nullish coalescing (??) returns right operand when left is null or undefined (not other falsy values like 0 or ''). Different from || which checks all falsy values."
+    },
+    {
+      "id": 65,
+      "question": "What is the difference between undefined and not defined?",
+      "options": [
+        "Same thing",
+        "undefined is a value, not defined means variable doesn't exist",
+        "undefined is an error",
+        "not defined is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "undefined is a primitive value assigned to declared variables with no value. 'not defined' (ReferenceError) occurs when trying to access a variable that hasn't been declared."
+    },
+    {
+      "id": 66,
+      "question": "What does String.prototype.split() return?",
+      "options": [
+        "Split strings",
+        "Array of strings split at specified delimiter",
+        "Number of parts",
+        "Modified string"
+      ],
+      "correctAnswer": 1,
+      "explanation": "split() divides a string into an ordered list of substrings based on a delimiter (string or regex), returning these substrings as an array."
+    },
+    {
+      "id": 67,
+      "question": "What is the purpose of WeakSet?",
+      "options": [
+        "Small sets",
+        "Set with weak object references allowing garbage collection",
+        "Set with limited size",
+        "Deprecated structure"
+      ],
+      "correctAnswer": 1,
+      "explanation": "WeakSet is a collection of objects (only) with weak references. Objects can be garbage collected if no other references exist. No size property, not iterable."
+    },
+    {
+      "id": 68,
+      "question": "What does Number.isInteger() do?",
+      "options": [
+        "Converts to integer",
+        "Checks if value is an integer",
+        "Rounds number",
+        "Counts digits"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Number.isInteger() determines whether the passed value is an integer. Returns true for integers, false for floats, NaN, Infinity, and non-numbers."
+    },
+    {
+      "id": 69,
+      "question": "What is the difference between parameters and arguments?",
+      "options": [
+        "No difference",
+        "Parameters are in function definition, arguments are actual values passed",
+        "Parameters are deprecated",
+        "Arguments are global"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Parameters are variables in function definition. Arguments are the actual values passed to function when called. function fn(param) { } vs fn(argument)."
+    },
+    {
+      "id": 70,
+      "question": "What does Object.values() return?",
+      "options": [
+        "Object keys",
+        "Array of object's own enumerable property values",
+        "Number of properties",
+        "Object copy"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.values() returns an array of a given object's own enumerable property values, in the same order as for...in loop (but without prototype properties)."
+    },
+    {
+      "id": 71,
+      "question": "What is tail call optimization?",
+      "options": [
+        "Array optimization",
+        "Optimization where recursive function call in tail position reuses stack frame",
+        "String optimization",
+        "Loop optimization"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Tail call optimization allows recursive function to reuse same stack frame when function call is in tail position (last operation), preventing stack overflow."
+    },
+    {
+      "id": 72,
+      "question": "What does Array.prototype.includes() do?",
+      "options": [
+        "Adds elements",
+        "Checks if array includes certain value, returns boolean",
+        "Merges arrays",
+        "Counts occurrences"
+      ],
+      "correctAnswer": 1,
+      "explanation": "includes() determines whether an array includes a certain value among its entries, returning true or false. More readable than indexOf() !== -1."
+    },
+    {
+      "id": 73,
+      "question": "What is a higher-order function?",
+      "options": [
+        "Complex function",
+        "Function that takes function as argument or returns function",
+        "Fast function",
+        "Built-in function"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Higher-order function takes one or more functions as arguments or returns a function. Examples: map, filter, reduce. Enables functional programming patterns."
+    },
+    {
+      "id": 74,
+      "question": "What does String.prototype.repeat() do?",
+      "options": [
+        "Finds repeated characters",
+        "Returns string repeated specified number of times",
+        "Removes repeated characters",
+        "Counts repetitions"
+      ],
+      "correctAnswer": 1,
+      "explanation": "repeat() constructs and returns a new string containing specified number of copies of the string on which it was called, concatenated together."
+    },
+    {
+      "id": 75,
+      "question": "What is the difference between for...in and for...of?",
+      "options": [
+        "No difference",
+        "for...in iterates enumerable properties, for...of iterates iterable values",
+        "for...of is deprecated",
+        "for...in is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "for...in loops over enumerable property names (including inherited). for...of loops over values of iterable objects (Arrays, Maps, Sets, etc.)."
+    },
+    {
+      "id": 76,
+      "question": "What does Object.entries() return?",
+      "options": [
+        "Object keys",
+        "Array of object's [key, value] pairs",
+        "Entry count",
+        "Object values"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.entries() returns an array of a given object's own enumerable property [key, value] pairs. Useful for iterating or converting to Map."
+    },
+    {
+      "id": 77,
+      "question": "What is a Proxy in JavaScript?",
+      "options": [
+        "Network proxy",
+        "Object that wraps another object to intercept operations",
+        "Design pattern",
+        "Security feature"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Proxy creates a wrapper around object allowing you to intercept and customize fundamental operations (property lookup, assignment, enumeration, function invocation, etc.)."
+    },
+    {
+      "id": 78,
+      "question": "What does String.prototype.padStart() do?",
+      "options": [
+        "Removes padding",
+        "Pads string from start with another string until target length",
+        "Aligns text",
+        "Adds prefix"
+      ],
+      "correctAnswer": 1,
+      "explanation": "padStart() pads the current string with another string (repeated if needed) from the start until the resulting string reaches the given length."
+    },
+    {
+      "id": 79,
+      "question": "What is the Reflect API?",
+      "options": [
+        "Reflection in mirrors",
+        "Built-in object providing methods for interceptable JavaScript operations",
+        "Debugging tool",
+        "Performance monitor"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Reflect is built-in object providing methods for interceptable JavaScript operations. Similar to Proxy traps but as functions. Makes Object operations more functional."
+    },
+    {
+      "id": 80,
+      "question": "What does Array.prototype.findIndex() do?",
+      "options": [
+        "Finds all indexes",
+        "Returns index of first element satisfying test function",
+        "Counts elements",
+        "Sorts by index"
+      ],
+      "correctAnswer": 1,
+      "explanation": "findIndex() returns the index of the first element that satisfies the test function. Returns -1 if no element passes the test."
+    },
+    {
+      "id": 81,
+      "question": "What is the difference between shallow copy and deep copy?",
+      "options": [
+        "No difference",
+        "Shallow copies references, deep copy creates independent copies",
+        "Deep copy is faster",
+        "Shallow copy is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Shallow copy copies only first level (nested objects are still referenced). Deep copy recursively copies all levels, creating completely independent objects."
+    },
+    {
+      "id": 82,
+      "question": "What does String.prototype.startsWith() do?",
+      "options": [
+        "Gets first character",
+        "Checks if string starts with specified characters",
+        "Removes start of string",
+        "Adds prefix"
+      ],
+      "correctAnswer": 1,
+      "explanation": "startsWith() determines whether a string begins with the characters of a specified string, returning true or false. Can specify start position."
+    },
+    {
+      "id": 83,
+      "question": "What is the Iterator protocol?",
+      "options": [
+        "Loop syntax",
+        "Protocol defining standard way to produce sequence of values",
+        "Array method",
+        "Design pattern"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Iterator protocol defines standard way to produce sequence of values. Object is iterator when it implements next() method returning {value, done} object."
+    },
+    {
+      "id": 84,
+      "question": "What does Math.trunc() do?",
+      "options": [
+        "Rounds number",
+        "Returns integer part by removing fractional digits",
+        "Truncates string",
+        "Limits range"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Math.trunc() returns integer part of number by removing any fractional digits. Different from Math.floor() for negative numbers. trunc(-1.5) = -1, floor(-1.5) = -2."
+    },
+    {
+      "id": 85,
+      "question": "What is the Intl object?",
+      "options": [
+        "Internet object",
+        "Internationalization API for language-sensitive operations",
+        "Internal object",
+        "Interface object"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Intl provides language-sensitive string comparison, number formatting, and date/time formatting. Includes DateTimeFormat, NumberFormat, Collator, etc."
+    },
+    {
+      "id": 86,
+      "question": "What does Array.prototype.copyWithin() do?",
+      "options": [
+        "Copies array",
+        "Shallow copies part of array to another location in same array",
+        "Duplicates elements",
+        "Creates array copy"
+      ],
+      "correctAnswer": 1,
+      "explanation": "copyWithin() shallow copies part of array to another location in the same array without modifying its length. Modifies array in place."
+    },
+    {
+      "id": 87,
+      "question": "What is the difference between window and document?",
+      "options": [
+        "No difference",
+        "window is global browser object, document is DOM representation",
+        "document is newer",
+        "window is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "window is global browser object representing browser window. document is property of window representing DOM (Document Object Model) - the HTML page content."
+    },
+    {
+      "id": 88,
+      "question": "What does String.prototype.localeCompare() do?",
+      "options": [
+        "Compares lengths",
+        "Compares strings according to locale, returns number",
+        "Finds location",
+        "Translates string"
+      ],
+      "correctAnswer": 1,
+      "explanation": "localeCompare() compares strings according to locale (language/region) rules. Returns negative if before, positive if after, 0 if equal. Handles special characters properly."
+    },
+    {
+      "id": 89,
+      "question": "What is the purpose of void operator?",
+      "options": [
+        "Creates empty space",
+        "Evaluates expression and returns undefined",
+        "Deletes variables",
+        "Checks for void"
+      ],
+      "correctAnswer": 1,
+      "explanation": "void operator evaluates expression and returns undefined. Often used with void 0 to get undefined value safely, or in href=\"javascript:void(0)\" to prevent navigation."
+    },
+    {
+      "id": 90,
+      "question": "What does Number.parseFloat() do?",
+      "options": [
+        "Creates float",
+        "Parses string and returns floating point number",
+        "Checks if float",
+        "Converts to integer"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Number.parseFloat() (or global parseFloat()) parses string argument and returns floating point number. Stops parsing at first non-numeric character."
+    },
+    {
+      "id": 91,
+      "question": "What is a tagged template literal?",
+      "options": [
+        "HTML template",
+        "Function that processes template literal, receiving parts and values",
+        "String with tags",
+        "Labeled template"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Tagged template literal is advanced form where function processes template literal. Function receives array of string parts and values, can return formatted result."
+    },
+    {
+      "id": 92,
+      "question": "What does Object.getOwnPropertyNames() return?",
+      "options": [
+        "All property names",
+        "Array of all own property names including non-enumerable",
+        "Enumerable properties only",
+        "Inherited properties"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.getOwnPropertyNames() returns array of all own property names (including non-enumerable) found directly on object, excluding Symbol properties and inherited."
+    },
+    {
+      "id": 93,
+      "question": "What is the instanceof operator?",
+      "options": [
+        "Creates instances",
+        "Checks if object is instance of constructor/class",
+        "Counts instances",
+        "Compares instances"
+      ],
+      "correctAnswer": 1,
+      "explanation": "instanceof tests whether object's prototype chain contains the prototype property of constructor. Returns true if object is instance of specified constructor."
+    },
+    {
+      "id": 94,
+      "question": "What does Array.prototype.fill() do?",
+      "options": [
+        "Fills array to capacity",
+        "Fills array elements with static value from start to end index",
+        "Removes empty slots",
+        "Adds elements"
+      ],
+      "correctAnswer": 1,
+      "explanation": "fill() fills all elements from start index to end index with static value. Modifies original array. Useful for initializing arrays with default values."
+    },
+    {
+      "id": 95,
+      "question": "What is the difference between innerHTML and textContent?",
+      "options": [
+        "No difference",
+        "innerHTML parses HTML, textContent gets/sets text only",
+        "textContent is deprecated",
+        "innerHTML is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "innerHTML gets/sets HTML content (parses tags). textContent gets/sets text content only (treats tags as text). textContent is faster and safer against XSS."
+    },
+    {
+      "id": 96,
+      "question": "What does String.prototype.match() return?",
+      "options": [
+        "Boolean",
+        "Array of matches or null if no match",
+        "Match count",
+        "Matched string only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "match() retrieves result of matching string against regular expression. Returns array of matches (with capture groups) or null if no match found."
+    },
+    {
+      "id": 97,
+      "question": "What is the globalThis object?",
+      "options": [
+        "Global variable",
+        "Standard way to access global 'this' across environments",
+        "Window object",
+        "Module scope"
+      ],
+      "correctAnswer": 1,
+      "explanation": "globalThis provides standard way to access global 'this' value (global object) across different environments (browser: window, Node: global, workers: self)."
+    },
+    {
+      "id": 98,
+      "question": "What does Array.of() do?",
+      "options": [
+        "Gets elements of array",
+        "Creates new array from arguments regardless of type or number",
+        "Checks array type",
+        "Converts to array"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Array.of() creates new Array instance from variable number of arguments, regardless of type. Difference from Array constructor: Array.of(5) creates [5], Array(5) creates empty array length 5."
+    },
+    {
+      "id": 99,
+      "question": "What is the purpose of Object.seal()?",
+      "options": [
+        "Encrypts object",
+        "Prevents adding/removing properties but allows modifying existing ones",
+        "Makes object immutable",
+        "Closes object"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.seal() prevents adding new properties or deleting existing ones. Existing properties can still be modified. Less restrictive than freeze(), more than preventExtensions()."
+    },
+    {
+      "id": 100,
+      "question": "What does String.prototype.replace() do?",
+      "options": [
+        "Removes characters",
+        "Returns new string with pattern replaced",
+        "Modifies original string",
+        "Finds and counts"
+      ],
+      "correctAnswer": 1,
+      "explanation": "replace() returns new string with some or all matches of pattern replaced by replacement. Doesn't modify original. Use replaceAll() for all occurrences or regex with g flag."
+    },
+    {
+      "id": 101,
+      "question": "What is the output? const { a = 1 } = { a: undefined }; console.log(a);",
+      "options": [
+        "1",
+        "undefined",
+        "null",
+        "Throws error"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Default value is applied when property value is undefined."
+    },
+    {
+      "id": 102,
+      "question": "Which syntax renames a destructured property?",
+      "options": [
+        "const { name => userName } = user",
+        "const { name as userName } = user",
+        "const { name: userName } = user",
+        "const { userName: name } = user"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Property rename syntax is { sourceKey: localVariableName }."
+    },
+    {
+      "id": 103,
+      "question": "Output of: const {x=2} = {x:null}; console.log(x);",
+      "options": [
+        "2",
+        "null",
+        "undefined",
+        "0"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Defaults apply only for undefined, not for null."
+    },
+    {
+      "id": 104,
+      "question": "What is true for object spread {...obj}?",
+      "options": [
+        "Deep copy",
+        "Shallow copy",
+        "Reference copy only",
+        "Always immutable recursively"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object spread clones only top-level properties."
+    },
+    {
+      "id": 105,
+      "question": "Output: const a=[1,2]; const b=[...a]; a.push(3); console.log(b.length);",
+      "options": [
+        "2",
+        "3",
+        "0",
+        "Throws"
+      ],
+      "correctAnswer": 0,
+      "explanation": "b is a new array copy; later push on a does not affect b length."
+    },
+    {
+      "id": 106,
+      "question": "Rest parameter in function signature collects values into:",
+      "options": [
+        "Object",
+        "Set",
+        "Array",
+        "Promise"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Rest syntax (...args) collects remaining args into an array."
+    },
+    {
+      "id": 107,
+      "question": "Object.entries(obj) returns:",
+      "options": [
+        "Array of keys",
+        "Array of values",
+        "Array of [key, value] pairs",
+        "Map instance"
+      ],
+      "correctAnswer": 2,
+      "explanation": "entries returns key-value tuple array."
+    },
+    {
+      "id": 108,
+      "question": "Output: Object.keys({2:\"b\",1:\"a\",x:\"c\"})[0] ?",
+      "options": [
+        "2",
+        "1",
+        "x",
+        "undefined"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Numeric-like keys are ordered ascending, so 1 comes first."
+    },
+    {
+      "id": 109,
+      "question": "Which method gives only own enumerable values?",
+      "options": [
+        "for...in",
+        "Object.values",
+        "Reflect.ownKeys",
+        "Object.getOwnPropertyNames"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object.values returns own enumerable property values."
+    },
+    {
+      "id": 110,
+      "question": "Array.map callback should return:",
+      "options": [
+        "Boolean only",
+        "New transformed value for each element",
+        "Nothing",
+        "Promise always"
+      ],
+      "correctAnswer": 1,
+      "explanation": "map transforms each element and returns a new array."
+    },
+    {
+      "id": 111,
+      "question": "Output: [1,2,3].map(n=>{ n*2 })",
+      "options": [
+        "[2,4,6]",
+        "[undefined,undefined,undefined]",
+        "[]",
+        "Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "With braces, explicit return is required."
+    },
+    {
+      "id": 112,
+      "question": "map mutates original array by default?",
+      "options": [
+        "Always",
+        "Never",
+        "Only in strict mode",
+        "Only for numbers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "map returns new array; source is unchanged unless callback mutates nested references."
+    },
+    {
+      "id": 113,
+      "question": "Output: [0,1,2].filter(Boolean)",
+      "options": [
+        "[0,1,2]",
+        "[1,2]",
+        "[0,2]",
+        "[]"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Boolean removes falsy values, including 0."
+    },
+    {
+      "id": 114,
+      "question": "filter callback should return:",
+      "options": [
+        "Transformed value",
+        "Truthy/falsy decision",
+        "Index only",
+        "Accumulator"
+      ],
+      "correctAnswer": 1,
+      "explanation": "filter keeps elements where callback result is truthy."
+    },
+    {
+      "id": 115,
+      "question": "Which is better when you need just first match?",
+      "options": [
+        "filter",
+        "map",
+        "find",
+        "reduce"
+      ],
+      "correctAnswer": 2,
+      "explanation": "find short-circuits at first match."
+    },
+    {
+      "id": 116,
+      "question": "find returns what when not found?",
+      "options": [
+        "-1",
+        "null",
+        "undefined",
+        "false"
+      ],
+      "correctAnswer": 2,
+      "explanation": "find returns undefined for no match."
+    },
+    {
+      "id": 117,
+      "question": "Output: [4,8,12].findIndex(n=>n>10)",
+      "options": [
+        "2",
+        "1",
+        "-1",
+        "12"
+      ],
+      "correctAnswer": 0,
+      "explanation": "12 is at index 2."
+    },
+    {
+      "id": 118,
+      "question": "find vs findIndex difference?",
+      "options": [
+        "Same return type",
+        "find returns item, findIndex returns position",
+        "findIndex is async",
+        "find mutates array"
+      ],
+      "correctAnswer": 1,
+      "explanation": "find gives element; findIndex gives numeric index."
+    },
+    {
+      "id": 119,
+      "question": "What does reduce require for safe empty-array handling?",
+      "options": [
+        "sort first",
+        "initial accumulator value",
+        "map first",
+        "no callback"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Provide initial value to avoid TypeError on empty arrays."
+    },
+    {
+      "id": 120,
+      "question": "Output: [1,2,3].reduce((a,b)=>a+b)",
+      "options": [
+        "3",
+        "5",
+        "6",
+        "Error"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Without initial value, accumulator starts at first element, result is 6."
+    },
+    {
+      "id": 121,
+      "question": "Best structure for frequency counter with reduce?",
+      "options": [
+        "Array accumulator",
+        "Object/Map accumulator",
+        "Boolean accumulator",
+        "String accumulator"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object or Map is typical for key-count aggregation."
+    },
+    {
+      "id": 122,
+      "question": "Currying converts f(a,b) into:",
+      "options": [
+        "f(a+b)",
+        "f(a)(b)",
+        "f([a,b])",
+        "f(a,b,c)"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Curried function takes one argument per invocation chain."
+    },
+    {
+      "id": 123,
+      "question": "Output: const add=a=>b=>a+b; add(1)(4)",
+      "options": [
+        "5",
+        "14",
+        "undefined",
+        "NaN"
+      ],
+      "correctAnswer": 0,
+      "explanation": "First call captures a=1, second adds b=4."
+    },
+    {
+      "id": 124,
+      "question": "Main advantage of currying in interviews?",
+      "options": [
+        "Less memory always",
+        "Enables partial application and composability",
+        "Faster runtime always",
+        "Avoids closures"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Currying improves reusability/composition patterns."
+    },
+    {
+      "id": 125,
+      "question": "Promise callback queue runs in:",
+      "options": [
+        "Macro task queue only",
+        "Microtask queue",
+        "Call stack directly",
+        "Render queue"
+      ],
+      "correctAnswer": 1,
+      "explanation": "then/catch callbacks run in microtask queue after current stack."
+    },
+    {
+      "id": 126,
+      "question": "Output order: Promise.resolve().then(()=>console.log(\"A\")); console.log(\"B\")",
+      "options": [
+        "A then B",
+        "B then A",
+        "Only A",
+        "Only B"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Synchronous log runs first, then microtask callback."
+    },
+    {
+      "id": 127,
+      "question": "How to propagate value to next then?",
+      "options": [
+        "throw value",
+        "return value",
+        "console.log value",
+        "setTimeout value"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Return statement passes resolution value through chain."
+    },
+    {
+      "id": 128,
+      "question": "async function always returns:",
+      "options": [
+        "Plain value",
+        "Promise",
+        "Generator",
+        "Observable"
+      ],
+      "correctAnswer": 1,
+      "explanation": "async wraps return value into resolved Promise."
+    },
+    {
+      "id": 129,
+      "question": "Output: async function f(){return 3}; f() instanceof Promise",
+      "options": [
+        "true",
+        "false",
+        "undefined",
+        "throws"
+      ],
+      "correctAnswer": 0,
+      "explanation": "All async functions return Promise instances."
+    },
+    {
+      "id": 130,
+      "question": "Best way to run independent async calls together?",
+      "options": [
+        "await in loop",
+        "Promise.all with await",
+        "Nested try blocks",
+        "setInterval"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Promise.all provides concurrent execution for independent tasks."
+    },
+    {
+      "id": 131,
+      "question": "Promise.allSettled returns:",
+      "options": [
+        "First success only",
+        "Array of status/result for each promise",
+        "Single boolean",
+        "Throws always"
+      ],
+      "correctAnswer": 1,
+      "explanation": "allSettled never short-circuits and reports each promise state."
+    },
+    {
+      "id": 132,
+      "question": "Output: await Promise.all([Promise.resolve(1), Promise.resolve(2)])",
+      "options": [
+        "1",
+        "2",
+        "[1,2]",
+        "undefined"
+      ],
+      "correctAnswer": 2,
+      "explanation": "all resolves to array of values in input order."
+    },
+    {
+      "id": 133,
+      "question": "Promise.race is best for:",
+      "options": [
+        "Collecting all errors",
+        "Timeout/fallback fastest-response patterns",
+        "Sorting promises",
+        "Retry logic only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "race settles with first settled promise."
+    },
+    {
+      "id": 134,
+      "question": "Debounce primarily optimizes:",
+      "options": [
+        "One-time startup code",
+        "High-frequency burst events",
+        "CPU threads",
+        "Memory allocation only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Debounce reduces redundant calls during rapid event bursts."
+    },
+    {
+      "id": 135,
+      "question": "In trailing debounce, function executes when:",
+      "options": [
+        "Event starts",
+        "Cooldown starts",
+        "Silence window completes",
+        "Every interval"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Trailing debounce fires after no new events for delay duration."
+    },
+    {
+      "id": 136,
+      "question": "Output: debounced fn called 5 times quickly with delay 200ms; how many executions (trailing only)?",
+      "options": [
+        "0",
+        "1",
+        "5",
+        "Depends but never 1"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Rapid calls collapse into one final trailing invocation."
+    },
+    {
+      "id": 137,
+      "question": "Throttle ensures:",
+      "options": [
+        "Only last call runs",
+        "At most one call per interval",
+        "No dropped calls ever",
+        "Infinite retries"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Throttle rate-limits execution frequency."
+    },
+    {
+      "id": 138,
+      "question": "Best use case for throttle:",
+      "options": [
+        "Submit button once",
+        "Scroll position updates",
+        "Build-time transpilation",
+        "Static data parse"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Scroll/mousemove need periodic updates, not every event."
+    },
+    {
+      "id": 139,
+      "question": "Output style question: throttle 1000ms with leading true over 2500ms continuous events gives approximately:",
+      "options": [
+        "1 call",
+        "2-3 calls",
+        "10 calls",
+        "2500 calls"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Execution count depends on implementation, usually around 3 with leading/trailing options."
+    },
+    {
+      "id": 140,
+      "question": "Output: const {a=1} = {a:null}; console.log(a);",
+      "options": [
+        "1",
+        "null",
+        "undefined",
+        "Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Default is not used for null; only for undefined."
+    },
+    {
+      "id": 141,
+      "question": "Output: const [x=3,y=4] = [undefined,2]; console.log(x+y);",
+      "options": [
+        "5",
+        "6",
+        "7",
+        "NaN"
+      ],
+      "correctAnswer": 0,
+      "explanation": "x defaults to 3, y is 2, total is 5."
+    },
+    {
+      "id": 142,
+      "question": "Which is safest function signature for destructuring optional arg?",
+      "options": [
+        "function f({a}){}",
+        "function f(obj){const {a}=obj}",
+        "function f({a} = {}){}",
+        "function f(...a){}"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Default empty object prevents crash when arg is missing."
+    },
+    {
+      "id": 143,
+      "question": "What does const {a: alias} = obj do?",
+      "options": [
+        "Creates key alias in obj",
+        "Renames extracted variable only",
+        "Deletes a from obj",
+        "Creates deep copy"
+      ],
+      "correctAnswer": 1,
+      "explanation": "It renames local variable, not object key."
+    },
+    {
+      "id": 144,
+      "question": "Output: let a=1,b=2; [a,b]=[b,a]; console.log(a,b);",
+      "options": [
+        "1 2",
+        "2 1",
+        "undefined undefined",
+        "Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Array destructuring swap works without temp variable."
+    },
+    {
+      "id": 145,
+      "question": "Output: const a=[1,[2]]; const b=[...a]; b[1][0]=9; console.log(a[1][0]);",
+      "options": [
+        "2",
+        "9",
+        "undefined",
+        "Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Nested array reference is shared because spread is shallow."
+    },
+    {
+      "id": 146,
+      "question": "What is true for rest in objects?",
+      "options": [
+        "Collects inherited properties too",
+        "Collects remaining own enumerable properties",
+        "Creates deep clone",
+        "Works only on arrays"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Object rest collects remaining own enumerable properties."
+    },
+    {
+      "id": 147,
+      "question": "Output: function g(...x){return x[0]+x[2]} console.log(g(1,2,3));",
+      "options": [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "correctAnswer": 1,
+      "explanation": "x[0]=1 and x[2]=3 => 4."
+    },
+    {
+      "id": 148,
+      "question": "Which operation is immutable?",
+      "options": [
+        "arr.push(x)",
+        "[...arr, x]",
+        "obj.a=2",
+        "delete obj.a"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Spread creates a new array rather than mutating original."
+    },
+    {
+      "id": 149,
+      "question": "Output: const o={a:1}; const p={...o}; o.a=5; console.log(p.a);",
+      "options": [
+        "1",
+        "5",
+        "undefined",
+        "Error"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Primitive value copied at spread time; later mutation on o does not change p.a."
+    },
+    {
+      "id": 150,
+      "question": "Output: Object.keys({a:1,b:2}).length",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Two own enumerable keys exist."
+    },
+    {
+      "id": 151,
+      "question": "Output: Object.fromEntries([[\"x\",10],[\"y\",20]]).y",
+      "options": [
+        "10",
+        "20",
+        "undefined",
+        "Error"
+      ],
+      "correctAnswer": 1,
+      "explanation": "fromEntries reconstructs object with provided pairs."
+    },
+    {
+      "id": 152,
+      "question": "Best method to transform object values and rebuild object?",
+      "options": [
+        "Object.keys only",
+        "Object.values only",
+        "Object.entries + map + Object.fromEntries",
+        "JSON.stringify"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Entries pipeline is idiomatic and explicit for object transforms."
+    },
+    {
+      "id": 153,
+      "question": "Output: const o=Object.create({z:9}); o.a=1; console.log(Object.keys(o));",
+      "options": [
+        "[\"a\",\"z\"]",
+        "[\"z\"]",
+        "[\"a\"]",
+        "[]"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Object.keys excludes inherited prototype keys."
+    },
+    {
+      "id": 154,
+      "question": "Which includes symbol keys?",
+      "options": [
+        "Object.keys",
+        "Object.entries",
+        "Reflect.ownKeys",
+        "Object.values"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Reflect.ownKeys returns all own keys including symbols."
+    },
+    {
+      "id": 155,
+      "question": "Throttle best use-case?",
+      "options": [
+        "Typing search input",
+        "Continuous scroll updates",
+        "One-time init",
+        "Static config load"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Throttle is ideal for frequent continuous events like scroll/resize."
+    },
+    {
+      "id": 156,
+      "question": "In throttle, if events fire faster than interval, calls are:",
+      "options": [
+        "All executed",
+        "Rate-limited",
+        "Queued forever",
+        "Converted to promises"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Throttle limits execution frequency."
+    },
+    {
+      "id": 157,
+      "question": "String methods mutate original string?",
+      "options": [
+        "Yes",
+        "No",
+        "Only slice mutates",
+        "Only replace mutates"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Strings are immutable in JavaScript."
+    },
+    {
+      "id": 158,
+      "question": "Output: \"Hello\".slice(1,4)",
+      "options": [
+        "ell",
+        "ello",
+        "Hel",
+        "ll"
+      ],
+      "correctAnswer": 0,
+      "explanation": "slice extracts from index 1 up to (not including) 4."
+    },
+    {
+      "id": 159,
+      "question": "Arrow function has its own this?",
+      "options": [
+        "Yes",
+        "No",
+        "Only in strict mode",
+        "Only in classes"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Arrow functions lexically inherit this."
+    },
+    {
+      "id": 160,
+      "question": "Which invokes function immediately with provided this?",
+      "options": [
+        "bind",
+        "call",
+        "freeze",
+        "map"
+      ],
+      "correctAnswer": 1,
+      "explanation": "call invokes immediately; bind returns a new bound function."
+    },
+    {
+      "id": 161,
+      "question": "localStorage value type is:",
+      "options": [
+        "Any JSON type directly",
+        "String only",
+        "Number only",
+        "Object only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Storage APIs store string values."
+    },
+    {
+      "id": 162,
+      "question": "sessionStorage scope is:",
+      "options": [
+        "Shared across all tabs forever",
+        "Current tab/session",
+        "Server-side only",
+        "Global system"
+      ],
+      "correctAnswer": 1,
+      "explanation": "sessionStorage is scoped to tab session."
+    },
+    {
+      "id": 163,
+      "question": "Best way to store object in localStorage?",
+      "options": [
+        "setItem(key, obj)",
+        "setItem(key, JSON.stringify(obj))",
+        "setItem(key, obj.toString())",
+        "Not possible"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Serialize objects with JSON.stringify."
+    }
+  ]
+}

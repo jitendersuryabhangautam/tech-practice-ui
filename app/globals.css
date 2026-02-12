@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f7f4ef;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --border: #dbe2ea;
+}
+
+.dark {
+  --background: #0b1220;
+  --foreground: #e2e8f0;
+  --surface: #111c2d;
+  --surface-muted: #172235;
+  --border: #263449;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+body {
+  background: radial-gradient(
+      circle at 10% -10%,
+      rgba(245, 158, 11, 0.15),
+      transparent 35%
+    ),
+    radial-gradient(circle at 90% 10%, rgba(14, 116, 144, 0.12), transparent 30%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-display), "Segoe UI", sans-serif;
+}
+
+code,
+pre {
+  font-family: var(--font-mono), "Consolas", monospace;
+}
+
+@layer components {
+  .page-shell {
+    min-height: calc(100vh - 4rem);
+  }
+
+  .content-card {
+    max-width: 100%;
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.07);
+  }
+
+  .hero-panel {
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(251, 191, 36, 0.1)
+    );
+    padding: 1.5rem;
+  }
+
+  .dark .hero-panel {
+    background: linear-gradient(
+      135deg,
+      rgba(17, 28, 45, 0.92),
+      rgba(245, 158, 11, 0.12)
+    );
+  }
+
+  .eyebrow {
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #b45309;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--foreground);
+  }
+
+  .chip {
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: var(--surface-muted);
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+}
+
+@media (max-width: 640px) {
+  .content-card {
+    border-radius: 0.85rem;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+  }
+
+  .hero-panel {
+    padding: 1rem;
+  }
+
+  .eyebrow {
+    margin-bottom: 0.3rem;
+    font-size: 0.66rem;
+  }
+
+  .section-title {
+    font-size: 1rem;
+  }
+
+  .chip {
+    padding: 0.28rem 0.55rem;
+    font-size: 0.68rem;
+  }
+}

@@ -1,0 +1,1226 @@
+{
+  "title": "ReactJS Fundamentals",
+  "description": "Learn React hooks, component patterns, and performance optimization with interactive quizzes and detailed explanations",
+  "topics": [
+    {
+      "id": "usestate",
+      "title": "useState Hook",
+      "description": "useState is the most fundamental React hook that allows you to add state to functional components. It returns an array with the current state value and a function to update it.",
+      "explanation": "The useState hook is React's primary way to manage component state in functional components. Before hooks (introduced in React 16.8), you needed class components to have state.\n\nKey concepts:\n- Returns array: [currentState, setStateFunction]\n- State updates trigger re-renders\n- Can store any type of value (string, number, object, array)\n- Each useState call is independent\n- State updates are batched for performance\n\nBest practices:\n- Use multiple useState calls for unrelated state\n- Don't mutate state directly, always use setState\n- Use functional updates when new state depends on old state\n- Keep state minimal and derived data in variables",
+      "implementation": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  \n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>\n        Increment\n      </button>\n      <button onClick={() => setCount(count - 1)}>\n        Decrement\n      </button>\n      <button onClick={() => setCount(0)}>\n        Reset\n      </button>\n    </div>\n  );\n}",
+      "example": "// Multiple states\nconst [name, setName] = useState('');\nconst [age, setAge] = useState(0);\nconst [isActive, setIsActive] = useState(false);\n\n// Object state\nconst [user, setUser] = useState({ name: '', email: '' });\n\n// Array state\nconst [items, setItems] = useState([]);\n\n// Functional updates (using previous state)\nsetCount(prevCount => prevCount + 1);\n\n// Lazy initialization (computed once)\nconst [data, setData] = useState(() => {\n  return expensiveComputation();\n});",
+      "useCase": "Form inputs, counters, toggles, managing component-level data, UI state like modals/dropdowns"
+    },
+    {
+      "id": "useeffect",
+      "title": "useEffect Hook",
+      "description": "useEffect lets you perform side effects in functional components. It runs after render and can optionally clean up after itself.",
+      "explanation": "useEffect is React's hook for handling side effects - operations that interact with the outside world like data fetching, subscriptions, or manually changing the DOM.\n\nKey concepts:\n- Runs after every render by default\n- Dependency array controls when it runs\n- Return function for cleanup\n- Replaces componentDidMount, componentDidUpdate, componentWillUnmount\n\nDependency array patterns:\n- [] = Run once on mount\n- [dep1, dep2] = Run when dependencies change\n- No array = Run after every render\n\nCommon mistakes to avoid:\n- Missing dependencies (use ESLint plugin)\n- Not cleaning up subscriptions\n- Infinite loops from state updates\n- Using async directly in useEffect",
+      "implementation": "import { useState, useEffect } from 'react';\n\nfunction UserProfile({ userId }) {\n  const [user, setUser] = useState(null);\n  const [loading, setLoading] = useState(true);\n  \n  useEffect(() => {\n    let cancelled = false;\n    \n    async function fetchUser() {\n      setLoading(true);\n      try {\n        const response = await fetch(`/api/users/${userId}`);\n        const data = await response.json();\n        if (!cancelled) {\n          setUser(data);\n        }\n      } catch (error) {\n        console.error(error);\n      } finally {\n        if (!cancelled) {\n          setLoading(false);\n        }\n      }\n    }\n    \n    fetchUser();\n    \n    return () => {\n      cancelled = true;\n    };\n  }, [userId]);\n  \n  if (loading) return <div>Loading...</div>;\n  return <div>{user?.name}</div>;\n}",
+      "example": "// Run once on mount\nuseEffect(() => {\n  console.log('Component mounted');\n}, []);\n\n// Run when dependency changes\nuseEffect(() => {\n  document.title = `Count: ${count}`;\n}, [count]);\n\n// Cleanup function\nuseEffect(() => {\n  const timer = setInterval(() => {\n    console.log('Tick');\n  }, 1000);\n  \n  return () => clearInterval(timer);\n}, []);\n\n// Event listeners\nuseEffect(() => {\n  const handleResize = () => {\n    setWidth(window.innerWidth);\n  };\n  \n  window.addEventListener('resize', handleResize);\n  \n  return () => {\n    window.removeEventListener('resize', handleResize);\n  };\n}, []);",
+      "useCase": "API calls, subscriptions, timers, event listeners, DOM manipulation, local storage sync"
+    }
+  ],
+  "quiz": [
+    {
+      "id": 1,
+      "question": "What does useState return?",
+      "options": [
+        "A single value",
+        "An array with current state and setter function",
+        "An object with state properties",
+        "The previous state value"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useState returns an array with exactly two elements: the current state value and a function to update it. We use array destructuring: const [state, setState] = useState(initialValue);"
+    },
+    {
+      "id": 2,
+      "question": "When does useEffect run by default?",
+      "options": [
+        "Only on component mount",
+        "Only when dependencies change",
+        "After every render (mount and updates)",
+        "Before every render"
+      ],
+      "correctAnswer": 2,
+      "explanation": "By default (without a dependency array), useEffect runs after every render - both on initial mount and after every update. You can control this with the dependency array."
+    },
+    {
+      "id": 3,
+      "question": "What is the purpose of the dependency array in useEffect?",
+      "options": [
+        "To pass props to the effect",
+        "To control when the effect runs",
+        "To prevent errors",
+        "To improve performance only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The dependency array tells React when to re-run the effect. Empty array [] runs once on mount, [dep1, dep2] runs when dependencies change, and no array runs after every render."
+    },
+    {
+      "id": 4,
+      "question": "What does the cleanup function in useEffect do?",
+      "options": [
+        "Deletes the component",
+        "Runs before effect re-runs and on unmount",
+        "Clears state",
+        "Removes event listeners only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The cleanup function returned from useEffect runs before the effect runs again (if dependencies changed) and when the component unmounts. It's used to clean up subscriptions, timers, etc."
+    },
+    {
+      "id": 5,
+      "question": "What is the Virtual DOM in React?",
+      "options": [
+        "A copy of the real DOM",
+        "Lightweight JavaScript representation of the real DOM",
+        "A testing tool",
+        "Browser API"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The Virtual DOM is a lightweight JavaScript object representation of the real DOM. React uses it to efficiently determine what changes need to be made to the actual DOM."
+    },
+    {
+      "id": 6,
+      "question": "What is JSX?",
+      "options": [
+        "A new programming language",
+        "Syntax extension that looks like HTML in JavaScript",
+        "A testing framework",
+        "CSS preprocessor"
+      ],
+      "correctAnswer": 1,
+      "explanation": "JSX is a syntax extension for JavaScript that looks similar to HTML. It gets transpiled to React.createElement() calls by tools like Babel."
+    },
+    {
+      "id": 7,
+      "question": "What is the difference between props and state?",
+      "options": [
+        "No difference",
+        "Props are passed from parent, state is internal to component",
+        "State is faster than props",
+        "Props are deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Props are passed from parent components and are immutable within the receiving component. State is internal to a component and can be changed by the component itself."
+    },
+    {
+      "id": 8,
+      "question": "What does useContext do?",
+      "options": [
+        "Creates new context",
+        "Subscribes to and reads context value",
+        "Updates context",
+        "Deletes context"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useContext accepts a context object (created with React.createContext) and returns its current value. It subscribes the component to context changes."
+    },
+    {
+      "id": 9,
+      "question": "What is prop drilling?",
+      "options": [
+        "Validating props",
+        "Passing props through multiple component layers",
+        "Creating new props",
+        "Debugging props"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Prop drilling is passing props through multiple intermediate components that don't need them, just to get data to deeply nested components. Context or state management can solve this."
+    },
+    {
+      "id": 10,
+      "question": "What does useReducer do?",
+      "options": [
+        "Reduces array size",
+        "Alternative to useState for complex state logic",
+        "Optimizes performance",
+        "Reduces bundle size"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useReducer is an alternative to useState for managing complex state logic. It follows the Redux pattern with a reducer function that takes state and action, returning new state."
+    },
+    {
+      "id": 11,
+      "question": "What is a controlled component?",
+      "options": [
+        "Component with no bugs",
+        "Form element whose value is controlled by React state",
+        "Component with props",
+        "Parent component"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A controlled component is a form element (like input, textarea, select) whose value is controlled by React state, making React the 'single source of truth'."
+    },
+    {
+      "id": 12,
+      "question": "What does React.memo do?",
+      "options": [
+        "Memoizes all components",
+        "Prevents re-render if props haven't changed",
+        "Improves memory",
+        "Caches API calls"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React.memo is a higher-order component that memoizes the result. It prevents re-render if props haven't changed (shallow comparison), improving performance."
+    },
+    {
+      "id": 13,
+      "question": "What is the purpose of useCallback?",
+      "options": [
+        "Creates callbacks",
+        "Memoizes function to prevent recreation on re-renders",
+        "Handles async operations",
+        "Validates callbacks"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useCallback returns a memoized version of the callback function that only changes if dependencies change. Useful for passing callbacks to optimized child components."
+    },
+    {
+      "id": 14,
+      "question": "What does useMemo do?",
+      "options": [
+        "Improves memory",
+        "Memoizes computed value to avoid expensive recalculations",
+        "Creates memos",
+        "Caches API responses"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useMemo returns a memoized value, only recalculating when dependencies change. It's used to optimize expensive computations that shouldn't run on every render."
+    },
+    {
+      "id": 15,
+      "question": "What is the key prop used for?",
+      "options": [
+        "Security",
+        "Helps React identify which items changed in a list",
+        "Styling",
+        "Event handling"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Keys help React identify which items have changed, been added, or removed in lists. They should be stable, unique identifiers (not array index if list can change)."
+    },
+    {
+      "id": 16,
+      "question": "What are React fragments?",
+      "options": [
+        "Broken components",
+        "Way to group elements without adding extra DOM nodes",
+        "Small components",
+        "Testing utilities"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Fragments (<></> or <React.Fragment>) let you group a list of children without adding extra nodes to the DOM. Useful when component must return multiple elements."
+    },
+    {
+      "id": 17,
+      "question": "What is lifting state up?",
+      "options": [
+        "Moving state to higher component in tree",
+        "Improving performance",
+        "Creating global state",
+        "Removing state"
+      ],
+      "correctAnswer": 0,
+      "explanation": "Lifting state up means moving state to the closest common ancestor of components that need it. This allows sharing state between sibling components."
+    },
+    {
+      "id": 18,
+      "question": "What does useRef return?",
+      "options": [
+        "Reference to DOM element only",
+        "Mutable ref object with .current property",
+        "Component reference",
+        "Function reference"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useRef returns a mutable ref object whose .current property persists across renders. It can hold DOM references or any mutable value without causing re-renders when changed."
+    },
+    {
+      "id": 19,
+      "question": "What is the difference between useRef and useState?",
+      "options": [
+        "No difference",
+        "useRef changes don't trigger re-renders, useState changes do",
+        "useRef is deprecated",
+        "useState is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Changing useRef's .current value doesn't trigger re-renders, while calling useState's setter does. useRef is for mutable values that don't affect render output."
+    },
+    {
+      "id": 20,
+      "question": "What are synthetic events in React?",
+      "options": [
+        "Fake events",
+        "Cross-browser wrapper around native events",
+        "Custom events only",
+        "Deprecated events"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Synthetic events are React's cross-browser wrapper around native browser events. They have the same interface as native events but work consistently across browsers."
+    },
+    {
+      "id": 21,
+      "question": "What is React strict mode?",
+      "options": [
+        "Production mode",
+        "Development mode that highlights potential problems",
+        "Type checking mode",
+        "Performance mode"
+      ],
+      "correctAnswer": 1,
+      "explanation": "StrictMode is a development tool that activates additional checks and warnings. It helps identify unsafe lifecycles, legacy API usage, and unexpected side effects."
+    },
+    {
+      "id": 22,
+      "question": "What does the useLayoutEffect hook do?",
+      "options": [
+        "Creates layouts",
+        "Runs synchronously after DOM mutations before paint",
+        "Same as useEffect",
+        "Manages CSS layouts"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useLayoutEffect runs synchronously after all DOM mutations but before the browser paints. Use it for reading layout and synchronously re-rendering. Use useEffect when possible."
+    },
+    {
+      "id": 23,
+      "question": "What is component composition?",
+      "options": [
+        "Writing CSS",
+        "Building complex UIs from smaller, reusable components",
+        "Compiling components",
+        "Testing strategy"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Component composition is building complex UIs by combining smaller, focused components. It's a fundamental React pattern encouraging reusability and separation of concerns."
+    },
+    {
+      "id": 24,
+      "question": "What is the children prop?",
+      "options": [
+        "Array of child components",
+        "Special prop containing content between component tags",
+        "Component state",
+        "DOM children"
+      ],
+      "correctAnswer": 1,
+      "explanation": "children is a special prop automatically passed to components containing the content between opening and closing tags. Essential for component composition."
+    },
+    {
+      "id": 25,
+      "question": "What are higher-order components (HOCs)?",
+      "options": [
+        "Large components",
+        "Functions that take component and return enhanced component",
+        "Top-level components",
+        "Class components"
+      ],
+      "correctAnswer": 1,
+      "explanation": "HOCs are functions that take a component and return a new component with additional props or behavior. They're used for cross-cutting concerns and code reuse."
+    },
+    {
+      "id": 26,
+      "question": "What is render props pattern?",
+      "options": [
+        "Rendering properties",
+        "Prop that is a function telling component what to render",
+        "Style props",
+        "Deprecated pattern"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Render props is a pattern where a component takes a function prop that returns React elements and calls it instead of implementing its own render logic. Enables code sharing."
+    },
+    {
+      "id": 27,
+      "question": "What does useImperativeHandle do?",
+      "options": [
+        "Handles imperative code",
+        "Customizes ref value exposed to parent components",
+        "Creates handles",
+        "Error handling"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useImperativeHandle customizes the instance value exposed to parent components when using ref. Used with forwardRef to control what the parent can access."
+    },
+    {
+      "id": 28,
+      "question": "What is React.lazy used for?",
+      "options": [
+        "Lazy loading",
+        "Code-splitting components that are loaded dynamically",
+        "Performance monitoring",
+        "Slow rendering"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React.lazy enables code-splitting by dynamically importing components. Used with Suspense, it loads components only when needed, reducing initial bundle size."
+    },
+    {
+      "id": 29,
+      "question": "What is the Suspense component?",
+      "options": [
+        "Loading spinner",
+        "Component that displays fallback while waiting for lazy components",
+        "Error boundary",
+        "Animation component"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Suspense lets you display a fallback (like loading spinner) while waiting for lazy-loaded components or data to load. It handles loading states declaratively."
+    },
+    {
+      "id": 30,
+      "question": "What are error boundaries?",
+      "options": [
+        "Try-catch blocks",
+        "Components that catch JavaScript errors in child tree",
+        "Form validation",
+        "Network error handlers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Error boundaries are components that catch JavaScript errors anywhere in their child component tree, log errors, and display fallback UI instead of crashing the whole app."
+    },
+    {
+      "id": 31,
+      "question": "What is the forwardRef function?",
+      "options": [
+        "Forwards props",
+        "Allows passing refs through components to children",
+        "Navigation function",
+        "Performance optimization"
+      ],
+      "correctAnswer": 1,
+      "explanation": "forwardRef lets a component receive a ref and pass it to a child. It's necessary because refs aren't passed like regular props - they're handled specially by React."
+    },
+    {
+      "id": 32,
+      "question": "What is reconciliation in React?",
+      "options": [
+        "Bug fixing",
+        "Algorithm React uses to diff Virtual DOM and update real DOM",
+        "Component lifecycle",
+        "State management"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Reconciliation is React's algorithm for efficiently updating the DOM. It compares Virtual DOM trees to determine minimal changes needed, then applies them to the real DOM."
+    },
+    {
+      "id": 33,
+      "question": "What does batching mean in React?",
+      "options": [
+        "Processing multiple files",
+        "Grouping multiple state updates into single re-render",
+        "Batch processing API calls",
+        "Component grouping"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Batching is React's optimization where multiple state updates are grouped into a single re-render for better performance. In React 18, automatic batching applies to all updates."
+    },
+    {
+      "id": 34,
+      "question": "What is the useDebugValue hook?",
+      "options": [
+        "Debugging tool",
+        "Displays label for custom hooks in React DevTools",
+        "Console logging",
+        "Error handling"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useDebugValue is used to display a label for custom hooks in React DevTools. It helps with debugging by showing readable values without affecting component behavior."
+    },
+    {
+      "id": 35,
+      "question": "What are portals in React?",
+      "options": [
+        "Navigation links",
+        "Way to render children into DOM node outside parent hierarchy",
+        "API endpoints",
+        "Performance tool"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Portals provide a way to render children into a DOM node that exists outside the DOM hierarchy of the parent component. Useful for modals, tooltips, and overlays."
+    },
+    {
+      "id": 36,
+      "question": "What is prop-types used for?",
+      "options": [
+        "Creating props",
+        "Runtime type checking for React props",
+        "TypeScript replacement",
+        "Performance optimization"
+      ],
+      "correctAnswer": 1,
+      "explanation": "prop-types is a library for runtime type checking of props. It helps catch bugs by validating prop types during development. For static typing, TypeScript is preferred."
+    },
+    {
+      "id": 37,
+      "question": "What is the difference between class and functional components?",
+      "options": [
+        "No difference",
+        "Functional components use hooks, class components use lifecycle methods",
+        "Class components are faster",
+        "Functional components are deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Functional components use hooks for state and lifecycle. Class components use this.state and lifecycle methods. Functional components are now preferred for their simplicity."
+    },
+    {
+      "id": 38,
+      "question": "What does the useTransition hook do (React 18)?",
+      "options": [
+        "CSS transitions",
+        "Marks state updates as non-urgent transitions",
+        "Component transitions",
+        "Animation hook"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useTransition lets you mark state updates as transitions (non-urgent), allowing React to keep UI responsive by prioritizing urgent updates over transition updates."
+    },
+    {
+      "id": 39,
+      "question": "What is the useDeferredValue hook (React 18)?",
+      "options": [
+        "Delays all updates",
+        "Defers updating less critical parts of UI",
+        "Async operations",
+        "Timeout management"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useDeferredValue lets you defer updating a part of the UI. It returns a deferred version of the value that may lag behind the actual value to keep UI responsive."
+    },
+    {
+      "id": 40,
+      "question": "What is concurrent rendering (React 18)?",
+      "options": [
+        "Parallel processing",
+        "React can interrupt rendering to handle more urgent updates",
+        "Multi-threading",
+        "Faster rendering"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Concurrent rendering allows React to interrupt rendering work to handle higher priority updates. It keeps apps responsive even during heavy rendering by prioritizing user interactions."
+    },
+    {
+      "id": 41,
+      "question": "What does React.startTransition do?",
+      "options": [
+        "Starts animation",
+        "Marks updates as non-urgent transitions",
+        "Begins component lifecycle",
+        "Initializes state"
+      ],
+      "correctAnswer": 1,
+      "explanation": "startTransition marks updates inside its callback as transitions (non-urgent), allowing React to keep the UI responsive while these updates are processing."
+    },
+    {
+      "id": 42,
+      "question": "What is hydration in React?",
+      "options": [
+        "Adding water",
+        "Attaching event listeners to server-rendered HTML",
+        "Data fetching",
+        "State initialization"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Hydration is the process where React attaches event listeners and makes server-rendered HTML interactive on the client. Used in SSR applications."
+    },
+    {
+      "id": 43,
+      "question": "What is the difference between createElement and cloneElement?",
+      "options": [
+        "No difference",
+        "createElement creates new element, cloneElement clones and modifies existing",
+        "cloneElement is deprecated",
+        "createElement is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "createElement creates a new React element. cloneElement clones an element and returns a new element with modified props. Useful for extending components."
+    },
+    {
+      "id": 44,
+      "question": "What are uncontrolled components?",
+      "options": [
+        "Components with bugs",
+        "Form elements that maintain their own state in DOM",
+        "Components without props",
+        "Deprecated pattern"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Uncontrolled components store form data in the DOM itself (not React state). You use refs to access values when needed. Simpler but less control than controlled components."
+    },
+    {
+      "id": 45,
+      "question": "What is the useId hook (React 18)?",
+      "options": [
+        "Gets component ID",
+        "Generates unique IDs for accessibility attributes",
+        "User authentication",
+        "Database IDs"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useId generates unique IDs that are stable across server and client renders. Used for accessibility attributes like aria-describedby, ensuring IDs match during hydration."
+    },
+    {
+      "id": 46,
+      "question": "What does the useSyncExternalStore hook do?",
+      "options": [
+        "Syncs with database",
+        "Subscribes to external store with concurrent rendering support",
+        "Synchronizes components",
+        "External API calls"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useSyncExternalStore subscribes to external stores (like Redux) in a way that's safe for concurrent rendering. It helps library authors build React-compatible stores."
+    },
+    {
+      "id": 47,
+      "question": "What is code splitting?",
+      "options": [
+        "Dividing code files",
+        "Technique to split bundle into smaller chunks loaded on demand",
+        "Code review process",
+        "Testing strategy"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Code splitting breaks your bundle into smaller chunks that can be loaded on demand. React.lazy and dynamic imports enable this, reducing initial load time."
+    },
+    {
+      "id": 48,
+      "question": "What is the purpose of defaultProps?",
+      "options": [
+        "Default styling",
+        "Defines default values for props",
+        "Required props",
+        "Prop validation"
+      ],
+      "correctAnswer": 1,
+      "explanation": "defaultProps defines default values for props when they're not provided by the parent. In functional components, you can also use default parameters."
+    },
+    {
+      "id": 49,
+      "question": "What does shouldComponentUpdate do (class components)?",
+      "options": [
+        "Forces update",
+        "Lets component decide if it should re-render on state/prop changes",
+        "Validates updates",
+        "Schedules updates"
+      ],
+      "correctAnswer": 1,
+      "explanation": "shouldComponentUpdate is a lifecycle method that returns boolean indicating if component should re-render. Used for performance optimization. React.memo does similar for functional components."
+    },
+    {
+      "id": 50,
+      "question": "What is PureComponent?",
+      "options": [
+        "Component without state",
+        "Component that implements shallow prop/state comparison",
+        "Function component",
+        "Testing component"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PureComponent is a class that implements shouldComponentUpdate with shallow comparison of props and state. It prevents unnecessary re-renders when data hasn't changed."
+    },
+    {
+      "id": 51,
+      "question": "What are render props used for?",
+      "options": [
+        "Styling",
+        "Sharing code between components using prop that is a function",
+        "Performance",
+        "Validation"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Render props pattern uses a prop (often called 'render' or 'children') that's a function, allowing components to share code without using HOCs or inheritance."
+    },
+    {
+      "id": 52,
+      "question": "What is the Context API?",
+      "options": [
+        "Backend API",
+        "Way to pass data through component tree without props",
+        "Storage API",
+        "Network API"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Context provides a way to share values between components without passing props through every level. Creates a global state accessible to any component in the tree."
+    },
+    {
+      "id": 53,
+      "question": "What does displayName do?",
+      "options": [
+        "Shows component name in UI",
+        "Used by DevTools to display component name",
+        "User display name",
+        "Screen name"
+      ],
+      "correctAnswer": 1,
+      "explanation": "displayName is used by React DevTools to display a name for the component. Automatically inferred from function name, but can be set explicitly for HOCs or anonymous components."
+    },
+    {
+      "id": 54,
+      "question": "What is the React.Children API?",
+      "options": [
+        "Child components only",
+        "Utilities for working with children opaque data structure",
+        "DOM children",
+        "Nested components"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React.Children provides utilities for dealing with the children data structure. Methods like map, forEach, count, toArray, and only help manipulate and inspect children."
+    },
+    {
+      "id": 55,
+      "question": "What does getDerivedStateFromProps do?",
+      "options": [
+        "Gets props from state",
+        "Static method that updates state based on props changes",
+        "Derives props",
+        "Deprecated method"
+      ],
+      "correctAnswer": 1,
+      "explanation": "getDerivedStateFromProps is a static lifecycle method that runs before every render, allowing state to be updated based on props. Rarely needed - usually better alternatives exist."
+    },
+    {
+      "id": 56,
+      "question": "What is React DevTools?",
+      "options": [
+        "IDE for React",
+        "Browser extension for inspecting React component tree",
+        "Testing framework",
+        "Build tool"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React DevTools is a browser extension that lets you inspect the React component tree, props, state, hooks, and performance. Essential tool for React development."
+    },
+    {
+      "id": 57,
+      "question": "What is the difference between componentDidMount and useEffect?",
+      "options": [
+        "No difference",
+        "componentDidMount runs once, useEffect can run multiple times",
+        "useEffect is deprecated",
+        "componentDidMount is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "componentDidMount runs once after mount. useEffect behavior depends on dependencies: empty array mimics componentDidMount, but can also run on updates or every render."
+    },
+    {
+      "id": 58,
+      "question": "What does componentWillUnmount do?",
+      "options": [
+        "Prevents unmounting",
+        "Cleanup before component is removed from DOM",
+        "Unmounts component",
+        "Validates unmounting"
+      ],
+      "correctAnswer": 1,
+      "explanation": "componentWillUnmount is called before component is unmounted and destroyed. Used for cleanup like canceling timers, network requests, or subscriptions. In hooks: useEffect cleanup function."
+    },
+    {
+      "id": 59,
+      "question": "What is the difference between componentDidUpdate and useEffect?",
+      "options": [
+        "No difference",
+        "componentDidUpdate runs after updates only, useEffect can run on mount too",
+        "useEffect is newer",
+        "componentDidUpdate is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "componentDidUpdate runs after every update (not mount). useEffect runs after mount and optionally after updates depending on dependencies. Different timing and control."
+    },
+    {
+      "id": 60,
+      "question": "What are custom hooks?",
+      "options": [
+        "Built-in hooks",
+        "JavaScript functions starting with 'use' that can use hooks",
+        "UI components",
+        "Styling hooks"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Custom hooks are JavaScript functions whose names start with 'use' and may call other hooks. They extract component logic into reusable functions, promoting code reuse."
+    },
+    {
+      "id": 61,
+      "question": "What rules must hooks follow?",
+      "options": [
+        "No rules",
+        "Only call at top level and only in React functions",
+        "Can be called anywhere",
+        "Must be called in order"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Rules of Hooks: 1) Only call hooks at the top level (not in loops, conditions, or nested functions). 2) Only call hooks from React functions or custom hooks."
+    },
+    {
+      "id": 62,
+      "question": "What is React Fiber?",
+      "options": [
+        "CSS framework",
+        "Reimplementation of React's core algorithm for better rendering",
+        "Network library",
+        "Testing tool"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React Fiber is the new reconciliation algorithm introduced in React 16. It enables features like time slicing, prioritization, and concurrent rendering for better performance."
+    },
+    {
+      "id": 63,
+      "question": "What does getSnapshotBeforeUpdate do?",
+      "options": [
+        "Takes screenshot",
+        "Captures DOM info before updates are committed",
+        "Gets component snapshot",
+        "Performance monitoring"
+      ],
+      "correctAnswer": 1,
+      "explanation": "getSnapshotBeforeUpdate is called right before DOM updates. It captures information (like scroll position) that may change, passing it to componentDidUpdate. Rarely needed."
+    },
+    {
+      "id": 64,
+      "question": "What is the difference between state and props?",
+      "options": [
+        "No difference",
+        "State is mutable and internal, props are immutable and external",
+        "Props are faster",
+        "State is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "State is mutable data managed within the component. Props are immutable data passed from parent. State can be changed by component, props cannot be changed by receiving component."
+    },
+    {
+      "id": 65,
+      "question": "What is the useState lazy initialization?",
+      "options": [
+        "Slow initialization",
+        "Passing function to useState that runs only on initial render",
+        "Delayed state",
+        "Performance issue"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Lazy initialization passes a function to useState that's only executed once during initial render. Useful for expensive computations: useState(() => expensiveFunc())."
+    },
+    {
+      "id": 66,
+      "question": "What is React Router?",
+      "options": [
+        "Backend router",
+        "Library for routing and navigation in React apps",
+        "Network router",
+        "Built-in React feature"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React Router is a popular library for handling routing and navigation in React applications. It enables single-page app navigation without full page reloads."
+    },
+    {
+      "id": 67,
+      "question": "What is the difference between Link and NavLink in React Router?",
+      "options": [
+        "No difference",
+        "NavLink can style itself based on active state",
+        "Link is deprecated",
+        "NavLink is for navigation bar only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NavLink extends Link with the ability to automatically apply styles or classes when the route is active, making it useful for navigation menus."
+    },
+    {
+      "id": 68,
+      "question": "What does useNavigate do (React Router v6)?",
+      "options": [
+        "Creates navigation",
+        "Returns function for programmatic navigation",
+        "Validates routes",
+        "Gets current route"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useNavigate returns a function that lets you navigate programmatically. Replaces useHistory from v5. Used for navigation after form submission, authentication, etc."
+    },
+    {
+      "id": 69,
+      "question": "What is the useParams hook (React Router)?",
+      "options": [
+        "Gets query parameters",
+        "Returns object of URL parameters from current route",
+        "Function parameters",
+        "Component parameters"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useParams returns an object of key/value pairs of URL parameters from the current route. Used to access dynamic route segments like /users/:id."
+    },
+    {
+      "id": 70,
+      "question": "What is the difference between BrowserRouter and HashRouter?",
+      "options": [
+        "No difference",
+        "BrowserRouter uses HTML5 history API, HashRouter uses URL hash",
+        "HashRouter is deprecated",
+        "BrowserRouter is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "BrowserRouter uses HTML5 history API for clean URLs. HashRouter uses URL hash (#) for routing. BrowserRouter requires server configuration, HashRouter works without it."
+    },
+    {
+      "id": 71,
+      "question": "What is Redux?",
+      "options": [
+        "React built-in feature",
+        "State management library using single store and actions",
+        "Router library",
+        "Testing framework"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Redux is a predictable state container for JavaScript apps. It uses a single store, actions, and reducers to manage application state in a predictable way."
+    },
+    {
+      "id": 72,
+      "question": "What are Redux actions?",
+      "options": [
+        "Functions only",
+        "Plain JavaScript objects describing what happened",
+        "API calls",
+        "Component methods"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Actions are plain objects that must have a 'type' property and optionally a payload. They describe what happened in the app and are dispatched to update state."
+    },
+    {
+      "id": 73,
+      "question": "What is a Redux reducer?",
+      "options": [
+        "Array.reduce method",
+        "Pure function that takes state and action, returns new state",
+        "Store creator",
+        "Middleware"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Reducers are pure functions that take previous state and an action, returning new state. They specify how state changes in response to actions sent to the store."
+    },
+    {
+      "id": 74,
+      "question": "What is Redux middleware?",
+      "options": [
+        "Middle component",
+        "Extension point between dispatching action and reaching reducer",
+        "Backend middleware",
+        "Testing tool"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Middleware provides extension point between dispatching an action and the moment it reaches the reducer. Used for logging, async actions (thunks), routing, etc."
+    },
+    {
+      "id": 75,
+      "question": "What is Redux Thunk?",
+      "options": [
+        "State chunk",
+        "Middleware that lets action creators return functions instead of actions",
+        "Testing tool",
+        "Performance optimizer"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Redux Thunk is middleware that allows action creators to return functions instead of actions. These functions can dispatch actions asynchronously, useful for API calls."
+    },
+    {
+      "id": 76,
+      "question": "What is the useSelector hook (React Redux)?",
+      "options": [
+        "Selects components",
+        "Extracts data from Redux store state",
+        "CSS selector",
+        "Event selector"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useSelector allows you to extract data from the Redux store state using a selector function. Component subscribes to Redux store and re-renders when selected data changes."
+    },
+    {
+      "id": 77,
+      "question": "What is the useDispatch hook (React Redux)?",
+      "options": [
+        "Dispatches events",
+        "Returns reference to dispatch function from Redux store",
+        "Component dispatcher",
+        "Event dispatcher"
+      ],
+      "correctAnswer": 1,
+      "explanation": "useDispatch returns a reference to the dispatch function from the Redux store. You use it to dispatch actions from functional components."
+    },
+    {
+      "id": 78,
+      "question": "What is immutability in React?",
+      "options": [
+        "Unchangeable components",
+        "Not mutating data directly, creating new copies instead",
+        "Constant variables",
+        "Read-only props"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Immutability means not modifying data directly. Instead, create new copies with changes. React relies on this for change detection and optimization (shallow comparison)."
+    },
+    {
+      "id": 79,
+      "question": "What is React Testing Library?",
+      "options": [
+        "Performance testing",
+        "Testing library focused on testing components like users interact with them",
+        "Unit testing only",
+        "Backend testing"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React Testing Library is a testing utility that encourages testing components from the user's perspective, focusing on how they interact with the app rather than implementation details."
+    },
+    {
+      "id": 80,
+      "question": "What does render function do in React Testing Library?",
+      "options": [
+        "Renders to browser",
+        "Renders component to virtual DOM for testing",
+        "Creates production build",
+        "Renders HTML"
+      ],
+      "correctAnswer": 1,
+      "explanation": "render function renders a React component into a virtual DOM for testing. It returns utilities for querying and interacting with the rendered component."
+    },
+    {
+      "id": 81,
+      "question": "What is Jest?",
+      "options": [
+        "CSS framework",
+        "JavaScript testing framework with built-in assertions and mocking",
+        "State management",
+        "Build tool"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Jest is a JavaScript testing framework created by Facebook. It provides test runners, assertions, mocking, and code coverage. Commonly used with React Testing Library."
+    },
+    {
+      "id": 82,
+      "question": "What is snapshot testing?",
+      "options": [
+        "Performance testing",
+        "Testing by comparing rendered output to saved snapshot",
+        "Screenshot testing",
+        "Debugging technique"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Snapshot testing captures the rendered output of a component and saves it as a reference. Future test runs compare output to the snapshot, detecting unexpected changes."
+    },
+    {
+      "id": 83,
+      "question": "What is the act function in testing?",
+      "options": [
+        "Action creator",
+        "Ensures all updates are processed before assertions",
+        "Performance function",
+        "Animation function"
+      ],
+      "correctAnswer": 1,
+      "explanation": "act ensures all updates related to state changes and effects are processed and applied before making assertions. Most testing library utilities wrap calls in act automatically."
+    },
+    {
+      "id": 84,
+      "question": "What does fireEvent do in testing?",
+      "options": [
+        "Creates fire animations",
+        "Simulates user events for testing",
+        "Error handling",
+        "Performance monitoring"
+      ],
+      "correctAnswer": 1,
+      "explanation": "fireEvent is a utility that fires DOM events. It's used to simulate user interactions like clicks, typing, etc. userEvent from @testing-library/user-event is often preferred."
+    },
+    {
+      "id": 85,
+      "question": "What is Next.js?",
+      "options": [
+        "State management",
+        "React framework with server-side rendering and static generation",
+        "Testing framework",
+        "CSS framework"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Next.js is a React framework that provides features like server-side rendering, static site generation, API routes, file-based routing, and optimizations out of the box."
+    },
+    {
+      "id": 86,
+      "question": "What is Gatsby?",
+      "options": [
+        "State management",
+        "React framework for building static sites with GraphQL",
+        "Testing tool",
+        "UI library"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Gatsby is a React-based framework for creating fast, static websites. It uses GraphQL for data management and provides plugins for various data sources and functionality."
+    },
+    {
+      "id": 87,
+      "question": "What is Create React App?",
+      "options": [
+        "React method",
+        "Tool for setting up React project with zero configuration",
+        "API call",
+        "Component creator"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Create React App is an officially supported tool for creating single-page React applications with no build configuration. It sets up development environment with one command."
+    },
+    {
+      "id": 88,
+      "question": "What is Vite?",
+      "options": [
+        "State manager",
+        "Fast build tool and dev server using native ES modules",
+        "Testing framework",
+        "Component library"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Vite is a modern build tool that provides fast cold starts and instant hot module replacement. It's becoming popular alternative to Create React App for React projects."
+    },
+    {
+      "id": 89,
+      "question": "What is ESLint?",
+      "options": [
+        "CSS linter",
+        "Tool for identifying and fixing problems in JavaScript code",
+        "Testing framework",
+        "Build tool"
+      ],
+      "correctAnswer": 1,
+      "explanation": "ESLint is a static code analysis tool for identifying problematic patterns in JavaScript code. It helps maintain code quality and catch errors early in development."
+    },
+    {
+      "id": 90,
+      "question": "What is Prettier?",
+      "options": [
+        "CSS framework",
+        "Opinionated code formatter that enforces consistent style",
+        "Testing tool",
+        "Performance optimizer"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Prettier is an opinionated code formatter that automatically formats code according to a set of rules. It helps maintain consistent code style across teams."
+    },
+    {
+      "id": 91,
+      "question": "What is Babel?",
+      "options": [
+        "State management",
+        "JavaScript compiler that transforms modern JS to browser-compatible code",
+        "Testing framework",
+        "Router library"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Babel is a JavaScript compiler that transforms modern JavaScript (ES6+) and JSX into backward-compatible versions that work in older browsers."
+    },
+    {
+      "id": 92,
+      "question": "What is Webpack?",
+      "options": [
+        "Web framework",
+        "Module bundler that bundles JavaScript files and assets",
+        "Testing tool",
+        "Server framework"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Webpack is a module bundler that takes modules with dependencies and generates static assets. It's the build tool that Create React App uses under the hood."
+    },
+    {
+      "id": 93,
+      "question": "What is TypeScript?",
+      "options": [
+        "Testing framework",
+        "Superset of JavaScript that adds static typing",
+        "Text editor",
+        "Backend framework"
+      ],
+      "correctAnswer": 1,
+      "explanation": "TypeScript is a statically typed superset of JavaScript that compiles to plain JavaScript. It adds optional type annotations, helping catch errors during development."
+    },
+    {
+      "id": 94,
+      "question": "What is prop spreading?",
+      "options": [
+        "Spreading butter",
+        "Using spread operator to pass all object properties as props",
+        "Performance optimization",
+        "State spreading"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Prop spreading uses the spread operator (...) to pass all properties of an object as props to a component: <Component {...props} />. Convenient but use carefully."
+    },
+    {
+      "id": 95,
+      "question": "What is the difference between controlled and uncontrolled components?",
+      "options": [
+        "No difference",
+        "Controlled components use React state, uncontrolled use DOM state",
+        "Controlled are faster",
+        "Uncontrolled are deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Controlled components store form data in React state (single source of truth). Uncontrolled components store data in DOM, accessed via refs when needed."
+    },
+    {
+      "id": 96,
+      "question": "What is React.StrictMode?",
+      "options": [
+        "Production mode",
+        "Tool to highlight potential problems in development",
+        "Security mode",
+        "Performance mode"
+      ],
+      "correctAnswer": 1,
+      "explanation": "StrictMode is a development tool that activates additional checks and warnings. It doesn't render visible UI, just identifies potential problems in the application."
+    },
+    {
+      "id": 97,
+      "question": "What is the difference between mounting and updating?",
+      "options": [
+        "No difference",
+        "Mounting is initial render, updating is subsequent re-renders",
+        "Mounting is faster",
+        "Updating is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Mounting occurs when a component is first created and inserted into the DOM. Updating occurs when component re-renders due to state or prop changes."
+    },
+    {
+      "id": 98,
+      "question": "What is the key prop warning about?",
+      "options": [
+        "Security warning",
+        "Warning when rendering lists without unique keys",
+        "Performance warning",
+        "Syntax warning"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React warns when rendering lists without unique key props. Keys help React identify which items changed, improving performance and preventing bugs with component state."
+    },
+    {
+      "id": 99,
+      "question": "What is dangerouslySetInnerHTML?",
+      "options": [
+        "Security feature",
+        "React's replacement for innerHTML for setting HTML directly",
+        "Error handler",
+        "Testing utility"
+      ],
+      "correctAnswer": 1,
+      "explanation": "dangerouslySetInnerHTML is React's replacement for innerHTML. The name warns that it's dangerous (XSS risk). Only use with sanitized content: dangerouslySetInnerHTML={{__html: content}}."
+    },
+    {
+      "id": 100,
+      "question": "What is the difference between React and React DOM?",
+      "options": [
+        "No difference",
+        "React is core library, React DOM provides DOM-specific methods",
+        "React DOM is deprecated",
+        "React is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "React is the core library with component logic. React DOM provides DOM-specific methods like render() and hydrate(). This separation allows React to work with different renderers (Native, VR, etc.)."
+    }
+  ]
+}
