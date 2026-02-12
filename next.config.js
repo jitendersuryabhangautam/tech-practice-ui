@@ -4,8 +4,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: "/tech-revision-platform",
-  assetPrefix: "/tech-revision-platform/",
+  basePath: "/tech-practice-ui",
+  assetPrefix: "/tech-practice-ui/",
 };
 
 module.exports = nextConfig;
