@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
@@ -9,66 +7,54 @@ const TECHNOLOGIES = [
   {
     name: "JavaScript",
     href: "/javascript",
-    description: "Closures, async patterns, event loop, and tricky interview edge cases.",
+    description:
+      "Closures, async patterns, event loop, and tricky interview edge cases.",
   },
   {
     name: "React",
     href: "/react",
-    description: "Hooks, rendering lifecycle, performance patterns, and architecture Q&A.",
+    description:
+      "Hooks, rendering lifecycle, performance patterns, and architecture Q&A.",
   },
   {
     name: "Next.js",
     href: "/nextjs",
-    description: "App Router, caching, rendering modes, and deployment interview prep.",
+    description:
+      "App Router, caching, rendering modes, and deployment interview prep.",
   },
   {
     name: "System Design",
     href: "/system-design",
-    description: "HLD/LLD case studies, flow diagrams, trade-offs, and real production architecture.",
+    description:
+      "HLD/LLD case studies, flow diagrams, trade-offs, and real production architecture.",
   },
   {
     name: "Golang",
     href: "/golang",
-    description: "Concurrency, memory model, interfaces, and production coding scenarios.",
+    description:
+      "Concurrency, memory model, interfaces, and production coding scenarios.",
   },
   {
     name: "PostgreSQL",
     href: "/postgresql",
-    description: "Indexes, query tuning, transactions, and database design questions.",
+    description:
+      "Indexes, query tuning, transactions, and database design questions.",
   },
   {
     name: "Docker",
     href: "/docker",
-    description: "Images, networking, Compose, hardening, and troubleshooting interviews.",
+    description:
+      "Images, networking, Compose, hardening, and troubleshooting interviews.",
   },
   {
     name: "Kubernetes",
     href: "/kubernetes",
-    description: "Workloads, services, scaling, debugging, and cluster operations.",
+    description:
+      "Workloads, services, scaling, debugging, and cluster operations.",
   },
 ];
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn");
-    if (!loggedIn) {
-      router.push("/login");
-      return;
-    }
-    setIsLoading(false);
-  }, [router]);
-
-  if (isLoading) {
-    return (
-      <div className="grid min-h-screen place-items-center text-slate-700 dark:text-slate-300">
-        Loading...
-      </div>
-    );
-  }
-
   return (
     <>
       <Navbar />
@@ -81,7 +67,8 @@ export default function Home() {
             </h1>
             <p className="mt-3 max-w-3xl text-sm text-slate-700 sm:mt-4 sm:text-base dark:text-slate-300">
               Every track includes deep explanations, production-level examples,
-              and curated interview MCQs so you can revise fast and answer with confidence.
+              and curated interview MCQs so you can revise fast and answer with
+              confidence.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <span className="chip">Detailed concept breakdowns</span>
@@ -92,7 +79,11 @@ export default function Home() {
 
           <section className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {TECHNOLOGIES.map((tech) => (
-              <Link key={tech.name} href={tech.href} className="content-card p-4 transition hover:-translate-y-0.5 sm:p-5">
+              <Link
+                key={tech.name}
+                href={tech.href}
+                className="content-card p-4 transition hover:-translate-y-0.5 sm:p-5"
+              >
                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                   {tech.name}
                 </h2>

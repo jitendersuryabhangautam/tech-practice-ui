@@ -2,7 +2,7 @@
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import { nextjsData, nextjsQuiz } from "@/data/nextjs";
-import { useTopicData } from "@/hooks/useTopicData";
+import { useTopicDataFromContent } from "@/hooks/useTopicDataFromContent";
 
 const MIN_INTERVIEW_QUESTIONS = 10;
 const MIN_EXERCISES = 10;
@@ -10,8 +10,7 @@ const MIN_PROGRAM_EXERCISES = 10;
 
 const NEXTJS_ENRICHED_QUIZ = [
   {
-    question:
-      "Which file convention creates dynamic segment in App Router?",
+    question: "Which file convention creates dynamic segment in App Router?",
     options: ["{id}", "(id)", "[id]", ":id"],
     correctAnswer: 2,
     explanation: "Use folder names like `[id]` for dynamic segments.",
@@ -73,8 +72,7 @@ const NEXTJS_ENRICHED_QUIZ = [
     explanation: "Route Handlers are API endpoints in App Router.",
   },
   {
-    question:
-      "Output-oriented: `generateStaticParams` mainly helps with?",
+    question: "Output-oriented: `generateStaticParams` mainly helps with?",
     options: [
       "Runtime redirects",
       "Pre-rendering dynamic routes at build time",
@@ -93,13 +91,17 @@ const NEXTJS_ENRICHED_QUIZ = [
       "API route file",
     ],
     correctAnswer: 1,
-    explanation:
-      "It defines the client component boundary in App Router.",
+    explanation: "It defines the client component boundary in App Router.",
   },
   {
     question:
       "Which strategy is best for frequently changing personalized data?",
-    options: ["SSG", "ISR with long interval", "SSR/dynamic rendering", "Static export"],
+    options: [
+      "SSG",
+      "ISR with long interval",
+      "SSR/dynamic rendering",
+      "Static export",
+    ],
     correctAnswer: 2,
     explanation:
       "Personalized frequently changing data should be rendered dynamically.",
@@ -156,11 +158,26 @@ function fallbackInterviewQuestion(topic, index) {
 function fallbackExercise(topic, index) {
   const n = index + 1;
   const templates = [
-    { type: "theory", question: `Exercise ${n}: Summarize ${topic.title} with pros, cons, and when-not-to-use.` },
-    { type: "implement", question: `Exercise ${n}: Build a minimal Next.js feature demonstrating ${topic.title}.` },
-    { type: "debug", question: `Exercise ${n}: Debug a broken ${topic.title} flow and identify root cause.` },
-    { type: "output", question: `Exercise ${n}: Predict result/status for a ${topic.title} scenario.` },
-    { type: "tricky", question: `Exercise ${n}: Describe one tricky edge case in ${topic.title}.` },
+    {
+      type: "theory",
+      question: `Exercise ${n}: Summarize ${topic.title} with pros, cons, and when-not-to-use.`,
+    },
+    {
+      type: "implement",
+      question: `Exercise ${n}: Build a minimal Next.js feature demonstrating ${topic.title}.`,
+    },
+    {
+      type: "debug",
+      question: `Exercise ${n}: Debug a broken ${topic.title} flow and identify root cause.`,
+    },
+    {
+      type: "output",
+      question: `Exercise ${n}: Predict result/status for a ${topic.title} scenario.`,
+    },
+    {
+      type: "tricky",
+      question: `Exercise ${n}: Describe one tricky edge case in ${topic.title}.`,
+    },
   ];
   return templates[index % templates.length];
 }
@@ -198,7 +215,7 @@ function enrichTopic(topic) {
 }
 
 export default function NextJSPage() {
-  const { data, quiz, title, description, loading } = useTopicData(
+  const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "nextjs",
     nextjsData,
     nextjsQuiz

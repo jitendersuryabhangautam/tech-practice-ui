@@ -1,0 +1,9 @@
+{
+  "id": "basic-select-filtering",
+  "title": "Basic SELECT & Filtering",
+  "description": "Master fundamental SQL queries including filtering by role, category, price, stock, status, and dates.",
+  "code": "-- Get all users\nSELECT * FROM users;\n\n-- Get all admin users\nSELECT * FROM users WHERE role = 'admin';\n\n-- Get all customers\nSELECT * FROM users WHERE role = 'customer';\n\n-- Get all products under 'Electronics'\nSELECT * FROM products WHERE category = 'Electronics';\n\n-- Get products priced above 500\nSELECT * FROM products WHERE price > 500;\n\n-- Get products with stock less than 10\nSELECT * FROM products WHERE stock_quantity < 10;\n\n-- Find product by SKU\nSELECT * FROM products WHERE sku = 'PROD-123';\n\n-- Get all orders with status = 'processing'\nSELECT * FROM orders WHERE status = 'processing';",
+  "example": "-- Get all payments with status = 'completed'\nSELECT * FROM payments WHERE status = 'completed';\n\n-- Get all returns that are still requested\nSELECT * FROM returns WHERE status = 'requested';\n\n-- Find all carts created in last 7 days\nSELECT * FROM carts \nWHERE created_at >= NOW() - INTERVAL '7 days';\n\n-- Get all stock reservations expiring in next 5 minutes\nSELECT * FROM stock_reservations \nWHERE expires_at <= NOW() + INTERVAL '5 minutes'\n  AND expires_at > NOW();\n\n-- Get users created today\nSELECT * FROM users \nWHERE DATE(created_at) = CURRENT_DATE;\n\n-- Find all products without category\nSELECT * FROM products WHERE category IS NULL;\n\n-- Get all orders using COD\nSELECT * FROM orders WHERE payment_method = 'COD';",
+  "useCase": "Basic data retrieval, filtering by conditions, date-based queries, null checks",
+  "category": "Fundamentals"
+}

@@ -1,0 +1,155 @@
+{
+  "id": "this-keyword",
+  "title": "The 'this' Keyword",
+  "description": "Master JavaScript's 'this' binding rules — default, implicit, explicit (call/apply/bind), new binding, and arrow functions.",
+  "explanation": "'this' in JavaScript is NOT fixed — it's determined at call time based on HOW a function is called, not WHERE it's defined (except for arrow functions).\n\nThe 4 binding rules (in priority order):\n\n1. new Binding (highest priority)\n   - `new Foo()` → 'this' refers to the newly created object\n\n2. Explicit Binding\n   - `fn.call(obj, args)` → 'this' is obj\n   - `fn.apply(obj, [args])` → 'this' is obj\n   - `fn.bind(obj)` → returns new function with 'this' permanently set to obj\n\n3. Implicit Binding\n   - `obj.method()` → 'this' is obj (the object before the dot)\n   - Lost when method is extracted: `const fn = obj.method; fn()` → 'this' is NOT obj\n\n4. Default Binding (lowest priority)\n   - Standalone function call: `foo()` → 'this' is globalThis (window in browser, global in Node)\n   - In strict mode: 'this' is undefined\n\nArrow functions (special case):\n- Arrow functions do NOT have their own 'this'\n- They inherit 'this' from the enclosing lexical scope (where they're defined)\n- Cannot be re-bound with call/apply/bind\n- This makes them ideal for callbacks and event handlers",
+  "code": "// Default binding\nfunction show() { console.log(this); }\nshow(); // window (browser) / global (Node) — strict mode: undefined\n\n// Implicit binding\nconst user = {\n  name: 'Alice',\n  greet() { return `Hi, I'm ${this.name}`; }\n};\nuser.greet(); // 'Hi, I'm Alice' — this = user\n\n// Lost implicit binding\nconst greet = user.greet;\ngreet(); // 'Hi, I'm undefined' — this = window\n\n// Explicit binding\nfunction sayHi() { return `Hi, ${this.name}`; }\nsayHi.call({ name: 'Bob' });   // 'Hi, Bob'\nsayHi.apply({ name: 'Eve' });  // 'Hi, Eve'\n\nconst boundHi = sayHi.bind({ name: 'Dan' });\nboundHi(); // 'Hi, Dan'\n\n// new binding\nfunction Person(name) {\n  this.name = name;\n}\nconst p = new Person('Carol');\nconsole.log(p.name); // 'Carol' — this = new object\n\n// Arrow function — inherits 'this'\nconst team = {\n  name: 'Dev Team',\n  members: ['A', 'B'],\n  list() {\n    return this.members.map(m => `${m} from ${this.name}`);\n    // Arrow fn uses 'this' from list(), which is team\n  }\n};\nteam.list(); // ['A from Dev Team', 'B from Dev Team']",
+  "example": "// Common 'this' pitfall: callbacks\nclass Timer {\n  constructor() {\n    this.seconds = 0;\n  }\n  \n  start() {\n    // WRONG: regular function loses 'this'\n    // setInterval(function() { this.seconds++; }, 1000);\n    \n    // CORRECT: arrow function inherits 'this'\n    setInterval(() => {\n      this.seconds++;\n      console.log(this.seconds);\n    }, 1000);\n  }\n}\n\n// Explicit binding for event handlers\nclass Button {\n  constructor(label) {\n    this.label = label;\n    // Bind in constructor\n    this.handleClick = this.handleClick.bind(this);\n  }\n  handleClick() {\n    console.log(`${this.label} clicked`);\n  }\n}",
+  "useCase": "Object methods, class methods, event handlers, callbacks, React component methods, constructor functions, method chaining, mixin patterns",
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What is the output?\nconst obj = {\n  x: 42,\n  getX: function() { return this.x; }\n};\nconsole.log(obj.getX());\nconst fn = obj.getX;\nconsole.log(fn());",
+      "answer": "42, then undefined — First call: implicit binding (this=obj). Second call: default binding (this=window, window.x is undefined)"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst obj = {\n  name: 'Alice',\n  greet: () => `Hi ${this.name}`\n};\nconsole.log(obj.greet());",
+      "answer": "Hi undefined — Arrow function doesn't get its own 'this'. It inherits from the surrounding scope (module/global), where this.name is undefined"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction greet() {\n  return `Hello, ${this.name}`;\n}\nconst a = { name: 'A' };\nconst b = { name: 'B' };\nconsole.log(greet.call(a));\nconsole.log(greet.apply(b));",
+      "answer": "Hello, A then Hello, B — call and apply explicitly set 'this'"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction Person(name) {\n  this.name = name;\n}\nconst p1 = new Person('Dan');\nconst p2 = Person('Eve');\nconsole.log(p1.name);\nconsole.log(p2);",
+      "answer": "Dan, then undefined — With 'new', this is a new object. Without 'new', Person returns undefined (and name leaks to global)"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst obj = {\n  val: 10,\n  getVal() { return this.val; },\n  getValArrow: () => this.val\n};\nconsole.log(obj.getVal());\nconsole.log(obj.getValArrow());",
+      "answer": "10, then undefined — getVal: implicit binding. getValArrow: arrow fn inherits outer 'this' (not obj)"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst fn = function() { return this.x; }.bind({ x: 1 }).bind({ x: 2 });\nconsole.log(fn());",
+      "answer": "1 — bind can only be applied once. The second bind is ignored."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction Foo() {\n  this.a = 1;\n  return { a: 2 };\n}\nconst foo = new Foo();\nconsole.log(foo.a);",
+      "answer": "2 — When a constructor returns an object, that object becomes the result of 'new' instead of 'this'"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst counter = {\n  count: 0,\n  inc() { this.count++; return this; }\n};\nconsole.log(counter.inc().inc().inc().count);",
+      "answer": "3 — Method chaining works because inc() returns 'this' (the counter object)"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\n'use strict';\nfunction show() { console.log(this); }\nshow();",
+      "answer": "undefined — In strict mode, default binding gives undefined instead of globalThis"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nclass Dog {\n  constructor(name) { this.name = name; }\n  bark() { return `${this.name} says woof`; }\n}\nconst d = new Dog('Rex');\nconst bark = d.bark;\ntry { console.log(bark()); } catch(e) { console.log(e.message); }",
+      "answer": "Cannot read properties of undefined (reading 'name') — Class methods run in strict mode, so extracted method has this=undefined"
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "const obj = {\n  x: 10,\n  double() { return this.x * 2; }\n};\nconsole.log(obj.double());\nconst { double } = obj;\nconsole.log(double.call({ x: 5 }));",
+      "expectedOutput": "20\n10",
+      "explanation": "obj.double() → this.x=10 → 20. Extracted and called with {x:5} → this.x=5 → 10"
+    },
+    {
+      "program": "function multiply(a, b) {\n  return this.factor * a * b;\n}\nconst double = multiply.bind({ factor: 2 });\nconst triple = multiply.bind({ factor: 3 });\nconsole.log(double(3, 4));\nconsole.log(triple(3, 4));",
+      "expectedOutput": "24\n36",
+      "explanation": "bind sets this.factor. double: 2*3*4=24, triple: 3*3*4=36"
+    },
+    {
+      "program": "const user = {\n  name: 'Alice',\n  friends: ['Bob', 'Carol'],\n  listFriends() {\n    return this.friends.map(f => `${this.name} knows ${f}`);\n  }\n};\nconsole.log(user.listFriends().join('\\n'));",
+      "expectedOutput": "Alice knows Bob\nAlice knows Carol",
+      "explanation": "Arrow function in map inherits 'this' from listFriends(), which is the user object"
+    },
+    {
+      "program": "function greet(greeting, punct) {\n  return `${greeting}, ${this.name}${punct}`;\n}\nconsole.log(greet.call({ name: 'A' }, 'Hi', '!'));\nconsole.log(greet.apply({ name: 'B' }, ['Hey', '?']));",
+      "expectedOutput": "Hi, A!\nHey, B?",
+      "explanation": "call passes args individually, apply passes args as array. Both set 'this' to the first argument."
+    },
+    {
+      "program": "function Calc(start) {\n  this.value = start;\n}\nCalc.prototype.add = function(n) { this.value += n; return this; };\nCalc.prototype.mul = function(n) { this.value *= n; return this; };\nCalc.prototype.result = function() { return this.value; };\n\nconsole.log(new Calc(2).add(3).mul(4).result());",
+      "expectedOutput": "20",
+      "explanation": "Method chaining: start=2, +3=5, *4=20. Each method returns 'this' to enable chaining."
+    },
+    {
+      "program": "const obj = {\n  name: 'outer',\n  inner: {\n    name: 'inner',\n    getName() { return this.name; }\n  }\n};\nconsole.log(obj.inner.getName());",
+      "expectedOutput": "inner",
+      "explanation": "Implicit binding: 'this' is the object directly before the dot — obj.inner, not obj"
+    },
+    {
+      "program": "const nums = {\n  values: [1, 2, 3],\n  sum() {\n    return this.values.reduce((a, b) => a + b, 0);\n  }\n};\nconst sumFn = nums.sum.bind(nums);\nconsole.log(sumFn());",
+      "expectedOutput": "6",
+      "explanation": "bind permanently attaches 'this' to nums, so sumFn always works correctly"
+    },
+    {
+      "program": "function identify() {\n  return this.name.toUpperCase();\n}\nfunction speak() {\n  return `Hello, I'm ${identify.call(this)}`;\n}\nconst me = { name: 'Kyle' };\nconsole.log(speak.call(me));",
+      "expectedOutput": "Hello, I'm KYLE",
+      "explanation": "speak is called with this=me, then passes that same 'this' to identify via call()"
+    },
+    {
+      "program": "class EventEmitter {\n  constructor() {\n    this.events = {};\n  }\n  on(event, cb) {\n    (this.events[event] ||= []).push(cb);\n    return this;\n  }\n  emit(event, ...args) {\n    (this.events[event] || []).forEach(cb => cb(...args));\n  }\n}\nconst e = new EventEmitter();\ne.on('greet', name => console.log(`Hi ${name}`));\ne.emit('greet', 'World');",
+      "expectedOutput": "Hi World",
+      "explanation": "Class-based event emitter using method chaining (on returns this) and closures"
+    },
+    {
+      "program": "const obj = { a: 1 };\nfunction setA(val) { this.a = val; }\nconst bound = setA.bind(obj);\nbound(99);\nconsole.log(obj.a);\nnew bound(200);\nconsole.log(obj.a);",
+      "expectedOutput": "99\n99",
+      "explanation": "'new' overrides bind for the new object, but obj.a stays 99. The new object gets a=200 but is discarded."
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "What are the 4 rules of 'this' binding in JavaScript?",
+      "answer": "In priority order: (1) new binding — this = new object, (2) Explicit binding — call/apply/bind set this, (3) Implicit binding — this = object before the dot, (4) Default binding — this = globalThis (or undefined in strict mode)."
+    },
+    {
+      "question": "How do arrow functions handle 'this' differently?",
+      "answer": "Arrow functions don't have their own 'this'. They inherit 'this' from the enclosing lexical scope at definition time. This cannot be changed with call/apply/bind. This makes them ideal for callbacks where you want to preserve the parent scope's 'this'."
+    },
+    {
+      "question": "What is the difference between call, apply, and bind?",
+      "answer": "call(thisArg, arg1, arg2) — invokes immediately with listed args. apply(thisArg, [args]) — invokes immediately with args as array. bind(thisArg, arg1) — returns a NEW function with 'this' permanently set. bind can also partially apply arguments."
+    },
+    {
+      "question": "Can you re-bind a function created with bind()?",
+      "answer": "No. Once a function is bound with bind(), subsequent bind() calls cannot override the 'this' value. However, 'new' can override bind because 'new' binding has higher priority than explicit binding."
+    },
+    {
+      "question": "Why does 'this' in a class method become undefined when extracted?",
+      "answer": "Class bodies run in strict mode. When you extract a method (const fn = obj.method), calling fn() uses default binding which is undefined in strict mode. Fix: use bind in constructor, use arrow function class fields, or use call/apply."
+    },
+    {
+      "question": "What happens to 'this' when a constructor returns an object?",
+      "answer": "If a constructor function explicitly returns an object, that object replaces the 'this' that was created by 'new'. If a constructor returns a primitive (or nothing), the 'this' object is returned as normal. This only applies to objects, not primitives."
+    },
+    {
+      "question": "How does 'this' work in event handlers?",
+      "answer": "In DOM event handlers, 'this' refers to the element the handler is attached to (same as e.currentTarget). With arrow functions, 'this' inherits from the outer scope instead. In React class components, you must bind handlers or use arrow functions to preserve the component's 'this'."
+    },
+    {
+      "question": "Explain implicit binding loss with an example.",
+      "answer": "When you assign a method to a variable (const fn = obj.method), the implicit binding is lost. fn() is now a standalone call with default binding. Common scenarios: passing methods as callbacks, destructuring methods, or storing methods in arrays."
+    },
+    {
+      "question": "What is 'soft binding' and how does it differ from hard binding (bind)?",
+      "answer": "Hard binding (bind) permanently fixes 'this'. Soft binding is a pattern where 'this' defaults to a specific object but CAN be overridden with call/apply. Implementation: check if 'this' is global/undefined, if so use the default, otherwise use the provided 'this'."
+    },
+    {
+      "question": "How does 'this' work inside setTimeout and setInterval?",
+      "answer": "In regular functions passed to setTimeout/setInterval, 'this' is globalThis (window). In strict mode, it's undefined. Solutions: (1) Arrow function: setTimeout(() => this.method(), 100), (2) Bind: setTimeout(this.method.bind(this), 100), (3) Variable capture: const self = this."
+    }
+  ]
+}

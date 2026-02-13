@@ -1,0 +1,46 @@
+{
+  "id": "ecommerce-schema-er-diagram",
+  "title": "E-commerce Schema + ER Diagram Practice",
+  "description": "Practice on a realistic e-commerce schema with UUID keys, transactional entities, and clear table relationships.",
+  "explanation": "Use this as the canonical practice schema for joins, aggregations, CTEs, transactions, JSONB queries, and optimization. The diagram below maps core entity relationships used in most interview scenarios.",
+  "code": "-- Canonical e-commerce schema (core)\nCREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";\n\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  password_hash VARCHAR(255) NOT NULL,\n  first_name VARCHAR(100),\n  last_name VARCHAR(100),\n  role VARCHAR(20) DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE products (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  sku VARCHAR(100) UNIQUE NOT NULL,\n  name VARCHAR(255) NOT NULL,\n  description TEXT,\n  price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),\n  stock_quantity INTEGER NOT NULL DEFAULT 0 CHECK (stock_quantity >= 0),\n  category VARCHAR(100),\n  image_url VARCHAR(500),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE carts (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  UNIQUE(user_id)\n);\n\nCREATE TABLE cart_items (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  cart_id UUID NOT NULL REFERENCES carts(id) ON DELETE CASCADE,\n  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,\n  quantity INTEGER NOT NULL CHECK (quantity > 0),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  UNIQUE(cart_id, product_id)\n);\n\nCREATE TABLE orders (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  user_id UUID NOT NULL REFERENCES users(id),\n  order_number VARCHAR(50) UNIQUE NOT NULL,\n  total_amount DECIMAL(10, 2) NOT NULL CHECK (total_amount >= 0),\n  status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (\n    status IN ('pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded')\n  ),\n  payment_method VARCHAR(10) NOT NULL CHECK (payment_method IN ('cc', 'dc', 'cod')),\n  shipping_address JSONB NOT NULL,\n  billing_address JSONB NOT NULL,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE order_items (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,\n  product_id UUID NOT NULL REFERENCES products(id),\n  quantity INTEGER NOT NULL CHECK (quantity > 0),\n  price_at_time DECIMAL(10, 2) NOT NULL CHECK (price_at_time >= 0),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE payments (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,\n  amount DECIMAL(10, 2) NOT NULL CHECK (amount >= 0),\n  status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (\n    status IN ('pending', 'processing', 'completed', 'failed', 'refunded')\n  ),\n  payment_method VARCHAR(50) NOT NULL,\n  transaction_id VARCHAR(255),\n  payment_details JSONB,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE returns (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  order_id UUID NOT NULL REFERENCES orders(id),\n  user_id UUID NOT NULL REFERENCES users(id),\n  reason TEXT NOT NULL,\n  status VARCHAR(50) NOT NULL DEFAULT 'requested' CHECK (\n    status IN ('requested', 'approved', 'rejected', 'completed')\n  ),\n  refund_amount DECIMAL(10, 2),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE stock_reservations (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,\n  cart_id UUID NOT NULL REFERENCES carts(id) ON DELETE CASCADE,\n  quantity INTEGER NOT NULL CHECK (quantity > 0),\n  expires_at TIMESTAMP NOT NULL,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  UNIQUE(product_id, cart_id)\n);",
+  "example": "erDiagram\n    USERS ||--|| CARTS : has\n    USERS ||--o{ ORDERS : places\n    USERS ||--o{ RETURNS : requests\n    PRODUCTS ||--o{ CART_ITEMS : appears_in\n    PRODUCTS ||--o{ ORDER_ITEMS : sold_as\n    PRODUCTS ||--o{ STOCK_RESERVATIONS : reserved_as\n    CARTS ||--o{ CART_ITEMS : contains\n    CARTS ||--o{ STOCK_RESERVATIONS : holds\n    ORDERS ||--o{ ORDER_ITEMS : includes\n    ORDERS ||--o{ PAYMENTS : paid_by\n    ORDERS ||--o{ RETURNS : may_have",
+  "useCase": "Schema-first interview practice and realistic SQL drills across order lifecycle and inventory controls.",
+  "category": "Schema Design Practice",
+  "interviewQuestions": [
+    {
+      "question": "Why do we store `price_at_time` in `order_items`?",
+      "answer": "Because product prices change over time; historical order lines must remain accurate."
+    },
+    {
+      "question": "How does `stock_reservations` help during checkout?",
+      "answer": "It creates temporary cart-level inventory holds to reduce overselling in concurrent sessions."
+    },
+    {
+      "question": "Which relationship resolves the many-to-many between orders and products?",
+      "answer": "`order_items` resolves the many-to-many and carries quantity and historical price."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "List all users with cart value and active reservation count."
+    },
+    {
+      "type": "implement",
+      "question": "Find products with low stock and high reservation pressure."
+    },
+    {
+      "type": "scenario",
+      "question": "Design checkout transaction steps to keep stock, order, and payment consistent."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Top 5 customers by completed order value",
+      "code": "SELECT user_id, SUM(total_amount) AS ltv FROM orders WHERE status = 'completed' GROUP BY user_id ORDER BY ltv DESC LIMIT 5;",
+      "output": "Users sorted by lifetime completed order amount."
+    }
+  ]
+}
+

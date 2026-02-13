@@ -1,5 +1,29 @@
 [
   {
+    "id": "ecommerce-schema-er-diagram",
+    "file": "topics/ecommerce-schema-er-diagram.json",
+    "title": "E-commerce Schema + ER Diagram Practice",
+    "category": "Schema Design Practice"
+  },
+  {
+    "id": "ecommerce-queries",
+    "file": "topics/ecommerce-queries.json",
+    "title": "E-commerce SQL Query Practice (Complete Guide)",
+    "category": "Complete Practice Guide"
+  },
+  {
+    "id": "ecommerce-query-patterns",
+    "file": "topics/ecommerce-query-patterns.json",
+    "title": "All Query Types in One Scenario",
+    "category": "Advanced SQL (E-commerce Scenario)"
+  },
+  {
+    "id": "join-index-partition-deep-dive",
+    "file": "topics/join-index-partition-deep-dive.json",
+    "title": "Joins + Indexes + Partitioning Deep Dive",
+    "category": "Performance & Optimization"
+  },
+  {
     "id": "select",
     "file": "topics/select.json",
     "title": "SELECT Queries",

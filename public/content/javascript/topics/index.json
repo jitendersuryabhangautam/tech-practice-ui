@@ -1,5 +1,11 @@
 [
   {
+    "id": "javascript-practice-150",
+    "file": "topics/javascript-practice-150.json",
+    "title": "JavaScript Practice Hub (150+ Exercises)",
+    "category": "Complete Practice Guide"
+  },
+  {
     "id": "destructuring",
     "file": "topics/destructuring.json",
     "title": "Object Destructuring",

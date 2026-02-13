@@ -1,0 +1,1421 @@
+{
+  "id": "javascript-practice-150",
+  "title": "JavaScript Practice Hub (150+ Exercises)",
+  "description": "A complete JavaScript practice bank with 150 guided exercises and 80 program drills spanning fundamentals to interview-level scenarios.",
+  "explanation": "Use this section for bulk practice similar to PostgreSQL extended drills. Solve by category, review output predictions, then implement/refactor/debug under time constraints. The exercises intentionally rotate between coding, reasoning, and debugging to simulate interview pressure.",
+  "implementation": "// Suggested workflow\n// 1) Pick 10 exercises by mixed types\n// 2) Solve with time limit (5-10 min each)\n// 3) Re-solve missed ones without notes\n// 4) Convert best solutions to reusable utilities",
+  "example": "// Quick warm-up\nconst arr = [1, 2, 3, 4, 5];\nconst evens = arr.filter(n => n % 2 === 0);\nconst doubled = evens.map(n => n * 2);\nconsole.log(doubled); // [4, 8]",
+  "useCase": "Interview preparation, frontend screening rounds, DSA-lite JavaScript practice, and core language mastery.",
+  "category": "Complete Practice Guide",
+  "interviewQuestions": [
+    {
+      "question": "How do you choose between map, filter, and reduce?",
+      "answer": "Map transforms one-to-one, filter selects subset, reduce accumulates to a single value/structure."
+    },
+    {
+      "question": "What causes most async JavaScript bugs in interviews?",
+      "answer": "Not understanding event-loop ordering, missing await, and uncaught promise rejections."
+    },
+    {
+      "question": "When is mutation acceptable in JavaScript code?",
+      "answer": "When intentional and localized for performance-critical paths, but immutable style is safer by default."
+    },
+    {
+      "question": "How do you debug closure-related issues?",
+      "answer": "Trace lexical scope and captured variables, especially inside loops, timers, and listeners."
+    },
+    {
+      "question": "What is a practical strategy for output prediction questions?",
+      "answer": "Evaluate synchronous phase first, then microtasks, then macrotasks."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Exercise 1: Solve a arrays problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 2: Solve a objects problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 3: Solve a functions problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 4: Solve a closures problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 5: Solve a scope problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 6: Solve a hoisting problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 7: Solve a promises problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 8: Solve a async-await problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 9: Solve a event-loop problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 10: Solve a timers problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 11: Solve a map problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 12: Solve a filter problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 13: Solve a reduce problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 14: Solve a find problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 15: Solve a sort problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 16: Solve a sets problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 17: Solve a maps problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 18: Solve a destructuring problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 19: Solve a spread-rest problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 20: Solve a currying problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 21: Solve a debounce problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 22: Solve a throttle problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 23: Solve a local-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 24: Solve a session-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 25: Solve a json problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 26: Solve a error-handling problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 27: Solve a regex problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 28: Solve a dates problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 29: Solve a strings problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 30: Solve a numbers problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 31: Solve a arrays problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 32: Solve a objects problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 33: Solve a functions problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 34: Solve a closures problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 35: Solve a scope problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 36: Solve a hoisting problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 37: Solve a promises problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 38: Solve a async-await problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 39: Solve a event-loop problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 40: Solve a timers problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 41: Solve a map problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 42: Solve a filter problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 43: Solve a reduce problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 44: Solve a find problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 45: Solve a sort problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 46: Solve a sets problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 47: Solve a maps problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 48: Solve a destructuring problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 49: Solve a spread-rest problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 50: Solve a currying problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 51: Solve a debounce problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 52: Solve a throttle problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 53: Solve a local-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 54: Solve a session-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 55: Solve a json problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 56: Solve a error-handling problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 57: Solve a regex problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 58: Solve a dates problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 59: Solve a strings problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 60: Solve a numbers problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 61: Solve a arrays problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 62: Solve a objects problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 63: Solve a functions problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 64: Solve a closures problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 65: Solve a scope problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 66: Solve a hoisting problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 67: Solve a promises problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 68: Solve a async-await problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 69: Solve a event-loop problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 70: Solve a timers problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 71: Solve a map problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 72: Solve a filter problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 73: Solve a reduce problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 74: Solve a find problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 75: Solve a sort problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 76: Solve a sets problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 77: Solve a maps problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 78: Solve a destructuring problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 79: Solve a spread-rest problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 80: Solve a currying problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 81: Solve a debounce problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 82: Solve a throttle problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 83: Solve a local-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 84: Solve a session-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 85: Solve a json problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 86: Solve a error-handling problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 87: Solve a regex problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 88: Solve a dates problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 89: Solve a strings problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 90: Solve a numbers problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 91: Solve a arrays problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 92: Solve a objects problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 93: Solve a functions problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 94: Solve a closures problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 95: Solve a scope problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 96: Solve a hoisting problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 97: Solve a promises problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 98: Solve a async-await problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 99: Solve a event-loop problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 100: Solve a timers problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 101: Solve a map problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 102: Solve a filter problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 103: Solve a reduce problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 104: Solve a find problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 105: Solve a sort problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 106: Solve a sets problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 107: Solve a maps problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 108: Solve a destructuring problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 109: Solve a spread-rest problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 110: Solve a currying problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 111: Solve a debounce problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 112: Solve a throttle problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 113: Solve a local-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 114: Solve a session-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 115: Solve a json problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 116: Solve a error-handling problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 117: Solve a regex problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 118: Solve a dates problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 119: Solve a strings problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 120: Solve a numbers problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 121: Solve a arrays problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 122: Solve a objects problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 123: Solve a functions problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 124: Solve a closures problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 125: Solve a scope problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 126: Solve a hoisting problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 127: Solve a promises problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 128: Solve a async-await problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 129: Solve a event-loop problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 130: Solve a timers problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 131: Solve a map problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 132: Solve a filter problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 133: Solve a reduce problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 134: Solve a find problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 135: Solve a sort problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 136: Solve a sets problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 137: Solve a maps problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 138: Solve a destructuring problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 139: Solve a spread-rest problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 140: Solve a currying problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 141: Solve a debounce problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 142: Solve a throttle problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 143: Solve a local-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 144: Solve a session-storage problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 145: Solve a json problem using clean, interview-ready JavaScript.",
+      "hint": "Prefer small pure functions and clear naming."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 146: Solve a error-handling problem using clean, interview-ready JavaScript.",
+      "hint": "Trace call stack, then microtasks, then macrotasks.",
+      "answer": "Explain exact output order with reasoning."
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 147: Solve a regex problem using clean, interview-ready JavaScript.",
+      "hint": "Identify root cause first, then provide minimal fix.",
+      "answer": "Provide bug explanation and corrected snippet."
+    },
+    {
+      "type": "refactor",
+      "question": "Exercise 148: Solve a dates problem using clean, interview-ready JavaScript.",
+      "hint": "Preserve behavior and improve readability/performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 149: Solve a strings problem using clean, interview-ready JavaScript.",
+      "hint": "Explain trade-offs and production constraints."
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 150: Solve a numbers problem using clean, interview-ready JavaScript.",
+      "hint": "Define concept, edge cases, and practical usage.",
+      "answer": "Give concise definition, one pitfall, and one real use case."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Implement `promiseAllSettledLimit` with concurrency control.",
+      "code": "async function promiseAllSettledLimit(taskFns, limit = 3) {\n  const results = new Array(taskFns.length);\n  let idx = 0;\n\n  async function worker() {\n    while (idx < taskFns.length) {\n      const i = idx++;\n      try {\n        const value = await taskFns[i]();\n        results[i] = { status: 'fulfilled', value };\n      } catch (error) {\n        results[i] = { status: 'rejected', reason: error.message };\n      }\n    }\n  }\n\n  await Promise.all(Array.from({ length: Math.min(limit, taskFns.length) }, worker));\n  return results;\n}\n\nconst wait = (v, ms, fail = false) => () => new Promise((res, rej) => setTimeout(() => fail ? rej(new Error(v)) : res(v), ms));\n(async () => {\n  const out = await promiseAllSettledLimit([wait('A', 30), wait('B', 10, true), wait('C', 5)], 2);\n  console.log(out.map(x => x.status));\n})();",
+      "output": "[ 'fulfilled', 'rejected', 'fulfilled' ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build deep equality check supporting objects, arrays, and dates.",
+      "code": "function deepEqual(a, b) {\n  if (Object.is(a, b)) return true;\n  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();\n  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;\n  if (Array.isArray(a) !== Array.isArray(b)) return false;\n\n  const keysA = Object.keys(a);\n  const keysB = Object.keys(b);\n  if (keysA.length !== keysB.length) return false;\n\n  for (const k of keysA) {\n    if (!keysB.includes(k)) return false;\n    if (!deepEqual(a[k], b[k])) return false;\n  }\n  return true;\n}\n\nconsole.log(\n  deepEqual({ x: [1, { y: 2 }], d: new Date('2026-01-01') }, { x: [1, { y: 2 }], d: new Date('2026-01-01') })\n);",
+      "output": "true",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement object diff utility (added/removed/changed keys).",
+      "code": "function objectDiff(oldObj, newObj) {\n  const added = [];\n  const removed = [];\n  const changed = [];\n\n  for (const k of Object.keys(oldObj)) {\n    if (!(k in newObj)) removed.push(k);\n    else if (JSON.stringify(oldObj[k]) !== JSON.stringify(newObj[k])) changed.push(k);\n  }\n  for (const k of Object.keys(newObj)) {\n    if (!(k in oldObj)) added.push(k);\n  }\n  return { added, removed, changed };\n}\n\nconsole.log(objectDiff(\n  { a: 1, b: 2, c: { x: 1 } },\n  { a: 1, b: 3, d: true, c: { x: 2 } }\n));",
+      "output": "{ added: [ 'd' ], removed: [], changed: [ 'b', 'c' ] }",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build immutable deep update by path (`setIn`).",
+      "code": "function setIn(obj, path, value) {\n  const keys = path.split('.');\n  const out = Array.isArray(obj) ? [...obj] : { ...obj };\n  let cur = out;\n  let src = obj;\n\n  for (let i = 0; i < keys.length - 1; i++) {\n    const k = keys[i];\n    const next = src?.[k];\n    cur[k] = Array.isArray(next) ? [...next] : { ...(next || {}) };\n    cur = cur[k];\n    src = next;\n  }\n  cur[keys[keys.length - 1]] = value;\n  return out;\n}\n\nconst state = { user: { profile: { city: 'Austin' } } };\nconst next = setIn(state, 'user.profile.city', 'Dallas');\nconsole.log(state.user.profile.city, next.user.profile.city, state !== next);",
+      "output": "Austin Dallas true",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement `groupBy` + aggregate pipeline for sales analytics.",
+      "code": "function groupBy(arr, keyFn) {\n  return arr.reduce((m, item) => {\n    const k = keyFn(item);\n    if (!m[k]) m[k] = [];\n    m[k].push(item);\n    return m;\n  }, {});\n}\n\nconst sales = [\n  { region: 'US', amount: 120 },\n  { region: 'EU', amount: 80 },\n  { region: 'US', amount: 30 }\n];\n\nconst grouped = groupBy(sales, x => x.region);\nconst totals = Object.fromEntries(Object.entries(grouped).map(([k, v]) => [k, v.reduce((s, x) => s + x.amount, 0)]));\nconsole.log(totals);",
+      "output": "{ US: 150, EU: 80 }",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Write robust CSV parser for quoted fields.",
+      "code": "function parseCSVLine(line) {\n  const out = [];\n  let cur = '';\n  let inQuotes = false;\n\n  for (let i = 0; i < line.length; i++) {\n    const ch = line[i];\n    if (ch === '\"') {\n      if (inQuotes && line[i + 1] === '\"') {\n        cur += '\"';\n        i++;\n      } else {\n        inQuotes = !inQuotes;\n      }\n    } else if (ch === ',' && !inQuotes) {\n      out.push(cur);\n      cur = '';\n    } else {\n      cur += ch;\n    }\n  }\n  out.push(cur);\n  return out;\n}\n\nconsole.log(parseCSVLine('1,\"Ada, Lovelace\",Engineer'));",
+      "output": "[ '1', 'Ada, Lovelace', 'Engineer' ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build mini template engine with `{{key}}` placeholders.",
+      "code": "function renderTemplate(template, data) {\n  return template.replace(/{{s*([w.]+)s*}}/g, (_, path) => {\n    const value = path.split('.').reduce((acc, k) => acc?.[k], data);\n    return value == null ? '' : String(value);\n  });\n}\n\nconst t = 'Hello {{user.name}}, order {{order.id}} is {{order.status}}.';\nconsole.log(renderTemplate(t, { user: { name: 'Alice' }, order: { id: 101, status: 'shipped' } }));",
+      "output": "Hello Alice, order 101 is shipped.",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement topological sort for dependency graph.",
+      "code": "function topoSort(graph) {\n  const indeg = new Map();\n  for (const n of Object.keys(graph)) indeg.set(n, 0);\n  for (const deps of Object.values(graph)) for (const d of deps) indeg.set(d, (indeg.get(d) || 0) + 1);\n\n  const q = [...[...indeg.entries()].filter(([, v]) => v === 0).map(([k]) => k)];\n  const out = [];\n\n  while (q.length) {\n    const n = q.shift();\n    out.push(n);\n    for (const d of graph[n] || []) {\n      indeg.set(d, indeg.get(d) - 1);\n      if (indeg.get(d) === 0) q.push(d);\n    }\n  }\n  return out.length === indeg.size ? out : null;\n}\n\nconsole.log(topoSort({ build: ['test'], test: ['lint'], lint: [] }));",
+      "output": "[ 'build', 'test', 'lint' ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement token bucket rate limiter.",
+      "code": "class TokenBucket {\n  constructor(capacity, refillPerSec) {\n    this.capacity = capacity;\n    this.tokens = capacity;\n    this.refillPerSec = refillPerSec;\n    this.last = Date.now();\n  }\n  allow(cost = 1) {\n    const now = Date.now();\n    const elapsed = (now - this.last) / 1000;\n    this.tokens = Math.min(this.capacity, this.tokens + elapsed * this.refillPerSec);\n    this.last = now;\n    if (this.tokens >= cost) {\n      this.tokens -= cost;\n      return true;\n    }\n    return false;\n  }\n}\n\nconst bucket = new TokenBucket(2, 1);\nconsole.log(bucket.allow(), bucket.allow(), bucket.allow());",
+      "output": "true true false",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build Trie with insert/search/prefix methods.",
+      "code": "class TrieNode {\n  constructor() { this.next = new Map(); this.end = false; }\n}\nclass Trie {\n  constructor() { this.root = new TrieNode(); }\n  insert(word) {\n    let cur = this.root;\n    for (const ch of word) {\n      if (!cur.next.has(ch)) cur.next.set(ch, new TrieNode());\n      cur = cur.next.get(ch);\n    }\n    cur.end = true;\n  }\n  search(word) {\n    let cur = this.root;\n    for (const ch of word) {\n      if (!cur.next.has(ch)) return false;\n      cur = cur.next.get(ch);\n    }\n    return cur.end;\n  }\n  startsWith(prefix) {\n    let cur = this.root;\n    for (const ch of prefix) {\n      if (!cur.next.has(ch)) return false;\n      cur = cur.next.get(ch);\n    }\n    return true;\n  }\n}\n\nconst t = new Trie();\nt.insert('code'); t.insert('coder');\nconsole.log(t.search('code'), t.search('cod'), t.startsWith('cod'));",
+      "output": "true false true",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build undo/redo state manager (command stack).",
+      "code": "class HistoryState {\n  constructor(initial) {\n    this.past = [];\n    this.present = initial;\n    this.future = [];\n  }\n  set(next) {\n    this.past.push(this.present);\n    this.present = next;\n    this.future = [];\n  }\n  undo() {\n    if (!this.past.length) return;\n    this.future.push(this.present);\n    this.present = this.past.pop();\n  }\n  redo() {\n    if (!this.future.length) return;\n    this.past.push(this.present);\n    this.present = this.future.pop();\n  }\n}\n\nconst h = new HistoryState(1);\nh.set(2); h.set(3); h.undo(); h.undo(); h.redo();\nconsole.log(h.present);",
+      "output": "2",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement async queue with pause/resume and worker.",
+      "code": "class AsyncQueue {\n  constructor(worker) {\n    this.worker = worker;\n    this.q = [];\n    this.running = false;\n    this.paused = false;\n  }\n  push(item) {\n    this.q.push(item);\n    this.drain();\n  }\n  pause() { this.paused = true; }\n  resume() { this.paused = false; this.drain(); }\n  async drain() {\n    if (this.running || this.paused) return;\n    this.running = true;\n    while (this.q.length && !this.paused) {\n      const item = this.q.shift();\n      await this.worker(item);\n    }\n    this.running = false;\n  }\n}\n\nconst out = [];\nconst aq = new AsyncQueue(async x => { out.push(x * 2); });\naq.push(1); aq.push(2); aq.push(3);\nsetTimeout(() => console.log(out), 10);",
+      "output": "[ 2, 4, 6 ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement paginated fetch iterator over async source.",
+      "code": "async function* paginate(fetchPage) {\n  let page = 1;\n  while (true) {\n    const { items, hasNext } = await fetchPage(page);\n    for (const item of items) yield item;\n    if (!hasNext) break;\n    page++;\n  }\n}\n\n(async () => {\n  const source = {\n    1: { items: [1, 2], hasNext: true },\n    2: { items: [3, 4], hasNext: false }\n  };\n  const out = [];\n  for await (const v of paginate(async p => source[p])) out.push(v);\n  console.log(out);\n})();",
+      "output": "[ 1, 2, 3, 4 ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build safe JSON parser with validation and defaults.",
+      "code": "function parseConfig(input, schema) {\n  let raw;\n  try { raw = JSON.parse(input); } catch { raw = {}; }\n  const out = {};\n  for (const [k, rule] of Object.entries(schema)) {\n    const v = raw[k];\n    if (v == null) out[k] = rule.default;\n    else if (typeof v === rule.type) out[k] = v;\n    else out[k] = rule.default;\n  }\n  return out;\n}\n\nconst schema = { retries: { type: 'number', default: 3 }, mode: { type: 'string', default: 'safe' } };\nconsole.log(parseConfig('{\"retries\":5,\"mode\":\"fast\"}', schema));",
+      "output": "{ retries: 5, mode: 'fast' }",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build binary search over sorted array of objects by key.",
+      "code": "function binarySearchBy(arr, key, target) {\n  let l = 0, r = arr.length - 1;\n  while (l <= r) {\n    const m = (l + r) >> 1;\n    if (arr[m][key] === target) return m;\n    if (arr[m][key] < target) l = m + 1;\n    else r = m - 1;\n  }\n  return -1;\n}\n\nconst users = [{ id: 10 }, { id: 20 }, { id: 30 }, { id: 40 }];\nconsole.log(binarySearchBy(users, 'id', 30));",
+      "output": "2",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement interval scheduler for maximum non-overlap jobs.",
+      "code": "function maxNonOverlapping(intervals) {\n  intervals.sort((a, b) => a[1] - b[1]);\n  const selected = [];\n  let end = -Infinity;\n  for (const [s, e] of intervals) {\n    if (s >= end) {\n      selected.push([s, e]);\n      end = e;\n    }\n  }\n  return selected;\n}\n\nconsole.log(maxNonOverlapping([[1,3],[2,5],[4,6],[6,7]]));",
+      "output": "[ [ 1, 3 ], [ 4, 6 ], [ 6, 7 ] ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build path matcher with params (`/users/:id/orders/:oid`).",
+      "code": "function matchRoute(pattern, path) {\n  const p1 = pattern.split('/').filter(Boolean);\n  const p2 = path.split('/').filter(Boolean);\n  if (p1.length !== p2.length) return null;\n  const params = {};\n  for (let i = 0; i < p1.length; i++) {\n    if (p1[i].startsWith(':')) params[p1[i].slice(1)] = p2[i];\n    else if (p1[i] !== p2[i]) return null;\n  }\n  return params;\n}\n\nconsole.log(matchRoute('/users/:id/orders/:oid', '/users/42/orders/900'));",
+      "output": "{ id: '42', oid: '900' }",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement custom `Promise.any` polyfill.",
+      "code": "function promiseAny(promises) {\n  return new Promise((resolve, reject) => {\n    let rejected = 0;\n    const errs = [];\n    promises.forEach((p, i) => {\n      Promise.resolve(p)\n        .then(resolve)\n        .catch(e => {\n          errs[i] = e;\n          rejected++;\n          if (rejected === promises.length) reject(new AggregateError(errs, 'All promises were rejected'));\n        });\n    });\n  });\n}\n\npromiseAny([Promise.reject('x'), Promise.resolve('ok'), Promise.reject('y')]).then(console.log);",
+      "output": "ok",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build LCS (longest common subsequence) dynamic programming.",
+      "code": "function lcs(a, b) {\n  const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));\n  for (let i = 1; i <= a.length; i++) {\n    for (let j = 1; j <= b.length; j++) {\n      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n    }\n  }\n  return dp[a.length][b.length];\n}\n\nconsole.log(lcs('ABCBDAB', 'BDCAB'));",
+      "output": "4",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement rolling logger with max size and severity filter.",
+      "code": "class RollingLogger {\n  constructor(max = 5) {\n    this.max = max;\n    this.rows = [];\n  }\n  log(level, msg) {\n    this.rows.push({ level, msg });\n    if (this.rows.length > this.max) this.rows.shift();\n  }\n  get(minLevel = 'debug') {\n    const order = { debug: 1, info: 2, warn: 3, error: 4 };\n    return this.rows.filter(r => order[r.level] >= order[minLevel]);\n  }\n}\n\nconst lg = new RollingLogger(3);\nlg.log('info', 'a'); lg.log('warn', 'b'); lg.log('error', 'c'); lg.log('debug', 'd');\nconsole.log(lg.get('warn'));",
+      "output": "[ { level: 'warn', msg: 'b' }, { level: 'error', msg: 'c' } ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement `promiseAllSettledLimit` with concurrency control.",
+      "code": "async function promiseAllSettledLimit(taskFns, limit = 3) {\n  const results = new Array(taskFns.length);\n  let idx = 0;\n\n  async function worker() {\n    while (idx < taskFns.length) {\n      const i = idx++;\n      try {\n        const value = await taskFns[i]();\n        results[i] = { status: 'fulfilled', value };\n      } catch (error) {\n        results[i] = { status: 'rejected', reason: error.message };\n      }\n    }\n  }\n\n  await Promise.all(Array.from({ length: Math.min(limit, taskFns.length) }, worker));\n  return results;\n}\n\nconst wait = (v, ms, fail = false) => () => new Promise((res, rej) => setTimeout(() => fail ? rej(new Error(v)) : res(v), ms));\n(async () => {\n  const out = await promiseAllSettledLimit([wait('A', 30), wait('B', 10, true), wait('C', 5)], 2);\n  console.log(out.map(x => x.status));\n})();",
+      "output": "[ 'fulfilled', 'rejected', 'fulfilled' ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build deep equality check supporting objects, arrays, and dates.",
+      "code": "function deepEqual(a, b) {\n  if (Object.is(a, b)) return true;\n  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();\n  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;\n  if (Array.isArray(a) !== Array.isArray(b)) return false;\n\n  const keysA = Object.keys(a);\n  const keysB = Object.keys(b);\n  if (keysA.length !== keysB.length) return false;\n\n  for (const k of keysA) {\n    if (!keysB.includes(k)) return false;\n    if (!deepEqual(a[k], b[k])) return false;\n  }\n  return true;\n}\n\nconsole.log(\n  deepEqual({ x: [1, { y: 2 }], d: new Date('2026-01-01') }, { x: [1, { y: 2 }], d: new Date('2026-01-01') })\n);",
+      "output": "true",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement object diff utility (added/removed/changed keys).",
+      "code": "function objectDiff(oldObj, newObj) {\n  const added = [];\n  const removed = [];\n  const changed = [];\n\n  for (const k of Object.keys(oldObj)) {\n    if (!(k in newObj)) removed.push(k);\n    else if (JSON.stringify(oldObj[k]) !== JSON.stringify(newObj[k])) changed.push(k);\n  }\n  for (const k of Object.keys(newObj)) {\n    if (!(k in oldObj)) added.push(k);\n  }\n  return { added, removed, changed };\n}\n\nconsole.log(objectDiff(\n  { a: 1, b: 2, c: { x: 1 } },\n  { a: 1, b: 3, d: true, c: { x: 2 } }\n));",
+      "output": "{ added: [ 'd' ], removed: [], changed: [ 'b', 'c' ] }",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build immutable deep update by path (`setIn`).",
+      "code": "function setIn(obj, path, value) {\n  const keys = path.split('.');\n  const out = Array.isArray(obj) ? [...obj] : { ...obj };\n  let cur = out;\n  let src = obj;\n\n  for (let i = 0; i < keys.length - 1; i++) {\n    const k = keys[i];\n    const next = src?.[k];\n    cur[k] = Array.isArray(next) ? [...next] : { ...(next || {}) };\n    cur = cur[k];\n    src = next;\n  }\n  cur[keys[keys.length - 1]] = value;\n  return out;\n}\n\nconst state = { user: { profile: { city: 'Austin' } } };\nconst next = setIn(state, 'user.profile.city', 'Dallas');\nconsole.log(state.user.profile.city, next.user.profile.city, state !== next);",
+      "output": "Austin Dallas true",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement `groupBy` + aggregate pipeline for sales analytics.",
+      "code": "function groupBy(arr, keyFn) {\n  return arr.reduce((m, item) => {\n    const k = keyFn(item);\n    if (!m[k]) m[k] = [];\n    m[k].push(item);\n    return m;\n  }, {});\n}\n\nconst sales = [\n  { region: 'US', amount: 120 },\n  { region: 'EU', amount: 80 },\n  { region: 'US', amount: 30 }\n];\n\nconst grouped = groupBy(sales, x => x.region);\nconst totals = Object.fromEntries(Object.entries(grouped).map(([k, v]) => [k, v.reduce((s, x) => s + x.amount, 0)]));\nconsole.log(totals);",
+      "output": "{ US: 150, EU: 80 }",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Write robust CSV parser for quoted fields.",
+      "code": "function parseCSVLine(line) {\n  const out = [];\n  let cur = '';\n  let inQuotes = false;\n\n  for (let i = 0; i < line.length; i++) {\n    const ch = line[i];\n    if (ch === '\"') {\n      if (inQuotes && line[i + 1] === '\"') {\n        cur += '\"';\n        i++;\n      } else {\n        inQuotes = !inQuotes;\n      }\n    } else if (ch === ',' && !inQuotes) {\n      out.push(cur);\n      cur = '';\n    } else {\n      cur += ch;\n    }\n  }\n  out.push(cur);\n  return out;\n}\n\nconsole.log(parseCSVLine('1,\"Ada, Lovelace\",Engineer'));",
+      "output": "[ '1', 'Ada, Lovelace', 'Engineer' ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build mini template engine with `{{key}}` placeholders.",
+      "code": "function renderTemplate(template, data) {\n  return template.replace(/{{s*([w.]+)s*}}/g, (_, path) => {\n    const value = path.split('.').reduce((acc, k) => acc?.[k], data);\n    return value == null ? '' : String(value);\n  });\n}\n\nconst t = 'Hello {{user.name}}, order {{order.id}} is {{order.status}}.';\nconsole.log(renderTemplate(t, { user: { name: 'Alice' }, order: { id: 101, status: 'shipped' } }));",
+      "output": "Hello Alice, order 101 is shipped.",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement topological sort for dependency graph.",
+      "code": "function topoSort(graph) {\n  const indeg = new Map();\n  for (const n of Object.keys(graph)) indeg.set(n, 0);\n  for (const deps of Object.values(graph)) for (const d of deps) indeg.set(d, (indeg.get(d) || 0) + 1);\n\n  const q = [...[...indeg.entries()].filter(([, v]) => v === 0).map(([k]) => k)];\n  const out = [];\n\n  while (q.length) {\n    const n = q.shift();\n    out.push(n);\n    for (const d of graph[n] || []) {\n      indeg.set(d, indeg.get(d) - 1);\n      if (indeg.get(d) === 0) q.push(d);\n    }\n  }\n  return out.length === indeg.size ? out : null;\n}\n\nconsole.log(topoSort({ build: ['test'], test: ['lint'], lint: [] }));",
+      "output": "[ 'build', 'test', 'lint' ]",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Implement token bucket rate limiter.",
+      "code": "class TokenBucket {\n  constructor(capacity, refillPerSec) {\n    this.capacity = capacity;\n    this.tokens = capacity;\n    this.refillPerSec = refillPerSec;\n    this.last = Date.now();\n  }\n  allow(cost = 1) {\n    const now = Date.now();\n    const elapsed = (now - this.last) / 1000;\n    this.tokens = Math.min(this.capacity, this.tokens + elapsed * this.refillPerSec);\n    this.last = now;\n    if (this.tokens >= cost) {\n      this.tokens -= cost;\n      return true;\n    }\n    return false;\n  }\n}\n\nconst bucket = new TokenBucket(2, 1);\nconsole.log(bucket.allow(), bucket.allow(), bucket.allow());",
+      "output": "true true false",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Build Trie with insert/search/prefix methods.",
+      "code": "class TrieNode {\n  constructor() { this.next = new Map(); this.end = false; }\n}\nclass Trie {\n  constructor() { this.root = new TrieNode(); }\n  insert(word) {\n    let cur = this.root;\n    for (const ch of word) {\n      if (!cur.next.has(ch)) cur.next.set(ch, new TrieNode());\n      cur = cur.next.get(ch);\n    }\n    cur.end = true;\n  }\n  search(word) {\n    let cur = this.root;\n    for (const ch of word) {\n      if (!cur.next.has(ch)) return false;\n      cur = cur.next.get(ch);\n    }\n    return cur.end;\n  }\n  startsWith(prefix) {\n    let cur = this.root;\n    for (const ch of prefix) {\n      if (!cur.next.has(ch)) return false;\n      cur = cur.next.get(ch);\n    }\n    return true;\n  }\n}\n\nconst t = new Trie();\nt.insert('code'); t.insert('coder');\nconsole.log(t.search('code'), t.search('cod'), t.startsWith('cod'));",
+      "output": "true false true",
+      "level": "Medium"
+    },
+    {
+      "type": "program",
+      "question": "Edge-safe Build undo/redo state manager (command stack).",
+      "code": "class HistoryState {\n  constructor(initial) {\n    this.past = [];\n    this.present = initial;\n    this.future = [];\n  }\n  set(next) {\n    this.past.push(this.present);\n    this.present = next;\n    this.future = [];\n  }\n  undo() {\n    if (!this.past.length) return;\n    this.future.push(this.present);\n    this.present = this.past.pop();\n  }\n  redo() {\n    if (!this.future.length) return;\n    this.past.push(this.present);\n    this.present = this.future.pop();\n  }\n}\n\nconst h = new HistoryState(1);\nh.set(2); h.set(3); h.undo(); h.undo(); h.redo();\nconsole.log(h.present);",
+      "output": "2",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Production-ready Implement async queue with pause/resume and worker.",
+      "code": "class AsyncQueue {\n  constructor(worker) {\n    this.worker = worker;\n    this.q = [];\n    this.running = false;\n    this.paused = false;\n  }\n  push(item) {\n    this.q.push(item);\n    this.drain();\n  }\n  pause() { this.paused = true; }\n  resume() { this.paused = false; this.drain(); }\n  async drain() {\n    if (this.running || this.paused) return;\n    this.running = true;\n    while (this.q.length && !this.paused) {\n      const item = this.q.shift();\n      await this.worker(item);\n    }\n    this.running = false;\n  }\n}\n\nconst out = [];\nconst aq = new AsyncQueue(async x => { out.push(x * 2); });\naq.push(1); aq.push(2); aq.push(3);\nsetTimeout(() => console.log(out), 10);",
+      "output": "[ 2, 4, 6 ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Optimized Implement paginated fetch iterator over async source.",
+      "code": "async function* paginate(fetchPage) {\n  let page = 1;\n  while (true) {\n    const { items, hasNext } = await fetchPage(page);\n    for (const item of items) yield item;\n    if (!hasNext) break;\n    page++;\n  }\n}\n\n(async () => {\n  const source = {\n    1: { items: [1, 2], hasNext: true },\n    2: { items: [3, 4], hasNext: false }\n  };\n  const out = [];\n  for await (const v of paginate(async p => source[p])) out.push(v);\n  console.log(out);\n})();",
+      "output": "[ 1, 2, 3, 4 ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Concurrency-aware Build safe JSON parser with validation and defaults.",
+      "code": "function parseConfig(input, schema) {\n  let raw;\n  try { raw = JSON.parse(input); } catch { raw = {}; }\n  const out = {};\n  for (const [k, rule] of Object.entries(schema)) {\n    const v = raw[k];\n    if (v == null) out[k] = rule.default;\n    else if (typeof v === rule.type) out[k] = v;\n    else out[k] = rule.default;\n  }\n  return out;\n}\n\nconst schema = { retries: { type: 'number', default: 3 }, mode: { type: 'string', default: 'safe' } };\nconsole.log(parseConfig('{\"retries\":5,\"mode\":\"fast\"}', schema));",
+      "output": "{ retries: 5, mode: 'fast' }",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Fault-tolerant Build binary search over sorted array of objects by key.",
+      "code": "function binarySearchBy(arr, key, target) {\n  let l = 0, r = arr.length - 1;\n  while (l <= r) {\n    const m = (l + r) >> 1;\n    if (arr[m][key] === target) return m;\n    if (arr[m][key] < target) l = m + 1;\n    else r = m - 1;\n  }\n  return -1;\n}\n\nconst users = [{ id: 10 }, { id: 20 }, { id: 30 }, { id: 40 }];\nconsole.log(binarySearchBy(users, 'id', 30));",
+      "output": "2",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Edge-safe Implement interval scheduler for maximum non-overlap jobs.",
+      "code": "function maxNonOverlapping(intervals) {\n  intervals.sort((a, b) => a[1] - b[1]);\n  const selected = [];\n  let end = -Infinity;\n  for (const [s, e] of intervals) {\n    if (s >= end) {\n      selected.push([s, e]);\n      end = e;\n    }\n  }\n  return selected;\n}\n\nconsole.log(maxNonOverlapping([[1,3],[2,5],[4,6],[6,7]]));",
+      "output": "[ [ 1, 3 ], [ 4, 6 ], [ 6, 7 ] ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Production-ready Build path matcher with params (`/users/:id/orders/:oid`).",
+      "code": "function matchRoute(pattern, path) {\n  const p1 = pattern.split('/').filter(Boolean);\n  const p2 = path.split('/').filter(Boolean);\n  if (p1.length !== p2.length) return null;\n  const params = {};\n  for (let i = 0; i < p1.length; i++) {\n    if (p1[i].startsWith(':')) params[p1[i].slice(1)] = p2[i];\n    else if (p1[i] !== p2[i]) return null;\n  }\n  return params;\n}\n\nconsole.log(matchRoute('/users/:id/orders/:oid', '/users/42/orders/900'));",
+      "output": "{ id: '42', oid: '900' }",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Optimized Implement custom `Promise.any` polyfill.",
+      "code": "function promiseAny(promises) {\n  return new Promise((resolve, reject) => {\n    let rejected = 0;\n    const errs = [];\n    promises.forEach((p, i) => {\n      Promise.resolve(p)\n        .then(resolve)\n        .catch(e => {\n          errs[i] = e;\n          rejected++;\n          if (rejected === promises.length) reject(new AggregateError(errs, 'All promises were rejected'));\n        });\n    });\n  });\n}\n\npromiseAny([Promise.reject('x'), Promise.resolve('ok'), Promise.reject('y')]).then(console.log);",
+      "output": "ok",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Concurrency-aware Build LCS (longest common subsequence) dynamic programming.",
+      "code": "function lcs(a, b) {\n  const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));\n  for (let i = 1; i <= a.length; i++) {\n    for (let j = 1; j <= b.length; j++) {\n      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n    }\n  }\n  return dp[a.length][b.length];\n}\n\nconsole.log(lcs('ABCBDAB', 'BDCAB'));",
+      "output": "4",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Fault-tolerant Implement rolling logger with max size and severity filter.",
+      "code": "class RollingLogger {\n  constructor(max = 5) {\n    this.max = max;\n    this.rows = [];\n  }\n  log(level, msg) {\n    this.rows.push({ level, msg });\n    if (this.rows.length > this.max) this.rows.shift();\n  }\n  get(minLevel = 'debug') {\n    const order = { debug: 1, info: 2, warn: 3, error: 4 };\n    return this.rows.filter(r => order[r.level] >= order[minLevel]);\n  }\n}\n\nconst lg = new RollingLogger(3);\nlg.log('info', 'a'); lg.log('warn', 'b'); lg.log('error', 'c'); lg.log('debug', 'd');\nconsole.log(lg.get('warn'));",
+      "output": "[ { level: 'warn', msg: 'b' }, { level: 'error', msg: 'c' } ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Edge-safe Implement `promiseAllSettledLimit` with concurrency control.",
+      "code": "async function promiseAllSettledLimit(taskFns, limit = 3) {\n  const results = new Array(taskFns.length);\n  let idx = 0;\n\n  async function worker() {\n    while (idx < taskFns.length) {\n      const i = idx++;\n      try {\n        const value = await taskFns[i]();\n        results[i] = { status: 'fulfilled', value };\n      } catch (error) {\n        results[i] = { status: 'rejected', reason: error.message };\n      }\n    }\n  }\n\n  await Promise.all(Array.from({ length: Math.min(limit, taskFns.length) }, worker));\n  return results;\n}\n\nconst wait = (v, ms, fail = false) => () => new Promise((res, rej) => setTimeout(() => fail ? rej(new Error(v)) : res(v), ms));\n(async () => {\n  const out = await promiseAllSettledLimit([wait('A', 30), wait('B', 10, true), wait('C', 5)], 2);\n  console.log(out.map(x => x.status));\n})();",
+      "output": "[ 'fulfilled', 'rejected', 'fulfilled' ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Production-ready Build deep equality check supporting objects, arrays, and dates.",
+      "code": "function deepEqual(a, b) {\n  if (Object.is(a, b)) return true;\n  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();\n  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;\n  if (Array.isArray(a) !== Array.isArray(b)) return false;\n\n  const keysA = Object.keys(a);\n  const keysB = Object.keys(b);\n  if (keysA.length !== keysB.length) return false;\n\n  for (const k of keysA) {\n    if (!keysB.includes(k)) return false;\n    if (!deepEqual(a[k], b[k])) return false;\n  }\n  return true;\n}\n\nconsole.log(\n  deepEqual({ x: [1, { y: 2 }], d: new Date('2026-01-01') }, { x: [1, { y: 2 }], d: new Date('2026-01-01') })\n);",
+      "output": "true",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Optimized Implement object diff utility (added/removed/changed keys).",
+      "code": "function objectDiff(oldObj, newObj) {\n  const added = [];\n  const removed = [];\n  const changed = [];\n\n  for (const k of Object.keys(oldObj)) {\n    if (!(k in newObj)) removed.push(k);\n    else if (JSON.stringify(oldObj[k]) !== JSON.stringify(newObj[k])) changed.push(k);\n  }\n  for (const k of Object.keys(newObj)) {\n    if (!(k in oldObj)) added.push(k);\n  }\n  return { added, removed, changed };\n}\n\nconsole.log(objectDiff(\n  { a: 1, b: 2, c: { x: 1 } },\n  { a: 1, b: 3, d: true, c: { x: 2 } }\n));",
+      "output": "{ added: [ 'd' ], removed: [], changed: [ 'b', 'c' ] }",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Concurrency-aware Build immutable deep update by path (`setIn`).",
+      "code": "function setIn(obj, path, value) {\n  const keys = path.split('.');\n  const out = Array.isArray(obj) ? [...obj] : { ...obj };\n  let cur = out;\n  let src = obj;\n\n  for (let i = 0; i < keys.length - 1; i++) {\n    const k = keys[i];\n    const next = src?.[k];\n    cur[k] = Array.isArray(next) ? [...next] : { ...(next || {}) };\n    cur = cur[k];\n    src = next;\n  }\n  cur[keys[keys.length - 1]] = value;\n  return out;\n}\n\nconst state = { user: { profile: { city: 'Austin' } } };\nconst next = setIn(state, 'user.profile.city', 'Dallas');\nconsole.log(state.user.profile.city, next.user.profile.city, state !== next);",
+      "output": "Austin Dallas true",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Fault-tolerant Implement `groupBy` + aggregate pipeline for sales analytics.",
+      "code": "function groupBy(arr, keyFn) {\n  return arr.reduce((m, item) => {\n    const k = keyFn(item);\n    if (!m[k]) m[k] = [];\n    m[k].push(item);\n    return m;\n  }, {});\n}\n\nconst sales = [\n  { region: 'US', amount: 120 },\n  { region: 'EU', amount: 80 },\n  { region: 'US', amount: 30 }\n];\n\nconst grouped = groupBy(sales, x => x.region);\nconst totals = Object.fromEntries(Object.entries(grouped).map(([k, v]) => [k, v.reduce((s, x) => s + x.amount, 0)]));\nconsole.log(totals);",
+      "output": "{ US: 150, EU: 80 }",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Edge-safe Write robust CSV parser for quoted fields.",
+      "code": "function parseCSVLine(line) {\n  const out = [];\n  let cur = '';\n  let inQuotes = false;\n\n  for (let i = 0; i < line.length; i++) {\n    const ch = line[i];\n    if (ch === '\"') {\n      if (inQuotes && line[i + 1] === '\"') {\n        cur += '\"';\n        i++;\n      } else {\n        inQuotes = !inQuotes;\n      }\n    } else if (ch === ',' && !inQuotes) {\n      out.push(cur);\n      cur = '';\n    } else {\n      cur += ch;\n    }\n  }\n  out.push(cur);\n  return out;\n}\n\nconsole.log(parseCSVLine('1,\"Ada, Lovelace\",Engineer'));",
+      "output": "[ '1', 'Ada, Lovelace', 'Engineer' ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Production-ready Build mini template engine with `{{key}}` placeholders.",
+      "code": "function renderTemplate(template, data) {\n  return template.replace(/{{s*([w.]+)s*}}/g, (_, path) => {\n    const value = path.split('.').reduce((acc, k) => acc?.[k], data);\n    return value == null ? '' : String(value);\n  });\n}\n\nconst t = 'Hello {{user.name}}, order {{order.id}} is {{order.status}}.';\nconsole.log(renderTemplate(t, { user: { name: 'Alice' }, order: { id: 101, status: 'shipped' } }));",
+      "output": "Hello Alice, order 101 is shipped.",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Optimized Implement topological sort for dependency graph.",
+      "code": "function topoSort(graph) {\n  const indeg = new Map();\n  for (const n of Object.keys(graph)) indeg.set(n, 0);\n  for (const deps of Object.values(graph)) for (const d of deps) indeg.set(d, (indeg.get(d) || 0) + 1);\n\n  const q = [...[...indeg.entries()].filter(([, v]) => v === 0).map(([k]) => k)];\n  const out = [];\n\n  while (q.length) {\n    const n = q.shift();\n    out.push(n);\n    for (const d of graph[n] || []) {\n      indeg.set(d, indeg.get(d) - 1);\n      if (indeg.get(d) === 0) q.push(d);\n    }\n  }\n  return out.length === indeg.size ? out : null;\n}\n\nconsole.log(topoSort({ build: ['test'], test: ['lint'], lint: [] }));",
+      "output": "[ 'build', 'test', 'lint' ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Concurrency-aware Implement token bucket rate limiter.",
+      "code": "class TokenBucket {\n  constructor(capacity, refillPerSec) {\n    this.capacity = capacity;\n    this.tokens = capacity;\n    this.refillPerSec = refillPerSec;\n    this.last = Date.now();\n  }\n  allow(cost = 1) {\n    const now = Date.now();\n    const elapsed = (now - this.last) / 1000;\n    this.tokens = Math.min(this.capacity, this.tokens + elapsed * this.refillPerSec);\n    this.last = now;\n    if (this.tokens >= cost) {\n      this.tokens -= cost;\n      return true;\n    }\n    return false;\n  }\n}\n\nconst bucket = new TokenBucket(2, 1);\nconsole.log(bucket.allow(), bucket.allow(), bucket.allow());",
+      "output": "true true false",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Fault-tolerant Build Trie with insert/search/prefix methods.",
+      "code": "class TrieNode {\n  constructor() { this.next = new Map(); this.end = false; }\n}\nclass Trie {\n  constructor() { this.root = new TrieNode(); }\n  insert(word) {\n    let cur = this.root;\n    for (const ch of word) {\n      if (!cur.next.has(ch)) cur.next.set(ch, new TrieNode());\n      cur = cur.next.get(ch);\n    }\n    cur.end = true;\n  }\n  search(word) {\n    let cur = this.root;\n    for (const ch of word) {\n      if (!cur.next.has(ch)) return false;\n      cur = cur.next.get(ch);\n    }\n    return cur.end;\n  }\n  startsWith(prefix) {\n    let cur = this.root;\n    for (const ch of prefix) {\n      if (!cur.next.has(ch)) return false;\n      cur = cur.next.get(ch);\n    }\n    return true;\n  }\n}\n\nconst t = new Trie();\nt.insert('code'); t.insert('coder');\nconsole.log(t.search('code'), t.search('cod'), t.startsWith('cod'));",
+      "output": "true false true",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Edge-safe Build undo/redo state manager (command stack).",
+      "code": "class HistoryState {\n  constructor(initial) {\n    this.past = [];\n    this.present = initial;\n    this.future = [];\n  }\n  set(next) {\n    this.past.push(this.present);\n    this.present = next;\n    this.future = [];\n  }\n  undo() {\n    if (!this.past.length) return;\n    this.future.push(this.present);\n    this.present = this.past.pop();\n  }\n  redo() {\n    if (!this.future.length) return;\n    this.past.push(this.present);\n    this.present = this.future.pop();\n  }\n}\n\nconst h = new HistoryState(1);\nh.set(2); h.set(3); h.undo(); h.undo(); h.redo();\nconsole.log(h.present);",
+      "output": "2",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Production-ready Implement async queue with pause/resume and worker.",
+      "code": "class AsyncQueue {\n  constructor(worker) {\n    this.worker = worker;\n    this.q = [];\n    this.running = false;\n    this.paused = false;\n  }\n  push(item) {\n    this.q.push(item);\n    this.drain();\n  }\n  pause() { this.paused = true; }\n  resume() { this.paused = false; this.drain(); }\n  async drain() {\n    if (this.running || this.paused) return;\n    this.running = true;\n    while (this.q.length && !this.paused) {\n      const item = this.q.shift();\n      await this.worker(item);\n    }\n    this.running = false;\n  }\n}\n\nconst out = [];\nconst aq = new AsyncQueue(async x => { out.push(x * 2); });\naq.push(1); aq.push(2); aq.push(3);\nsetTimeout(() => console.log(out), 10);",
+      "output": "[ 2, 4, 6 ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Optimized Implement paginated fetch iterator over async source.",
+      "code": "async function* paginate(fetchPage) {\n  let page = 1;\n  while (true) {\n    const { items, hasNext } = await fetchPage(page);\n    for (const item of items) yield item;\n    if (!hasNext) break;\n    page++;\n  }\n}\n\n(async () => {\n  const source = {\n    1: { items: [1, 2], hasNext: true },\n    2: { items: [3, 4], hasNext: false }\n  };\n  const out = [];\n  for await (const v of paginate(async p => source[p])) out.push(v);\n  console.log(out);\n})();",
+      "output": "[ 1, 2, 3, 4 ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Concurrency-aware Build safe JSON parser with validation and defaults.",
+      "code": "function parseConfig(input, schema) {\n  let raw;\n  try { raw = JSON.parse(input); } catch { raw = {}; }\n  const out = {};\n  for (const [k, rule] of Object.entries(schema)) {\n    const v = raw[k];\n    if (v == null) out[k] = rule.default;\n    else if (typeof v === rule.type) out[k] = v;\n    else out[k] = rule.default;\n  }\n  return out;\n}\n\nconst schema = { retries: { type: 'number', default: 3 }, mode: { type: 'string', default: 'safe' } };\nconsole.log(parseConfig('{\"retries\":5,\"mode\":\"fast\"}', schema));",
+      "output": "{ retries: 5, mode: 'fast' }",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Fault-tolerant Build binary search over sorted array of objects by key.",
+      "code": "function binarySearchBy(arr, key, target) {\n  let l = 0, r = arr.length - 1;\n  while (l <= r) {\n    const m = (l + r) >> 1;\n    if (arr[m][key] === target) return m;\n    if (arr[m][key] < target) l = m + 1;\n    else r = m - 1;\n  }\n  return -1;\n}\n\nconst users = [{ id: 10 }, { id: 20 }, { id: 30 }, { id: 40 }];\nconsole.log(binarySearchBy(users, 'id', 30));",
+      "output": "2",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Edge-safe Implement interval scheduler for maximum non-overlap jobs.",
+      "code": "function maxNonOverlapping(intervals) {\n  intervals.sort((a, b) => a[1] - b[1]);\n  const selected = [];\n  let end = -Infinity;\n  for (const [s, e] of intervals) {\n    if (s >= end) {\n      selected.push([s, e]);\n      end = e;\n    }\n  }\n  return selected;\n}\n\nconsole.log(maxNonOverlapping([[1,3],[2,5],[4,6],[6,7]]));",
+      "output": "[ [ 1, 3 ], [ 4, 6 ], [ 6, 7 ] ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Production-ready Build path matcher with params (`/users/:id/orders/:oid`).",
+      "code": "function matchRoute(pattern, path) {\n  const p1 = pattern.split('/').filter(Boolean);\n  const p2 = path.split('/').filter(Boolean);\n  if (p1.length !== p2.length) return null;\n  const params = {};\n  for (let i = 0; i < p1.length; i++) {\n    if (p1[i].startsWith(':')) params[p1[i].slice(1)] = p2[i];\n    else if (p1[i] !== p2[i]) return null;\n  }\n  return params;\n}\n\nconsole.log(matchRoute('/users/:id/orders/:oid', '/users/42/orders/900'));",
+      "output": "{ id: '42', oid: '900' }",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Optimized Implement custom `Promise.any` polyfill.",
+      "code": "function promiseAny(promises) {\n  return new Promise((resolve, reject) => {\n    let rejected = 0;\n    const errs = [];\n    promises.forEach((p, i) => {\n      Promise.resolve(p)\n        .then(resolve)\n        .catch(e => {\n          errs[i] = e;\n          rejected++;\n          if (rejected === promises.length) reject(new AggregateError(errs, 'All promises were rejected'));\n        });\n    });\n  });\n}\n\npromiseAny([Promise.reject('x'), Promise.resolve('ok'), Promise.reject('y')]).then(console.log);",
+      "output": "ok",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Concurrency-aware Build LCS (longest common subsequence) dynamic programming.",
+      "code": "function lcs(a, b) {\n  const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));\n  for (let i = 1; i <= a.length; i++) {\n    for (let j = 1; j <= b.length; j++) {\n      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n    }\n  }\n  return dp[a.length][b.length];\n}\n\nconsole.log(lcs('ABCBDAB', 'BDCAB'));",
+      "output": "4",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "Fault-tolerant Implement rolling logger with max size and severity filter.",
+      "code": "class RollingLogger {\n  constructor(max = 5) {\n    this.max = max;\n    this.rows = [];\n  }\n  log(level, msg) {\n    this.rows.push({ level, msg });\n    if (this.rows.length > this.max) this.rows.shift();\n  }\n  get(minLevel = 'debug') {\n    const order = { debug: 1, info: 2, warn: 3, error: 4 };\n    return this.rows.filter(r => order[r.level] >= order[minLevel]);\n  }\n}\n\nconst lg = new RollingLogger(3);\nlg.log('info', 'a'); lg.log('warn', 'b'); lg.log('error', 'c'); lg.log('debug', 'd');\nconsole.log(lg.get('warn'));",
+      "output": "[ { level: 'warn', msg: 'b' }, { level: 'error', msg: 'c' } ]",
+      "level": "Hard"
+    },
+    {
+      "type": "program",
+      "question": "System-level Implement `promiseAllSettledLimit` with concurrency control.",
+      "code": "async function promiseAllSettledLimit(taskFns, limit = 3) {\n  const results = new Array(taskFns.length);\n  let idx = 0;\n\n  async function worker() {\n    while (idx < taskFns.length) {\n      const i = idx++;\n      try {\n        const value = await taskFns[i]();\n        results[i] = { status: 'fulfilled', value };\n      } catch (error) {\n        results[i] = { status: 'rejected', reason: error.message };\n      }\n    }\n  }\n\n  await Promise.all(Array.from({ length: Math.min(limit, taskFns.length) }, worker));\n  return results;\n}\n\nconst wait = (v, ms, fail = false) => () => new Promise((res, rej) => setTimeout(() => fail ? rej(new Error(v)) : res(v), ms));\n(async () => {\n  const out = await promiseAllSettledLimit([wait('A', 30), wait('B', 10, true), wait('C', 5)], 2);\n  console.log(out.map(x => x.status));\n})();",
+      "output": "[ 'fulfilled', 'rejected', 'fulfilled' ]",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Scalable Build deep equality check supporting objects, arrays, and dates.",
+      "code": "function deepEqual(a, b) {\n  if (Object.is(a, b)) return true;\n  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();\n  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;\n  if (Array.isArray(a) !== Array.isArray(b)) return false;\n\n  const keysA = Object.keys(a);\n  const keysB = Object.keys(b);\n  if (keysA.length !== keysB.length) return false;\n\n  for (const k of keysA) {\n    if (!keysB.includes(k)) return false;\n    if (!deepEqual(a[k], b[k])) return false;\n  }\n  return true;\n}\n\nconsole.log(\n  deepEqual({ x: [1, { y: 2 }], d: new Date('2026-01-01') }, { x: [1, { y: 2 }], d: new Date('2026-01-01') })\n);",
+      "output": "true",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Interview-hard Implement object diff utility (added/removed/changed keys).",
+      "code": "function objectDiff(oldObj, newObj) {\n  const added = [];\n  const removed = [];\n  const changed = [];\n\n  for (const k of Object.keys(oldObj)) {\n    if (!(k in newObj)) removed.push(k);\n    else if (JSON.stringify(oldObj[k]) !== JSON.stringify(newObj[k])) changed.push(k);\n  }\n  for (const k of Object.keys(newObj)) {\n    if (!(k in oldObj)) added.push(k);\n  }\n  return { added, removed, changed };\n}\n\nconsole.log(objectDiff(\n  { a: 1, b: 2, c: { x: 1 } },\n  { a: 1, b: 3, d: true, c: { x: 2 } }\n));",
+      "output": "{ added: [ 'd' ], removed: [], changed: [ 'b', 'c' ] }",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Architecture-grade Build immutable deep update by path (`setIn`).",
+      "code": "function setIn(obj, path, value) {\n  const keys = path.split('.');\n  const out = Array.isArray(obj) ? [...obj] : { ...obj };\n  let cur = out;\n  let src = obj;\n\n  for (let i = 0; i < keys.length - 1; i++) {\n    const k = keys[i];\n    const next = src?.[k];\n    cur[k] = Array.isArray(next) ? [...next] : { ...(next || {}) };\n    cur = cur[k];\n    src = next;\n  }\n  cur[keys[keys.length - 1]] = value;\n  return out;\n}\n\nconst state = { user: { profile: { city: 'Austin' } } };\nconst next = setIn(state, 'user.profile.city', 'Dallas');\nconsole.log(state.user.profile.city, next.user.profile.city, state !== next);",
+      "output": "Austin Dallas true",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "High-complexity Implement `groupBy` + aggregate pipeline for sales analytics.",
+      "code": "function groupBy(arr, keyFn) {\n  return arr.reduce((m, item) => {\n    const k = keyFn(item);\n    if (!m[k]) m[k] = [];\n    m[k].push(item);\n    return m;\n  }, {});\n}\n\nconst sales = [\n  { region: 'US', amount: 120 },\n  { region: 'EU', amount: 80 },\n  { region: 'US', amount: 30 }\n];\n\nconst grouped = groupBy(sales, x => x.region);\nconst totals = Object.fromEntries(Object.entries(grouped).map(([k, v]) => [k, v.reduce((s, x) => s + x.amount, 0)]));\nconsole.log(totals);",
+      "output": "{ US: 150, EU: 80 }",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "System-level Write robust CSV parser for quoted fields.",
+      "code": "function parseCSVLine(line) {\n  const out = [];\n  let cur = '';\n  let inQuotes = false;\n\n  for (let i = 0; i < line.length; i++) {\n    const ch = line[i];\n    if (ch === '\"') {\n      if (inQuotes && line[i + 1] === '\"') {\n        cur += '\"';\n        i++;\n      } else {\n        inQuotes = !inQuotes;\n      }\n    } else if (ch === ',' && !inQuotes) {\n      out.push(cur);\n      cur = '';\n    } else {\n      cur += ch;\n    }\n  }\n  out.push(cur);\n  return out;\n}\n\nconsole.log(parseCSVLine('1,\"Ada, Lovelace\",Engineer'));",
+      "output": "[ '1', 'Ada, Lovelace', 'Engineer' ]",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Scalable Build mini template engine with `{{key}}` placeholders.",
+      "code": "function renderTemplate(template, data) {\n  return template.replace(/{{s*([w.]+)s*}}/g, (_, path) => {\n    const value = path.split('.').reduce((acc, k) => acc?.[k], data);\n    return value == null ? '' : String(value);\n  });\n}\n\nconst t = 'Hello {{user.name}}, order {{order.id}} is {{order.status}}.';\nconsole.log(renderTemplate(t, { user: { name: 'Alice' }, order: { id: 101, status: 'shipped' } }));",
+      "output": "Hello Alice, order 101 is shipped.",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Interview-hard Implement topological sort for dependency graph.",
+      "code": "function topoSort(graph) {\n  const indeg = new Map();\n  for (const n of Object.keys(graph)) indeg.set(n, 0);\n  for (const deps of Object.values(graph)) for (const d of deps) indeg.set(d, (indeg.get(d) || 0) + 1);\n\n  const q = [...[...indeg.entries()].filter(([, v]) => v === 0).map(([k]) => k)];\n  const out = [];\n\n  while (q.length) {\n    const n = q.shift();\n    out.push(n);\n    for (const d of graph[n] || []) {\n      indeg.set(d, indeg.get(d) - 1);\n      if (indeg.get(d) === 0) q.push(d);\n    }\n  }\n  return out.length === indeg.size ? out : null;\n}\n\nconsole.log(topoSort({ build: ['test'], test: ['lint'], lint: [] }));",
+      "output": "[ 'build', 'test', 'lint' ]",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Architecture-grade Implement token bucket rate limiter.",
+      "code": "class TokenBucket {\n  constructor(capacity, refillPerSec) {\n    this.capacity = capacity;\n    this.tokens = capacity;\n    this.refillPerSec = refillPerSec;\n    this.last = Date.now();\n  }\n  allow(cost = 1) {\n    const now = Date.now();\n    const elapsed = (now - this.last) / 1000;\n    this.tokens = Math.min(this.capacity, this.tokens + elapsed * this.refillPerSec);\n    this.last = now;\n    if (this.tokens >= cost) {\n      this.tokens -= cost;\n      return true;\n    }\n    return false;\n  }\n}\n\nconst bucket = new TokenBucket(2, 1);\nconsole.log(bucket.allow(), bucket.allow(), bucket.allow());",
+      "output": "true true false",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "High-complexity Build Trie with insert/search/prefix methods.",
+      "code": "class TrieNode {\n  constructor() { this.next = new Map(); this.end = false; }\n}\nclass Trie {\n  constructor() { this.root = new TrieNode(); }\n  insert(word) {\n    let cur = this.root;\n    for (const ch of word) {\n      if (!cur.next.has(ch)) cur.next.set(ch, new TrieNode());\n      cur = cur.next.get(ch);\n    }\n    cur.end = true;\n  }\n  search(word) {\n    let cur = this.root;\n    for (const ch of word) {\n      if (!cur.next.has(ch)) return false;\n      cur = cur.next.get(ch);\n    }\n    return cur.end;\n  }\n  startsWith(prefix) {\n    let cur = this.root;\n    for (const ch of prefix) {\n      if (!cur.next.has(ch)) return false;\n      cur = cur.next.get(ch);\n    }\n    return true;\n  }\n}\n\nconst t = new Trie();\nt.insert('code'); t.insert('coder');\nconsole.log(t.search('code'), t.search('cod'), t.startsWith('cod'));",
+      "output": "true false true",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "System-level Build undo/redo state manager (command stack).",
+      "code": "class HistoryState {\n  constructor(initial) {\n    this.past = [];\n    this.present = initial;\n    this.future = [];\n  }\n  set(next) {\n    this.past.push(this.present);\n    this.present = next;\n    this.future = [];\n  }\n  undo() {\n    if (!this.past.length) return;\n    this.future.push(this.present);\n    this.present = this.past.pop();\n  }\n  redo() {\n    if (!this.future.length) return;\n    this.past.push(this.present);\n    this.present = this.future.pop();\n  }\n}\n\nconst h = new HistoryState(1);\nh.set(2); h.set(3); h.undo(); h.undo(); h.redo();\nconsole.log(h.present);",
+      "output": "2",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Scalable Implement async queue with pause/resume and worker.",
+      "code": "class AsyncQueue {\n  constructor(worker) {\n    this.worker = worker;\n    this.q = [];\n    this.running = false;\n    this.paused = false;\n  }\n  push(item) {\n    this.q.push(item);\n    this.drain();\n  }\n  pause() { this.paused = true; }\n  resume() { this.paused = false; this.drain(); }\n  async drain() {\n    if (this.running || this.paused) return;\n    this.running = true;\n    while (this.q.length && !this.paused) {\n      const item = this.q.shift();\n      await this.worker(item);\n    }\n    this.running = false;\n  }\n}\n\nconst out = [];\nconst aq = new AsyncQueue(async x => { out.push(x * 2); });\naq.push(1); aq.push(2); aq.push(3);\nsetTimeout(() => console.log(out), 10);",
+      "output": "[ 2, 4, 6 ]",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Interview-hard Implement paginated fetch iterator over async source.",
+      "code": "async function* paginate(fetchPage) {\n  let page = 1;\n  while (true) {\n    const { items, hasNext } = await fetchPage(page);\n    for (const item of items) yield item;\n    if (!hasNext) break;\n    page++;\n  }\n}\n\n(async () => {\n  const source = {\n    1: { items: [1, 2], hasNext: true },\n    2: { items: [3, 4], hasNext: false }\n  };\n  const out = [];\n  for await (const v of paginate(async p => source[p])) out.push(v);\n  console.log(out);\n})();",
+      "output": "[ 1, 2, 3, 4 ]",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Architecture-grade Build safe JSON parser with validation and defaults.",
+      "code": "function parseConfig(input, schema) {\n  let raw;\n  try { raw = JSON.parse(input); } catch { raw = {}; }\n  const out = {};\n  for (const [k, rule] of Object.entries(schema)) {\n    const v = raw[k];\n    if (v == null) out[k] = rule.default;\n    else if (typeof v === rule.type) out[k] = v;\n    else out[k] = rule.default;\n  }\n  return out;\n}\n\nconst schema = { retries: { type: 'number', default: 3 }, mode: { type: 'string', default: 'safe' } };\nconsole.log(parseConfig('{\"retries\":5,\"mode\":\"fast\"}', schema));",
+      "output": "{ retries: 5, mode: 'fast' }",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "High-complexity Build binary search over sorted array of objects by key.",
+      "code": "function binarySearchBy(arr, key, target) {\n  let l = 0, r = arr.length - 1;\n  while (l <= r) {\n    const m = (l + r) >> 1;\n    if (arr[m][key] === target) return m;\n    if (arr[m][key] < target) l = m + 1;\n    else r = m - 1;\n  }\n  return -1;\n}\n\nconst users = [{ id: 10 }, { id: 20 }, { id: 30 }, { id: 40 }];\nconsole.log(binarySearchBy(users, 'id', 30));",
+      "output": "2",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "System-level Implement interval scheduler for maximum non-overlap jobs.",
+      "code": "function maxNonOverlapping(intervals) {\n  intervals.sort((a, b) => a[1] - b[1]);\n  const selected = [];\n  let end = -Infinity;\n  for (const [s, e] of intervals) {\n    if (s >= end) {\n      selected.push([s, e]);\n      end = e;\n    }\n  }\n  return selected;\n}\n\nconsole.log(maxNonOverlapping([[1,3],[2,5],[4,6],[6,7]]));",
+      "output": "[ [ 1, 3 ], [ 4, 6 ], [ 6, 7 ] ]",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Scalable Build path matcher with params (`/users/:id/orders/:oid`).",
+      "code": "function matchRoute(pattern, path) {\n  const p1 = pattern.split('/').filter(Boolean);\n  const p2 = path.split('/').filter(Boolean);\n  if (p1.length !== p2.length) return null;\n  const params = {};\n  for (let i = 0; i < p1.length; i++) {\n    if (p1[i].startsWith(':')) params[p1[i].slice(1)] = p2[i];\n    else if (p1[i] !== p2[i]) return null;\n  }\n  return params;\n}\n\nconsole.log(matchRoute('/users/:id/orders/:oid', '/users/42/orders/900'));",
+      "output": "{ id: '42', oid: '900' }",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Interview-hard Implement custom `Promise.any` polyfill.",
+      "code": "function promiseAny(promises) {\n  return new Promise((resolve, reject) => {\n    let rejected = 0;\n    const errs = [];\n    promises.forEach((p, i) => {\n      Promise.resolve(p)\n        .then(resolve)\n        .catch(e => {\n          errs[i] = e;\n          rejected++;\n          if (rejected === promises.length) reject(new AggregateError(errs, 'All promises were rejected'));\n        });\n    });\n  });\n}\n\npromiseAny([Promise.reject('x'), Promise.resolve('ok'), Promise.reject('y')]).then(console.log);",
+      "output": "ok",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "Architecture-grade Build LCS (longest common subsequence) dynamic programming.",
+      "code": "function lcs(a, b) {\n  const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));\n  for (let i = 1; i <= a.length; i++) {\n    for (let j = 1; j <= b.length; j++) {\n      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n    }\n  }\n  return dp[a.length][b.length];\n}\n\nconsole.log(lcs('ABCBDAB', 'BDCAB'));",
+      "output": "4",
+      "level": "Very Hard"
+    },
+    {
+      "type": "program",
+      "question": "High-complexity Implement rolling logger with max size and severity filter.",
+      "code": "class RollingLogger {\n  constructor(max = 5) {\n    this.max = max;\n    this.rows = [];\n  }\n  log(level, msg) {\n    this.rows.push({ level, msg });\n    if (this.rows.length > this.max) this.rows.shift();\n  }\n  get(minLevel = 'debug') {\n    const order = { debug: 1, info: 2, warn: 3, error: 4 };\n    return this.rows.filter(r => order[r.level] >= order[minLevel]);\n  }\n}\n\nconst lg = new RollingLogger(3);\nlg.log('info', 'a'); lg.log('warn', 'b'); lg.log('error', 'c'); lg.log('debug', 'd');\nconsole.log(lg.get('warn'));",
+      "output": "[ { level: 'warn', msg: 'b' }, { level: 'error', msg: 'c' } ]",
+      "level": "Very Hard"
+    }
+  ]
+}

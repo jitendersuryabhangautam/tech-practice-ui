@@ -1,12 +1,12 @@
 "use client";
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
-import { useTopicData } from "@/hooks/useTopicData";
+import { useTopicDataFromContent } from "@/hooks/useTopicDataFromContent";
 import { dockerData, dockerQuiz } from "@/data/docker";
 
 export default function DockerPage() {
-  // Try to load from JSON, fallback to JS imports
-  const { data, quiz, loading } = useTopicData(
+  // Load from granular content structure
+  const { data, quiz, metadata, loading } = useTopicDataFromContent(
     "docker",
     dockerData,
     dockerQuiz
@@ -27,8 +27,11 @@ export default function DockerPage() {
 
   return (
     <InterviewTopicPage
-      title="Docker Interview Preparation"
-      description="Learn how to answer Docker interview questions on images, containers, networking, security, and debugging with real commands."
+      title={metadata.title || "Docker Interview Preparation"}
+      description={
+        metadata.description ||
+        "Learn how to answer Docker interview questions on images, containers, networking, security, and debugging with real commands."
+      }
       topics={data}
       quiz={quiz}
     />

@@ -2,7 +2,7 @@
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import reactContent from "@/public/data/react.json";
-import { useTopicData } from "@/hooks/useTopicData";
+import { useTopicDataFromContent } from "@/hooks/useTopicDataFromContent";
 
 const MIN_INTERVIEW_QUESTIONS = 10;
 const MIN_EXERCISES = 10;
@@ -30,8 +30,7 @@ const REACT_ENRICHED_QUIZ = [
       "Functional update always uses latest queued state and avoids stale closures.",
   },
   {
-    question:
-      "Output: useEffect without dependency array runs when?",
+    question: "Output: useEffect without dependency array runs when?",
     options: [
       "Only on mount",
       "Only on unmount",
@@ -66,8 +65,7 @@ const REACT_ENRICHED_QUIZ = [
       "Stable unique keys help React map old/new elements correctly.",
   },
   {
-    question:
-      "Output: changing `useRef().current` causes re-render?",
+    question: "Output: changing `useRef().current` causes re-render?",
     options: ["Always", "Never", "Only in StrictMode", "Only in production"],
     correctAnswer: 1,
     explanation: "Updating ref current does not trigger component re-render.",
@@ -127,7 +125,8 @@ function ensureMinimum(items, min, createItem) {
 
 function fallbackInterviewQuestion(topic, index) {
   const n = index + 1;
-  const description = topic.description || "Explain this React concept clearly.";
+  const description =
+    topic.description || "Explain this React concept clearly.";
   const useCase = topic.useCase || "Discuss a production use case.";
   const templates = [
     {
@@ -156,11 +155,26 @@ function fallbackInterviewQuestion(topic, index) {
 function fallbackExercise(topic, index) {
   const n = index + 1;
   const templates = [
-    { type: "theory", question: `Exercise ${n}: Write theory notes for ${topic.title} with two pitfalls.` },
-    { type: "implement", question: `Exercise ${n}: Build a small component demonstrating ${topic.title}.` },
-    { type: "debug", question: `Exercise ${n}: Debug a buggy ${topic.title} snippet and explain root cause.` },
-    { type: "output", question: `Exercise ${n}: Predict rendered output for a ${topic.title} code sample.` },
-    { type: "tricky", question: `Exercise ${n}: Describe one tricky edge case in ${topic.title}.` },
+    {
+      type: "theory",
+      question: `Exercise ${n}: Write theory notes for ${topic.title} with two pitfalls.`,
+    },
+    {
+      type: "implement",
+      question: `Exercise ${n}: Build a small component demonstrating ${topic.title}.`,
+    },
+    {
+      type: "debug",
+      question: `Exercise ${n}: Debug a buggy ${topic.title} snippet and explain root cause.`,
+    },
+    {
+      type: "output",
+      question: `Exercise ${n}: Predict rendered output for a ${topic.title} code sample.`,
+    },
+    {
+      type: "tricky",
+      question: `Exercise ${n}: Describe one tricky edge case in ${topic.title}.`,
+    },
   ];
   return templates[index % templates.length];
 }
@@ -205,7 +219,7 @@ function enrichTopic(topic) {
 }
 
 export default function ReactPage() {
-  const { data, quiz, title, description, loading } = useTopicData(
+  const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "react",
     reactContent.topics || [],
     reactContent.quiz || []

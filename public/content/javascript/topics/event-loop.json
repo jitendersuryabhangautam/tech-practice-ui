@@ -1,0 +1,155 @@
+{
+  "id": "event-loop",
+  "title": "Event Loop, Call Stack & Task Queue",
+  "description": "Understand how JavaScript executes code — the event loop, call stack, microtasks vs macrotasks, and why setTimeout(fn, 0) isn't truly instant.",
+  "explanation": "JavaScript is single-threaded — it has ONE call stack and can execute ONE piece of code at a time. The event loop is the mechanism that coordinates execution between the call stack, Web APIs, and task queues.\n\nExecution flow:\n1. Synchronous code runs on the call stack (LIFO — Last In, First Out)\n2. Async operations (setTimeout, fetch, DOM events) are handed off to Web APIs / Node APIs\n3. When an async operation completes, its callback is pushed to a task queue\n4. The event loop checks: 'Is the call stack empty?' → If yes, move the next task from the queue to the stack\n\nTwo types of task queues:\n• Microtask Queue (higher priority): Promise callbacks (.then, .catch, .finally), queueMicrotask(), MutationObserver\n• Macrotask Queue (lower priority): setTimeout, setInterval, setImmediate (Node), I/O, UI rendering\n\nExecution priority order:\n1. All synchronous code on the call stack\n2. ALL microtasks are drained (including microtasks added during microtask processing)\n3. ONE macrotask is picked from the macrotask queue\n4. Repeat from step 2\n\nKey insights:\n- console.log() is synchronous, runs immediately\n- Promise.resolve().then(cb) → cb goes to microtask queue\n- setTimeout(cb, 0) → cb goes to macrotask queue (minimum delay, not zero)\n- Microtasks ALWAYS run before macrotasks when the stack is empty\n- Long-running microtasks can starve macrotasks and freeze rendering",
+  "code": "// Execution order demo\nconsole.log('1 - sync');          // 1. Call stack\n\nsetTimeout(() => {\n  console.log('2 - macrotask');   // 5. Macrotask queue\n}, 0);\n\nPromise.resolve().then(() => {\n  console.log('3 - microtask');   // 3. Microtask queue\n});\n\nPromise.resolve().then(() => {\n  console.log('4 - microtask 2'); // 4. Microtask queue\n});\n\nconsole.log('5 - sync');          // 2. Call stack\n\n// Output order: 1 - sync, 5 - sync, 3 - microtask, 4 - microtask 2, 2 - macrotask\n\n// Microtasks added during microtask processing\nPromise.resolve().then(() => {\n  console.log('A');\n  Promise.resolve().then(() => console.log('B'));  // Added during microtask\n}).then(() => console.log('C'));\n// Output: A, B, C  (B runs before C because it's queued first)",
+  "example": "// Real-world: Ensuring DOM update before next operation\nfunction updateAndMeasure(element) {\n  element.textContent = 'Updated';  // Sync DOM mutation\n  \n  // Use microtask to measure after DOM update but before paint\n  queueMicrotask(() => {\n    const height = element.offsetHeight;\n    console.log('Height:', height);\n  });\n}\n\n// Chunking heavy work to keep UI responsive\nfunction processLargeArray(arr, chunkSize = 1000) {\n  let i = 0;\n  function processChunk() {\n    const end = Math.min(i + chunkSize, arr.length);\n    while (i < end) {\n      // Process arr[i]\n      i++;\n    }\n    if (i < arr.length) {\n      // Yield to event loop — allows rendering/user input\n      setTimeout(processChunk, 0);\n    }\n  }\n  processChunk();\n}",
+  "useCase": "Understanding async code execution order, debugging race conditions, optimizing UI responsiveness, preventing UI freezes with chunked processing, Promise vs setTimeout ordering",
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What is the output order?\nconsole.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');",
+      "answer": "A, D, C, B — Sync first (A,D), then microtask (C), then macrotask (B)"
+    },
+    {
+      "type": "output",
+      "question": "What is the output order?\nsetTimeout(() => console.log(1), 0);\nsetTimeout(() => console.log(2), 0);\nPromise.resolve().then(() => console.log(3));\nPromise.resolve().then(() => console.log(4));",
+      "answer": "3, 4, 1, 2 — All microtasks (3,4) drain before ANY macrotask (1,2)"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log('start');\nsetTimeout(() => console.log('timeout'), 0);\nPromise.resolve()\n  .then(() => console.log('promise 1'))\n  .then(() => console.log('promise 2'));\nconsole.log('end');",
+      "answer": "start, end, promise 1, promise 2, timeout — Chained .then()s are separate microtasks but both run before the macrotask"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nasync function foo() {\n  console.log('foo start');\n  await Promise.resolve();\n  console.log('foo end');\n}\nconsole.log('start');\nfoo();\nconsole.log('end');",
+      "answer": "start, foo start, end, foo end — 'await' pauses foo, 'end' runs sync, then 'foo end' runs as microtask"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nPromise.resolve().then(() => {\n  console.log(1);\n  setTimeout(() => console.log(2), 0);\n});\nsetTimeout(() => {\n  console.log(3);\n  Promise.resolve().then(() => console.log(4));\n}, 0);",
+      "answer": "1, 3, 4, 2 — Microtask(1) runs first, queues macrotask(2). Macrotask(3) runs, queues microtask(4). Microtask(4) drains. Then macrotask(2)."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(1);\nqueueMicrotask(() => console.log(2));\nsetTimeout(() => console.log(3), 0);\nqueueMicrotask(() => {\n  console.log(4);\n  queueMicrotask(() => console.log(5));\n});\nconsole.log(6);",
+      "answer": "1, 6, 2, 4, 5, 3 — Sync(1,6), then drain ALL microtasks(2,4,5 — 5 was added during 4), finally macrotask(3)"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nasync function a() {\n  console.log(1);\n  await b();\n  console.log(2);\n}\nasync function b() {\n  console.log(3);\n}\nconsole.log(4);\na();\nconsole.log(5);",
+      "answer": "4, 1, 3, 5, 2 — 4 sync, a() starts: 1 sync, b() runs: 3 sync, await pauses a, 5 sync, then microtask: 2"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nsetTimeout(() => console.log('A'), 100);\nsetTimeout(() => console.log('B'), 0);\nnew Promise((resolve) => {\n  console.log('C');\n  resolve();\n}).then(() => console.log('D'));",
+      "answer": "C, D, B, A — Promise executor (C) runs sync, microtask (D), then macrotasks in order (B at 0ms, A at 100ms)"
+    },
+    {
+      "type": "concept",
+      "question": "Can a microtask starve the browser rendering? Explain.",
+      "answer": "Yes. The event loop drains ALL microtasks before rendering or running macrotasks. If microtasks keep adding more microtasks (recursive), the loop never moves to rendering, causing the page to freeze."
+    },
+    {
+      "type": "concept",
+      "question": "Why does setTimeout(fn, 0) not execute immediately?",
+      "answer": "setTimeout with 0ms queues the callback as a macrotask. It will only run after: (1) the current synchronous code finishes, (2) ALL pending microtasks drain. Additionally, browsers clamp the minimum delay to ~4ms for nested setTimeout calls."
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "console.log('script start');\nsetTimeout(() => console.log('setTimeout'), 0);\nPromise.resolve().then(() => console.log('promise'));\nconsole.log('script end');",
+      "expectedOutput": "script start\nscript end\npromise\nsetTimeout",
+      "explanation": "Classic event loop question: sync code first, then microtask queue, then macrotask queue"
+    },
+    {
+      "program": "console.log(1);\nsetTimeout(() => console.log(2), 10);\nsetTimeout(() => console.log(3), 0);\nnew Promise(r => {\n  console.log(4);\n  r();\n}).then(() => console.log(5));\nconsole.log(6);",
+      "expectedOutput": "1\n4\n6\n5\n3\n2",
+      "explanation": "Promise executor (4) is sync. Microtask (5) before macrotasks. setTimeout 0ms (3) before 10ms (2)."
+    },
+    {
+      "program": "async function foo() {\n  console.log('A');\n  const val = await 42;\n  console.log('B', val);\n}\nconsole.log('C');\nfoo();\nconsole.log('D');",
+      "expectedOutput": "C\nA\nD\nB 42",
+      "explanation": "await pauses foo() after 'A', 'D' runs sync, then the microtask resumes foo with val=42"
+    },
+    {
+      "program": "Promise.resolve()\n  .then(() => {\n    console.log('then 1');\n    return Promise.resolve('inner');\n  })\n  .then(val => console.log('then 2:', val));\n\nPromise.resolve()\n  .then(() => console.log('then A'))\n  .then(() => console.log('then B'))\n  .then(() => console.log('then C'));",
+      "expectedOutput": "then 1\nthen A\nthen B\nthen 2: inner\nthen C",
+      "explanation": "Returning a Promise from .then() adds extra microtask ticks. 'then A' and 'then B' interleave before 'then 2' resolves."
+    },
+    {
+      "program": "const p = new Promise(resolve => {\n  console.log('executor');\n  resolve('done');\n  console.log('after resolve');\n});\np.then(val => console.log(val));",
+      "expectedOutput": "executor\nafter resolve\ndone",
+      "explanation": "Promise executor runs synchronously, even AFTER resolve(). The .then callback waits for the microtask queue."
+    },
+    {
+      "program": "async function first() {\n  console.log(1);\n  await second();\n  console.log(2);\n}\nasync function second() {\n  console.log(3);\n  await third();\n  console.log(4);\n}\nasync function third() {\n  console.log(5);\n}\nfirst();\nconsole.log(6);",
+      "expectedOutput": "1\n3\n5\n6\n4\n2",
+      "explanation": "Nested awaits: 1→3→5 sync, then 6 sync, then 4 (third resolved), then 2 (second resolved)"
+    },
+    {
+      "program": "setTimeout(() => {\n  console.log('timeout 1');\n  Promise.resolve().then(() => console.log('promise in timeout'));\n}, 0);\nsetTimeout(() => console.log('timeout 2'), 0);\nPromise.resolve().then(() => console.log('promise 1'));",
+      "expectedOutput": "promise 1\ntimeout 1\npromise in timeout\ntimeout 2",
+      "explanation": "Microtask (promise 1) first. Then macrotask (timeout 1) runs and queues a microtask. That microtask drains before timeout 2."
+    },
+    {
+      "program": "console.log('A');\nqueueMicrotask(() => {\n  console.log('B');\n  queueMicrotask(() => console.log('C'));\n});\nPromise.resolve().then(() => console.log('D'));\nconsole.log('E');",
+      "expectedOutput": "A\nE\nB\nD\nC",
+      "explanation": "Sync: A, E. Microtasks drain in order: B (queues C), D, then C (added during B processing)."
+    },
+    {
+      "program": "let result = [];\nresult.push('sync 1');\nsetTimeout(() => result.push('macro 1'), 0);\nPromise.resolve().then(() => result.push('micro 1'));\nsetTimeout(() => result.push('macro 2'), 0);\nPromise.resolve().then(() => result.push('micro 2'));\nresult.push('sync 2');\nsetTimeout(() => console.log(result.join(', ')), 100);",
+      "expectedOutput": "sync 1, sync 2, micro 1, micro 2, macro 1, macro 2",
+      "explanation": "Sync code first, then all microtasks, then macrotasks in order. The 100ms timeout prints the final state."
+    },
+    {
+      "program": "for (let i = 0; i < 3; i++) {\n  Promise.resolve().then(() => console.log('promise', i));\n  setTimeout(() => console.log('timeout', i), 0);\n}\nconsole.log('done');",
+      "expectedOutput": "done\npromise 0\npromise 1\npromise 2\ntimeout 0\ntimeout 1\ntimeout 2",
+      "explanation": "Sync 'done' first, then ALL microtasks (promise 0,1,2), then ALL macrotasks (timeout 0,1,2)"
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "Explain the JavaScript event loop.",
+      "answer": "The event loop is a mechanism that continuously checks if the call stack is empty. If it is, it first drains ALL microtasks (Promise callbacks, queueMicrotask), then picks ONE macrotask (setTimeout, setInterval, I/O) and pushes it to the call stack. This cycle repeats, with microtasks always having priority over macrotasks."
+    },
+    {
+      "question": "What is the difference between microtasks and macrotasks?",
+      "answer": "Microtasks (Promise.then, queueMicrotask, MutationObserver) have higher priority — ALL pending microtasks drain before any macrotask runs. Macrotasks (setTimeout, setInterval, I/O, rendering) are processed one at a time, with the microtask queue draining between each macrotask."
+    },
+    {
+      "question": "Why is JavaScript single-threaded yet non-blocking?",
+      "answer": "JavaScript's main execution thread is single-threaded (one call stack). However, async operations like network requests, timers, and file I/O are handled by the browser's Web APIs or Node's libuv in separate threads. When complete, callbacks are queued and the event loop coordinates their execution on the main thread."
+    },
+    {
+      "question": "What is the call stack and how does it relate to stack overflow?",
+      "answer": "The call stack is a LIFO data structure that tracks function execution. Each function call pushes a frame, each return pops it. Stack overflow occurs when the stack exceeds its size limit, typically from infinite recursion (a function calling itself without a base case)."
+    },
+    {
+      "question": "Explain what happens when you call setTimeout(fn, 0).",
+      "answer": "The callback fn is NOT executed immediately. It's registered with the Web API timer (with 0ms delay), then moved to the macrotask queue. It only executes after: (1) all current synchronous code finishes, (2) all pending microtasks drain. Browsers also clamp nested setTimeout to a minimum of ~4ms."
+    },
+    {
+      "question": "What is queueMicrotask() and when would you use it?",
+      "answer": "queueMicrotask(callback) schedules a callback to run as a microtask — after the current sync code but before any macrotasks or rendering. Use it when you need something to run 'very soon' but after the current operation completes, like cleanup or measurement after DOM mutations."
+    },
+    {
+      "question": "How does async/await relate to the event loop?",
+      "answer": "An async function runs synchronously until it hits an `await`. At that point, the function pauses and returns a Promise. The code after `await` is scheduled as a microtask (like a .then() callback). Execution continues with whatever is next in the call stack, and the async function resumes when its microtask is picked up."
+    },
+    {
+      "question": "Can you explain why Promise executor functions run synchronously?",
+      "answer": "The function passed to `new Promise((resolve, reject) => { ... })` runs immediately and synchronously as part of the Promise constructor. Only the `.then()`, `.catch()`, and `.finally()` callbacks are asynchronous (scheduled as microtasks). This is why `console.log` inside a Promise executor prints before `.then()` callbacks."
+    },
+    {
+      "question": "How would you prevent a long-running task from blocking the UI?",
+      "answer": "Break the work into chunks using: (1) setTimeout/requestAnimationFrame to yield to the event loop between chunks, (2) Web Workers for CPU-intensive work in a separate thread, (3) requestIdleCallback for non-urgent work during browser idle time, (4) The scheduler.postTask() API for priority-based scheduling."
+    },
+    {
+      "question": "What is the render/paint step in the event loop?",
+      "answer": "Between macrotask processing, the browser may perform rendering: style recalculation, layout, paint, and compositing. The event loop order is: macrotask → drain microtasks → render (if needed) → next macrotask. requestAnimationFrame callbacks run just before the render step, making them ideal for visual updates."
+    }
+  ]
+}

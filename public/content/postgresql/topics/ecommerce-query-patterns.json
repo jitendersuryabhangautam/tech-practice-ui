@@ -1,0 +1,46 @@
+{
+  "id": "ecommerce-query-patterns",
+  "title": "All Query Types in One Scenario",
+  "description": "Practice filtering, joins, aggregation, CTEs, windows, and set operations on one e-commerce dataset.",
+  "explanation": "Interviewers usually test progression from simple WHERE clauses to production reports. Build queries at correct grain first, then aggregate, then rank or compare periods.",
+  "code": "-- 1) Daily completed revenue\nSELECT DATE(o.created_at) AS order_day,\n       SUM(oi.quantity * oi.price_at_time) AS revenue\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nWHERE o.status = 'completed'\nGROUP BY DATE(o.created_at)\nORDER BY order_day DESC;\n\n-- 2) Users with at least 3 completed orders\nSELECT o.user_id, COUNT(*) AS completed_orders\nFROM orders o\nWHERE o.status = 'completed'\nGROUP BY o.user_id\nHAVING COUNT(*) >= 3;\n\n-- 3) Top product per category\nWITH product_sales AS (\n  SELECT p.category, p.id AS product_id, SUM(oi.quantity) AS units\n  FROM products p\n  JOIN order_items oi ON oi.product_id = p.id\n  JOIN orders o ON o.id = oi.order_id\n  WHERE o.status = 'completed'\n  GROUP BY p.category, p.id\n)\nSELECT category, product_id, units\nFROM (\n  SELECT *, ROW_NUMBER() OVER (PARTITION BY category ORDER BY units DESC) AS rn\n  FROM product_sales\n) ranked\nWHERE rn = 1;",
+  "example": "-- Users with at least one completed order\nSELECT u.id, u.email\nFROM users u\nWHERE EXISTS (\n  SELECT 1\n  FROM orders o\n  WHERE o.user_id = u.id\n    AND o.status = 'completed'\n);\n\n-- Categories sold this month but not previous month\nSELECT DISTINCT p.category\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nJOIN products p ON p.id = oi.product_id\nWHERE o.created_at >= date_trunc('month', now())\nEXCEPT\nSELECT DISTINCT p.category\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nJOIN products p ON p.id = oi.product_id\nWHERE o.created_at >= date_trunc('month', now()) - INTERVAL '1 month'\n  AND o.created_at < date_trunc('month', now());",
+  "useCase": "Revenue dashboards, cohort analytics, top-N reporting, and interviewer-style SQL progression.",
+  "category": "Advanced SQL (E-commerce Scenario)",
+  "interviewQuestions": [
+    {
+      "question": "When should HAVING be used instead of WHERE?",
+      "answer": "WHERE filters rows before aggregation; HAVING filters groups after aggregation."
+    },
+    {
+      "question": "Why is EXISTS often preferred over IN for existence checks?",
+      "answer": "EXISTS can stop on first match and avoids some NULL pitfalls common with IN/NOT IN patterns."
+    },
+    {
+      "question": "How do you avoid double counting in revenue queries?",
+      "answer": "Aggregate at the correct grain and validate join cardinality before summing."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Write monthly revenue by payment_method for completed orders."
+    },
+    {
+      "type": "debug",
+      "question": "Fix a query that overcounts due to joining payments and order_items naively."
+    },
+    {
+      "type": "scenario",
+      "question": "Get top 3 products per category in the last 30 days."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Running total spend per user",
+      "code": "SELECT user_id, created_at, SUM(total_amount) OVER (PARTITION BY user_id ORDER BY created_at) AS running_spend FROM orders;",
+      "output": "Each order row with cumulative spend for that user."
+    }
+  ]
+}
+

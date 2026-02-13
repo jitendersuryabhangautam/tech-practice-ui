@@ -3,7 +3,7 @@
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import { golangData, golangQuiz } from "@/data/golang";
 import { golangExtraData, golangExtraQuiz } from "@/data/golang_extra";
-import { useTopicData } from "@/hooks/useTopicData";
+import { useTopicDataFromContent } from "@/hooks/useTopicDataFromContent";
 
 const MIN_INTERVIEW_QUESTIONS = 10;
 const MIN_EXERCISES = 10;
@@ -43,7 +43,7 @@ const GO_ENRICHED_QUIZ = [
     explanation: "Reads are allowed on nil maps, writes panic.",
   },
   {
-    question: "Output: `defer fmt.Println(\"A\"); fmt.Println(\"B\")`",
+    question: 'Output: `defer fmt.Println("A"); fmt.Println("B")`',
     options: ["A B", "B A", "A", "B"],
     correctAnswer: 1,
     explanation: "Deferred calls run when surrounding function returns.",
@@ -63,12 +63,7 @@ const GO_ENRICHED_QUIZ = [
   },
   {
     question: "What does `make([]int, 3, 8)` create?",
-    options: [
-      "len=8 cap=3",
-      "len=3 cap=8",
-      "len=3 cap=3",
-      "len=8 cap=8",
-    ],
+    options: ["len=8 cap=3", "len=3 cap=8", "len=3 cap=3", "len=8 cap=8"],
     correctAnswer: 1,
     explanation: "First argument after type is length, second is capacity.",
   },
@@ -105,7 +100,8 @@ const GO_ENRICHED_QUIZ = [
       "Race detector identifies unsynchronized concurrent memory accesses.",
   },
   {
-    question: "Output: `nums := []int{1,2}; copy(nums, []int{9}); fmt.Println(nums)`",
+    question:
+      "Output: `nums := []int{1,2}; copy(nums, []int{9}); fmt.Println(nums)`",
     options: ["[9 2]", "[1 2]", "[9]", "panic"],
     correctAnswer: 0,
     explanation: "copy overwrites destination up to min(len(dst), len(src)).",
@@ -303,7 +299,7 @@ func main() {
 export default function GolangPage() {
   const fallbackTopics = [...golangData, ...golangExtraData];
   const fallbackQuiz = [...golangQuiz, ...golangExtraQuiz];
-  const { data, quiz, title, description, loading } = useTopicData(
+  const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "golang",
     fallbackTopics,
     fallbackQuiz

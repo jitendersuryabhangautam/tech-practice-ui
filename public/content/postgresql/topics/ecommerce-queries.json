@@ -1,0 +1,731 @@
+{
+  "id": "ecommerce-queries",
+  "title": "E-commerce SQL Query Practice (150+ Questions)",
+  "description": "Practice SQL from basic SELECT to advanced analytics using a real e-commerce database schema. All 12 topics covered with hands-on query exercises.",
+  "explanation": "This comprehensive practice guide covers essential SQL patterns using an e-commerce schema with tables: users (id, first_name, last_name, email, role), products (id, name, sku, price, stock_quantity, category), orders (id, order_number, user_id, total_amount, status, payment_method, shipping/billing_address), order_items (id, order_id, product_id, quantity, price_at_time), payments, returns, carts, cart_items, and stock_reservations. Work through 120+ real-world queries progressively from fundamentals to production-level analytics.",
+  "code": "-- CANONICAL E-COMMERCE SCHEMA\nCREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  first_name VARCHAR(100) NOT NULL,\n  last_name VARCHAR(100) NOT NULL,\n  email VARCHAR(255) UNIQUE NOT NULL,\n  role VARCHAR(20) NOT NULL DEFAULT 'customer',\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE products (\n  id SERIAL PRIMARY KEY,\n  name VARCHAR(255) NOT NULL,\n  sku VARCHAR(100) UNIQUE NOT NULL,\n  price DECIMAL(10,2) NOT NULL,\n  stock_quantity INT NOT NULL DEFAULT 0,\n  category VARCHAR(100),\n  image_url TEXT,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE orders (\n  id SERIAL PRIMARY KEY,\n  order_number VARCHAR(50) UNIQUE NOT NULL,\n  user_id INT NOT NULL REFERENCES users(id),\n  total_amount DECIMAL(10,2) NOT NULL,\n  status VARCHAR(20) NOT NULL,\n  payment_method VARCHAR(20),\n  shipping_address JSONB,\n  billing_address JSONB,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE order_items (\n  id SERIAL PRIMARY KEY,\n  order_id INT NOT NULL REFERENCES orders(id),\n  product_id INT NOT NULL REFERENCES products(id),\n  quantity INT NOT NULL,\n  price_at_time DECIMAL(10,2) NOT NULL\n);\n\nCREATE TABLE payments (\n  id SERIAL PRIMARY KEY,\n  order_id INT NOT NULL REFERENCES orders(id),\n  amount DECIMAL(10,2) NOT NULL,\n  payment_method VARCHAR(20) NOT NULL,\n  status VARCHAR(20) NOT NULL,\n  transaction_id VARCHAR(100),\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE returns (\n  id SERIAL PRIMARY KEY,\n  order_id INT NOT NULL REFERENCES orders(id),\n  reason TEXT,\n  status VARCHAR(20) NOT NULL,\n  refund_amount DECIMAL(10,2),\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE carts (\n  id SERIAL PRIMARY KEY,\n  user_id INT NOT NULL REFERENCES users(id),\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE cart_items (\n  id SERIAL PRIMARY KEY,\n  cart_id INT NOT NULL REFERENCES carts(id),\n  product_id INT NOT NULL REFERENCES products(id),\n  quantity INT NOT NULL DEFAULT 1\n);\n\nCREATE TABLE stock_reservations (\n  id SERIAL PRIMARY KEY,\n  product_id INT NOT NULL REFERENCES products(id),\n  quantity INT NOT NULL,\n  expires_at TIMESTAMP NOT NULL\n);",
+  "useCase": "Interview preparation, SQL mastery, database design, query optimization, production SQL skills",
+  "category": "Complete Practice Guide",
+  "exercises": [
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all users",
+      "answer": "SELECT * FROM users;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all admin users",
+      "answer": "SELECT * FROM users WHERE role = 'admin';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all customers",
+      "answer": "SELECT * FROM users WHERE role = 'customer';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all products under 'Electronics'",
+      "answer": "SELECT * FROM products WHERE category = 'Electronics';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get products priced above 500",
+      "answer": "SELECT * FROM products WHERE price > 500;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get products with stock less than 10",
+      "answer": "SELECT * FROM products WHERE stock_quantity < 10;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Find product by SKU",
+      "answer": "SELECT * FROM products WHERE sku = 'PROD-123';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all orders with status = 'processing'",
+      "answer": "SELECT * FROM orders WHERE status = 'processing';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all payments with status = 'completed'",
+      "answer": "SELECT * FROM payments WHERE status = 'completed';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all returns that are still requested",
+      "answer": "SELECT * FROM returns WHERE status = 'requested';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Find all carts created in last 7 days",
+      "answer": "SELECT * FROM carts WHERE created_at >= NOW() - INTERVAL '7 days';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all stock reservations expiring in next 5 minutes",
+      "answer": "SELECT * FROM stock_reservations WHERE expires_at <= NOW() + INTERVAL '5 minutes' AND expires_at > NOW();"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get users created today",
+      "answer": "SELECT * FROM users WHERE DATE(created_at) = CURRENT_DATE;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Find all products without category",
+      "answer": "SELECT * FROM products WHERE category IS NULL;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 1: Basic SELECT & Filtering",
+      "question": "Get all orders using COD",
+      "answer": "SELECT * FROM orders WHERE payment_method = 'cod';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 2: Sorting & Pagination",
+      "question": "Get products sorted by price ASC",
+      "answer": "SELECT * FROM products ORDER BY price ASC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 2: Sorting & Pagination",
+      "question": "Get products sorted by price DESC",
+      "answer": "SELECT * FROM products ORDER BY price DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 2: Sorting & Pagination",
+      "question": "Get latest 10 orders",
+      "answer": "SELECT * FROM orders ORDER BY created_at DESC LIMIT 10;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 2: Sorting & Pagination",
+      "question": "Paginate products (page 2, 10 per page)",
+      "answer": "SELECT * FROM products ORDER BY id LIMIT 10 OFFSET 10;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 2: Sorting & Pagination",
+      "question": "Get top 5 most expensive products",
+      "answer": "SELECT * FROM products ORDER BY price DESC LIMIT 5;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 2: Sorting & Pagination",
+      "question": "Get oldest users",
+      "answer": "SELECT * FROM users ORDER BY created_at ASC LIMIT 10;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 2: Sorting & Pagination",
+      "question": "Sort orders by total amount highest first",
+      "answer": "SELECT * FROM orders ORDER BY total_amount DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 2: Sorting & Pagination",
+      "question": "Paginate users alphabetically",
+      "answer": "SELECT * FROM users ORDER BY first_name ASC, last_name ASC LIMIT 20 OFFSET 0;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Count total users",
+      "answer": "SELECT COUNT(*) AS total_users FROM users;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Count total customers",
+      "answer": "SELECT COUNT(*) AS total_customers FROM users WHERE role = 'customer';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Count total orders",
+      "answer": "SELECT COUNT(*) AS total_orders FROM orders;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Count orders per status",
+      "answer": "SELECT status, COUNT(*) AS order_count FROM orders GROUP BY status;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Total revenue generated",
+      "answer": "SELECT SUM(total_amount) AS total_revenue FROM orders WHERE status = 'completed';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Average order value",
+      "answer": "SELECT AVG(total_amount) AS avg_order_value FROM orders;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Total revenue per user",
+      "answer": "SELECT user_id, SUM(total_amount) AS user_revenue FROM orders WHERE status = 'completed' GROUP BY user_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Total revenue per product",
+      "answer": "SELECT\n+  oi.product_id,\n+  SUM(oi.quantity * oi.price_at_time) AS product_revenue\n+FROM order_items oi\n+JOIN orders o ON o.id = oi.order_id\n+WHERE o.status = 'completed'\n+GROUP BY oi.product_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Count items in each cart",
+      "answer": "SELECT cart_id, COUNT(*) AS item_count FROM cart_items GROUP BY cart_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Total stock value (price * quantity)",
+      "answer": "SELECT SUM(price * stock_quantity) AS total_stock_value FROM products;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Count returns per status",
+      "answer": "SELECT status, COUNT(*) AS return_count FROM returns GROUP BY status;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Total refund amount requested",
+      "answer": "SELECT SUM(refund_amount) AS total_refunds FROM returns WHERE status IN ('approved', 'completed');"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 3: Aggregation (COUNT, SUM, AVG)",
+      "question": "Total completed payments amount",
+      "answer": "SELECT SUM(amount) AS total_payments FROM payments WHERE status = 'completed';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get orders with user details",
+      "answer": "SELECT\n+  o.*,\n+  CONCAT_WS(' ', u.first_name, u.last_name) AS full_name,\n+  u.email\n+FROM orders o\n+JOIN users u ON u.id = o.user_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get order items with product details",
+      "answer": "SELECT oi.*, p.name, p.sku, p.price FROM order_items oi JOIN products p ON p.id = oi.product_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get cart items with product info",
+      "answer": "SELECT ci.*, p.name, p.price, p.stock_quantity FROM cart_items ci JOIN products p ON p.id = ci.product_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get payment info along with order_number",
+      "answer": "SELECT pay.*, o.order_number, o.total_amount FROM payments pay JOIN orders o ON o.id = pay.order_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get return details with user email",
+      "answer": "SELECT\n+  r.*,\n+  u.email,\n+  CONCAT_WS(' ', u.first_name, u.last_name) AS full_name\n+FROM returns r\n+JOIN orders o ON o.id = r.order_id\n+JOIN users u ON u.id = o.user_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get orders with payment status",
+      "answer": "SELECT o.order_number, o.total_amount, COALESCE(p.status, 'pending') AS payment_status FROM orders o LEFT JOIN payments p ON p.order_id = o.id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get users who never placed an order",
+      "answer": "SELECT u.* FROM users u LEFT JOIN orders o ON o.user_id = u.id WHERE o.id IS NULL;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get products never ordered",
+      "answer": "SELECT p.* FROM products p LEFT JOIN order_items oi ON oi.product_id = p.id WHERE oi.id IS NULL;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get users with more than 2 orders",
+      "answer": "SELECT\n+  u.id,\n+  CONCAT_WS(' ', u.first_name, u.last_name) AS full_name,\n+  u.email,\n+  COUNT(o.id) AS order_count\n+FROM users u\n+JOIN orders o ON o.user_id = u.id\n+GROUP BY u.id, u.first_name, u.last_name, u.email\n+HAVING COUNT(o.id) > 2;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get most purchased product",
+      "answer": "SELECT p.id, p.name, SUM(oi.quantity) AS total_sold FROM products p JOIN order_items oi ON oi.product_id = p.id JOIN orders o ON o.id = oi.order_id WHERE o.status = 'completed' GROUP BY p.id, p.name ORDER BY total_sold DESC LIMIT 1;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get users who have items in cart but no orders",
+      "answer": "SELECT DISTINCT u.* FROM users u JOIN carts c ON c.user_id = u.id JOIN cart_items ci ON ci.cart_id = c.id LEFT JOIN orders o ON o.user_id = u.id WHERE o.id IS NULL;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 4: JOINS (Very Important)",
+      "question": "Get total cart value per user",
+      "answer": "SELECT\n+  u.id,\n+  CONCAT_WS(' ', u.first_name, u.last_name) AS full_name,\n+  SUM(ci.quantity * p.price) AS cart_value\n+FROM users u\n+JOIN carts c ON c.user_id = u.id\n+JOIN cart_items ci ON ci.cart_id = c.id\n+JOIN products p ON p.id = ci.product_id\n+GROUP BY u.id, u.first_name, u.last_name;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get products with price greater than average price",
+      "answer": "SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get users whose total order amount > 1000",
+      "answer": "SELECT u.* FROM users u WHERE (SELECT SUM(total_amount) FROM orders WHERE user_id = u.id AND status = 'completed') > 1000;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get products with stock less than average stock",
+      "answer": "SELECT * FROM products WHERE stock_quantity < (SELECT AVG(stock_quantity) FROM products);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get latest order per user",
+      "answer": "SELECT o.* FROM orders o WHERE o.created_at = (SELECT MAX(created_at) FROM orders WHERE user_id = o.user_id);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get users with highest spending",
+      "answer": "SELECT u.*, total_spent FROM users u JOIN (SELECT user_id, SUM(total_amount) AS total_spent FROM orders WHERE status = 'completed' GROUP BY user_id) spending ON spending.user_id = u.id ORDER BY total_spent DESC LIMIT 10;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get product with highest revenue",
+      "answer": "SELECT\n+  p.*,\n+  rev.revenue\n+FROM products p\n+JOIN (\n+  SELECT\n+    oi.product_id,\n+    SUM(oi.quantity * oi.price_at_time) AS revenue\n+  FROM order_items oi\n+  JOIN orders o ON o.id = oi.order_id\n+  WHERE o.status = 'completed'\n+  GROUP BY oi.product_id\n+) rev ON rev.product_id = p.id\n+ORDER BY rev.revenue DESC\n+LIMIT 1;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Use CTE to calculate monthly revenue",
+      "answer": "WITH monthly_revenue AS (SELECT DATE_TRUNC('month', created_at) AS month, SUM(total_amount) AS revenue FROM orders WHERE status = 'completed' GROUP BY DATE_TRUNC('month', created_at)) SELECT * FROM monthly_revenue ORDER BY month DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Use CTE to get user lifetime value",
+      "answer": "WITH user_ltv AS (SELECT user_id, COUNT(*) AS order_count, SUM(total_amount) AS lifetime_value, AVG(total_amount) AS avg_order_value FROM orders WHERE status = 'completed' GROUP BY user_id) SELECT u.*, ltv.* FROM users u JOIN user_ltv ltv ON ltv.user_id = u.id ORDER BY lifetime_value DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get orders above global average order value",
+      "answer": "WITH avg_order AS (SELECT AVG(total_amount) AS avg_value FROM orders) SELECT o.* FROM orders o, avg_order WHERE o.total_amount > avg_order.avg_value;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get products ordered more than 5 times",
+      "answer": "SELECT p.* FROM products p WHERE (SELECT COUNT(DISTINCT order_id) FROM order_items WHERE product_id = p.id) > 5;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 5: Subqueries & CTE",
+      "question": "Get users who requested returns more than once",
+      "answer": "SELECT u.* FROM users u WHERE (SELECT COUNT(*) FROM returns r JOIN orders o ON o.id = r.order_id WHERE o.user_id = u.id) > 1;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 6: JSONB Queries",
+      "question": "Get all orders shipped to city = 'Austin'",
+      "answer": "SELECT * FROM orders WHERE shipping_address->>'city' = 'Austin';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 6: JSONB Queries",
+      "question": "Get all orders where shipping country = 'USA'",
+      "answer": "SELECT * FROM orders WHERE shipping_address->>'country' = 'USA';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 6: JSONB Queries",
+      "question": "Extract phone number from billing address",
+      "answer": "SELECT order_number, billing_address->>'phone' AS phone_number FROM orders;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 6: JSONB Queries",
+      "question": "Update postal_code inside shipping_address",
+      "answer": "UPDATE orders SET shipping_address = jsonb_set(shipping_address, '{postal_code}', '\"75001\"') WHERE id = 123;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 6: JSONB Queries",
+      "question": "Add new key to billing JSON",
+      "answer": "UPDATE orders SET billing_address = billing_address || '{\"verified\": true}'::jsonb WHERE id = 123;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 6: JSONB Queries",
+      "question": "Find orders where phone starts with +1",
+      "answer": "SELECT * FROM orders WHERE shipping_address->>'phone' LIKE '+1%';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 6: JSONB Queries",
+      "question": "Index JSON field for faster search",
+      "answer": "CREATE INDEX idx_orders_shipping_city ON orders ((shipping_address->>'city'));"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 6: JSONB Queries",
+      "question": "Filter orders by state inside JSON",
+      "answer": "SELECT * FROM orders WHERE shipping_address->>'state' = 'TX';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 7: Window Functions (Advanced)",
+      "question": "Rank users by total spending",
+      "answer": "SELECT\n+  u.id,\n+  CONCAT_WS(' ', u.first_name, u.last_name) AS full_name,\n+  SUM(o.total_amount) AS total_spent,\n+  RANK() OVER (ORDER BY SUM(o.total_amount) DESC) AS spending_rank\n+FROM users u\n+JOIN orders o ON o.user_id = u.id\n+WHERE o.status = 'completed'\n+GROUP BY u.id, u.first_name, u.last_name;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 7: Window Functions (Advanced)",
+      "question": "Running total revenue by date",
+      "answer": "SELECT DATE(created_at) AS order_date, SUM(total_amount) AS daily_revenue, SUM(SUM(total_amount)) OVER (ORDER BY DATE(created_at)) AS running_total FROM orders WHERE status = 'completed' GROUP BY DATE(created_at);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 7: Window Functions (Advanced)",
+      "question": "Dense rank products by revenue",
+      "answer": "WITH product_revenue AS (\n+  SELECT\n+    oi.product_id,\n+    SUM(oi.quantity * oi.price_at_time) AS revenue\n+  FROM order_items oi\n+  JOIN orders o ON o.id = oi.order_id\n+  WHERE o.status = 'completed'\n+  GROUP BY oi.product_id\n+)\n+SELECT\n+  p.name,\n+  pr.revenue,\n+  DENSE_RANK() OVER (ORDER BY pr.revenue DESC) AS rank\n+FROM product_revenue pr\n+JOIN products p ON p.id = pr.product_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 7: Window Functions (Advanced)",
+      "question": "Find second highest spending user",
+      "answer": "WITH ranked_users AS (SELECT u.*, SUM(o.total_amount) AS total_spent, RANK() OVER (ORDER BY SUM(o.total_amount) DESC) AS rank FROM users u JOIN orders o ON o.user_id = u.id WHERE o.status = 'completed' GROUP BY u.id) SELECT * FROM ranked_users WHERE rank = 2;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 7: Window Functions (Advanced)",
+      "question": "Row number for orders per user",
+      "answer": "SELECT user_id, order_number, total_amount, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at) AS order_sequence FROM orders;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 7: Window Functions (Advanced)",
+      "question": "Moving average revenue (7 days)",
+      "answer": "SELECT DATE(created_at) AS order_date, SUM(total_amount) AS daily_revenue, AVG(SUM(total_amount)) OVER (ORDER BY DATE(created_at) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS moving_avg_7day FROM orders WHERE status = 'completed' GROUP BY DATE(created_at);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 7: Window Functions (Advanced)",
+      "question": "Cumulative order count",
+      "answer": "SELECT DATE(created_at) AS order_date, COUNT(*) AS daily_orders, SUM(COUNT(*)) OVER (ORDER BY DATE(created_at)) AS cumulative_orders FROM orders GROUP BY DATE(created_at);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 7: Window Functions (Advanced)",
+      "question": "Partition by user and rank orders",
+      "answer": "SELECT user_id, order_number, total_amount, RANK() OVER (PARTITION BY user_id ORDER BY total_amount DESC) AS amount_rank FROM orders;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 8: Transactions & Concurrency",
+      "question": "Deduct stock safely during checkout",
+      "answer": "BEGIN; UPDATE products SET stock_quantity = stock_quantity - 2 WHERE id = 101 AND stock_quantity >= 2; INSERT INTO order_items (order_id, product_id, quantity, price_at_time) VALUES (1001, 101, 2, 99.99); COMMIT;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 8: Transactions & Concurrency",
+      "question": "Reserve stock using transaction",
+      "answer": "BEGIN; SELECT stock_quantity FROM products WHERE id = 101 FOR UPDATE; INSERT INTO stock_reservations (product_id, quantity, expires_at) VALUES (101, 3, NOW() + INTERVAL '10 minutes'); UPDATE products SET stock_quantity = stock_quantity - 3 WHERE id = 101; COMMIT;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 8: Transactions & Concurrency",
+      "question": "Cancel order and restore stock",
+      "answer": "BEGIN; UPDATE products p SET stock_quantity = stock_quantity + oi.quantity FROM order_items oi WHERE oi.order_id = 1001 AND oi.product_id = p.id; UPDATE orders SET status = 'cancelled' WHERE id = 1001; COMMIT;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 8: Transactions & Concurrency",
+      "question": "Handle payment failure rollback",
+      "answer": "BEGIN; UPDATE orders SET status = 'processing' WHERE id = 1001; INSERT INTO payments (order_id, amount, status) VALUES (1001, 199.99, 'processing'); -- If payment fails: ROLLBACK; -- Otherwise: COMMIT;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 8: Transactions & Concurrency",
+      "question": "Prevent overselling using FOR UPDATE",
+      "answer": "BEGIN; SELECT stock_quantity FROM products WHERE id = 101 FOR UPDATE; UPDATE products SET stock_quantity = stock_quantity - 5 WHERE id = 101 AND stock_quantity >= 5; COMMIT;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 8: Transactions & Concurrency",
+      "question": "Delete expired stock reservations",
+      "answer": "BEGIN; WITH expired AS (DELETE FROM stock_reservations WHERE expires_at < NOW() RETURNING product_id, quantity) UPDATE products p SET stock_quantity = stock_quantity + exp.quantity FROM expired exp WHERE p.id = exp.product_id; COMMIT;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 9: Index Optimization",
+      "question": "Check execution plan of order query",
+      "answer": "EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 123 AND status = 'processing';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 9: Index Optimization",
+      "question": "Add composite index on (user_id, status)",
+      "answer": "CREATE INDEX idx_orders_user_status ON orders(user_id, status);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 9: Index Optimization",
+      "question": "Optimize product search by category + price",
+      "answer": "CREATE INDEX idx_products_category_price ON products(category, price);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 9: Index Optimization",
+      "question": "Create partial index on completed orders",
+      "answer": "CREATE INDEX idx_orders_completed ON orders(created_at) WHERE status = 'completed';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 9: Index Optimization",
+      "question": "Index JSON city field",
+      "answer": "CREATE INDEX idx_orders_shipping_city ON orders ((shipping_address->>'city'));"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 9: Index Optimization",
+      "question": "Create covering index for order listing",
+      "answer": "CREATE INDEX idx_orders_covering ON orders(user_id, created_at) INCLUDE (order_number, total_amount, status);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 9: Index Optimization",
+      "question": "Compare query with and without index",
+      "answer": "-- Without: EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'Electronics'; -- Create index: CREATE INDEX idx_products_category ON products(category); -- With: EXPLAIN ANALYZE SELECT * FROM products WHERE category = 'Electronics';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Update product price by 10%",
+      "answer": "UPDATE products SET price = price * 1.10 WHERE category = 'Electronics';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Reduce stock after purchase",
+      "answer": "UPDATE products SET stock_quantity = stock_quantity - 2 WHERE id = 101;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Mark product as out of stock (soft delete workaround)",
+      "answer": "UPDATE products SET stock_quantity = 0 WHERE id = 101;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Change user role",
+      "answer": "UPDATE users SET role = 'admin' WHERE id = 5;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Bulk insert products",
+      "answer": "INSERT INTO products (name, sku, price, stock_quantity, category) VALUES ('Product A', 'SKU-001', 99.99, 50, 'Electronics'), ('Product B', 'SKU-002', 149.99, 30, 'Electronics'), ('Product C', 'SKU-003', 79.99, 100, 'Books');"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Delete abandoned carts (30 days old)",
+      "answer": "DELETE FROM carts WHERE updated_at < NOW() - INTERVAL '30 days';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Refund an order",
+      "answer": "BEGIN;\n+\n+UPDATE orders\n+SET status = 'refunded'\n+WHERE id = 1001;\n+\n+INSERT INTO payments (order_id, amount, status, payment_method)\n+VALUES (1001, 199.99, 'refunded', 'refund');\n+\n+COMMIT;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Change order status from processing → shipped",
+      "answer": "UPDATE orders SET status = 'shipped' WHERE id = 1001 AND status = 'processing';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Expire stock reservations",
+      "answer": "DELETE FROM stock_reservations WHERE expires_at < NOW();"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 10: Data Modification (UPDATE, DELETE, INSERT)",
+      "question": "Update payment status to completed",
+      "answer": "UPDATE payments SET status = 'completed' WHERE id = 501 AND status = 'processing';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Partition orders by created_at (monthly)",
+      "answer": "CREATE TABLE orders (id SERIAL, order_number VARCHAR(50), user_id INT, total_amount DECIMAL(10,2), status VARCHAR(20), created_at TIMESTAMP NOT NULL, PRIMARY KEY (id, created_at)) PARTITION BY RANGE (created_at);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Partition payments by status",
+      "answer": "CREATE TABLE payments (id SERIAL, order_id INT, amount DECIMAL(10,2), status VARCHAR(20) NOT NULL, created_at TIMESTAMP, PRIMARY KEY (id, status)) PARTITION BY LIST (status);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Partition stock_reservations by expires_at",
+      "answer": "CREATE TABLE stock_reservations (id SERIAL, product_id INT, quantity INT, expires_at TIMESTAMP NOT NULL, PRIMARY KEY (id, expires_at)) PARTITION BY RANGE (expires_at);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Create yearly partition for orders",
+      "answer": "CREATE TABLE orders_2024 PARTITION OF orders FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Move old orders to archive partition",
+      "answer": "CREATE TABLE orders_archive PARTITION OF orders FOR VALUES FROM ('2020-01-01') TO ('2023-01-01');"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Query only current month partition",
+      "answer": "SELECT * FROM orders WHERE created_at >= '2024-12-01' AND created_at < '2025-01-01';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Compare performance with partition vs no partition",
+      "answer": "EXPLAIN ANALYZE SELECT * FROM orders WHERE created_at >= '2024-12-01' AND created_at < '2025-01-01';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Create partitioned index",
+      "answer": "CREATE INDEX idx_orders_user ON orders(user_id);"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Attach new partition",
+      "answer": "CREATE TABLE orders_2026 (LIKE orders INCLUDING ALL); ALTER TABLE orders ATTACH PARTITION orders_2026 FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 11: Partitioning (Advanced Production)",
+      "question": "Detach old partition",
+      "answer": "ALTER TABLE orders DETACH PARTITION orders_2020;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Monthly revenue report",
+      "answer": "SELECT DATE_TRUNC('month', created_at) AS month, COUNT(*) AS total_orders, SUM(total_amount) AS total_revenue, AVG(total_amount) AS avg_order_value FROM orders WHERE status = 'completed' GROUP BY DATE_TRUNC('month', created_at) ORDER BY month DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Top 5 customers of all time",
+      "answer": "SELECT\n+  u.id,\n+  CONCAT_WS(' ', u.first_name, u.last_name) AS full_name,\n+  u.email,\n+  COUNT(o.id) AS order_count,\n+  SUM(o.total_amount) AS lifetime_value\n+FROM users u\n+JOIN orders o ON o.user_id = u.id\n+WHERE o.status = 'completed'\n+GROUP BY u.id, u.first_name, u.last_name, u.email\n+ORDER BY lifetime_value DESC\n+LIMIT 5;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Daily sales breakdown",
+      "answer": "SELECT DATE(created_at) AS sale_date, COUNT(*) AS orders, SUM(total_amount) AS revenue, AVG(total_amount) AS avg_order FROM orders WHERE status = 'completed' AND created_at >= CURRENT_DATE - INTERVAL '30 days' GROUP BY DATE(created_at) ORDER BY sale_date DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Conversion rate (cart → order)",
+      "answer": "WITH cart_users AS (SELECT DISTINCT user_id FROM carts), order_users AS (SELECT DISTINCT user_id FROM orders) SELECT COUNT(DISTINCT cu.user_id) AS users_with_carts, COUNT(DISTINCT ou.user_id) AS users_with_orders, ROUND(COUNT(DISTINCT ou.user_id)::DECIMAL / NULLIF(COUNT(DISTINCT cu.user_id), 0) * 100, 2) AS conversion_rate_percent FROM cart_users cu LEFT JOIN order_users ou ON ou.user_id = cu.user_id;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Average delivery time",
+      "answer": "SELECT AVG(EXTRACT(EPOCH FROM (updated_at - created_at))/86400) AS avg_delivery_days FROM orders WHERE status = 'delivered';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Return percentage",
+      "answer": "SELECT COUNT(DISTINCT o.id) AS total_completed_orders, COUNT(DISTINCT r.order_id) AS returned_orders, ROUND(COUNT(DISTINCT r.order_id)::DECIMAL / NULLIF(COUNT(DISTINCT o.id), 0) * 100, 2) AS return_rate_percent FROM orders o LEFT JOIN returns r ON r.order_id = o.id WHERE o.status = 'completed';"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Most refunded product",
+      "answer": "SELECT p.id, p.name, p.sku, COUNT(r.id) AS return_count, SUM(r.refund_amount) AS total_refunds FROM products p JOIN order_items oi ON oi.product_id = p.id JOIN returns r ON r.order_id = oi.order_id GROUP BY p.id, p.name, p.sku ORDER BY return_count DESC LIMIT 1;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Stock turnover rate",
+      "answer": "WITH sold_quantities AS (SELECT product_id, SUM(quantity) AS total_sold FROM order_items oi JOIN orders o ON o.id = oi.order_id WHERE o.status = 'completed' AND o.created_at >= NOW() - INTERVAL '30 days' GROUP BY product_id) SELECT p.id, p.name, p.stock_quantity AS current_stock, COALESCE(sq.total_sold, 0) AS sold_last_30_days, ROUND(COALESCE(sq.total_sold, 0)::DECIMAL / NULLIF(p.stock_quantity, 0), 2) AS turnover_ratio FROM products p LEFT JOIN sold_quantities sq ON sq.product_id = p.id ORDER BY turnover_ratio DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Revenue by category",
+      "answer": "SELECT\n+  p.category,\n+  COUNT(DISTINCT o.id) AS order_count,\n+  SUM(oi.quantity * oi.price_at_time) AS category_revenue\n+FROM products p\n+JOIN order_items oi ON oi.product_id = p.id\n+JOIN orders o ON o.id = oi.order_id\n+WHERE o.status = 'completed'\n+GROUP BY p.category\n+ORDER BY category_revenue DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Revenue by payment method",
+      "answer": "SELECT payment_method, COUNT(*) AS order_count, SUM(total_amount) AS total_revenue, ROUND(AVG(total_amount), 2) AS avg_order_value FROM orders WHERE status = 'completed' GROUP BY payment_method ORDER BY total_revenue DESC;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Active users in last 30 days",
+      "answer": "SELECT COUNT(DISTINCT user_id) AS active_users FROM (SELECT user_id FROM orders WHERE created_at >= NOW() - INTERVAL '30 days' UNION SELECT user_id FROM carts WHERE updated_at >= NOW() - INTERVAL '30 days') active;"
+    },
+    {
+      "type": "query",
+      "topic": "TOPIC 12: Advanced Real Business Queries",
+      "question": "Cart abandonment list",
+      "answer": "SELECT\n+  u.id,\n+  CONCAT_WS(' ', u.first_name, u.last_name) AS full_name,\n+  u.email,\n+  c.created_at AS cart_created,\n+  COUNT(ci.id) AS items_in_cart,\n+  SUM(ci.quantity * p.price) AS cart_value\n+FROM users u\n+JOIN carts c ON c.user_id = u.id\n+JOIN cart_items ci ON ci.cart_id = c.id\n+JOIN products p ON p.id = ci.product_id\n+LEFT JOIN orders o ON o.user_id = u.id AND o.created_at > c.created_at\n+WHERE o.id IS NULL\n+  AND c.created_at >= NOW() - INTERVAL '7 days'\n+GROUP BY u.id, u.first_name, u.last_name, u.email, c.created_at\n+HAVING SUM(ci.quantity * p.price) > 50\n+ORDER BY cart_value DESC;"
+    }
+  ]
+}

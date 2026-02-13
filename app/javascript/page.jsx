@@ -2,10 +2,10 @@
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import javascriptContent from "@/public/data/javascript.json";
-import { useTopicData } from "@/hooks/useTopicData";
+import { useTopicDataFromContent } from "@/hooks/useTopicDataFromContent";
 
 export default function JavaScriptPage() {
-  const { data, quiz, title, description, loading } = useTopicData(
+  const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "javascript",
     javascriptContent.topics,
     javascriptContent.quiz

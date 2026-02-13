@@ -1,11 +1,11 @@
 "use client";
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
-import { useTopicData } from "@/hooks/useTopicData";
+import { useTopicDataFromContent } from "@/hooks/useTopicDataFromContent";
 import { kubernetesData, kubernetesQuiz } from "@/data/kubernetes";
 
 export default function KubernetesPage() {
-  const { data, quiz, loading } = useTopicData(
+  const { data, quiz, metadata, loading } = useTopicDataFromContent(
     "kubernetes",
     kubernetesData,
     kubernetesQuiz
@@ -26,8 +26,11 @@ export default function KubernetesPage() {
 
   return (
     <InterviewTopicPage
-      title="Kubernetes Interview Preparation"
-      description="Master Kubernetes interview questions on Pods, Services, Deployments, ConfigMaps, Secrets, and kubectl commands with practical examples."
+      title={metadata.title || "Kubernetes Interview Preparation"}
+      description={
+        metadata.description ||
+        "Master Kubernetes interview questions on Pods, Services, Deployments, ConfigMaps, Secrets, and kubectl commands with practical examples."
+      }
       topics={data}
       quiz={quiz}
     />

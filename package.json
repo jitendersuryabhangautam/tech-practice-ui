@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "validate:postgresql-content": "node scripts/validate-postgresql-content.mjs"
   },
   "dependencies": {
     "next": "^15.1.6",

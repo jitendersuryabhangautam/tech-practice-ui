@@ -1,0 +1,155 @@
+{
+  "id": "closures",
+  "title": "Closures",
+  "description": "Deep dive into JavaScript closures — how functions remember their lexical scope, practical patterns, and common interview traps.",
+  "explanation": "A closure is created when a function is defined inside another function and the inner function references variables from the outer function's scope. The inner function 'closes over' those variables, keeping them alive even after the outer function returns.\n\nHow it works internally:\n1. When a function is created, it gets a hidden [[Environment]] reference to the Lexical Environment where it was defined\n2. When the function executes, it creates a new Lexical Environment whose outer reference points to [[Environment]]\n3. Variable lookup follows the scope chain: current scope → outer scope → ... → global scope\n4. The garbage collector cannot free closed-over variables as long as the closure exists\n\nKey characteristics:\n- Closures capture variables by reference, NOT by value\n- Each closure instance gets its own copy of the enclosed variables\n- Closures have access to: own scope, outer function scope, global scope\n- Arrow functions and regular functions both create closures\n\nCommon patterns:\n- Data privacy / encapsulation (module pattern)\n- Function factories (createMultiplier, createCounter)\n- Partial application and currying\n- Event handlers and callbacks\n- Memoization\n\nCommon pitfalls:\n- Loop variable capture with var (classic interview question)\n- Memory leaks from unintended closures holding large objects\n- Stale closures in React useEffect/useState",
+  "code": "// Basic closure\nfunction outer() {\n  let count = 0;  // closed-over variable\n  \n  return function inner() {\n    count++;\n    return count;\n  };\n}\n\nconst counter = outer();\nconsole.log(counter()); // 1\nconsole.log(counter()); // 2\nconsole.log(counter()); // 3\n// 'count' lives on because counter still references inner()\n\n// Data privacy with closures\nfunction createBankAccount(initialBalance) {\n  let balance = initialBalance; // private variable\n  \n  return {\n    deposit(amount) {\n      balance += amount;\n      return balance;\n    },\n    withdraw(amount) {\n      if (amount > balance) throw new Error('Insufficient funds');\n      balance -= amount;\n      return balance;\n    },\n    getBalance() {\n      return balance;\n    }\n  };\n}\n\nconst account = createBankAccount(100);\naccount.deposit(50);    // 150\naccount.withdraw(30);   // 120\n// account.balance → undefined (private!)",
+  "example": "// Function factory pattern\nfunction createGreeter(greeting) {\n  return function(name) {\n    return `${greeting}, ${name}!`;\n  };\n}\n\nconst sayHello = createGreeter('Hello');\nconst sayHi = createGreeter('Hi');\n\nconsole.log(sayHello('Alice')); // 'Hello, Alice!'\nconsole.log(sayHi('Bob'));      // 'Hi, Bob!'\n// Each closure captures its own 'greeting'\n\n// Memoization using closure\nfunction memoize(fn) {\n  const cache = {};\n  return function(...args) {\n    const key = JSON.stringify(args);\n    if (cache[key] !== undefined) {\n      return cache[key];\n    }\n    cache[key] = fn(...args);\n    return cache[key];\n  };\n}\n\nconst expensiveSquare = memoize((n) => {\n  console.log('Computing...');\n  return n * n;\n});\n\nexpensiveSquare(5); // 'Computing...' → 25\nexpensiveSquare(5); // 25 (cached, no 'Computing...')",
+  "useCase": "Data encapsulation, function factories, memoization, event handlers, module pattern, iterators, partial application, maintaining state in callbacks",
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction makeCounter() {\n  let count = 0;\n  return { inc: () => ++count, get: () => count };\n}\nconst c = makeCounter();\nc.inc(); c.inc(); c.inc();\nconsole.log(c.get());",
+      "answer": "3 — All methods share the same closed-over 'count' variable"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
+      "answer": "3, 3, 3 — var is function-scoped, all closures share the same 'i' which is 3 after the loop"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfor (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
+      "answer": "0, 1, 2 — let creates a new binding per iteration, each closure captures its own 'i'"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction outer() {\n  let x = 10;\n  function inner() { console.log(x); }\n  x = 20;\n  return inner;\n}\nouter()();",
+      "answer": "20 — Closures capture variables by reference, not by value. x was changed to 20 before inner executes"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction createFunctions() {\n  var funcs = [];\n  for (var i = 0; i < 3; i++) {\n    funcs.push((function(j) {\n      return function() { return j; };\n    })(i));\n  }\n  return funcs;\n}\nconst fns = createFunctions();\nconsole.log(fns[0](), fns[1](), fns[2]());",
+      "answer": "0 1 2 — IIFE creates a new scope for each iteration, capturing the current value of i as j"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction makeAdder(x) {\n  return function(y) {\n    return x + y;\n  };\n}\nconst add5 = makeAdder(5);\nconst add10 = makeAdder(10);\nconsole.log(add5(3), add10(3));",
+      "answer": "8 13 — Each call to makeAdder creates a separate closure with its own 'x'"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nlet f;\nfunction outer() {\n  let a = 1;\n  f = function() { console.log(a += 1); };\n}\nouter();\nf();\nf();",
+      "answer": "2 then 3 — f is a closure over 'a'. Each call mutates the same 'a'"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction foo() {\n  var a = 2;\n  function bar() {\n    console.log(a);\n  }\n  return bar;\n}\nvar baz = foo();\nbaz();",
+      "answer": "2 — bar is a closure that has access to foo's scope"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst arr = [10, 20, 30];\nconst fns = arr.map(num => () => num * 2);\nconsole.log(fns[0](), fns[1](), fns[2]());",
+      "answer": "20 40 60 — Arrow functions in map create closures, each capturing its own 'num' parameter"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction timer() {\n  for (var i = 1; i <= 3; i++) {\n    setTimeout(function() {\n      console.log(i);\n    }, i * 100);\n  }\n}\ntimer();",
+      "answer": "4, 4, 4 — var 'i' is shared; loop ends with i=4, all callbacks reference same i"
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "function counter() {\n  let n = 0;\n  return {\n    increment: () => ++n,\n    decrement: () => --n,\n    value: () => n\n  };\n}\nconst c = counter();\nc.increment();\nc.increment();\nc.decrement();\nconsole.log(c.value());",
+      "expectedOutput": "1",
+      "explanation": "Private counter with closure — increment twice (2), decrement once (1)"
+    },
+    {
+      "program": "function once(fn) {\n  let called = false;\n  let result;\n  return function(...args) {\n    if (!called) {\n      called = true;\n      result = fn(...args);\n    }\n    return result;\n  };\n}\nconst init = once(() => 'INITIALIZED');\nconsole.log(init());\nconsole.log(init());",
+      "expectedOutput": "INITIALIZED\nINITIALIZED",
+      "explanation": "once() uses closure to track if fn was called. Both calls return the cached result."
+    },
+    {
+      "program": "function makeMultiplier(x) {\n  return (y) => x * y;\n}\nconst double = makeMultiplier(2);\nconst triple = makeMultiplier(3);\nconsole.log(double(5));\nconsole.log(triple(5));",
+      "expectedOutput": "10\n15",
+      "explanation": "Function factory — double closes over x=2, triple closes over x=3"
+    },
+    {
+      "program": "const add = (function() {\n  let sum = 0;\n  return function(n) {\n    sum += n;\n    return sum;\n  };\n})();\nconsole.log(add(5));\nconsole.log(add(3));\nconsole.log(add(2));",
+      "expectedOutput": "5\n8\n10",
+      "explanation": "IIFE creates a running total accumulator with closed-over 'sum'"
+    },
+    {
+      "program": "function secretKeeper(secret) {\n  return {\n    getSecret: () => secret,\n    setSecret: (s) => { secret = s; }\n  };\n}\nconst k = secretKeeper('abc');\nconsole.log(k.getSecret());\nk.setSecret('xyz');\nconsole.log(k.getSecret());",
+      "expectedOutput": "abc\nxyz",
+      "explanation": "Closures enable private variable pattern — 'secret' is only accessible via methods"
+    },
+    {
+      "program": "function createTimer() {\n  let calls = 0;\n  return function() {\n    calls++;\n    return `Called ${calls} time(s)`;\n  };\n}\nconst t1 = createTimer();\nconst t2 = createTimer();\nconsole.log(t1());\nconsole.log(t1());\nconsole.log(t2());",
+      "expectedOutput": "Called 1 time(s)\nCalled 2 time(s)\nCalled 1 time(s)",
+      "explanation": "Each createTimer() call creates a SEPARATE closure with its own 'calls' count"
+    },
+    {
+      "program": "const scores = [90, 85, 70];\nconst checks = scores.map(score => () => score >= 80 ? 'Pass' : 'Fail');\nconsole.log(checks.map(fn => fn()).join(', '));",
+      "expectedOutput": "Pass, Pass, Fail",
+      "explanation": "Each arrow function captures its own 'score' from the map callback"
+    },
+    {
+      "program": "function logger(prefix) {\n  return function(msg) {\n    return `[${prefix}] ${msg}`;\n  };\n}\nconst warn = logger('WARN');\nconst err = logger('ERROR');\nconsole.log(warn('Low disk'));\nconsole.log(err('Crash'));",
+      "expectedOutput": "[WARN] Low disk\n[ERROR] Crash",
+      "explanation": "Logger factory — each logger closes over its own 'prefix'"
+    },
+    {
+      "program": "function fibonacci() {\n  let prev = 0, curr = 1;\n  return function() {\n    const val = prev;\n    [prev, curr] = [curr, prev + curr];\n    return val;\n  };\n}\nconst fib = fibonacci();\nconsole.log([fib(), fib(), fib(), fib(), fib(), fib(), fib()].join(', '));",
+      "expectedOutput": "0, 1, 1, 2, 3, 5, 8",
+      "explanation": "Stateful iterator using closure — prev and curr persist between calls"
+    },
+    {
+      "program": "function rateLimit(fn, delay) {\n  let lastCall = 0;\n  return function(...args) {\n    const now = Date.now();\n    if (now - lastCall >= delay) {\n      lastCall = now;\n      return fn(...args);\n    }\n    return 'Rate limited';\n  };\n}\nconst limited = rateLimit(x => x * 2, 1000);\nconsole.log(limited(5));\nconsole.log(limited(10));",
+      "expectedOutput": "10\nRate limited",
+      "explanation": "Rate limiter using closure to track lastCall timestamp. Second call is too soon."
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "What is a closure and how does it work?",
+      "answer": "A closure is a function that retains access to its outer (lexical) scope's variables even after the outer function has returned. When a function is created, it gets a hidden [[Environment]] reference to the surrounding Lexical Environment. Variable lookup follows the scope chain from inner to outer."
+    },
+    {
+      "question": "What is the classic 'loop + var + setTimeout' problem and how do you fix it?",
+      "answer": "Using `var` in a for loop with setTimeout causes all callbacks to share the same variable. Fixes: (1) Use `let` instead of `var` (creates block scope per iteration), (2) Use an IIFE to capture the current value, (3) Use `forEach` or `map` which create a new scope per callback, (4) Pass i as the third argument to setTimeout."
+    },
+    {
+      "question": "Do closures capture variables by value or by reference?",
+      "answer": "By reference. Closures don't copy the variable's value at the time of creation — they maintain a live link to the variable. If the variable changes after the closure is created, the closure sees the updated value."
+    },
+    {
+      "question": "How do closures enable the module pattern?",
+      "answer": "The module pattern uses an IIFE that returns an object with methods. These methods are closures that have access to private variables defined inside the IIFE. This provides encapsulation — internal state is hidden, only exposed through the returned interface."
+    },
+    {
+      "question": "Can closures cause memory leaks? How?",
+      "answer": "Yes. If a closure references a large object that is no longer needed, the garbage collector can't free it because the closure's scope chain still holds a reference. Common cases: event handlers not removed, setInterval callbacks not cleared, storing closures in long-lived data structures."
+    },
+    {
+      "question": "What is a stale closure? Give a React example.",
+      "answer": "A stale closure occurs when a closure captures an outdated value. In React: `useEffect(() => { setInterval(() => console.log(count), 1000); }, [])` — the callback captures the initial `count` value and never sees updates. Fix: use a ref, add count to deps, or use the functional form of setState."
+    },
+    {
+      "question": "Explain the difference between lexical scope and dynamic scope in relation to closures.",
+      "answer": "JavaScript uses lexical (static) scope — a closure's scope is determined by where the function is DEFINED, not where it is CALLED. Dynamic scope (used by some other languages) would look up variables based on the call stack. This is why closures always reference the enclosing scope at definition time."
+    },
+    {
+      "question": "How would you implement a memoize function using closures?",
+      "answer": "Create a function that returns a wrapper. The wrapper uses a closure-scoped cache object. Before calling the original function, check if the args (serialized as a key) exist in the cache. If yes, return cached result. If no, call the function, store the result, and return it."
+    },
+    {
+      "question": "What is an IIFE and how does it relate to closures?",
+      "answer": "An IIFE (Immediately Invoked Function Expression) is a function that runs immediately: `(function(){ ... })()`. It creates a new scope. Combined with closures, IIFEs were used (before let/const) to create private variables and avoid polluting the global scope. The returned functions/objects form closures over the IIFE's scope."
+    },
+    {
+      "question": "How do closures work with async operations like Promises?",
+      "answer": "When async code (Promise callbacks, setTimeout, async/await) executes, it retains access to the scope where it was defined through closures. The callback 'remembers' the variables from its enclosing scope. This is why you can use local variables inside `.then()` callbacks — the closure keeps them alive until the async operation completes."
+    }
+  ]
+}

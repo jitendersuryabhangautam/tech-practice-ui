@@ -8,6 +8,42 @@ import TopicDetail from "@/components/TopicDetail";
 import MCQSection from "@/components/MCQSection";
 import { normalizeTopics } from "@/lib/topicUtils";
 
+function IconTrack() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5 text-amber-700 dark:text-amber-300" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M4 6h16M4 12h10M4 18h7" strokeLinecap="round" />
+      <circle cx="18" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function IconTopic() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <path d="M8 8h8M8 12h8M8 16h5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconQuiz() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 16v.01M10.2 9.6A2 2 0 1 1 13.8 11c-.9.5-1.3.9-1.3 2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconNotes() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M7 4h10l3 3v13H7z" />
+      <path d="M17 4v4h4M10 11h7M10 15h7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function InterviewTopicPage({
   title,
   description,
@@ -34,6 +70,12 @@ export default function InterviewTopicPage({
           <BackButton />
           <section className="hero-panel mb-5 sm:mb-8">
             <p className="eyebrow">Interview Track</p>
+            <div className="mb-2 flex items-center gap-2">
+              <IconTrack />
+              <span className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                Guided Practice
+              </span>
+            </div>
             <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl md:text-4xl dark:text-slate-100">
               {title}
             </h1>
@@ -41,9 +83,18 @@ export default function InterviewTopicPage({
               {description}
             </p>
             <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
-              <span className="chip">{normalizedTopics.length} deep topics</span>
-              <span className="chip">{quiz?.length ?? 0} interview MCQs</span>
-              <span className="chip">Structured answers and examples</span>
+              <span className="chip flex items-center gap-1.5">
+                <IconTopic />
+                {normalizedTopics.length} deep topics
+              </span>
+              <span className="chip flex items-center gap-1.5">
+                <IconQuiz />
+                {quiz?.length ?? 0} interview MCQs
+              </span>
+              <span className="chip flex items-center gap-1.5">
+                <IconNotes />
+                Structured answers and examples
+              </span>
             </div>
           </section>
 

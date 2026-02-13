@@ -1,0 +1,9 @@
+{
+  "id": "jsonb-queries",
+  "title": "JSONB Queries",
+  "description": "Query and manipulate JSON data stored in PostgreSQL using JSONB operators and functions.",
+  "code": "-- Get all orders shipped to city = 'Austin'\nSELECT * FROM orders \nWHERE shipping_address->>'city' = 'Austin';\n\n-- Get all orders where shipping country = 'USA'\nSELECT * FROM orders \nWHERE shipping_address->>'country' = 'USA';\n\n-- Extract phone number from billing address\nSELECT order_number, \n       billing_address->>'phone' AS phone_number \nFROM orders;\n\n-- Update postal_code inside shipping_address\nUPDATE orders \nSET shipping_address = jsonb_set(\n  shipping_address, \n  '{postal_code}', \n  '\"75001\"'\n)\nWHERE id = 123;",
+  "example": "-- Add new key to billing JSON\nUPDATE orders \nSET billing_address = billing_address || '{\"verified\": true}'::jsonb \nWHERE id = 123;\n\n-- Find orders where phone starts with +1\nSELECT * FROM orders \nWHERE shipping_address->>'phone' LIKE '+1%';\n\n-- Index JSON field for faster search\nCREATE INDEX idx_orders_shipping_city \nON orders ((shipping_address->>'city'));\n\n-- Filter orders by state inside JSON\nSELECT * FROM orders \nWHERE shipping_address->>'state' = 'TX';\n\n-- Query nested JSON\nSELECT * FROM orders \nWHERE shipping_address->'location'->>'latitude' IS NOT NULL;\n\n-- Check if JSON key exists\nSELECT * FROM orders \nWHERE billing_address ? 'tax_id';\n\n-- Extract multiple JSON fields\nSELECT \n  order_number,\n  shipping_address->>'street' AS street,\n  shipping_address->>'city' AS city,\n  shipping_address->>'state' AS state,\n  shipping_address->>'postal_code' AS zip\nFROM orders;",
+  "useCase": "Flexible schema, address data, metadata, configuration, semi-structured data",
+  "category": "Advanced Features"
+}
