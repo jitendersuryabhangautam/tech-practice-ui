@@ -144,6 +144,24 @@
       "question": "Program 7: Session affinity routes same client to same pod",
       "code": "kubectl create deployment sticky --image=nginx --replicas=3\nkubectl expose deployment sticky --port=80\nkubectl patch svc sticky -p '{\"spec\":{\"sessionAffinity\":\"ClientIP\"}}'\nfor i in {1..5}; do kubectl run test-$i --image=busybox --rm --restart=Never -- wget -qO- sticky:80; done",
       "output": "Same client IP consistently routed to same pod (check pod names in logs)"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Create ExternalName service to alias an external DNS",
+      "code": "kubectl create service externalname ext-db --external-name=db.example.com\nkubectl get svc ext-db -o jsonpath='{.spec.externalName}'",
+      "output": "db.example.com — pods can access db.example.com via ext-db service name"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Verify service endpoints match running pods",
+      "code": "kubectl create deployment ep-test --image=nginx --replicas=3\nkubectl expose deployment ep-test --port=80\nkubectl get endpoints ep-test\nkubectl get pods -l app=ep-test -o jsonpath='{.items[*].status.podIP}'",
+      "output": "Endpoint IPs match pod IPs exactly — 3 addresses listed"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Test service DNS from within cluster",
+      "code": "kubectl create deployment dns-test --image=nginx\nkubectl expose deployment dns-test --port=80\nkubectl run dnsutils --image=busybox --rm -it -- nslookup dns-test.default.svc.cluster.local",
+      "output": "Name: dns-test.default.svc.cluster.local, Address: 10.x.x.x (ClusterIP)"
     }
   ]
 }

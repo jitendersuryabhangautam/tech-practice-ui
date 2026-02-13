@@ -2,7 +2,7 @@
   "id": "configmaps",
   "title": "ConfigMaps",
   "description": "Store non-confidential configuration data as key-value pairs.",
-  "code": "# configmap.yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\ndata:\n  database_url: \"postgres://db:5432/mydb\"\n  log_level: \"info\"\n  app.properties: |\n    app.name=MyApp\n    app.version=1.0\n    app.port=8080",
+  "explanation": "ConfigMaps decouple configuration from container images, making applications portable across environments. A ConfigMap holds key-value pairs where values can be simple strings, entire config files, or JSON/YAML blobs.\n\nCreation methods: From literals (`--from-literal=key=value`), from files (`--from-file=config.properties` — filename becomes key, content becomes value), from directories (`--from-file=./configs/` — each file becomes a key), or from YAML manifest.\n\nConsumption in Pods: Three ways — (1) `envFrom` injects ALL keys as env vars, (2) `env[].valueFrom.configMapKeyRef` injects specific keys, (3) volume mount projects keys as files in a directory. Volume-mounted ConfigMaps are automatically updated when the ConfigMap changes (with a delay of kubelet sync period, ~60s). Env vars are NOT auto-updated — pod restart required.\n\nImmutable ConfigMaps (Kubernetes 1.21+): Set `immutable: true` to prevent changes. Benefits: protects against accidental updates and significantly reduces API server load (no watches needed). Once set, cannot be reversed — must delete and recreate.\n\nSize limit: 1MB per ConfigMap (etcd limit). For larger configs, use a volume mount from a PV or an init container that fetches config from external source.\n\nBest practices: Use ConfigMaps for non-sensitive data only (use Secrets for passwords/tokens). Name ConfigMaps with version suffix (app-config-v2) for safe rollouts. Use `kubectl create configmap --dry-run=client -o yaml` to generate manifests.", "# configmap.yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\ndata:\n  database_url: \"postgres://db:5432/mydb\"\n  log_level: \"info\"\n  app.properties: |\n    app.name=MyApp\n    app.version=1.0\n    app.port=8080",
   "command": "# Create ConfigMap from file\nkubectl create configmap app-config --from-file=config.properties\n\n# Create from literal values\nkubectl create configmap app-config \\\n  --from-literal=database_url=postgres://db:5432 \\\n  --from-literal=log_level=info\n\n# Get ConfigMaps\nkubectl get configmaps\nkubectl get cm\n\n# Describe ConfigMap\nkubectl describe configmap app-config\n\n# View ConfigMap data\nkubectl get configmap app-config -o yaml\n\n# Delete ConfigMap\nkubectl delete configmap app-config",
   "example": "# Use ConfigMap as environment variables\napiVersion: v1\nkind: Pod\nmetadata:\n  name: myapp\nspec:\n  containers:\n  - name: app\n    image: myapp:latest\n    envFrom:\n    - configMapRef:\n        name: app-config\n\n# Use specific keys from ConfigMap\nenv:\n- name: DATABASE_URL\n  valueFrom:\n    configMapKeyRef:\n      name: app-config\n      key: database_url\n\n# Mount ConfigMap as volume\nvolumes:\n- name: config\n  configMap:\n    name: app-config\nvolumeMounts:\n- name: config\n  mountPath: /etc/config",
   "useCase": "Application configuration, environment-specific settings, feature flags",
@@ -142,6 +142,24 @@
       "question": "Program 7: Test envFrom loads all keys as environment variables",
       "code": "kubectl create configmap allenv --from-literal=DB_HOST=localhost --from-literal=DB_PORT=5432\\nkubectl run envpod --image=busybox --restart=Never --dry-run=client -o yaml > env.yaml\\n# Add envFrom with configMapRef\\nkubectl apply -f env.yaml\\nkubectl exec envpod -- env | grep DB_",
       "output": "DB_HOST=localhost\\nDB_PORT=5432"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Mount ConfigMap as volume, verify files created per key",
+      "code": "kubectl create configmap file-cm --from-literal=app.conf='port=8080' --from-literal=db.conf='host=localhost'\nkubectl run cm-vol --image=busybox --restart=Never --dry-run=client -o yaml > cmvol.yaml\n# Add volume mount with configMap\nkubectl apply -f cmvol.yaml\nkubectl exec cm-vol -- ls /etc/config/\nkubectl exec cm-vol -- cat /etc/config/app.conf",
+      "output": "Two files: app.conf and db.conf. Content: port=8080"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Create ConfigMap from a file and verify content",
+      "code": "echo 'LOG_LEVEL=debug\nMAX_RETRY=3' > app.env\nkubectl create configmap from-file --from-file=app.env\nkubectl get configmap from-file -o jsonpath='{.data.app\\.env}'",
+      "output": "LOG_LEVEL=debug\nMAX_RETRY=3 (filename is key, file content is value)"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Make ConfigMap immutable, verify updates are rejected",
+      "code": "kubectl create configmap locked --from-literal=key=value\nkubectl patch configmap locked -p '{\"immutable\":true}'\nkubectl patch configmap locked -p '{\"data\":{\"key\":\"new-value\"}}'",
+      "output": "Error: field is immutable when `immutable` is set"
     }
   ],
   "category": "Configuration & Storage"

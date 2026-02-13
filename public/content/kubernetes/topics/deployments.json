@@ -3,7 +3,26 @@
   "title": "Deployments",
   "category": "Kubernetes Basics",
   "description": "Manage replica sets and provide declarative updates for pods.",
-  "explanation": "Deployments are the declarative way to manage stateless applications in Kubernetes. They provide rolling updates, rollbacks, scaling, and self-healing by managing ReplicaSets. Understanding deployment strategies (RollingUpdate, Recreate), rollout mechanics, and troubleshooting failed deployments is critical for production operations.\\n\\nInterview focus:\\n- Deployment vs ReplicaSet vs Pod relationship\\n- Rolling update strategy (maxSurge, maxUnavailable)\\n- Recreate strategy and when to use it\\n- Rollout history and revision management\\n- Rollback mechanisms and commands\\n- Update triggers (image, env, resources, etc.)\\n- Deployment status conditions (Progressing, Available, Failed)\\n- Readiness and liveness probes impact on rollouts",
+  "explanation": "Deployments are the declarative way to manage stateless applications in Kubernetes. They provide rolling updates, rollbacks, scaling, and self-healing by managing ReplicaSets. Understanding deployment strategies (RollingUpdate, Recreate), rollout mechanics, and troubleshooting failed deployments is critical for production operations.
+
+Key concepts:
+- A Deployment creates a ReplicaSet, which in turn creates Pods. Each image update creates a NEW ReplicaSet (old ones are kept for rollback history).
+- RollingUpdate strategy (default): gradually replaces old pods with new ones. maxSurge controls how many extra pods can exist during update; maxUnavailable controls how many pods can be down.
+- Recreate strategy: kills ALL old pods before creating new ones. Use when the app cannot run two versions simultaneously (e.g., database migrations).
+- Rollout commands: `kubectl rollout status` (watch progress), `kubectl rollout history` (list revisions), `kubectl rollout undo` (rollback to previous or specific revision with --to-revision=N).
+- Update triggers: changing image, env vars, resource limits, labels, or annotations triggers a new rollout. Scaling does NOT trigger a rollout.
+- Deployment conditions: Progressing (rollout in progress), Available (minimum replicas ready), ReplicaFailure (cannot create pods).
+- Readiness probes are critical: a pod without a passing readiness probe won't receive traffic and won't count as 'available', which can stall rollouts.
+
+Interview focus:
+- Deployment vs ReplicaSet vs Pod relationship
+- Rolling update strategy (maxSurge, maxUnavailable)
+- Recreate strategy and when to use it
+- Rollout history and revision management
+- Rollback mechanisms and commands
+- Update triggers (image, env, resources, etc.)
+- Deployment status conditions (Progressing, Available, Failed)
+- Readiness and liveness probes impact on rollouts",
   "code": "# deployment.yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: nginx-deployment\n  labels:\n    app: nginx\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: nginx\n  template:\n    metadata:\n      labels:\n        app: nginx\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.21\n        ports:\n        - containerPort: 80",
   "command": "# Create deployment\nkubectl apply -f deployment.yaml\n\n# List deployments\nkubectl get deployments\n\n# Scale deployment\nkubectl scale deployment nginx-deployment --replicas=5\n\n# Update image\nkubectl set image deployment/nginx-deployment nginx=nginx:1.22\n\n# Rollout status\nkubectl rollout status deployment/nginx-deployment\n\n# Rollout history\nkubectl rollout history deployment/nginx-deployment\n\n# Rollback deployment\nkubectl rollout undo deployment/nginx-deployment\n\n# Delete deployment\nkubectl delete deployment nginx-deployment",
   "example": "# Deployment with rolling update strategy\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: myapp\nspec:\n  replicas: 3\n  strategy:\n    type: RollingUpdate\n    rollingUpdate:\n      maxSurge: 1\n      maxUnavailable: 1\n  selector:\n    matchLabels:\n      app: myapp\n  template:\n    metadata:\n      labels:\n        app: myapp\n    spec:\n      containers:\n      - name: myapp\n        image: myapp:v2\n        readinessProbe:\n          httpGet:\n            path: /health\n            port: 8080\n          initialDelaySeconds: 5\n          periodSeconds: 10",
@@ -144,6 +163,24 @@
       "question": "Program 7: Delete deployment keeping pods, verify orphaned pods",
       "code": "kubectl create deployment orphan --image=nginx --replicas=3\nkubectl delete deployment orphan --cascade=orphan\nkubectl get pods -l app=orphan\nkubectl get deployment orphan",
       "output": "Deployment deleted, pods still running (no owner reference)"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Recreate strategy — observe all pods terminate before new ones start",
+      "code": "kubectl create deployment recreate-test --image=nginx:1.21 --replicas=3\nkubectl patch deployment recreate-test -p '{\"spec\":{\"strategy\":{\"type\":\"Recreate\"}}}'\nkubectl set image deployment/recreate-test nginx=nginx:1.22\nkubectl get pods -l app=recreate-test -w",
+      "output": "All 3 old pods terminate first, then 3 new pods created (brief downtime)"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Scale deployment to zero (maintenance mode), then restore",
+      "code": "kubectl create deployment maint --image=nginx --replicas=3\nkubectl scale deployment maint --replicas=0\nkubectl get pods -l app=maint\nkubectl scale deployment maint --replicas=3\nkubectl rollout status deployment/maint",
+      "output": "Pods terminated during maintenance, restored by scaling back up"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Check which ReplicaSets a deployment manages",
+      "code": "kubectl create deployment rs-demo --image=nginx:1.21\nkubectl set image deployment/rs-demo nginx=nginx:1.22\nkubectl get rs -l app=rs-demo -o custom-columns=NAME:.metadata.name,DESIRED:.spec.replicas,READY:.status.readyReplicas,IMAGE:.spec.template.spec.containers[0].image",
+      "output": "Two ReplicaSets: old (0 desired) and new (1 desired), different images"
     }
   ]
 }

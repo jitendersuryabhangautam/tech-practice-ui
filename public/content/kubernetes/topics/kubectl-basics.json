@@ -2,7 +2,7 @@
   "id": "kubectl-basics",
   "title": "Essential kubectl Commands",
   "description": "Core commands for managing Kubernetes clusters and resources.",
-  "command": "# Cluster info\nkubectl cluster-info\nkubectl version\nkubectl get nodes\n\n# Get resources\nkubectl get all\nkubectl get pods --all-namespaces\nkubectl get deployments -o wide\nkubectl get services -o yaml\n\n# Create/apply resources\nkubectl apply -f manifest.yaml\nkubectl apply -f ./manifests/\nkubectl create deployment nginx --image=nginx\n\n# Delete resources\nkubectl delete -f manifest.yaml\nkubectl delete pod my-pod\nkubectl delete deployment my-deploy\n\n# Describe resources\nkubectl describe pod my-pod\nkubectl describe node worker-1\n\n# Edit resources\nkubectl edit deployment my-deploy",
+  "explanation": "kubectl is the primary CLI tool for interacting with Kubernetes clusters. It communicates with the API server using the kubeconfig file (~/.kube/config) which contains cluster endpoints, authentication credentials, and context information.\n\nKubeconfig: Defines clusters (API server URLs), users (credentials), and contexts (cluster + user + namespace combos). Switch contexts with `kubectl config use-context`. View current context: `kubectl config current-context`. Multiple kubeconfigs can be merged via KUBECONFIG env var.\n\nCore verbs: `get` (list resources), `describe` (detailed info + events), `create` (imperative creation), `apply` (declarative — preferred), `delete` (remove resources), `edit` (modify in-place), `exec` (run commands in containers), `logs` (view container output).\n\nImperative vs Declarative: Imperative (`kubectl create deployment nginx --image=nginx`) is quick for ad-hoc tasks. Declarative (`kubectl apply -f deployment.yaml`) is reproducible and should be used in production. `apply` tracks changes, supports diffs, and enables GitOps workflows.\n\nOutput formats: `-o wide` (extra columns like node, IP), `-o yaml` (full resource definition), `-o json` (for scripting), `-o jsonpath` (extract specific fields), `-o custom-columns` (tabular custom output), `-o name` (just resource names for piping).\n\nDebugging toolkit: `kubectl describe` shows events (scheduling, pulling, starting, failing). `kubectl logs` shows container stdout/stderr. `kubectl exec -it pod -- sh` opens a shell. `kubectl debug` creates an ephemeral debug container (1.25+). `kubectl port-forward` tunnels traffic for local testing.\n\nDry run & diff: `kubectl apply --dry-run=client -o yaml` previews changes without applying. `kubectl diff -f manifest.yaml` shows what would change. Essential for safe deployments.", "# Cluster info\nkubectl cluster-info\nkubectl version\nkubectl get nodes\n\n# Get resources\nkubectl get all\nkubectl get pods --all-namespaces\nkubectl get deployments -o wide\nkubectl get services -o yaml\n\n# Create/apply resources\nkubectl apply -f manifest.yaml\nkubectl apply -f ./manifests/\nkubectl create deployment nginx --image=nginx\n\n# Delete resources\nkubectl delete -f manifest.yaml\nkubectl delete pod my-pod\nkubectl delete deployment my-deploy\n\n# Describe resources\nkubectl describe pod my-pod\nkubectl describe node worker-1\n\n# Edit resources\nkubectl edit deployment my-deploy",
   "example": "# Watch resources in real-time\nkubectl get pods -w\nkubectl get events -w\n\n# Get resource usage\nkubectl top nodes\nkubectl top pods\n\n# Copy files to/from pod\nkubectl cp ./local-file pod-name:/remote-path\nkubectl cp pod-name:/remote-file ./local-file\n\n# Run temporary pod\nkubectl run test-pod --image=busybox --rm -it -- sh\n\n# Debug pod\nkubectl debug my-pod -it --image=busybox\n\n# Diff before apply\nkubectl diff -f manifest.yaml\n\n# Label resources\nkubectl label pods my-pod environment=production",
   "useCase": "Daily operations, troubleshooting, resource management, deployments",
   "interviewQuestions": [
@@ -141,6 +141,24 @@
       "question": "Program 7: Watch events in real-time",
       "code": "kubectl get events -w --sort-by=.metadata.creationTimestamp &\\nkubectl run eventtest --image=nginx\\n# Watch shows pod scheduling, pulling, starting events in real-time",
       "output": "Events stream: Scheduled → Pulling → Pulled → Created → Started"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Generate deployment YAML without creating it (dry-run)",
+      "code": "kubectl create deployment nginx --image=nginx:1.22 --replicas=3 --dry-run=client -o yaml > deploy.yaml\nhead -20 deploy.yaml",
+      "output": "YAML manifest generated with deployment spec, saved to file without creating resource"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Port-forward to access a pod service locally",
+      "code": "kubectl create deployment web --image=nginx\nkubectl expose deployment web --port=80\nkubectl port-forward svc/web 8080:80 &\ncurl http://localhost:8080",
+      "output": "Nginx welcome page — accessed cluster service via local port 8080"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Diff manifest before applying to see changes",
+      "code": "kubectl create deployment diff-test --image=nginx:1.21\nkubectl set image deployment/diff-test nginx=nginx:1.22\nkubectl get deployment diff-test -o yaml > current.yaml\n# Edit current.yaml to change replicas to 5\nkubectl diff -f current.yaml",
+      "output": "Shows diff: replicas changed from 1 to 5 (green/red diff output)"
     }
   ],
   "category": "kubectl Commands"

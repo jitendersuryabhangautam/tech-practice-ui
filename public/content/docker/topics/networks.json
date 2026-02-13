@@ -3,7 +3,7 @@
   "title": "Docker Networks",
   "category": "Docker Networking & Volumes",
   "description": "Container networking for communication between containers.",
-  "explanation": "Docker networking enables containers to communicate with each other and external systems. Understanding network drivers (bridge, host, overlay, macvlan), DNS resolution, and port mapping is crucial for building distributed applications.\n\nInterview focus:\n- Network drivers and when to use each\n- Container-to-container communication\n- Port mapping and exposure\n- DNS and service discovery\n- Network isolation and security\n- Overlay networks for Swarm",
+  "explanation": "Docker networking enables containers to communicate with each other and external systems. Docker creates isolated network namespaces for each container and provides pluggable network drivers for different use cases.\n\nNetwork drivers:\n- bridge (default): Creates a virtual bridge on the host. Containers on the same bridge talk via IP. User-defined bridges also provide DNS resolution by container name. Best for single-host multi-container apps.\n- host: Removes network isolation — container shares the host's network stack directly. No port mapping needed (or possible). Best for performance-critical apps or when you need to bind to many ports.\n- overlay: Multi-host networking for Docker Swarm or container orchestration. Uses VXLAN to encapsulate traffic between hosts. Enables cross-node container communication.\n- macvlan: Assigns a MAC address to each container, making it appear as a physical device on the network. Containers get IPs from the physical network's DHCP. Best for legacy apps that expect to be directly on the LAN.\n- none: Disables all networking. Container is completely isolated. Use for security-sensitive batch jobs.\n\nDNS resolution: User-defined bridge networks (not the default bridge) provide automatic DNS. Container name = hostname. This is why you should always create custom networks instead of using the default bridge.\n\nPort mapping: `-p 8080:80` maps host port 8080 to container port 80. `-p 80` maps container port 80 to a random host port. `-P` publishes all EXPOSE'd ports to random host ports. Use `docker port <container>` to see mappings.\n\nNetwork isolation: Containers on different networks cannot communicate. Connect a container to multiple networks with `docker network connect`. This pattern is used to create DMZ-like architectures (frontend talks to backend, backend talks to database, frontend cannot reach database).\n\nCommon gotcha: The default bridge network does NOT support DNS. Containers must use IP addresses. Always create a user-defined bridge: `docker network create mynet`.",
   "command": "# List networks\ndocker network ls\n\n# Create network\ndocker network create my-network\n\n# Create bridge network\ndocker network create --driver bridge my-bridge\n\n# Inspect network\ndocker network inspect my-network\n\n# Connect container to network\ndocker network connect my-network container-name\n\n# Disconnect container from network\ndocker network disconnect my-network container-name\n\n# Run container on specific network\ndocker run -d --network my-network --name web nginx\n\n# Remove network\ndocker network rm my-network",
   "example": "# Create custom bridge network\ndocker network create --subnet=172.18.0.0/16 my-custom-network\n\n# Run containers on same network\ndocker run -d --network my-network --name db postgres\ndocker run -d --network my-network --name web -p 80:80 nginx\n\n# Containers can communicate using names\n# From 'web' container: curl http://db:5432\n\n# Host network (share host's network)\ndocker run -d --network host nginx",
   "useCase": "Microservices communication, container isolation, service discovery",
@@ -143,6 +143,24 @@
       "question": "Program 7: Create network with custom subnet and run container in it",
       "code": "docker network create --subnet=192.168.100.0/24 custom-subnet\ndocker run -d --network custom-subnet --ip 192.168.100.10 --name static-ip nginx\ndocker inspect static-ip --format='{{.NetworkSettings.Networks.custom-subnet.IPAddress}}'",
       "output": "Container assigned static IP 192.168.100.10"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Test DNS resolution between containers on user-defined network",
+      "code": "docker network create dns-test\ndocker run -d --network dns-test --name webserver nginx\ndocker run --rm --network dns-test alpine nslookup webserver",
+      "output": "Name: webserver, Address: 172.x.x.x — DNS resolves container name to IP"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Use host network mode and compare with bridge",
+      "code": "docker run -d --network host --name host-nginx nginx\nss -tlnp | grep :80\ndocker run -d -p 8080:80 --name bridge-nginx nginx\ndocker port bridge-nginx",
+      "output": "Host mode: nginx binds directly to host port 80. Bridge mode: mapped 8080->80"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Inspect default bridge vs user-defined bridge network differences",
+      "code": "docker network inspect bridge --format='{{.IPAM.Config}}'\ndocker network create my-bridge\ndocker network inspect my-bridge --format='Driver={{.Driver}} EnableIPv6={{.EnableIPv6}}'\ndocker network inspect my-bridge --format='{{json .Options}}'",
+      "output": "Both use bridge driver, but user-defined enables DNS, ICC, and isolation by default"
     }
   ]
 }

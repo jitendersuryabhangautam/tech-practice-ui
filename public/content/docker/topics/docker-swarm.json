@@ -1,9 +1,9 @@
 {
-  "id": "docker-swarm",
+  "id": "docker-commands",
   "title": "Docker Commands Reference",
-  "category": "Docker Compose",
+  "category": "Docker Basics",
   "description": "Essential Docker commands for container management and troubleshooting.",
-  "explanation": "Mastering Docker CLI commands is essential for effective container management, debugging, and optimization. This includes container lifecycle, resource management, monitoring, and system maintenance commands that are frequently asked in interviews.\n\nInterview focus:\n- Container lifecycle commands\n- Resource monitoring and limits\n- System maintenance and cleanup\n- Debugging and troubleshooting\n- Image management and optimization\n- Performance tuning",
+  "explanation": "Mastering Docker CLI commands is essential for effective container management, debugging, and optimization. Beyond the basic run/stop/rm cycle, Docker provides powerful commands for resource monitoring, system maintenance, file operations, and container inspection.\n\nContainer inspection: `docker inspect` returns detailed JSON about any Docker object (container, image, network, volume). Use `--format` with Go templates or pipe to `jq` for specific fields: `docker inspect --format='{{.State.Status}}' mycontainer`.\n\nResource monitoring: `docker stats` shows live CPU/memory/network/IO usage for all running containers. `docker top <container>` lists processes. `docker events` streams real-time events (start, stop, die, destroy, health_status) — great for debugging orchestration issues.\n\nFile operations: `docker cp` copies files between host and container without requiring a volume mount. `docker diff` shows filesystem changes (Added, Changed, Deleted) in a container's writable layer vs its image.\n\nContainer lifecycle: `docker update` changes resource limits (memory, CPU, restart policy) on a running container without recreating it. `docker rename` changes container name. `docker wait` blocks until a container stops and returns exit code.\n\nImage forensics: `docker history <image>` shows each layer with its command, size, and creation time. Useful for understanding large images and debugging cache misses. `docker commit` creates an image from a running container — useful for debugging but NOT for production (prefer Dockerfile).\n\nSystem cleanup: `docker system prune` removes stopped containers, dangling images, unused networks. Add `-a` to also remove all unused images. Add `--volumes` for volumes. `docker system df` shows disk usage breakdown by images, containers, volumes, and build cache.\n\nOutput formatting: `docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'` customizes output. Use `--no-trunc` for full IDs. Combine with `--filter` for powerful queries: `docker ps --filter status=exited --filter ancestor=nginx`.",
   "command": "# Container management\ndocker run -it --rm alpine sh  # Interactive, remove after exit\ndocker attach container-name   # Attach to running container\ndocker cp file.txt container:/path  # Copy files\ndocker export container > backup.tar  # Export container\n\n# System commands\ndocker system df  # Show disk usage\ndocker system prune  # Remove unused data\ndocker system prune -a  # Remove all unused images\n\n# Image management\ndocker history image-name  # Show image layers\ndocker commit container new-image  # Create image from container\n\n# Container stats and monitoring\ndocker stats  # Live resource usage\ndocker top container-name  # Running processes\ndocker port container-name  # Port mappings\ndocker diff container-name # File system changes",
   "example": "# Clean up everything\ndocker system prune -a --volumes\n\n# Run with resource limits\ndocker run -d \\\n  --memory=\"512m\" \\\n  --cpus=\"1.5\" \\\n  --name limited-container \\\n  nginx\n\n# Health check in Dockerfile\nHEALTHCHECK --interval=30s --timeout=3s \\\n  CMD curl -f http://localhost/ || exit 1\n\n# Update container restart policy\ndocker update --restart unless-stopped container-name\n\n# View real-time events\ndocker events\n\n# Format output\ndocker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"",
   "useCase": "Troubleshooting, monitoring, resource management, maintenance",
@@ -143,6 +143,24 @@
       "question": "Program 7: Update container restart policy without stopping it",
       "code": "docker run -d --name persistent nginx\ndocker update --restart=always persistent\ndocker inspect persistent --format='{{.HostConfig.RestartPolicy.Name}}'",
       "output": "always - restart policy updated on running container"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Monitor real-time Docker events while running operations",
+      "code": "# Terminal 1: docker events --filter type=container --format '{{.Action}} {{.Actor.Attributes.name}}'\n# Terminal 2:\ndocker run -d --name event-test nginx\ndocker stop event-test\ndocker rm event-test",
+      "output": "Events stream: create event-test, start event-test, kill event-test, stop event-test, destroy event-test"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Filter containers by status and ancestor image",
+      "code": "docker ps -a --filter status=exited --filter ancestor=nginx --format 'table {{.Names}}\t{{.Status}}\t{{.CreatedAt}}'\ndocker ps --filter status=running --format '{{.Names}}' | wc -l",
+      "output": "Filtered list of exited nginx containers; count of running containers"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Export container filesystem and inspect contents",
+      "code": "docker run -d --name export-test nginx\ndocker export export-test > container.tar\ntar tf container.tar | head -20\ndu -sh container.tar",
+      "output": "Container filesystem exported as tar, listing shows /etc, /usr, /var directories"
     }
   ]
 }

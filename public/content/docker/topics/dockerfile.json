@@ -3,7 +3,7 @@
   "title": "Dockerfile",
   "category": "Docker Basics",
   "description": "Create custom Docker images using Dockerfile instructions.",
-  "explanation": "A Dockerfile is a text document containing commands to assemble an image. Each instruction creates a layer in the image. Understanding layer caching, multi-stage builds, and instruction order is critical for creating efficient images.\n\nInterview focus:\n- Dockerfile instructions (FROM, RUN, COPY, ADD, ENV, etc.)\n- Layer caching and build optimization\n- Multi-stage builds for smaller images\n- ENTRYPOINT vs CMD\n- Best practices for security and size\n- .dockerignore usage",
+  "explanation": "A Dockerfile is a text document containing sequential instructions to assemble an image. Each instruction creates a new read-only layer. Understanding instruction behavior, layer optimization, and multi-stage builds is critical for creating efficient, secure images.\n\nKey instructions:\n- FROM: Sets base image. Every Dockerfile starts with FROM. Use specific tags (node:18-alpine), never just 'latest' in production.\n- RUN: Executes commands during build (installs packages, compiles code). Each RUN creates a layer — combine related commands with && to reduce layers.\n- COPY vs ADD: COPY is preferred — it only copies files. ADD can also extract tar archives and fetch URLs, but this implicit behavior is error-prone. Use curl/wget in RUN for downloads.\n- WORKDIR: Sets the working directory for subsequent instructions. Creates the directory if it doesn't exist. Use instead of `RUN mkdir && cd`.\n- ENV vs ARG: ENV persists in the running container (runtime config). ARG is only available during build (build-time config like version numbers). ARG values are visible in image history — never use for secrets.\n- EXPOSE: Documents which port the container listens on. Does NOT actually publish the port — you still need `-p` at runtime. It's metadata for operators.\n- ENTRYPOINT vs CMD: ENTRYPOINT sets the executable (hard to override). CMD provides default arguments (easily overridden). Together: ENTRYPOINT [\"python\"] CMD [\"app.py\"] — default runs `python app.py`, but `docker run image script.py` runs `python script.py`.\n\nMulti-stage builds: Use multiple FROM instructions. Build in one stage (with build tools), copy only artifacts to a minimal final stage. Reduces image size dramatically (e.g., 1.2GB → 50MB for Go apps).\n\nLayer caching strategy: Order instructions from least-changing to most-changing. Copy dependency files first (package.json, requirements.txt), install dependencies, then copy source code. This way dependency installation is cached until lock files change.",
   "code": "# Dockerfile example\nFROM node:18-alpine\n\n# Set working directory\nWORKDIR /app\n\n# Copy package files\nCOPY package*.json ./\n\n# Install dependencies\nRUN npm install --production\n\n# Copy application code\nCOPY . .\n\n# Expose port\nEXPOSE 3000\n\n# Set environment variable\nENV NODE_ENV=production\n\n# Define the command to run the app\nCMD [\"node\", \"server.js\"]",
   "example": "# Multi-stage build\nFROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm install --production\nCMD [\"node\", \"dist/server.js\"]\n\n# Python Dockerfile\nFROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install -r requirements.txt\nCOPY . .\nCMD [\"python\", \"app.py\"]",
   "useCase": "Creating custom images, reproducible builds, CI/CD pipelines",
@@ -53,7 +53,7 @@
     {
       "type": "write",
       "question": "Write a Dockerfile for Node.js app with proper layer caching for npm install.",
-      "answer": "FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD ['node', 'server.js']"
+      "answer": "FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD [\"node\", \"server.js\"]"
     },
     {
       "type": "optimize",
@@ -78,7 +78,7 @@
     {
       "type": "write",
       "question": "Create multi-stage Dockerfile for Go app: build in one stage, run in alpine.",
-      "answer": "FROM golang:1.21 AS builder\nWORKDIR /app\nCOPY . .\nRUN go build -o main .\n\nFROM alpine\nCOPY --from=builder /app/main .\nCMD ['./main']"
+      "answer": "FROM golang:1.21 AS builder\nWORKDIR /app\nCOPY . .\nRUN go build -o main .\n\nFROM alpine\nCOPY --from=builder /app/main .\nCMD [\"./main\"]"
     },
     {
       "type": "explain",
@@ -105,25 +105,25 @@
     {
       "type": "program",
       "question": "Program 1: Create Dockerfile for Python app with requirements.txt",
-      "code": "FROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nEXPOSE 5000\nCMD ['python', 'app.py']",
+      "code": "FROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nEXPOSE 5000\nCMD [\"python\", \"app.py\"]",
       "output": "Successfully builds Python Flask/Django app image"
     },
     {
       "type": "program",
       "question": "Program 2: Multi-stage build for React app (build then serve with nginx)",
-      "code": "FROM node:18 AS build\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nRUN npm run build\n\nFROM nginx:alpine\nCOPY --from=build /app/build /usr/share/nginx/html\nEXPOSE 80\nCMD ['nginx', '-g', 'daemon off;']",
+      "code": "FROM node:18 AS build\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nRUN npm run build\n\nFROM nginx:alpine\nCOPY --from=build /app/build /usr/share/nginx/html\nEXPOSE 80\nCMD [\"nginx\", \"-g\", \"daemon off;\"]",
       "output": "Production-ready React app served by nginx, small image size"
     },
     {
       "type": "program",
       "question": "Program 3: Dockerfile with non-root user for security",
-      "code": "FROM node:18-alpine\nRUN addgroup -g 1001 appgroup && adduser -D -u 1001 -G appgroup appuser\nWORKDIR /app\nCOPY --chown=appuser:appgroup . .\nUSER appuser\nEXPOSE 3000\nCMD ['node', 'app.js']",
+      "code": "FROM node:18-alpine\nRUN addgroup -g 1001 appgroup && adduser -D -u 1001 -G appgroup appuser\nWORKDIR /app\nCOPY --chown=appuser:appgroup . .\nUSER appuser\nEXPOSE 3000\nCMD [\"node\", \"app.js\"]",
       "output": "Container runs as non-root user appuser"
     },
     {
       "type": "program",
       "question": "Program 4: Dockerfile with ARG for configurable Node version",
-      "code": "ARG NODE_VERSION=18\nFROM node:${NODE_VERSION}-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nCMD ['npm', 'start']\n\n# Build: docker build --build-arg NODE_VERSION=20 -t myapp .",
+      "code": "ARG NODE_VERSION=18\nFROM node:${NODE_VERSION}-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nCMD [\"npm\", \"start\"]\n\n# Build: docker build --build-arg NODE_VERSION=20 -t myapp .",
       "output": "Builds with specified Node version from build arg"
     },
     {
@@ -143,6 +143,24 @@
       "question": "Program 7: ENTRYPOINT and CMD together for flexible container",
       "code": "FROM python:3.11-slim\nWORKDIR /app\nCOPY . .\nENTRYPOINT [\"python\"]\nCMD [\"app.py\"]\n\n# Run: docker run image\n# Or: docker run image script.py",
       "output": "Default runs app.py, can override with different script"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: HEALTHCHECK instruction to monitor container health",
+      "code": "FROM nginx:alpine\nHEALTHCHECK --interval=10s --timeout=3s --retries=3 \\\n  CMD curl -f http://localhost/ || exit 1\nEXPOSE 80\n\n# Build & run, check health status:\n# docker inspect --format='{{.State.Health.Status}}' my-nginx",
+      "output": "Container shows health: healthy after passing check 3 consecutive times"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Use COPY --from to copy from external image (no build stage)",
+      "code": "FROM alpine\nCOPY --from=nginx:alpine /etc/nginx/nginx.conf /tmp/nginx.conf\nRUN cat /tmp/nginx.conf | head -5",
+      "output": "nginx.conf copied directly from nginx image into alpine container"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Multi-stage build for Go app — build 1.2GB to final 12MB",
+      "code": "FROM golang:1.21 AS builder\nWORKDIR /app\nCOPY go.mod go.sum ./\nRUN go mod download\nCOPY . .\nRUN CGO_ENABLED=0 GOOS=linux go build -o server .\n\nFROM scratch\nCOPY --from=builder /app/server /server\nENTRYPOINT [\"/server\"]",
+      "output": "Final image ~12MB (scratch base + single binary), vs ~1.2GB builder stage"
     }
   ]
 }

@@ -2,7 +2,7 @@
   "id": "kubectl-advanced",
   "title": "Advanced kubectl Commands",
   "description": "Powerful kubectl commands for complex operations and debugging.",
-  "command": "# JSONPath queries\nkubectl get pods -o jsonpath='{.items[*].metadata.name' }\n\n# Custom columns\nkubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase\n\n# Filter with field selectors\nkubectl get pods --field-selector=status.phase=Running\n\n# Filter with label selectors\nkubectl get pods -l app=nginx,version=v1\nkubectl get pods -l 'environment in (dev,staging)'\n\n# Patch resources\nkubectl patch deployment my-deploy -p '{\"spec\":{\"replicas\":5}}'\n\n# Wait for condition\nkubectl wait --for=condition=ready pod/my-pod --timeout=60s\n\n# Drain node (for maintenance)\nkubectl drain node-1 --ignore-daemonsets\n\n# Cordon node (prevent scheduling)\nkubectl cordon node-1\nkubectl uncordon node-1",
+  "explanation": "Advanced kubectl usage goes beyond basic CRUD to include JSONPath queries, resource patching, node management, and automation patterns. Mastering these commands is essential for production operations and is heavily tested in CKA/CKAD exams.\n\nJSONPath: A query language for extracting data from JSON. Syntax: `kubectl get pods -o jsonpath='{.items[*].metadata.name}'`. Supports filtering: `{.items[?(@.status.phase==\"Running\")].metadata.name}`. Range for iteration: `{range .items[*]}{.metadata.name}{\"\\t\"}{.status.phase}{\"\\n\"}{end}`.\n\nCustom columns: `kubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase` creates readable tables from any fields. Useful for reports and monitoring scripts.\n\nPatching: Three types — Strategic merge (default, intelligent array handling), JSON merge (replaces arrays entirely), JSON patch (RFC 6902, precise add/remove/replace operations). Use strategic for most Kubernetes resources.\n\nNode management: `kubectl cordon node` prevents new pod scheduling. `kubectl drain node` safely evicts all pods (respects PodDisruptionBudgets). `kubectl uncordon node` re-enables scheduling. Essential for node maintenance, upgrades, and decommissioning.\n\nWait conditions: `kubectl wait --for=condition=ready pod/name --timeout=60s` blocks until condition is met. Works with any condition: Available, Complete, Ready. Critical for CI/CD pipelines and scripts.\n\nResource exploration: `kubectl api-resources` lists all available resource types (helpful when you forget a resource name). `kubectl explain pod.spec.containers` shows field documentation inline — no need to check docs. Add `--recursive` for full field tree.\n\nDebugging: `kubectl logs -l app=nginx -f --tail=100` follows logs from all pods matching a label. `kubectl logs pod --previous` shows logs from the crashed container (essential for CrashLoopBackOff debugging). `kubectl top pods --sort-by=memory` identifies resource-heavy pods.", "# JSONPath queries\nkubectl get pods -o jsonpath='{.items[*].metadata.name}'\n\n# Custom columns\nkubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase\n\n# Filter with field selectors\nkubectl get pods --field-selector=status.phase=Running\n\n# Filter with label selectors\nkubectl get pods -l app=nginx,version=v1\nkubectl get pods -l 'environment in (dev,staging)'\n\n# Patch resources\nkubectl patch deployment my-deploy -p '{\"spec\":{\"replicas\":5}}'\n\n# Wait for condition\nkubectl wait --for=condition=ready pod/my-pod --timeout=60s\n\n# Drain node (for maintenance)\nkubectl drain node-1 --ignore-daemonsets\n\n# Cordon node (prevent scheduling)\nkubectl cordon node-1\nkubectl uncordon node-1",
   "example": "# Get logs from all containers in pod\nkubectl logs my-pod --all-containers=true\n\n# Logs from previous crashed container\nkubectl logs my-pod --previous\n\n# Logs with timestamps\nkubectl logs my-pod --timestamps\n\n# Follow logs from multiple pods\nkubectl logs -l app=nginx -f\n\n# Resource usage filtering\nkubectl top pods --sort-by=memory\nkubectl top pods -l app=nginx\n\n# Export resources\nkubectl get deployment my-deploy -o yaml > deploy.yaml\n\n# API resources\nkubectl api-resources\nkubectl explain pod.spec.containers",
   "useCase": "Advanced troubleshooting, automation, complex queries, node maintenance",
   "interviewQuestions": [
@@ -141,6 +141,24 @@
       "question": "Program 7: Debug crashed pod by creating ephemeral container",
       "code": "kubectl run crashpod --image=nginx --restart=Never\\nkubectl exec crashpod -- rm /usr/share/nginx/html/index.html\\n# Pod crashes\\nkubectl debug crashpod -it --image=busybox --target=crashpod -- sh\\n# Inside debug container: ls /proc/1/root/usr/share/nginx/html",
       "output": "Can inspect filesystem of crashed container via shared process namespace"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Use JSONPath range to list pods with name, IP, and node",
+      "code": "kubectl get pods -o jsonpath='{range .items[*]}{.metadata.name}{\"\\t\"}{.status.podIP}{\"\\t\"}{.spec.nodeName}{\"\\n\"}{end}'",
+      "output": "pod-1\t10.x.x.1\tnode-1\npod-2\t10.x.x.2\tnode-2 (tab-separated pod details)"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Patch deployment using JSON patch to add annotation",
+      "code": "kubectl create deployment patch-test --image=nginx\nkubectl patch deployment patch-test --type=json -p='[{\"op\":\"add\",\"path\":\"/metadata/annotations/release\",\"value\":\"canary\"}]'\nkubectl get deployment patch-test -o jsonpath='{.metadata.annotations.release}'",
+      "output": "canary — annotation added via precise JSON patch operation"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Drain node safely for maintenance",
+      "code": "kubectl cordon worker-1\nkubectl drain worker-1 --ignore-daemonsets --delete-emptydir-data\nkubectl get nodes\n# After maintenance:\nkubectl uncordon worker-1",
+      "output": "worker-1 marked SchedulingDisabled, pods evicted. After uncordon: Ready status restored"
     }
   ],
   "category": "kubectl Commands"

@@ -1,0 +1,166 @@
+{
+  "id": "docker-best-practices",
+  "title": "Docker Production Best Practices",
+  "category": "Docker Security",
+  "description": "Production-ready Docker patterns, optimization, and operational best practices.",
+  "explanation": "Running Docker in production requires careful attention to image optimization, container orchestration, logging, monitoring, and graceful shutdown patterns. Small mistakes in Dockerfile design can lead to large images, slow deployments, and security vulnerabilities.\n\nImage optimization:\n- Order Dockerfile instructions from least-changing to most-changing. Dependencies (package.json) before source code. This maximizes layer cache hits.\n- Use multi-stage builds to separate build tools from runtime. Go apps: 1.2GB builder → 12MB scratch final. Node apps: remove devDependencies in final stage.\n- Combine RUN commands with && to reduce layers. Clean up in the SAME layer: `RUN apt-get update && apt-get install -y pkg && rm -rf /var/lib/apt/lists/*`.\n- Use .dockerignore to exclude .git, node_modules, tests, docs from build context.\n\nGraceful shutdown (PID 1 problem):\n- Docker sends SIGTERM to PID 1 on `docker stop`. If PID 1 doesn't handle SIGTERM, Docker waits 10 seconds then sends SIGKILL (data loss risk).\n- Shell form CMD (`CMD npm start`) runs under /bin/sh which does NOT forward signals. Use exec form: `CMD [\"node\", \"server.js\"]`.\n- Use --init flag or tini for proper signal handling. In Node.js, handle SIGTERM: `process.on('SIGTERM', () => server.close())`.\n\nLogging:\n- Write logs to stdout/stderr, not files. Docker captures stdout/stderr via logging drivers.\n- Use structured logging (JSON format) for easy parsing by ELK/Loki/CloudWatch.\n- Configure log rotation: `--log-opt max-size=10m --log-opt max-file=3` to prevent disk exhaustion.\n\nHealth checks:\n- Always define HEALTHCHECK in production images. Docker marks unhealthy containers and orchestrators can restart them.\n- HEALTHCHECK should test actual application health, not just process existence. Use HTTP endpoint, database connection, or queue connectivity.\n\nOne process per container:\n- Each container should run one process (or one concern). Separate web server, background worker, and database into different containers.\n- Use docker-compose or orchestrators to manage multi-container applications.\n- Exception: sidecar patterns (log shipper alongside app) are acceptable.",
+  "command": "# Check image size breakdown\ndocker images --format '{{.Repository}}:{{.Tag}} {{.Size}}'\ndocker system df -v\n\n# View layer sizes\ndocker history myapp --format 'table {{.Size}}\\t{{.CreatedBy}}' --no-trunc\n\n# Run with logging limits\ndocker run -d --log-opt max-size=10m --log-opt max-file=3 nginx\n\n# Run with init for signal handling\ndocker run -d --init myapp\n\n# Inspect health status\ndocker inspect --format='{{json .State.Health}}' myapp\n\n# Prune everything safely\ndocker system prune -a --volumes --filter 'until=24h'",
+  "example": "# Production-ready Dockerfile for Node.js\nFROM node:18-alpine AS deps\nWORKDIR /app\nCOPY package.json package-lock.json ./\nRUN npm ci --only=production\n\nFROM node:18-alpine\nRUN addgroup -g 1001 app && adduser -D -u 1001 -G app app\nWORKDIR /app\nCOPY --from=deps --chown=app:app /app/node_modules ./node_modules\nCOPY --chown=app:app . .\nUSER app\nENV NODE_ENV=production\nEXPOSE 3000\nHEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \\\n  CMD wget -qO- http://localhost:3000/health || exit 1\nCMD [\"node\", \"server.js\"]\n\n# .dockerignore\nnode_modules\n.git\n*.md\ntests\ncoverage\n.env\nDockerfile*\ndocker-compose*",
+  "useCase": "Production deployments, CI/CD pipelines, performance optimization, operational excellence",
+  "interviewQuestions": [
+    {
+      "question": "What is the PID 1 problem in Docker and how to solve it?",
+      "answer": "Container's PID 1 doesn't get default signal handlers. Shell form CMD runs under /bin/sh which doesn't forward SIGTERM to child process. Solutions: (1) Use exec form CMD [\"node\", \"app.js\"], (2) Use --init flag (tini), (3) Handle SIGTERM in application code. Without this, docker stop kills process after 10s timeout."
+    },
+    {
+      "question": "How do you optimize Docker image size?",
+      "answer": "Use minimal base (alpine/slim/distroless), multi-stage builds, combine RUN commands, clean package manager cache in same layer, use .dockerignore, remove dev dependencies, use --no-cache-dir for pip. Example: Node app 900MB → 150MB with alpine + multi-stage."
+    },
+    {
+      "question": "Explain Docker layer caching and how to optimize it.",
+      "answer": "Each Dockerfile instruction creates a cached layer. Cache invalidated when instruction or input changes, and ALL subsequent layers rebuild. Optimization: put rarely-changing instructions first (FROM, RUN apt-get), copy dependency files before source code, use --mount=type=cache for package managers."
+    },
+    {
+      "question": "Shell form vs exec form for CMD/ENTRYPOINT — when to use each?",
+      "answer": "Exec form: CMD [\"node\", \"app.js\"] — runs directly, receives signals, preferred for production. Shell form: CMD node app.js — runs under /bin/sh, allows variable expansion, doesn't receive signals properly. Always use exec form in production."
+    },
+    {
+      "question": "How should containers handle logging?",
+      "answer": "Write to stdout/stderr (not files). Docker captures these via logging drivers (json-file, syslog, fluentd, awslogs). Use structured JSON logging for easy parsing. Set log rotation: --log-opt max-size=10m --log-opt max-file=3. In production, ship to centralized logging (ELK, Loki)."
+    },
+    {
+      "question": "What is the 'one process per container' principle?",
+      "answer": "Each container should run one process/concern. Easier to scale independently, simpler health checks, better resource allocation, cleaner logs. Exceptions: sidecar patterns. Anti-pattern: running nginx + app + cron in one container. Use compose/orchestrator for multi-service apps."
+    },
+    {
+      "question": "How do you implement zero-downtime deployments with Docker?",
+      "answer": "Use orchestrator (Swarm/K8s) with rolling updates. Health checks ensure new containers are ready before removing old ones. Graceful shutdown: handle SIGTERM, finish in-flight requests, close connections, then exit. Set stop_grace_period appropriately."
+    },
+    {
+      "question": "What is .dockerignore and why is it important?",
+      "answer": ".dockerignore excludes files from build context. Reduces context size (faster builds), prevents secrets (.env) from entering image, avoids node_modules conflicts. Similar to .gitignore syntax. Should always exclude: .git, node_modules, .env, tests, docs, Dockerfile."
+    },
+    {
+      "question": "How do you handle environment-specific configuration in Docker?",
+      "answer": "Use ENV for defaults, override at runtime with -e or --env-file. Use docker-compose.override.yml for env-specific settings. Never bake environment-specific config into images. Use ConfigMaps/Secrets in Kubernetes. Image should be identical across all environments."
+    },
+    {
+      "question": "Explain the difference between COPY and ADD, and when to use each.",
+      "answer": "COPY: copies local files only. Simple, predictable, preferred. ADD: copies files + can extract tar archives + can fetch URLs. ADD's implicit behavior is a risk (auto-extraction, URL fetching). Best practice: always use COPY. For tar extraction: use RUN tar. For URLs: use RUN curl."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "optimize",
+      "question": "This Dockerfile has poor cache hit rate. Fix the layer ordering:\nCOPY . .\nRUN npm install\nEXPOSE 3000\nCMD [\"node\", \"app.js\"]",
+      "answer": "COPY package.json package-lock.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD [\"node\", \"app.js\"]\n\nCopy dependency files first, install, then copy source. npm install layer cached until package.json changes."
+    },
+    {
+      "type": "debug",
+      "question": "Container takes 10 seconds to stop with docker stop. What's wrong?",
+      "answer": "PID 1 isn't handling SIGTERM. Likely using shell form CMD. Fix: use exec form CMD [\"node\", \"app.js\"] or add --init flag. Also add signal handler in app: process.on('SIGTERM', () => server.close(cb))"
+    },
+    {
+      "type": "write",
+      "question": "Write a .dockerignore file for a Node.js project.",
+      "answer": "node_modules\n.git\n.gitignore\n*.md\n.env\n.env.*\ntests\n__tests__\ncoverage\n.nyc_output\nDockerfile*\ndocker-compose*\n.dockerignore\n.vscode\n.DS_Store"
+    },
+    {
+      "type": "scenario",
+      "question": "Image is 1.2GB for a simple Go API. How to get it under 20MB?",
+      "answer": "Use multi-stage build. Stage 1: golang:1.21 for build with CGO_ENABLED=0. Stage 2: FROM scratch, COPY binary only. Final image = binary size only (~10-15MB). Add ca-certificates if HTTPS needed."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "RUN apt-get update is cached but packages are outdated. Fix it.",
+      "answer": "Combine update and install in one RUN: RUN apt-get update && apt-get install -y pkg && rm -rf /var/lib/apt/lists/*. Separate RUN means update layer is cached and never re-runs even when packages change."
+    },
+    {
+      "type": "explain",
+      "question": "Why should HEALTHCHECK test application health, not just process existence?",
+      "answer": "Process can be alive but deadlocked, out of memory, or unable to serve requests. HEALTHCHECK should verify actual functionality: HTTP 200 from /health endpoint, database connection success, queue consumer active. Docker/orchestrator uses this to restart unhealthy containers."
+    },
+    {
+      "type": "security",
+      "question": "A Dockerfile uses ADD to fetch a binary from the internet. What's the risk?",
+      "answer": "Risk: MITM attack could replace binary. No integrity verification. URL could change to malicious payload. Fix: use RUN with curl/wget + checksum verification: RUN curl -fsSL https://url -o bin && echo 'sha256hash bin' | sha256sum -c -"
+    },
+    {
+      "type": "scenario",
+      "question": "Disk is full on Docker host. Diagnose and fix.",
+      "answer": "docker system df (check usage). docker image prune -a (remove unused images). docker container prune (remove stopped containers). docker volume prune (remove unused volumes). docker builder prune (clean build cache). Set up automated cleanup cron job."
+    },
+    {
+      "type": "optimize",
+      "question": "Python Dockerfile installs dev dependencies in production image. Fix it.",
+      "answer": "Multi-stage: FROM python:3.11-slim AS builder, pip install -r requirements.txt. FROM python:3.11-slim, COPY --from=builder /usr/local/lib/python3.11/site-packages. Or use pip install --no-dev if using pipenv/poetry."
+    },
+    {
+      "type": "command",
+      "question": "Configure Docker daemon to limit default container log size to 10MB, max 3 files.",
+      "answer": "Edit /etc/docker/daemon.json: {\"log-driver\": \"json-file\", \"log-opts\": {\"max-size\": \"10m\", \"max-file\": \"3\"}}. Restart dockerd. Or per-container: docker run --log-opt max-size=10m --log-opt max-file=3"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Compare image sizes with different base images",
+      "code": "docker build -t app:full -f- . <<'EOF'\nFROM node:18\nWORKDIR /app\nCOPY package.json .\nRUN npm install\nCOPY . .\nCMD [\"node\", \"app.js\"]\nEOF\ndocker build -t app:alpine -f- . <<'EOF'\nFROM node:18-alpine\nWORKDIR /app\nCOPY package.json .\nRUN npm install\nCOPY . .\nCMD [\"node\", \"app.js\"]\nEOF\ndocker images | grep app",
+      "output": "app:full ~900MB vs app:alpine ~170MB"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Test graceful shutdown with signal handling",
+      "code": "docker run -d --init --name graceful nginx\ntime docker stop graceful\ndocker run -d --name ungraceful nginx\ntime docker stop ungraceful",
+      "output": "Graceful stops in <1s, ungraceful may take up to 10s (SIGKILL timeout)"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Verify HEALTHCHECK status transitions",
+      "code": "docker run -d --name health-test --health-cmd='curl -f http://localhost/ || exit 1' --health-interval=5s --health-retries=3 nginx\nsleep 2\ndocker inspect health-test --format='{{.State.Health.Status}}'\nsleep 15\ndocker inspect health-test --format='{{.State.Health.Status}}'",
+      "output": "starting (first check), then healthy (after passing retries)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Check build cache usage and efficiency",
+      "code": "docker builder prune -f\ndocker build -t cache-test . 2>&1 | grep -E 'CACHED|RUN'\ndocker build -t cache-test . 2>&1 | grep -E 'CACHED|RUN'",
+      "output": "First build: no CACHED. Second build: all steps show CACHED (100% cache hit)"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Verify log rotation prevents disk exhaustion",
+      "code": "docker run -d --name log-test --log-opt max-size=1k --log-opt max-file=2 alpine sh -c 'while true; do echo $(date) log entry; sleep 0.1; done'\nsleep 5\nls -la /var/lib/docker/containers/$(docker inspect log-test --format='{{.Id}}')/*-json.log*",
+      "output": "Only 2 log files, each max 1KB (rotated automatically)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: check disk usage and clean up",
+      "code": "docker system df\ndocker system prune -a --volumes -f\ndocker system df",
+      "output": "Shows reclaimable space before, 0B reclaimable after cleanup"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Verify .dockerignore excludes files from build context",
+      "code": "echo 'node_modules' > .dockerignore\nmkdir -p node_modules && dd if=/dev/zero of=node_modules/big bs=1M count=100\ntime docker build -t ignore-test . 2>&1 | head -3\nrm .dockerignore\ntime docker build -t no-ignore-test . 2>&1 | head -3",
+      "output": "With .dockerignore: small context, fast. Without: 100MB+ context sent, slow"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Multi-stage build size comparison",
+      "code": "docker build -t go-single --target builder .\ndocker build -t go-multi .\ndocker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep go-",
+      "output": "go-single ~1.2GB (includes Go toolchain), go-multi ~12MB (binary only)"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Test exec form vs shell form signal handling",
+      "code": "# Shell form (doesn't handle signals properly)\ndocker run -d --name shell-form alpine sh -c 'sleep 3600'\ntime docker stop shell-form\n\n# Exec form (handles signals)\ndocker run -d --name exec-form alpine sleep 3600\ntime docker stop exec-form",
+      "output": "shell-form: ~10s (SIGKILL after timeout). exec-form: instant (SIGTERM handled)"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Inspect container resource limits",
+      "code": "docker run -d --name limited --memory=256m --cpus=1.5 --pids-limit=50 nginx\ndocker inspect limited --format='Memory={{.HostConfig.Memory}} CPUs={{.HostConfig.NanoCpus}} PIDs={{.HostConfig.PidsLimit}}'",
+      "output": "Memory=268435456 CPUs=1500000000 PIDs=50 (limits enforced at runtime)"
+    }
+  ]
+}

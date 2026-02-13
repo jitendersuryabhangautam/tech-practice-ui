@@ -3,7 +3,7 @@
   "title": "Docker Compose Basics",
   "category": "Docker Compose",
   "description": "Define and run multi-container applications with YAML configuration.",
-  "explanation": "Docker Compose is a tool for defining and running multi-container applications using YAML. It simplifies development workflows by managing multiple services, networks, and volumes together. Understanding compose file syntax, service orchestration, and lifecycle management is key.\n\nInterview focus:\n- docker-compose.yml syntax and structure\n- Service dependencies and startup order\n- Environment variables and configs\n- Networking and volume management\n- Development vs production setups\n- Scaling services",
+  "explanation": "Docker Compose is a tool for defining and running multi-container applications using a single YAML file (docker-compose.yml or compose.yml). It manages the entire lifecycle: build images, create networks, start containers, stream logs, and tear everything down with one command.\n\nFile structure: The compose file defines services (containers), networks, volumes, and configs. Each service specifies an image (or build context), ports, environment variables, volumes, dependencies, and health checks.\n\nService dependencies: `depends_on` controls startup order but does NOT wait for a service to be 'ready'. For true readiness, use `depends_on` with `condition: service_healthy` and define HEALTHCHECK in the service. Order: db starts → db healthy → backend starts → backend healthy → frontend starts.\n\nNetworking: Compose creates a default bridge network for all services. Services communicate by service name as hostname (e.g., `http://backend:5000` from frontend). Custom networks isolate groups of services.\n\nEnvironment variables: Three ways — `environment:` (inline), `env_file:` (load from .env file), or shell variable substitution `${VAR}` in compose file. Use .env file in the same directory for default values.\n\nVolumes: Named volumes persist data across container restarts (`db-data:/var/lib/postgresql/data`). Bind mounts sync host directories for development (`./src:/app/src`). Anonymous volume trick: mount node_modules to prevent host override.\n\nDev vs Prod: Use `docker-compose.override.yml` for dev-specific config (bind mounts, debug ports). Compose automatically merges docker-compose.yml + docker-compose.override.yml. For production, use `docker compose -f docker-compose.yml -f docker-compose.prod.yml`.\n\nCommon commands: `up -d` (start detached), `down -v` (stop + remove volumes), `logs -f` (follow logs), `exec <svc> sh` (shell into container), `up --build` (rebuild before starting), `ps` (list services).",
   "code": "# docker-compose.yml\nversion: '3.8'\n\nservices:\n  web:\n    image: nginx:latest\n    ports:\n      - \"80:80\"\n    volumes:\n      - ./html:/usr/share/nginx/html\n    networks:\n      - app-network\n  \n  db:\n    image: postgres:15\n    environment:\n      POSTGRES_PASSWORD: secret\n      POSTGRES_DB: myapp\n    volumes:\n      - db-data:/var/lib/postgresql/data\n    networks:\n      - app-network\n\nnetworks:\n  app-network:\n    driver: bridge\n\nvolumes:\n  db-data:",
   "command": "# Start services\ndocker-compose up\n\n# Start in detached mode\ndocker-compose up -d\n\n# Stop services\ndocker-compose down\n\n# Stop and remove volumes\ndocker-compose down -v\n\n# View logs\ndocker-compose logs\ndocker-compose logs -f web\n\n# List services\ndocker-compose ps\n\n# Execute command in service\ndocker-compose exec web bash\n\n# Rebuild services\ndocker-compose up --build",
   "example": "# Full stack example\nversion: '3.8'\n\nservices:\n  frontend:\n    build: ./frontend\n    ports:\n      - \"3000:3000\"\n    depends_on:\n      - backend\n    environment:\n      - API_URL=http://backend:5000\n  \n  backend:\n    build: ./backend\n    ports:\n      - \"5000:5000\"\n    depends_on:\n      - db\n      - redis\n    env_file:\n      - .env\n  \n  db:\n    image: postgres:15\n    volumes:\n      - db-data:/var/lib/postgresql/data\n    environment:\n      POSTGRES_PASSWORD: ${DB_PASSWORD}\n  \n  redis:\n    image: redis:alpine\n    ports:\n      - \"6379:6379\"\n\nvolumes:\n  db-data:",
@@ -144,6 +144,24 @@
       "question": "Program 7: Scale web service and verify multiple instances",
       "code": "docker-compose up -d --scale web=3\ndocker-compose ps",
       "output": "Shows 3 instances of web service running"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Use docker-compose exec to run database migration",
+      "code": "docker-compose exec db psql -U postgres -c 'CREATE TABLE users (id SERIAL, name TEXT);'\ndocker-compose exec db psql -U postgres -c '\\dt'",
+      "output": "Table 'users' created and visible in schema listing"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Override compose config with docker-compose.override.yml",
+      "code": "# docker-compose.yml: image: node:18\n# docker-compose.override.yml: ports: ['9229:9229'], command: npm run dev\ndocker-compose config\ndocker-compose up -d",
+      "output": "Merged config shows dev ports and command, services start with overrides"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Tear down services, volumes, and orphan containers",
+      "code": "docker-compose down -v --remove-orphans\ndocker-compose ps\ndocker volume ls | grep project",
+      "output": "All services stopped, volumes removed, no orphan containers remaining"
     }
   ]
 }

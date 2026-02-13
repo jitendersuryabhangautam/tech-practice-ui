@@ -137,13 +137,31 @@
       "type": "program",
       "question": "Program 6: Extract all container names from a multi-container pod",
       "code": "kubectl get pod multi-pod -o jsonpath='{.spec.containers[*].name}'",
-      "output": "app sidecar init-container (space-separated list)"
+      "output": "app sidecar (space-separated list of containers, initContainers not included)"
     },
     {
       "type": "program",
       "question": "Program 7: Pod that exits successfully, verify Succeeded phase",
       "code": "kubectl run success-pod --image=busybox --restart=Never -- sh -c 'echo success && exit 0'\\nsleep 5\\nkubectl get pod success-pod -o jsonpath='{.status.phase}'",
       "output": "Succeeded"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Create pod with init container that waits for a service",
+      "code": "kubectl apply -f - <<EOF\napiVersion: v1\nkind: Pod\nmetadata:\n  name: init-demo\nspec:\n  initContainers:\n  - name: wait-for-svc\n    image: busybox\n    command: ['sh', '-c', 'until nslookup mydb; do echo waiting; sleep 2; done']\n  containers:\n  - name: app\n    image: nginx\nEOF\nkubectl get pod init-demo",
+      "output": "Pod stuck in Init:0/1 until 'mydb' service is created, then transitions to Running"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Set resource requests and limits, check QoS class",
+      "code": "kubectl run guaranteed --image=nginx --requests='cpu=100m,memory=128Mi' --limits='cpu=100m,memory=128Mi'\nkubectl get pod guaranteed -o jsonpath='{.status.qosClass}'",
+      "output": "Guaranteed (requests == limits for all containers)"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Create multi-container pod, verify shared network namespace",
+      "code": "kubectl apply -f - <<EOF\napiVersion: v1\nkind: Pod\nmetadata:\n  name: shared-net\nspec:\n  containers:\n  - name: web\n    image: nginx\n    ports: [{containerPort: 80}]\n  - name: sidecar\n    image: busybox\n    command: ['sh', '-c', 'sleep 10 && wget -qO- localhost:80']\nEOF\nsleep 12\nkubectl logs shared-net -c sidecar",
+      "output": "nginx welcome page HTML — sidecar accessed web container via localhost"
     }
   ]
 }

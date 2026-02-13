@@ -3,7 +3,7 @@
   "title": "Docker Core Concepts",
   "category": "Docker Basics",
   "description": "Understanding containers, images, and the Docker architecture.",
-  "explanation": "Docker is a platform for developing, shipping, and running applications in containers. A container is a lightweight, standalone package that includes everything needed to run software: code, runtime, libraries, and system tools. Unlike virtual machines, containers share the host OS kernel, making them faster and more efficient.\n\nInterview focus:\n- Difference between containers and VMs\n- Docker architecture (daemon, client, registry)\n- Container lifecycle management\n- Image vs Container distinction\n- Port mapping and networking basics\n- Common troubleshooting patterns",
+  "explanation": "Docker is a platform for developing, shipping, and running applications in containers. A container is a lightweight, standalone package that includes everything needed to run software: code, runtime, libraries, and system tools. Unlike virtual machines, containers share the host OS kernel, making them faster and more efficient.\n\nCore architecture: The Docker Engine consists of a daemon (dockerd) that manages images/containers, a REST API, and a CLI client. Images are read-only templates built from layers (each Dockerfile instruction = one layer). Containers are writable instances of images with an isolated filesystem, network, and process namespace.\n\nContainers vs VMs: VMs virtualize hardware and run a full guest OS (GB-sized, minutes to boot). Containers virtualize the OS, sharing the host kernel (MB-sized, milliseconds to start). Containers achieve isolation via Linux namespaces (pid, net, mnt, uts, ipc, user) and cgroups (CPU/memory limits).\n\nContainer lifecycle: Created → Running → Paused → Stopped → Removed. Key flags: `-d` (detach), `-it` (interactive TTY), `--rm` (auto-remove on exit), `--name` (assign name), `-p` (port mapping host:container), `-e` (env vars), `-v` (volumes).\n\nImage layers and caching: Each layer is cached and shared across images. Changing a layer invalidates all subsequent layers. This is why you COPY package.json before COPY . . — npm install layer is cached until package.json changes.\n\nCommon pitfalls: Running as root (security risk), not cleaning up stopped containers/dangling images (disk bloat), hardcoding configs instead of using env vars, ignoring .dockerignore (slow builds).",
   "code": "# Pull an image from Docker Hub\ndocker pull nginx:latest\n\n# List local images\ndocker images\n\n# Run a container\ndocker run -d -p 80:80 --name my-nginx nginx\n\n# List running containers\ndocker ps\n\n# List all containers (including stopped)\ndocker ps -a\n\n# Stop a container\ndocker stop my-nginx\n\n# Start a stopped container\ndocker start my-nginx\n\n# Remove a container\ndocker rm my-nginx\n\n# Remove an image\ndocker rmi nginx:latest",
   "example": "# Run container with environment variables\ndocker run -d -e POSTGRES_PASSWORD=secret postgres\n\n# Run container with volume mount\ndocker run -d -v /host/path:/container/path nginx\n\n# Execute command in running container\ndocker exec -it my-nginx bash\n\n# View container logs\ndocker logs my-nginx\ndocker logs -f my-nginx  # Follow log output\n\n# Inspect container details\ndocker inspect my-nginx",
   "useCase": "Containerizing applications, development environments, microservices",
@@ -143,6 +143,24 @@
       "question": "Program 7: Inspect container to find IP address",
       "code": "docker inspect web --format=\"{{.NetworkSettings.IPAddress}}\"",
       "output": "172.17.0.2 (or container's IP address)"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 8: Run container with memory and CPU limits, verify with stats",
+      "code": "docker run -d --name limited --memory=256m --cpus=0.5 nginx\ndocker stats limited --no-stream --format 'table {{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}'\ndocker inspect limited --format='Memory={{.HostConfig.Memory}} CPUs={{.HostConfig.NanoCpus}}'",
+      "output": "Memory=268435456 CPUs=500000000 (256MB and 0.5 CPU confirmed)"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 9: Run container with restart policy, kill it, verify auto-restart",
+      "code": "docker run -d --name resilient --restart=on-failure:3 nginx\ndocker kill resilient\nsleep 2\ndocker ps | grep resilient",
+      "output": "Container automatically restarted after being killed"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 10: Compare image sizes between alpine and full base",
+      "code": "docker pull node:18\ndocker pull node:18-alpine\ndocker images | grep node",
+      "output": "node:18 ~900MB vs node:18-alpine ~170MB — alpine is 5x smaller"
     }
   ]
 }

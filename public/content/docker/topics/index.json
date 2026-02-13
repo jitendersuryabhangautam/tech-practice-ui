@@ -36,9 +36,9 @@
     "category": "Docker Compose"
   },
   {
-    "id": "docker-swarm",
+    "id": "docker-commands",
     "file": "topics/docker-swarm.json",
     "title": "Docker Commands Reference",
-    "category": "Docker Compose"
+    "category": "Docker Basics"
   }
 ]

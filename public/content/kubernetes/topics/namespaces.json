@@ -144,6 +144,24 @@
       "question": "Program 7: Label namespace and select by label",
       "code": "kubectl create namespace env-prod\nkubectl label namespace env-prod environment=production\nkubectl get namespaces -l environment=production",
       "output": "env-prod namespace listed with environment=production label"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Set default namespace for current context",
+      "code": "kubectl config set-context --current --namespace=kube-system\nkubectl get pods\nkubectl config set-context --current --namespace=default",
+      "output": "Shows kube-system pods without -n flag, then resets to default"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Create ResourceQuota and test limit enforcement",
+      "code": "kubectl create namespace quota-ns\nkubectl create quota my-quota -n quota-ns --hard=pods=2,requests.cpu=500m\nkubectl create deployment test -n quota-ns --image=nginx --replicas=3\nkubectl get events -n quota-ns | grep quota",
+      "output": "Only 2 pods created, 3rd pod fails with 'exceeded quota' error"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: List all resources across ALL namespaces",
+      "code": "kubectl get all -A --no-headers | awk '{print $1}' | cut -d/ -f1 | sort | uniq -c | sort -rn\nkubectl api-resources --namespaced=false",
+      "output": "Resource count per namespace; list of cluster-scoped resources (nodes, PVs, namespaces)"
     }
   ]
 }

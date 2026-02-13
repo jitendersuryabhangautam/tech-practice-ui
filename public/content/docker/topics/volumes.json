@@ -3,7 +3,7 @@
   "title": "Docker Volumes",
   "category": "Docker Networking & Volumes",
   "description": "Persistent data storage for containers.",
-  "explanation": "Docker volumes provide persistent storage that exists independently of container lifecycles. Understanding volumes vs bind mounts, volume drivers, and data management patterns is essential for stateful applications.\n\nInterview focus:\n- Volumes vs bind mounts vs tmpfs\n- Named volumes vs anonymous volumes\n- Volume drivers and plugins\n- Data persistence strategies\n- Backup and restore patterns\n- Volume sharing between containers",
+  "explanation": "Docker volumes provide persistent storage that survives container lifecycle events (stop, remove, recreate). Without volumes, all data written inside a container is lost when the container is removed — this is because containers use a writable layer on top of read-only image layers.\n\nThree storage options:\n- Named volumes: Managed by Docker, stored in /var/lib/docker/volumes/. Best for production data (databases, uploads). `docker run -v mydata:/app/data`. Docker handles permissions and cleanup.\n- Bind mounts: Maps a host directory into the container. `docker run -v /host/path:/container/path`. Best for development (live code reload). The host path must exist. Container can modify host files (security consideration).\n- tmpfs mounts: Stored in host memory only, never written to disk. `docker run --tmpfs /app/temp`. Best for sensitive data (secrets, session tokens) that should not persist on disk.\n\nVolume lifecycle: Named volumes persist until explicitly removed with `docker volume rm` or `docker volume prune`. They survive container deletion. Bind mounts follow host filesystem lifecycle.\n\nRead-only volumes: Append `:ro` to prevent writes: `-v mydata:/app/config:ro`. Use for config files, certificates, or shared reference data.\n\nSharing volumes: Multiple containers can mount the same volume simultaneously. Use with caution — no built-in locking. Works well for shared logs or read-only config. For databases, ensure only one writer.\n\nBackup pattern: `docker run --rm -v mydata:/data -v $(pwd):/backup alpine tar czf /backup/backup.tar.gz /data`. This mounts the volume and a host directory, then creates a tarball.\n\nAnonymous volumes: Created without a name (`docker run -v /app/data`). Get a random hash name. Hard to manage — prefer named volumes. Useful for the node_modules trick in development to prevent host node_modules from overwriting container's.\n\nVolume drivers: Plugins like local (default), NFS, AWS EBS, Azure File. Enable remote/cloud storage as Docker volumes. Configure with `docker volume create --driver`.",
   "command": "# Create volume\ndocker volume create my-data\n\n# List volumes\ndocker volume ls\n\n# Inspect volume\ndocker volume inspect my-data\n\n# Run container with volume\ndocker run -d -v my-data:/app/data postgres\n\n# Run with bind mount (host directory)\ndocker run -d -v /host/path:/container/path nginx\n\n# Run with read-only volume\ndocker run -d -v my-data:/app/data:ro nginx\n\n# Remove volume\ndocker volume rm my-data\n\n# Remove all unused volumes\ndocker volume prune",
   "example": "# Named volume\ndocker run -d \\\n  -v postgres-data:/var/lib/postgresql/data \\\n  --name db \\\n  postgres\n\n# Bind mount for development\ndocker run -d \\\n  -v $(pwd):/app \\\n  -v /app/node_modules \\\n  --name dev-server \\\n  node:18\n\n# Anonymous volume\ndocker run -d -v /app/data nginx\n\n# Volume from another container\ndocker run -d --volumes-from container1 container2",
   "useCase": "Data persistence, sharing data between containers, backups",
@@ -143,6 +143,24 @@
       "question": "Program 7: Inspect volume to find host mount point",
       "code": "docker volume create inspect-test\ndocker volume inspect inspect-test --format=\"{{.Mountpoint}}\"",
       "output": "/var/lib/docker/volumes/inspect-test/_data (Linux) or similar"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Use tmpfs mount for sensitive data that should never persist",
+      "code": "docker run -d --name secure-app --tmpfs /app/secrets:rw,size=10m nginx\ndocker exec secure-app sh -c 'echo SECRET > /app/secrets/token.txt && cat /app/secrets/token.txt'\ndocker stop secure-app && docker start secure-app\ndocker exec secure-app cat /app/secrets/token.txt",
+      "output": "First read: SECRET. After restart: cat: can't open — tmpfs data gone"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Anonymous volume trick for node_modules in development",
+      "code": "docker run -d --name dev-node \\\n  -v $(pwd):/app \\\n  -v /app/node_modules \\\n  -w /app node:18 npm start",
+      "output": "Host code synced to /app, but container's node_modules preserved (not overwritten by host)"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Prune unused volumes and show space reclaimed",
+      "code": "docker volume create test1 && docker volume create test2\ndocker volume ls\ndocker volume prune -f\ndocker volume ls",
+      "output": "Unused volumes removed, space reclaimed, only in-use volumes remain"
     }
   ]
 }

@@ -1,0 +1,166 @@
+{
+  "id": "docker-security",
+  "title": "Docker Security Best Practices",
+  "category": "Docker Security",
+  "description": "Secure containers, images, and Docker environments for production.",
+  "explanation": "Container security spans the entire lifecycle: building secure images, running containers with minimal privileges, scanning for vulnerabilities, and securing the Docker daemon. A compromised container with root access and host mounts can escalate to full host compromise.\n\nImage security:\n- Use minimal base images (alpine, distroless, scratch) to reduce attack surface. Fewer packages = fewer CVEs.\n- Pin image tags to specific digests in production: `nginx@sha256:abc123...` not `nginx:latest`. Prevents supply-chain attacks.\n- Scan images with `docker scout`, Trivy, or Snyk. Integrate scanning into CI/CD pipelines. Block deployments with critical CVEs.\n- Never store secrets (API keys, passwords) in images. They persist in layer history even if deleted in later layers. Use multi-stage builds or BuildKit secrets.\n\nRuntime security:\n- Run as non-root: Add `USER 1001` in Dockerfile. In Kubernetes, set `runAsNonRoot: true` in securityContext.\n- Drop all Linux capabilities and add only what's needed: `--cap-drop=ALL --cap-add=NET_BIND_SERVICE`.\n- Use read-only root filesystem: `--read-only`. Mount writable tmpfs only where needed.\n- Limit resources (--memory, --cpus) to prevent denial-of-service from runaway containers.\n- Use `--security-opt=no-new-privileges` to prevent privilege escalation via setuid binaries.\n\nDaemon security:\n- Never expose Docker socket over TCP without TLS. The Docker socket grants root-equivalent access.\n- Use rootless Docker mode (Docker 20.10+) to run the daemon without root privileges.\n- Enable Content Trust (DOCKER_CONTENT_TRUST=1) to verify image signatures before pulling.\n\nNetwork security:\n- Use user-defined networks for isolation. Don't use --network=host in production.\n- Don't expose unnecessary ports. Use internal networks for backend services.\n- Enable encrypted overlay networks for cross-host traffic in Swarm.",
+  "command": "# Run as non-root user\ndocker run --user 1001:1001 nginx\n\n# Drop all capabilities, add only needed\ndocker run --cap-drop=ALL --cap-add=NET_BIND_SERVICE nginx\n\n# Read-only filesystem\ndocker run --read-only --tmpfs /tmp nginx\n\n# No new privileges\ndocker run --security-opt=no-new-privileges nginx\n\n# Scan image for vulnerabilities\ndocker scout cves nginx:latest\n\n# Content trust\nexport DOCKER_CONTENT_TRUST=1\ndocker pull nginx\n\n# Resource limits\ndocker run --memory=256m --cpus=0.5 --pids-limit=100 nginx",
+  "example": "# Secure Dockerfile\nFROM node:18-alpine AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production\nCOPY . .\n\nFROM node:18-alpine\nRUN addgroup -g 1001 app && adduser -D -u 1001 -G app app\nWORKDIR /app\nCOPY --from=builder --chown=app:app /app .\nUSER app\nEXPOSE 3000\nHEALTHCHECK --interval=30s CMD wget -qO- http://localhost:3000/health || exit 1\nCMD [\"node\", \"server.js\"]\n\n# Run with full security options\ndocker run -d \\\n  --name secure-app \\\n  --user 1001:1001 \\\n  --read-only \\\n  --tmpfs /tmp \\\n  --cap-drop=ALL \\\n  --security-opt=no-new-privileges \\\n  --memory=512m \\\n  --cpus=1 \\\n  --pids-limit=100 \\\n  secure-app:latest",
+  "useCase": "Production deployments, CI/CD security gates, compliance, hardening",
+  "interviewQuestions": [
+    {
+      "question": "Why should containers run as non-root?",
+      "answer": "Root in container = root on host (unless user namespaces enabled). If container is compromised, attacker has root access. Use USER instruction in Dockerfile. In K8s, set runAsNonRoot: true in securityContext. Some images require root (workaround: change file ownership during build)."
+    },
+    {
+      "question": "What are Linux capabilities and how do they relate to Docker security?",
+      "answer": "Capabilities split root privileges into granular permissions (NET_BIND_SERVICE, SYS_ADMIN, etc.). Docker drops many by default but keeps some. Best practice: --cap-drop=ALL then --cap-add only what's needed. SYS_ADMIN is especially dangerous (mount filesystems, load kernel modules)."
+    },
+    {
+      "question": "How do you scan Docker images for vulnerabilities?",
+      "answer": "Tools: docker scout (built-in), Trivy (open source), Snyk, Anchore, Clair. Scan in CI/CD pipeline before pushing to registry. Block images with critical/high CVEs. Regularly rescan deployed images (new CVEs discovered daily). Use minimal base images to reduce surface area."
+    },
+    {
+      "question": "What is Docker Content Trust and why use it?",
+      "answer": "DCT uses digital signatures to verify image publisher identity and integrity. Set DOCKER_CONTENT_TRUST=1. Publishers sign images with private key, consumers verify with public key. Prevents pulling tampered or unauthorized images. Uses Notary under the hood."
+    },
+    {
+      "question": "Explain the risks of mounting the Docker socket in a container.",
+      "answer": "Mounting /var/run/docker.sock gives container full Docker daemon access = root on host. Container can create privileged containers, access any volume, read any secret. Only mount when absolutely necessary (CI/CD builders). Use rootless Docker or remote Docker API with TLS instead."
+    },
+    {
+      "question": "What is the difference between ADD and COPY from a security perspective?",
+      "answer": "ADD can fetch URLs and extract tar archives automatically. This introduces risk: fetching from untrusted URLs, auto-extracting potentially malicious archives. COPY only copies local files. Always prefer COPY. For downloads, use RUN curl/wget with checksum verification."
+    },
+    {
+      "question": "How do you handle secrets in Docker?",
+      "answer": "Never in Dockerfile (visible in image history). Options: runtime env vars (-e), Docker secrets (Swarm), BuildKit secrets (--mount=type=secret for build-time), external secret managers (Vault, AWS SM). In K8s: use Secrets with encryption at rest or External Secrets Operator."
+    },
+    {
+      "question": "What is a distroless image and when to use it?",
+      "answer": "Google's distroless images contain only the app runtime (no shell, no package manager, no OS utilities). Minimal attack surface. Cannot exec/shell into container (good for security, hard for debugging). Use for production; use regular images for development."
+    },
+    {
+      "question": "How does --read-only filesystem improve security?",
+      "answer": "Prevents attackers from writing malicious files, scripts, or backdoors. Container can only write to mounted volumes and tmpfs. Forces developers to be explicit about writable paths. Use --tmpfs /tmp for temporary files. Combine with --no-new-privileges for defense in depth."
+    },
+    {
+      "question": "What is rootless Docker mode?",
+      "answer": "Runs Docker daemon and containers without root privileges. Uses user namespaces to map container root to unprivileged host user. Limitations: no binding to ports <1024, some storage driver restrictions. Available since Docker 20.10. Alternative: Podman (rootless by default)."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "security",
+      "question": "A Dockerfile starts with FROM ubuntu:latest, installs curl, runs as root. List all security issues.",
+      "answer": "Issues: (1) latest tag is mutable/unpredictable, (2) ubuntu is large base (use alpine/slim), (3) running as root, (4) no HEALTHCHECK, (5) no .dockerignore possibly. Fix: pin tag, use alpine, add USER, add HEALTHCHECK."
+    },
+    {
+      "type": "command",
+      "question": "Run an nginx container with maximum security hardening (non-root, read-only, no capabilities).",
+      "answer": "docker run -d --user 1001 --read-only --tmpfs /tmp --tmpfs /var/cache/nginx --cap-drop=ALL --security-opt=no-new-privileges --memory=256m nginx"
+    },
+    {
+      "type": "scenario",
+      "question": "You find a container running with --privileged flag. What are the risks and how to fix?",
+      "answer": "Risks: Full host access, can load kernel modules, access all devices, mount host filesystem, escape container. Fix: Remove --privileged, use specific --cap-add for needed capabilities, use --device for specific devices."
+    },
+    {
+      "type": "debug",
+      "question": "Container fails with 'permission denied' when writing to /app/logs. It runs as USER 1001. Fix it.",
+      "answer": "Directory /app/logs is owned by root. Fix in Dockerfile: RUN mkdir -p /app/logs && chown 1001:1001 /app/logs before USER instruction. Or mount a volume at /app/logs."
+    },
+    {
+      "type": "command",
+      "question": "Scan an image for vulnerabilities using docker scout and filter critical issues.",
+      "answer": "docker scout cves nginx:latest --only-severity critical,high"
+    },
+    {
+      "type": "scenario",
+      "question": "Your CI/CD pipeline builds images. How do you prevent deploying images with known CVEs?",
+      "answer": "Add image scanning step (Trivy/Snyk) before push. Set policy to fail build on critical CVEs. Use admission controllers (OPA/Kyverno) in K8s to block unscanned images. Pin base image digests and rebuild regularly."
+    },
+    {
+      "type": "write",
+      "question": "Write a secure Dockerfile for a Python Flask app that follows all best practices.",
+      "answer": "FROM python:3.11-slim AS builder\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\nFROM python:3.11-slim\nRUN adduser --disabled-password --uid 1001 appuser\nWORKDIR /app\nCOPY --from=builder /usr/local/lib/python3.11 /usr/local/lib/python3.11\nCOPY --chown=appuser . .\nUSER appuser\nEXPOSE 5000\nHEALTHCHECK CMD curl -f http://localhost:5000/health || exit 1\nCMD [\"python\", \"app.py\"]"
+    },
+    {
+      "type": "explain",
+      "question": "What is the PID 1 problem in Docker and how to solve it?",
+      "answer": "Container's main process runs as PID 1 but doesn't handle signals (SIGTERM) like init does. Result: container doesn't stop gracefully (docker stop hangs 10s then SIGKILL). Solutions: use tini (--init flag), dumb-init, or handle signals in application code."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "docker build fails with 'unable to access .git'. The .git directory shouldn't be in the image.",
+      "answer": "Missing .dockerignore file. Create .dockerignore with: .git, node_modules, .env, *.md, tests. This also speeds up build context transfer and reduces image size."
+    },
+    {
+      "type": "security",
+      "question": "A developer stored an API key in a Dockerfile ENV instruction and later removed it. Is it safe?",
+      "answer": "No. Docker layers are immutable. The ENV instruction created a layer with the key. Even if removed in a later layer, the key exists in image history (docker history). Must rebuild without the key and use runtime env vars or secrets instead."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Run container as non-root, verify user ID",
+      "code": "docker run --rm --user 1001:1001 alpine id",
+      "output": "uid=1001 gid=1001"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Test read-only filesystem with tmpfs for writable paths",
+      "code": "docker run --rm --read-only --tmpfs /tmp alpine sh -c 'echo test > /tmp/ok && echo test > /root/fail'",
+      "output": "First write succeeds (tmpfs), second fails (Read-only file system)"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Drop all capabilities, verify none remain",
+      "code": "docker run --rm --cap-drop=ALL alpine sh -c 'cat /proc/1/status | grep Cap'",
+      "output": "CapEff: 0000000000000000 (no effective capabilities)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Scan image with Trivy for vulnerabilities",
+      "code": "docker run --rm aquasec/trivy image nginx:latest --severity HIGH,CRITICAL --no-progress 2>/dev/null | tail -20",
+      "output": "Table of HIGH/CRITICAL CVEs found in nginx image (or 0 if up to date)"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Verify image layer history for leaked secrets",
+      "code": "docker history nginx:latest --no-trunc --format '{{.CreatedBy}}' | head -10",
+      "output": "Shows all commands used to build each layer (check for ENV with secrets)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Run with --init flag to solve PID 1 problem",
+      "code": "docker run -d --init --name pid1-test alpine sleep 3600\ndocker exec pid1-test ps aux | head -3",
+      "output": "PID 1 is tini (init process), PID 2 is sleep (app process handles signals properly)"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Use BuildKit secret to pass npm token during build",
+      "code": "echo '//registry.npmjs.org/:_authToken=secret-token' > .npmrc\nDOCKER_BUILDKIT=1 docker build --secret id=npmrc,src=.npmrc -t secure-build .\n# Dockerfile: RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci",
+      "output": "Build succeeds using secret, but secret not stored in any image layer"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Compare image sizes: ubuntu vs alpine vs distroless",
+      "code": "docker pull ubuntu:22.04\ndocker pull alpine:3.18\ndocker pull gcr.io/distroless/static-debian12\ndocker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep -E 'ubuntu|alpine|distroless'",
+      "output": "ubuntu ~77MB, alpine ~7MB, distroless ~2MB"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Test no-new-privileges security option",
+      "code": "docker run --rm --security-opt=no-new-privileges alpine sh -c 'cat /proc/1/status | grep NoNewPrivs'",
+      "output": "NoNewPrivs: 1 (setuid binaries cannot escalate privileges)"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Limit container PID count to prevent fork bombs",
+      "code": "docker run --rm --pids-limit=10 alpine sh -c 'for i in $(seq 1 20); do sleep 100 & done; echo $i'",
+      "output": "Resource temporarily unavailable after 10 processes (fork bomb prevented)"
+    }
+  ]
+}

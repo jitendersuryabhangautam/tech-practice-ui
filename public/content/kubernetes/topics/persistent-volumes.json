@@ -2,7 +2,7 @@
   "id": "persistent-volumes",
   "title": "Persistent Volumes & Claims",
   "description": "Provide persistent storage to pods that survives pod restarts.",
-  "code": "# persistent-volume.yaml\napiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: pv-data\nspec:\n  capacity:\n    storage: 10Gi\n  accessModes:\n  - ReadWriteOnce\n  persistentVolumeReclaimPolicy: Retain\n  hostPath:\n    path: /mnt/data\n\n# persistent-volume-claim.yaml\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: pvc-data\nspec:\n  accessModes:\n  - ReadWriteOnce\n  resources:\n    requests:\n      storage: 5Gi",
+  "explanation": "Persistent Volumes (PV) and Persistent Volume Claims (PVC) provide a storage abstraction that decouples storage provisioning from pod lifecycle. Without PVs, all data in a pod is lost when it restarts.\n\nArchitecture: PV is a cluster-level resource representing actual storage (NFS, cloud disk, local disk). PVC is a namespace-level request for storage. Pods reference PVCs, not PVs directly. This separation lets admins provision storage and developers request it without knowing backend details.\n\nAccess modes: ReadWriteOnce (RWO) — mounted read-write by ONE node. ReadOnlyMany (ROX) — mounted read-only by many nodes. ReadWriteMany (RWX) — mounted read-write by many nodes (requires NFS/CephFS/etc.). ReadWriteOncePod (RWOP, 1.27+) — mounted by exactly one pod.\n\nReclaim policies: Retain (PV preserved after PVC deletion, manual cleanup needed), Delete (PV and underlying storage deleted automatically), Recycle (deprecated, basic scrub `rm -rf /data/*`).\n\nBinding: PVCs bind to PVs by matching access mode, storage size, and StorageClass. A PVC requesting 5Gi can bind to a 10Gi PV (but not 3Gi). Once bound, the binding is exclusive.\n\nDynamic provisioning: Instead of pre-creating PVs, define a StorageClass that automatically provisions PVs when PVCs are created. Cloud providers have built-in StorageClasses (gp2 for AWS EBS, pd-standard for GCE). Set `storageClassName` in PVC to use dynamic provisioning.\n\nPV lifecycle: Available → Bound → Released → (Retain) or Deleted. A Released PV cannot be rebound to a new PVC without admin intervention (data from previous claim still exists).\n\nCommon patterns: StatefulSet with volumeClaimTemplates (each replica gets its own PVC), shared ReadWriteMany for CMS uploads, emptyDir for scratch space (not persistent, deleted with pod).", "# persistent-volume.yaml\napiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: pv-data\nspec:\n  capacity:\n    storage: 10Gi\n  accessModes:\n  - ReadWriteOnce\n  persistentVolumeReclaimPolicy: Retain\n  hostPath:\n    path: /mnt/data\n\n# persistent-volume-claim.yaml\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: pvc-data\nspec:\n  accessModes:\n  - ReadWriteOnce\n  resources:\n    requests:\n      storage: 5Gi",
   "command": "# Create PV and PVC\nkubectl apply -f persistent-volume.yaml\nkubectl apply -f persistent-volume-claim.yaml\n\n# List PV and PVC\nkubectl get pv\nkubectl get pvc\n\n# Describe PVC\nkubectl describe pvc pvc-data\n\n# Delete PVC (may not delete PV based on reclaim policy)\nkubectl delete pvc pvc-data",
   "example": "# Use PVC in Pod\napiVersion: v1\nkind: Pod\nmetadata:\n  name: db-pod\nspec:\n  containers:\n  - name: postgres\n    image: postgres:15\n    volumeMounts:\n    - name: data\n      mountPath: /var/lib/postgresql/data\n  volumes:\n  - name: data\n    persistentVolumeClaim:\n      claimName: pvc-data\n\n# Dynamic provisioning with StorageClass\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: dynamic-pvc\nspec:\n  storageClassName: fast-ssd\n  accessModes:\n  - ReadWriteOnce\n  resources:\n    requests:\n      storage: 20Gi",
   "useCase": "Databases, file storage, stateful applications, data persistence",
@@ -110,7 +110,7 @@
     {
       "type": "program",
       "question": "Program 2: Use PVC in pod, write data, delete pod, verify persistence",
-      "code": "kubectl run dbpod --image=postgres:15 --dry-run -o yaml > pod.yaml\\n# Add PVC mount at /var/lib/postgresql/data\\nkubectl apply -f pod.yaml\\nkubectl exec dbpod -- sh -c 'echo test > /var/lib/postgresql/data/file.txt'\\nkubectl delete pod dbpod\\nkubectl apply -f pod.yaml\\nkubectl exec dbpod -- cat /var/lib/postgresql/data/file.txt",
+      "code": "kubectl run dbpod --image=postgres:15 --dry-run=client -o yaml > pod.yaml\\n# Add PVC mount at /var/lib/postgresql/data\\nkubectl apply -f pod.yaml\\nkubectl exec dbpod -- sh -c 'echo test > /var/lib/postgresql/data/file.txt'\\nkubectl delete pod dbpod\\nkubectl apply -f pod.yaml\\nkubectl exec dbpod -- cat /var/lib/postgresql/data/file.txt",
       "output": "test (data persisted across pod deletion)"
     },
     {
@@ -142,6 +142,24 @@
       "question": "Program 7: Volume expansion (if supported by StorageClass)",
       "code": "kubectl get sc standard -o jsonpath='{.allowVolumeExpansion}'\\nkubectl patch pvc my-pvc -p '{\\\"spec\\\":{\\\"resources\\\":{\\\"requests\\\":{\\\"storage\\\":\\\"20Gi\\\"}}}}'\\nkubectl get pvc my-pvc -o jsonpath='{.status.capacity.storage}'",
       "output": "20Gi (PVC expanded, pod may need restart to recognize new size)"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: List all PVs and their reclaim policies",
+      "code": "kubectl get pv -o custom-columns=NAME:.metadata.name,CAPACITY:.spec.capacity.storage,ACCESS:.spec.accessModes[0],RECLAIM:.spec.persistentVolumeReclaimPolicy,STATUS:.status.phase",
+      "output": "Table showing PV name, size, access mode, reclaim policy (Retain/Delete), and phase"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Create StorageClass for dynamic provisioning",
+      "code": "kubectl apply -f - <<EOF\napiVersion: storage.k8s.io/v1\nkind: StorageClass\nmetadata:\n  name: fast-ssd\nprovisioner: kubernetes.io/gce-pd\nparameters:\n  type: pd-ssd\nreclaimPolicy: Delete\nallowVolumeExpansion: true\nEOF\nkubectl get sc",
+      "output": "StorageClass 'fast-ssd' created — PVCs with storageClassName: fast-ssd auto-provision"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Verify PVC binding and mount in pod",
+      "code": "kubectl get pvc my-pvc -o jsonpath='Status={.status.phase} Volume={.spec.volumeName}'\nkubectl get pv $(kubectl get pvc my-pvc -o jsonpath='{.spec.volumeName}') -o jsonpath='Capacity={.spec.capacity.storage}'",
+      "output": "Status=Bound Volume=pv-xxxx Capacity=10Gi — PVC bound to matching PV"
     }
   ],
   "category": "Configuration & Storage"
