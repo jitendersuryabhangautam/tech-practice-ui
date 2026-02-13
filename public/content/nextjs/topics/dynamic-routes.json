@@ -1,0 +1,9 @@
+{
+  "id": "dynamic-routes",
+  "title": "Dynamic Routes",
+  "description": "Create routes with dynamic segments using [param] syntax.",
+  "code": "// app/products/[id]/page.js\nexport default function ProductPage({ params }) {\n  return <div>Product ID: {params.id}</div>;\n}\n\n// Catch-all: app/docs/[...slug]/page.js\nexport default function DocsPage({ params }) {\n  // /docs/a/b/c → params.slug = ['a', 'b', 'c']\n  return <div>Docs: {params.slug.join('/')}</div>;\n}\n\n// Optional catch-all: app/blog/[[...slug]]/page.js\n// Matches /blog and /blog/a/b/c",
+  "example": "// Multiple dynamic segments\n// app/[category]/[productId]/page.js\nexport default function Page({ params }) {\n  return (\n    <div>\n      Category: {params.category}\n      Product: {params.productId}\n    </div>\n  );\n}\n\n// Generate static params\nexport async function generateStaticParams() {\n  return [\n    { id: '1' },\n    { id: '2' },\n    { id: '3' }\n  ];\n}",
+  "useCase": "Product pages, blog posts, user profiles, documentation, category pages",
+  "category": "App Router & Routing"
+}

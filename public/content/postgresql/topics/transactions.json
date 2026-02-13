@@ -1,0 +1,9 @@
+{
+  "id": "transactions",
+  "title": "Transactions",
+  "description": "Group multiple operations into atomic units - all succeed or all fail.",
+  "code": "-- Basic transaction\nBEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;\n\n-- Rollback on error\nBEGIN;\nUPDATE products SET stock = stock - 1 WHERE id = 1;\n-- Something goes wrong\nROLLBACK;\n\n-- Savepoints\nBEGIN;\nUPDATE users SET balance = balance - 50 WHERE id = 1;\nSAVEPOINT my_savepoint;\nUPDATE users SET balance = balance + 50 WHERE id = 2;\n-- Oops, error occurred\nROLLBACK TO my_savepoint;\nCOMMIT;",
+  "example": "-- Transaction with error handling (in application)\n-- Python example\nconn.begin()\ntry:\n    cursor.execute(\"UPDATE accounts SET balance = balance - 100 WHERE id = %s\", (1,))\n    cursor.execute(\"UPDATE accounts SET balance = balance + 100 WHERE id = %s\", (2,))\n    conn.commit()\nexcept Exception as e:\n    conn.rollback()\n    raise e\n\n-- Isolation levels\nBEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;\n-- Your queries\nCOMMIT;",
+  "useCase": "Data consistency, banking operations, multi-step processes, preventing partial updates",
+  "category": "Performance & Optimization"
+}

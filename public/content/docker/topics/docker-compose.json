@@ -1,0 +1,149 @@
+{
+  "id": "docker-compose",
+  "title": "Docker Compose Basics",
+  "category": "Docker Compose",
+  "description": "Define and run multi-container applications with YAML configuration.",
+  "explanation": "Docker Compose is a tool for defining and running multi-container applications using YAML. It simplifies development workflows by managing multiple services, networks, and volumes together. Understanding compose file syntax, service orchestration, and lifecycle management is key.\n\nInterview focus:\n- docker-compose.yml syntax and structure\n- Service dependencies and startup order\n- Environment variables and configs\n- Networking and volume management\n- Development vs production setups\n- Scaling services",
+  "code": "# docker-compose.yml\nversion: '3.8'\n\nservices:\n  web:\n    image: nginx:latest\n    ports:\n      - \"80:80\"\n    volumes:\n      - ./html:/usr/share/nginx/html\n    networks:\n      - app-network\n  \n  db:\n    image: postgres:15\n    environment:\n      POSTGRES_PASSWORD: secret\n      POSTGRES_DB: myapp\n    volumes:\n      - db-data:/var/lib/postgresql/data\n    networks:\n      - app-network\n\nnetworks:\n  app-network:\n    driver: bridge\n\nvolumes:\n  db-data:",
+  "command": "# Start services\ndocker-compose up\n\n# Start in detached mode\ndocker-compose up -d\n\n# Stop services\ndocker-compose down\n\n# Stop and remove volumes\ndocker-compose down -v\n\n# View logs\ndocker-compose logs\ndocker-compose logs -f web\n\n# List services\ndocker-compose ps\n\n# Execute command in service\ndocker-compose exec web bash\n\n# Rebuild services\ndocker-compose up --build",
+  "example": "# Full stack example\nversion: '3.8'\n\nservices:\n  frontend:\n    build: ./frontend\n    ports:\n      - \"3000:3000\"\n    depends_on:\n      - backend\n    environment:\n      - API_URL=http://backend:5000\n  \n  backend:\n    build: ./backend\n    ports:\n      - \"5000:5000\"\n    depends_on:\n      - db\n      - redis\n    env_file:\n      - .env\n  \n  db:\n    image: postgres:15\n    volumes:\n      - db-data:/var/lib/postgresql/data\n    environment:\n      POSTGRES_PASSWORD: ${DB_PASSWORD}\n  \n  redis:\n    image: redis:alpine\n    ports:\n      - \"6379:6379\"\n\nvolumes:\n  db-data:",
+  "useCase": "Local development, testing, defining multi-container applications",
+  "interviewQuestions": [
+    {
+      "question": "What is Docker Compose and when should you use it?",
+      "answer": "Docker Compose is a tool for defining multi-container applications using YAML. Use it for local development, testing, simple deployments. For production: consider Kubernetes, Docker Swarm, or ECS for better scaling and orchestration."
+    },
+    {
+      "question": "What is the purpose of depends_on in docker-compose.yml?",
+      "answer": "depends_on controls startup order. Database starts before app. Warning: only waits for container to start, not for service to be ready. Use healthchecks or wait-for scripts for true readiness."
+    },
+    {
+      "question": "How do environment variables work in Compose?",
+      "answer": "Three ways: environment key (hardcoded), env_file (.env file), shell substitution (${VAR}). Priority: shell > env_file > environment. Use .env for local dev, pass vars in production."
+    },
+    {
+      "question": "What is the difference between docker-compose up and docker-compose start?",
+      "answer": "up creates and starts containers, networks, volumes. start only starts existing stopped containers. up is typically used, start for restarting after docker-compose stop."
+    },
+    {
+      "question": "How do you scale services in Docker Compose?",
+      "answer": "docker-compose up --scale web=3 starts 3 web instances. Remove port mappings (conflicts) or use range (8000-8002:80). Better for stateless services. Load balancer needed for traffic distribution."
+    },
+    {
+      "question": "What is the difference between docker-compose down and docker-compose down -v?",
+      "answer": "down stops and removes containers, networks. down -v also removes named volumes, deleting all data. Use -v carefully in development, never in production without backups."
+    },
+    {
+      "question": "How do you override compose file for different environments?",
+      "answer": "Use multiple files: docker-compose.yml (base), docker-compose.override.yml (auto-merged), docker-compose.prod.yml (docker-compose -f base.yml -f prod.yml up). Override ports, volumes, env vars."
+    },
+    {
+      "question": "What is the build context in docker-compose?",
+      "answer": "build: ./path sets build context. Can specify Dockerfile with dockerfile option, build args with args. Context determines COPY/ADD source paths. Keep context small with .dockerignore."
+    },
+    {
+      "question": "How does networking work in Docker Compose?",
+      "answer": "Compose creates default network for all services. Services communicate by service name (DNS). Can define custom networks for isolation. Example: frontend network for web, backend for db."
+    },
+    {
+      "question": "What are healthchecks in Compose and why use them?",
+      "answer": "healthcheck tests service health (e.g., HTTP endpoint). Used with depends_on in v3.9+ for true dependency management. Service waits until dependency is healthy before starting. Critical for databases."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "write",
+      "question": "Write docker-compose.yml for nginx and postgres with network",
+      "answer": "version: '3.8'\nservices:\n  web:\n    image: nginx\n    ports: ['80:80']\n    networks: [app]\n  db:\n    image: postgres\n    networks: [app]\nnetworks:\n  app:"
+    },
+    {
+      "type": "command",
+      "question": "Start all services defined in docker-compose.yml in background",
+      "answer": "docker-compose up -d"
+    },
+    {
+      "type": "command",
+      "question": "View logs for service named 'api' in real-time",
+      "answer": "docker-compose logs -f api"
+    },
+    {
+      "type": "scenario",
+      "question": "App depends on database. How to ensure DB starts first?",
+      "answer": "Use depends_on: services:\n  app:\n    depends_on:\n      - db\n  db:\n    image: postgres\n\nBetter: add healthcheck to db and use condition: service_healthy"
+    },
+    {
+      "type": "command",
+      "question": "Execute bash inside running service named 'backend'",
+      "answer": "docker-compose exec backend bash"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "docker-compose up fails with 'port already allocated'. How to fix?",
+      "answer": "Port conflict. Check with docker ps, netstat, or lsof. Stop conflicting container or change port mapping in compose file: ports: ['8080:80']."
+    },
+    {
+      "type": "command",
+      "question": "Stop and remove all containers, networks (keep volumes)",
+      "answer": "docker-compose down"
+    },
+    {
+      "type": "scenario",
+      "question": "How to rebuild service after Dockerfile changes?",
+      "answer": "docker-compose up --build or docker-compose build service-name then docker-compose up"
+    },
+    {
+      "type": "write",
+      "question": "Add volume for postgres data persistence in compose file",
+      "answer": "services:\n  db:\n    image: postgres\n    volumes:\n      - db-data:/var/lib/postgresql/data\nvolumes:\n  db-data:"
+    },
+    {
+      "type": "command",
+      "question": "Scale web service to run 3 instances",
+      "answer": "docker-compose up --scale web=3"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create compose file for Node app with Redis cache",
+      "code": "version: \"3.8\"\nservices:\n  app:\n    build: .\n    ports:\n      - \"3000:3000\"\n    depends_on:\n      - redis\n    environment:\n      REDIS_URL: redis://redis:6379\n  redis:\n    image: redis:alpine",
+      "output": "App starts after Redis, can connect to redis via hostname 'redis'"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Full-stack app - frontend, backend, database with networks",
+      "code": "version: \"3.8\"\nservices:\n  frontend:\n    build: ./client\n    ports: [\"3000:3000\"]\n    networks: [frontend]\n  backend:\n    build: ./server\n    ports: [\"5000:5000\"]\n    networks: [frontend, backend]\n  db:\n    image: postgres\n    networks: [backend]\nnetworks:\n  frontend:\n  backend:",
+      "output": "Frontend can't reach DB (isolated), backend can reach both"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Use env_file for environment variables",
+      "code": "# .env file:\nDB_USER=admin\nDB_PASS=secret\n\n# docker-compose.yml:\nservices:\n  db:\n    image: postgres\n    env_file: .env\n\n# docker-compose up -d\n# docker-compose exec db env | grep DB_",
+      "output": "Environment variables loaded from .env file into container"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Override compose file for production",
+      "code": "# docker-compose.yml (base):\nservices:\n  app:\n    build: .\n    ports: [\"3000:3000\"]\n\n# docker-compose.prod.yml:\nservices:\n  app:\n    restart: always\n    environment:\n      NODE_ENV: production\n\n# Run: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up",
+      "output": "Production-specific configs applied (restart policy, env)"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Use healthcheck to ensure database is ready",
+      "code": "version: \"3.8\"\nservices:\n  app:\n    build: .\n    depends_on:\n      db:\n        condition: service_healthy\n  db:\n    image: postgres\n    healthcheck:\n      test: [\"CMD\", \"pg_isready\", \"-U\", \"postgres\"]\n      interval: 5s\n      timeout: 3s\n      retries: 5",
+      "output": "App waits for DB healthcheck to pass before starting"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Mount local code for development with hot reload",
+      "code": "version: \"3.8\"\nservices:\n  app:\n    build: .\n    ports: [\"3000:3000\"]\n    volumes:\n      - ./src:/app/src\n      - /app/node_modules\n    environment:\n      NODE_ENV: development",
+      "output": "Code changes on host immediately reflected in container"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Scale web service and verify multiple instances",
+      "code": "docker-compose up -d --scale web=3\ndocker-compose ps",
+      "output": "Shows 3 instances of web service running"
+    }
+  ]
+}

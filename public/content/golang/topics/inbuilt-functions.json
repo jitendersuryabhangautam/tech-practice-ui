@@ -1,0 +1,159 @@
+{
+  "id": "inbuilt-functions",
+  "title": "Inbuilt Functions and Purpose",
+  "description": "Core Go built-ins (len, cap, make, new, append, copy, delete) and common stdlib utility functions.",
+  "explanation": "Interview focus: make vs new, append semantics, nil map behavior, copy return value, and standard utility packages.",
+  "code": "s := make([]int, 0, 4)\ns = append(s, 1, 2)\nfmt.Println(len(s), cap(s))",
+  "example": "src := []int{1,2,3}\ndst := make([]int, len(src))\nn := copy(dst, src)\nfmt.Println(n, dst)",
+  "useCase": "Coding rounds, utility logic, data transformations.",
+  "interviewQuestions": [
+    {
+      "question": "make vs new?",
+      "answer": "make initializes slice/map/channel and returns T; new returns pointer to zeroed T."
+    },
+    {
+      "question": "Why reassign append result?",
+      "answer": "append may return a new slice header."
+    },
+    {
+      "question": "copy returns what?",
+      "answer": "Number of elements copied."
+    },
+    {
+      "question": "Can you write to nil map?",
+      "answer": "No, it panics."
+    },
+    {
+      "question": "len(nilSlice) ?",
+      "answer": "0"
+    },
+    {
+      "question": "delete missing key panic?",
+      "answer": "No, safe no-op."
+    },
+    {
+      "question": "When to use panic/recover?",
+      "answer": "Exceptional boundaries only, not normal control flow."
+    },
+    {
+      "question": "String to int conversion package?",
+      "answer": "strconv."
+    },
+    {
+      "question": "Efficient string build in loop?",
+      "answer": "strings.Builder."
+    },
+    {
+      "question": "Is copy deep for nested references?",
+      "answer": "No, shallow copy of elements."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "len(nilSlice) ?",
+      "answer": "0"
+    },
+    {
+      "type": "output",
+      "question": "delete(map, missingKey) result?",
+      "answer": "safe no-op"
+    },
+    {
+      "type": "implement",
+      "question": "Write clone helper for []int using copy."
+    },
+    {
+      "type": "implement",
+      "question": "Parse integer from string with validation."
+    },
+    {
+      "type": "debug",
+      "question": "append result ignored; what bug appears?"
+    },
+    {
+      "type": "scenario",
+      "question": "Choose strings.Builder vs + in loop and justify."
+    },
+    {
+      "type": "implement",
+      "question": "Initialize map safely before write."
+    },
+    {
+      "type": "tricky",
+      "question": "cap meaning for slice?",
+      "answer": "Max elements before reallocation."
+    },
+    {
+      "type": "debug",
+      "question": "nil map write panic fix?"
+    },
+    {
+      "type": "implement",
+      "question": "Sort integer slice with stdlib."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: make slice len/cap.",
+      "code": "s := make([]int, 0, 5)\nfmt.Println(len(s), cap(s))",
+      "output": "0 5"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: append values.",
+      "code": "s := []int{1}\ns = append(s, 2, 3)\nfmt.Println(s)",
+      "output": "[1 2 3]"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: copy slice.",
+      "code": "src := []int{10,20}\ndst := make([]int, len(src))\nn := copy(dst, src)\nfmt.Println(n, dst)",
+      "output": "2 [10 20]"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: delete map key.",
+      "code": "m := map[string]int{\"a\":1,\"b\":2}\ndelete(m, \"b\")\nfmt.Println(m)",
+      "output": "map[a:1]"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: strconv.Atoi parse.",
+      "code": "n, err := strconv.Atoi(\"123\")\nfmt.Println(n, err == nil)",
+      "output": "123 true"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: strings.Builder usage.",
+      "code": "var b strings.Builder\nb.WriteString(\"go\")\nb.WriteString(\"lang\")\nfmt.Println(b.String())",
+      "output": "golang"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: sort.Ints usage.",
+      "code": "nums := []int{3,1,2}\nsort.Ints(nums)\nfmt.Println(nums)",
+      "output": "[1 2 3]"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: time.Parse and format.",
+      "code": "t, _ := time.Parse(\"2006-01-02\", \"2026-02-12\")\nfmt.Println(t.Format(\"02 Jan 2006\"))",
+      "output": "12 Feb 2026"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: recover demo.",
+      "code": "func safe() {\n  defer func() { if recover() != nil { fmt.Println(\"recovered\") } }()\n  panic(\"boom\")\n}\nsafe()",
+      "output": "recovered"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: cap growth while appending.",
+      "code": "s := make([]int, 0, 1)\nfor i := 0; i < 3; i++ {\n  s = append(s, i)\n  fmt.Println(len(s), cap(s))\n}",
+      "output": "prints growth sequence"
+    }
+  ],
+  "category": "Backend Development"
+}

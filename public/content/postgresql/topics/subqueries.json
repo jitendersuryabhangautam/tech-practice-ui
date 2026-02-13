@@ -1,0 +1,9 @@
+{
+  "id": "subqueries",
+  "title": "Subqueries",
+  "description": "Nested queries used within SELECT, FROM, WHERE, or HAVING clauses.",
+  "code": "-- Subquery in WHERE\nSELECT * FROM products \nWHERE price > (SELECT AVG(price) FROM products);\n\n-- Subquery in SELECT\nSELECT \n  name,\n  price,\n  (SELECT AVG(price) FROM products) as avg_price,\n  price - (SELECT AVG(price) FROM products) as diff\nFROM products;\n\n-- Subquery in FROM\nSELECT category, avg_price \nFROM (\n  SELECT category, AVG(price) as avg_price \n  FROM products \n  GROUP BY category\n) as category_averages \nWHERE avg_price > 100;\n\n-- EXISTS\nSELECT * FROM users \nWHERE EXISTS (\n  SELECT 1 FROM orders \n  WHERE orders.user_id = users.id\n);",
+  "example": "-- IN with subquery\nSELECT * FROM products \nWHERE category_id IN (\n  SELECT id FROM categories WHERE active = true\n);\n\n-- NOT IN\nSELECT * FROM users \nWHERE id NOT IN (\n  SELECT DISTINCT user_id FROM orders\n);\n\n-- Correlated subquery\nSELECT \n  p.name,\n  p.price,\n  (SELECT COUNT(*) FROM reviews r WHERE r.product_id = p.id) as review_count\nFROM products p;",
+  "useCase": "Complex filtering, derived tables, conditional logic, data validation",
+  "category": "Joins & Relationships"
+}

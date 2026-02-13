@@ -1,0 +1,74 @@
+[
+  {
+    "id": "app-router",
+    "file": "topics/app-router.json",
+    "title": "App Router",
+    "category": "App Router & Routing"
+  },
+  {
+    "id": "dynamic-routes",
+    "file": "topics/dynamic-routes.json",
+    "title": "Dynamic Routes",
+    "category": "App Router & Routing"
+  },
+  {
+    "id": "navigation",
+    "file": "topics/navigation.json",
+    "title": "Navigation & Link",
+    "category": "App Router & Routing"
+  },
+  {
+    "id": "route-groups",
+    "file": "topics/route-groups.json",
+    "title": "Route Groups & Parallel Routes",
+    "category": "App Router & Routing"
+  },
+  {
+    "id": "server-components",
+    "file": "topics/server-components.json",
+    "title": "Server Components",
+    "category": "Data Fetching & Rendering"
+  },
+  {
+    "id": "client-components",
+    "file": "topics/client-components.json",
+    "title": "Client Components",
+    "category": "Data Fetching & Rendering"
+  },
+  {
+    "id": "ssg",
+    "file": "topics/ssg.json",
+    "title": "Static Site Generation (SSG)",
+    "category": "Data Fetching & Rendering"
+  },
+  {
+    "id": "ssr",
+    "file": "topics/ssr.json",
+    "title": "Server-Side Rendering (SSR)",
+    "category": "Data Fetching & Rendering"
+  },
+  {
+    "id": "isr",
+    "file": "topics/isr.json",
+    "title": "Incremental Static Regeneration",
+    "category": "Data Fetching & Rendering"
+  },
+  {
+    "id": "route-handlers",
+    "file": "topics/route-handlers.json",
+    "title": "Route Handlers",
+    "category": "API Routes"
+  },
+  {
+    "id": "middleware",
+    "file": "topics/middleware.json",
+    "title": "Middleware",
+    "category": "API Routes"
+  },
+  {
+    "id": "server-actions",
+    "file": "topics/server-actions.json",
+    "title": "Server Actions",
+    "category": "API Routes"
+  }
+]

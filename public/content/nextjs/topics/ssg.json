@@ -1,0 +1,9 @@
+{
+  "id": "ssg",
+  "title": "Static Site Generation (SSG)",
+  "description": "Pre-renders pages at build time. Great for content that doesn't change often.",
+  "code": "// Automatically static if no dynamic functions used\nexport default async function BlogPost({ params }) {\n  const post = await getPost(params.slug);\n  return <article>{post.content}</article>;\n}\n\n// Generate static params for dynamic routes\nexport async function generateStaticParams() {\n  const posts = await getAllPosts();\n  \n  return posts.map(post => ({\n    slug: post.slug\n  }));\n}\n\n// Set revalidation time (ISR)\nconst revalidate = 3600; // Revalidate every hour",
+  "example": "// Generate 100 products at build time\nexport async function generateStaticParams() {\n  const products = await fetch('https://api.example.com/products')\n    .then(r => r.json());\n  \n  return products.slice(0, 100).map(product => ({\n    id: product.id.toString()\n  }));\n}\n\nexport default async function ProductPage({ params }) {\n  const product = await getProduct(params.id);\n  return <div>{product.name}</div>;\n}",
+  "useCase": "Blogs, documentation, marketing pages, product catalogs, static content",
+  "category": "Data Fetching & Rendering"
+}

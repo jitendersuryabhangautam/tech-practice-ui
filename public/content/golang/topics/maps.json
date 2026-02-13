@@ -1,0 +1,61 @@
+{
+  "id": "maps",
+  "title": "Maps",
+  "description": "Key-value pairs (hash tables). Dynamic and unordered.",
+  "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n    // Create map\n    m := make(map[string]int)\n    \n    // Set values\n    m[\"apple\"] = 5\n    m[\"banana\"] = 3\n    \n    // Map literal\n    ages := map[string]int{\n        \"Alice\": 25,\n        \"Bob\":   30,\n    }\n    \n    // Get value\n    age := ages[\"Alice\"]\n    \n    // Check if key exists\n    val, ok := ages[\"Charlie\"]\n    if ok {\n        fmt.Println(\"Found:\", val)\n    } else {\n        fmt.Println(\"Not found\")\n    }\n    \n    // Delete key\n    delete(ages, \"Bob\")\n    \n    // Iterate\n    for key, value := range ages {\n        fmt.Printf(\"%s: %d\\n\", key, value)\n    }\n}",
+  "example": "// Map of structs\ntype User struct {\n    Name string\n    Age  int\n}\n\nusers := map[int]User{\n    1: {Name: \"Alice\", Age: 25},\n    2: {Name: \"Bob\", Age: 30},\n}\n\n// Map of slices\ndata := map[string][]int{\n    \"even\": {2, 4, 6, 8},\n    \"odd\":  {1, 3, 5, 7},\n}\n\n// Nested maps\nconfig := map[string]map[string]string{\n    \"database\": {\n        \"host\": \"localhost\",\n        \"port\": \"5432\",\n    },\n}",
+  "useCase": "Lookups, caching, counting, grouping, configuration",
+  "explanation": "Maps are hash-based key/value containers with O(1)-average lookup semantics. Interviewers usually check map initialization rules, missing-key behavior, iteration non-determinism, and concurrency safety limitations.",
+  "interviewQuestions": [
+    {
+      "question": "What is returned for missing map key access?",
+      "answer": "The zero value of value type; use two-value form (`v, ok := m[k]`) to distinguish existence."
+    },
+    {
+      "question": "Is map iteration order stable in Go?",
+      "answer": "No, iteration order is intentionally randomized."
+    },
+    {
+      "question": "Can maps be read/written concurrently without locks?",
+      "answer": "Concurrent writes or read-write access without synchronization is unsafe and may panic or race."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Build frequency counter for words in a string slice."
+    },
+    {
+      "type": "output",
+      "question": "What happens on `delete(m, missing)`?",
+      "answer": "Safe no-op"
+    },
+    {
+      "type": "tricky",
+      "question": "Why does writing to a nil map panic but reading does not?",
+      "answer": "Read can return zero value from absent storage, but write needs allocated hash table."
+    },
+    {
+      "type": "debug",
+      "question": "Fix panic from writing to an uninitialized map field in struct."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Frequency map.",
+      "code": "words := []string{\"go\",\"go\",\"api\"}\nfreq := make(map[string]int)\nfor _, w := range words { freq[w]++ }\nfmt.Println(freq[\"go\"], freq[\"api\"])",
+      "output": "2 1"
+    },
+    {
+      "question": "Program 2: Presence check pattern.",
+      "code": "m := map[string]int{\"x\": 1}\nv, ok := m[\"y\"]\nfmt.Println(v, ok)",
+      "output": "0 false"
+    },
+    {
+      "question": "Program 3: Grouping values by key.",
+      "code": "groups := map[string][]int{}\nfor _, n := range []int{1,2,3,4} {\n  k := \"odd\"; if n%2==0 { k = \"even\" }\n  groups[k] = append(groups[k], n)\n}\nfmt.Println(groups[\"even\"], groups[\"odd\"])",
+      "output": "[2 4] [1 3]"
+    }
+  ],
+  "category": "Data Structures"
+}

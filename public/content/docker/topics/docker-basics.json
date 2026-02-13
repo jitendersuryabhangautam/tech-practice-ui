@@ -1,0 +1,148 @@
+{
+  "id": "docker-basics",
+  "title": "Docker Core Concepts",
+  "category": "Docker Basics",
+  "description": "Understanding containers, images, and the Docker architecture.",
+  "explanation": "Docker is a platform for developing, shipping, and running applications in containers. A container is a lightweight, standalone package that includes everything needed to run software: code, runtime, libraries, and system tools. Unlike virtual machines, containers share the host OS kernel, making them faster and more efficient.\n\nInterview focus:\n- Difference between containers and VMs\n- Docker architecture (daemon, client, registry)\n- Container lifecycle management\n- Image vs Container distinction\n- Port mapping and networking basics\n- Common troubleshooting patterns",
+  "code": "# Pull an image from Docker Hub\ndocker pull nginx:latest\n\n# List local images\ndocker images\n\n# Run a container\ndocker run -d -p 80:80 --name my-nginx nginx\n\n# List running containers\ndocker ps\n\n# List all containers (including stopped)\ndocker ps -a\n\n# Stop a container\ndocker stop my-nginx\n\n# Start a stopped container\ndocker start my-nginx\n\n# Remove a container\ndocker rm my-nginx\n\n# Remove an image\ndocker rmi nginx:latest",
+  "example": "# Run container with environment variables\ndocker run -d -e POSTGRES_PASSWORD=secret postgres\n\n# Run container with volume mount\ndocker run -d -v /host/path:/container/path nginx\n\n# Execute command in running container\ndocker exec -it my-nginx bash\n\n# View container logs\ndocker logs my-nginx\ndocker logs -f my-nginx  # Follow log output\n\n# Inspect container details\ndocker inspect my-nginx",
+  "useCase": "Containerizing applications, development environments, microservices",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between a Docker image and a container?",
+      "answer": "An image is a read-only template with instructions for creating a container, like a class. A container is a runnable instance of an image, like an object. Images are stored, containers are executed."
+    },
+    {
+      "question": "How does Docker differ from a virtual machine?",
+      "answer": "Containers share the host OS kernel and isolate at the process level, making them lighter and faster. VMs include a full OS copy with hypervisor overhead, providing stronger isolation but consuming more resources."
+    },
+    {
+      "question": "What happens when you run docker pull?",
+      "answer": "Docker pulls image layers from the registry (Docker Hub by default), verifies checksums, and stores them locally. If layers already exist, they're reused."
+    },
+    {
+      "question": "Explain docker run -d -p 8080:80 nginx",
+      "answer": "-d runs detached (background), -p maps host port 8080 to container port 80, nginx is the image name. Starts nginx container accessible at localhost:8080."
+    },
+    {
+      "question": "How do you debug a failing container?",
+      "answer": "Use docker logs to view output, docker inspect for configuration, docker exec -it container sh to enter and investigate, check resource limits and network connectivity."
+    },
+    {
+      "question": "What is Docker daemon?",
+      "answer": "The Docker daemon (dockerd) is a background service that manages Docker containers, images, networks, and volumes. The Docker client communicates with it via REST API."
+    },
+    {
+      "question": "Why would docker ps show no containers but docker ps -a shows stopped ones?",
+      "answer": "docker ps shows only running containers. -a flag shows all containers including stopped, exited, and created but not started."
+    },
+    {
+      "question": "What does docker rm vs docker rmi do?",
+      "answer": "docker rm removes containers (instances), docker rmi removes images (templates). Must remove containers using an image before removing the image."
+    },
+    {
+      "question": "How do you restart a container automatically?",
+      "answer": "Use --restart flag: docker run --restart unless-stopped. Options: no, on-failure, always, unless-stopped. Useful for production services."
+    },
+    {
+      "question": "What is the purpose of docker exec?",
+      "answer": "Executes a command inside a running container without starting a new container. Commonly used for debugging (docker exec -it container bash) or running maintenance tasks."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Write command to run nginx detached on port 3000 named web-server",
+      "answer": "docker run -d -p 3000:80 --name web-server nginx"
+    },
+    {
+      "type": "command",
+      "question": "How to view last 50 lines of logs from container named api?",
+      "answer": "docker logs --tail 50 api"
+    },
+    {
+      "type": "debug",
+      "question": "Container exits immediately after docker run. How to investigate?",
+      "answer": "Use docker logs container-name to see error output. Check if CMD in Dockerfile is valid. Try docker run -it image sh to enter interactively."
+    },
+    {
+      "type": "scenario",
+      "question": "You need to copy a config file into a running container. What command?",
+      "answer": "docker cp local-config.yml container-name:/app/config.yml"
+    },
+    {
+      "type": "explain",
+      "question": "What happens when you docker stop vs docker kill?",
+      "answer": "docker stop sends SIGTERM (graceful shutdown, allows cleanup), waits 10s, then SIGKILL. docker kill sends SIGKILL immediately (force termination)."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Error: port is already allocated. How to resolve?",
+      "answer": "Another container or process is using that port. Find using docker ps or netstat, stop conflicting container, or use different port mapping (-p 8081:80)."
+    },
+    {
+      "type": "command",
+      "question": "Remove all stopped containers in one command",
+      "answer": "docker container prune"
+    },
+    {
+      "type": "scenario",
+      "question": "How to run a container that auto-removes after exit?",
+      "answer": "docker run --rm image-name. Useful for temporary tasks, testing, CI/CD pipelines."
+    },
+    {
+      "type": "explain",
+      "question": "What does docker inspect reveal?",
+      "answer": "Full container/image details in JSON: config, mounts, network settings, resource limits, environment variables, state, metadata."
+    },
+    {
+      "type": "command",
+      "question": "Start an interactive Alpine container and remove after exit",
+      "answer": "docker run -it --rm alpine sh"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "scenario",
+      "question": "Program 1: Pull postgres:15 image and verify it's downloaded",
+      "code": "docker pull postgres:15\ndocker images | grep postgres",
+      "output": "postgres   15   <image-id>   <time-ago>   <size>"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 2: Run Redis container in background named cache on default port",
+      "code": "docker run -d --name cache redis:alpine\ndocker ps | grep cache",
+      "output": "CONTAINER ID   IMAGE         STATUS    PORTS      NAMES\n<id>          redis:alpine   Up       6379/tcp   cache"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 3: Execute command inside running container to check Redis version",
+      "code": "docker exec cache redis-cli --version",
+      "output": "redis-cli 7.x.x"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 4: Stop container, verify stopped, then remove it",
+      "code": "docker stop cache\ndocker ps -a | grep cache\ndocker rm cache",
+      "output": "Exited status shown, then cache removed"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 5: Run nginx mapped to port 8080, verify access",
+      "code": "docker run -d -p 8080:80 --name web nginx\ncurl http://localhost:8080",
+      "output": "Welcome to nginx! HTML page returned"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 6: Check container logs for last 10 lines",
+      "code": "docker logs --tail 10 web",
+      "output": "Last 10 log entries from nginx access/error logs"
+    },
+    {
+      "type": "scenario",
+      "question": "Program 7: Inspect container to find IP address",
+      "code": "docker inspect web --format=\"{{.NetworkSettings.IPAddress}}\"",
+      "output": "172.17.0.2 (or container's IP address)"
+    }
+  ]
+}

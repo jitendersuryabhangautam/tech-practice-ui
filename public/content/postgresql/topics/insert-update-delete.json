@@ -1,0 +1,9 @@
+{
+  "id": "insert-update-delete",
+  "title": "INSERT, UPDATE, DELETE",
+  "description": "Modify data in database tables - add, update, or remove records.",
+  "code": "-- INSERT single row\nINSERT INTO users (name, email, age) \nVALUES ('John Doe', 'john@example.com', 30);\n\n-- INSERT multiple rows\nINSERT INTO products (name, price, stock) \nVALUES \n  ('Product A', 99.99, 50),\n  ('Product B', 149.99, 30),\n  ('Product C', 79.99, 100);\n\n-- UPDATE\nUPDATE users \nSET age = 31, city = 'San Francisco' \nWHERE id = 1;\n\n-- DELETE\nDELETE FROM orders \nWHERE status = 'cancelled' AND created_at < NOW() - INTERVAL '30 days';\n\n-- RETURNING clause\nINSERT INTO users (name, email) \nVALUES ('Jane', 'jane@example.com') \nRETURNING id, created_at;",
+  "example": "-- UPDATE with subquery\nUPDATE products \nSET category_id = (\n  SELECT id FROM categories WHERE name = 'Electronics'\n)\nWHERE name LIKE '%Phone%';\n\n-- DELETE with JOIN\nDELETE FROM order_items \nWHERE order_id IN (\n  SELECT id FROM orders WHERE status = 'cancelled'\n);\n\n-- INSERT from SELECT\nINSERT INTO archived_users \nSELECT * FROM users \nWHERE last_login < NOW() - INTERVAL '1 year';",
+  "useCase": "Data manipulation, CRUD operations, bulk updates, archiving",
+  "category": "Basic Queries"
+}

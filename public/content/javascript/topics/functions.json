@@ -1,0 +1,163 @@
+{
+  "id": "functions",
+  "category": "Core Language",
+  "title": "Functions",
+  "description": "Understand function declarations, expressions, arrow functions, closures, higher-order functions, and this binding.",
+  "explanation": "Functions are first-class citizens in JavaScript: they can be assigned, passed, and returned. Interviews focus on declaration vs expression hoisting, arrow function this behavior, closure patterns, call/apply/bind, and higher-order function design.\n\nKey points:\n- Declarations are hoisted with definitions.\n- Function expressions are hoisted as variables only.\n- Arrow functions do not bind their own this/arguments.\n- Closures capture lexical scope.",
+  "implementation": "function greet(name){\n  return `Hello ${name}`;\n}\nconst shout = function(msg){\n  return msg.toUpperCase();\n};\nconst add = (a,b) => a+b;\nconsole.log(greet(\"Dev\"), shout(\"js\"), add(2,3));",
+  "example": "function multiplier(factor){\n  return function(value){\n    return value * factor;\n  };\n}\nconst double = multiplier(2);\nconsole.log(double(8)); // 16",
+  "useCase": "Abstraction, callbacks, reusable utilities, event handlers, functional composition.",
+  "interviewQuestions": [
+    {
+      "question": "Function declaration vs function expression?",
+      "answer": "Declaration is hoisted with body; expression depends on variable initialization timing."
+    },
+    {
+      "question": "Arrow function this behavior?",
+      "answer": "Arrow inherits lexical this from surrounding scope."
+    },
+    {
+      "question": "What is closure?",
+      "answer": "A function retaining access to outer lexical variables after outer function execution ends."
+    },
+    {
+      "question": "call vs apply vs bind?",
+      "answer": "call/apply invoke immediately with context; bind returns new bound function."
+    },
+    {
+      "question": "What is higher-order function?",
+      "answer": "Function that takes/returns another function."
+    },
+    {
+      "question": "Can functions be passed as arguments?",
+      "answer": "Yes, functions are first-class values."
+    },
+    {
+      "question": "What is IIFE and use-case?",
+      "answer": "Immediately Invoked Function Expression, used for isolated scope."
+    },
+    {
+      "question": "Default params benefit?",
+      "answer": "Avoid undefined handling boilerplate and provide safer API."
+    },
+    {
+      "question": "Rest params vs arguments object?",
+      "answer": "Rest gives real array and cleaner syntax; arguments is array-like and unavailable in arrows."
+    },
+    {
+      "question": "Common this bug in methods?",
+      "answer": "Losing object context when method is passed as callback unbound."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Output: (function(){return typeof arguments})();",
+      "answer": "object",
+      "output": "object"
+    },
+    {
+      "type": "output",
+      "question": "Output: (()=>typeof arguments)()",
+      "answer": "depends on outer scope; arrow has no own arguments."
+    },
+    {
+      "type": "implement",
+      "question": "Implement once(fn) utility executing function only first time."
+    },
+    {
+      "type": "implement",
+      "question": "Implement compose(f,g) returning x => f(g(x))."
+    },
+    {
+      "type": "debug",
+      "question": "Method loses this inside setTimeout callback. Fix?",
+      "answer": "Use arrow callback or bind(this)."
+    },
+    {
+      "type": "debug",
+      "question": "Function expression called before assignment. Why error?",
+      "answer": "Variable hoisted but value undefined until assignment."
+    },
+    {
+      "type": "scenario",
+      "question": "Create reusable logger(prefix) using closure."
+    },
+    {
+      "type": "scenario",
+      "question": "Refactor duplicate tax calculations with higher-order function."
+    },
+    {
+      "type": "tricky",
+      "question": "Are arrow functions suitable as constructors?",
+      "answer": "No, they cannot be used with new."
+    },
+    {
+      "type": "tricky",
+      "question": "Can function declaration appear inside blocks?",
+      "answer": "Yes in modern JS, but behavior historically varied; prefer clarity."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Function declaration add(a,b).",
+      "code": "function add(a,b){ return a+b; }\nconsole.log(add(2,5));",
+      "output": "7"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Function expression multiply.",
+      "code": "const multiply = function(a,b){ return a*b; };\nconsole.log(multiply(3,4));",
+      "output": "12"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Arrow function square.",
+      "code": "const square = n => n*n;\nconsole.log(square(9));",
+      "output": "81"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Closure counter.",
+      "code": "function counter(){ let c=0; return ()=>++c; }\nconst inc=counter();\nconsole.log(inc(), inc(), inc());",
+      "output": "1 2 3"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: call/apply/bind demo.",
+      "code": "function greet(msg){ console.log(msg + \" \" + this.name); }\nconst user={name:\"Jitender\"};\ngreet.call(user,\"Hi\");\ngreet.apply(user,[\"Hello\"]);\nconst b=greet.bind(user,\"Welcome\"); b();",
+      "output": "Hi Jitender\nHello Jitender\nWelcome Jitender"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Higher-order function mapByKey.",
+      "code": "const mapByKey = key => arr => arr.map(x=>x[key]);\nconsole.log(mapByKey(\"id\")([{id:1},{id:2}]));",
+      "output": "[ 1, 2 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: once(fn) implementation.",
+      "code": "function once(fn){ let done=false,res; return (...a)=> done?res:(done=true,res=fn(...a)); }\nconst init=once(()=>\"INIT\");\nconsole.log(init(), init());",
+      "output": "INIT INIT"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Debounce-like wrapper with function closure state.",
+      "code": "function withCount(fn){ let n=0; return (...a)=>{ n++; return fn(n,...a); }; }\nconst f=withCount((n,v)=>`${n}:${v}`);\nconsole.log(f(\"A\"), f(\"B\"));",
+      "output": "1:A 2:B"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Currying with functions topic (sum3).",
+      "code": "const sum3=a=>b=>c=>a+b+c;\nconsole.log(sum3(1)(2)(3));",
+      "output": "6"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Compose two functions.",
+      "code": "const compose=(f,g)=>x=>f(g(x));\nconst double=x=>x*2;\nconst plus1=x=>x+1;\nconsole.log(compose(double,plus1)(4));",
+      "output": "10"
+    }
+  ]
+}

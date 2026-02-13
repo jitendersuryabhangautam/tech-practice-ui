@@ -1,0 +1,149 @@
+{
+  "id": "pods",
+  "title": "Pods",
+  "category": "Kubernetes Basics",
+  "description": "The smallest deployable unit in Kubernetes. A pod runs one or more containers.",
+  "explanation": "Pods are the atomic unit of deployment in Kubernetes - they represent one or more tightly coupled containers that share networking, storage, and lifecycle. Understanding pod lifecycle phases, container restart policies, init containers, and multi-container patterns (sidecar, ambassador, adapter) is fundamental.\n\nInterview focus:\n- Pod lifecycle and phases (Pending, Running, Succeeded, Failed, Unknown)\n- Container restart policies (Always, OnFailure, Never)\n- Multi-container patterns and communication\n- Pod networking (localhost communication, shared volumes)\n- Init containers vs sidecar containers\n- Resource requests vs limits and QoS classes\n- Pod affinity and anti-affinity\n- Troubleshooting CrashLoopBackOff, ImagePullBackOff, OOMKilled",
+  "code": "# pod.yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: nginx-pod\n  labels:\n    app: nginx\nspec:\n  containers:\n  - name: nginx\n    image: nginx:latest\n    ports:\n    - containerPort: 80\n    resources:\n      requests:\n        memory: \"64Mi\"\n        cpu: \"250m\"\n      limits:\n        memory: \"128Mi\"\n        cpu: \"500m\"",
+  "command": "# Create pod from YAML\nkubectl apply -f pod.yaml\n\n# List pods\nkubectl get pods\nkubectl get pods -o wide\n\n# Describe pod details\nkubectl describe pod nginx-pod\n\n# View pod logs\nkubectl logs nginx-pod\n\n# Execute command in pod\nkubectl exec -it nginx-pod -- bash\n\n# Delete pod\nkubectl delete pod nginx-pod\n\n# Delete pod immediately\nkubectl delete pod nginx-pod --force --grace-period=0",
+  "example": "# Multi-container pod\napiVersion: v1\nkind: Pod\nmetadata:\n  name: multi-container-pod\nspec:\n  containers:\n  - name: app\n    image: myapp:latest\n    ports:\n    - containerPort: 8080\n  - name: sidecar\n    image: logging-agent:latest\n\n# Pod with environment variables\nspec:\n  containers:\n  - name: app\n    image: myapp:latest\n    env:\n    - name: DATABASE_URL\n      value: \"postgres://db:5432\"\n    - name: SECRET_KEY\n      valueFrom:\n        secretKeyRef:\n          name: app-secret\n          key: secret-key",
+  "useCase": "Running applications, debugging, sidecar patterns, init containers",
+  "interviewQuestions": [
+    {
+      "question": "What is a Pod and why is it the basic unit in Kubernetes?",
+      "answer": "A Pod is the smallest deployable unit that can contain one or more containers sharing the same network namespace, IP address, and storage volumes. It's the basic unit because Kubernetes doesn't manage containers directly - it schedules, scales, and manages Pods. Containers in a Pod can communicate via localhost and share volumes."
+    },
+    {
+      "question": "Explain Pod lifecycle phases. What does Pending mean vs Running?",
+      "answer": "Phases: Pending (accepted but not scheduled/images pulling), Running (bound to node, at least one container running), Succeeded (all containers terminated successfully), Failed (terminated with failure), Unknown (can't determine state). Pending often indicates scheduling issues or image pull problems."
+    },
+    {
+      "question": "What is the difference between container restartPolicy: Always, OnFailure, and Never?",
+      "answer": "Always: restart regardless of exit code (typical for long-running apps). OnFailure: restart only on non-zero exit (jobs/batch). Never: never restart (one-time tasks). Default is Always. Policy applies to all containers in the Pod."
+    },
+    {
+      "question": "What is CrashLoopBackOff and how do you debug it?",
+      "answer": "Container repeatedly crashes and restarts with exponential backoff delay. Debug: kubectl logs pod-name, kubectl logs pod-name --previous (previous crash), kubectl describe pod (events), check application errors, verify image, check resource limits, liveness/readiness probes."
+    },
+    {
+      "question": "What are Init Containers and how do they differ from regular containers?",
+      "answer": "Init containers run before app containers, run to completion sequentially, must succeed before app starts. Uses: wait for services, setup/config, security checks. Regular containers run in parallel continuously. Init containers don't support liveness/readiness probes."
+    },
+    {
+      "question": "How do containers in the same Pod communicate with each other?",
+      "answer": "Via localhost since they share network namespace. Example: container A on port 8080, container B can reach it at localhost:8080. They also share volumes for file-based communication. No service needed for intra-pod communication."
+    },
+    {
+      "question": "What is the difference between resource requests and limits?",
+      "answer": "Requests: guaranteed resources, used for scheduling decisions (node must have this available). Limits: maximum allowed, container throttled (CPU) or killed (memory) if exceeded. QoS classes: Guaranteed (requests=limits), Burstable (has limits), BestEffort (no requests/limits)."
+    },
+    {
+      "question": "What happens if a Pod exceeds its memory limit?",
+      "answer": "Pod is OOMKilled (Out Of Memory). Container restarts based on restartPolicy. kubectl describe pod shows OOMKilled in last state. kubectl get events shows memory exceeded. Solution: increase memory limit, optimize app, check for memory leaks."
+    },
+    {
+      "question": "Predict output: kubectl get pod mypod -o jsonpath='{.status.phase}'",
+      "answer": "Returns pod phase as string: Pending, Running, Succeeded, Failed, or Unknown. Useful for scripting and automation to check pod state programmatically."
+    },
+    {
+      "question": "What is the sidecar pattern and give a real-world example?",
+      "answer": "Sidecar: additional container that enhances/extends main app container. Example: logging sidecar (Fluentd) reads app logs from shared volume and forwards to centralized logging. Other examples: service mesh proxy (Envoy/Istio), monitoring agent, config reloader."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Pod has 2 containers. First exits with code 0, second with code 1. What is Pod phase?",
+      "answer": "Failed - if ANY container fails, Pod phase is Failed (unless restartPolicy causes restart)."
+    },
+    {
+      "type": "command",
+      "question": "Get only pod names in current namespace",
+      "answer": "kubectl get pods -o custom-columns=NAME:.metadata.name --no-headers"
+    },
+    {
+      "type": "debug",
+      "question": "Pod stuck in ImagePullBackOff. What are the top 3 causes?",
+      "answer": "1) Image doesn't exist or wrong tag 2) No access to private registry (imagePullSecrets missing) 3) Network issues reaching registry. Check: kubectl describe pod, verify image name/tag, check registry credentials."
+    },
+    {
+      "type": "scenario",
+      "question": "Create pod that runs busybox, sleeps 3600s, with 100Mi memory limit",
+      "answer": "kubectl run busybox --image=busybox --restart=Never --limits=memory=100Mi -- sleep 3600"
+    },
+    {
+      "type": "tricky",
+      "question": "Can two containers in same Pod bind to the same port?",
+      "answer": "No! They share network namespace. Port conflict occurs. Use different ports or listen on different interfaces."
+    },
+    {
+      "type": "output",
+      "question": "kubectl logs mypod with 3 containers. What happens?",
+      "answer": "Error: Must specify container with -c flag when pod has multiple containers. Example: kubectl logs mypod -c container-name"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Pod Running but app not accessible. How to investigate?",
+      "answer": "1) kubectl exec -it pod -- curl localhost:port (test from inside) 2) Check service selector 3) Check readiness probe 4) kubectl logs 5) kubectl describe pod (events) 6) Verify exposed ports"
+    },
+    {
+      "type": "command",
+      "question": "View previous crashed container's logs",
+      "answer": "kubectl logs pod-name -c container-name --previous"
+    },
+    {
+      "type": "scenario",
+      "question": "Pod needs to wait for database to be ready before starting. How?",
+      "answer": "Use init container that checks DB connectivity (e.g., nc -z db-host 5432 or curl). Only starts app containers when init succeeds."
+    },
+    {
+      "type": "tricky",
+      "question": "Predict: Pod has restartPolicy: OnFailure. Container exits with code 0. Does it restart?",
+      "answer": "No. OnFailure only restarts on non-zero exit code. Exit code 0 = success, no restart. Pod phase becomes Succeeded."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create pod with 2 nginx containers, delete it imperatively",
+      "code": "# This is tricky - can't have 2 containers with same name\nkubectl run pod1 --image=nginx --dry-run=client -o yaml > pod.yaml\n# Edit yaml to add second container\nkubectl apply -f pod.yaml\nkubectl delete pod pod1 --force --grace-period=0",
+      "output": "Pod created with 2 containers, immediately deleted"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Multi-container pod - app on 8080, sidecar logger accessing shared volume",
+      "code": "apiVersion: v1\\nkind: Pod\\nmetadata:\\n  name: app-logger\\nspec:\\n  volumes:\\n  - name: shared-logs\\n    emptyDir: {}\\n  containers:\\n  - name: app\\n    image: busybox\\n    command: [\"sh\", \"-c\", \"while true; do echo $(date) >> /logs/app.log; sleep 5; done\"]\\n    volumeMounts:\\n    - name: shared-logs\\n      mountPath: /logs\\n  - name: logger\\n    image: busybox\\n    command: [\"sh\", \"-c\", \"tail -f /logs/app.log\"]\\n    volumeMounts:\\n    - name: shared-logs\\n      mountPath: /logs",
+      "output": "App writes logs, sidecar reads and displays them continuously"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Pod with init container that waits for service to be available",
+      "code": "apiVersion: v1\\nkind: Pod\\nmetadata:\\n  name: myapp\\nspec:\\n  initContainers:\\n  - name: wait-for-db\\n    image: busybox\\n    command: ['sh', '-c', 'until nslookup db-service; do echo waiting for db; sleep 2; done']\\n  containers:\\n  - name: app\\n    image: nginx",
+      "output": "Init waits for db-service DNS, then app container starts"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Create pod, check its IP, exec into it and curl itself",
+      "code": "kubectl run testpod --image=nginx\\nPOD_IP=$(kubectl get pod testpod -o jsonpath='{.status.podIP}')\\necho $POD_IP\\nkubectl exec testpod -- curl -s localhost:80",
+      "output": "Shows pod IP (e.g., 10.244.1.5), nginx welcome page from curl"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Trigger OOMKilled by exceeding memory limit",
+      "code": "kubectl run oom-test --image=progrium/stress --limits=memory=50Mi -- --vm 1 --vm-bytes 100M\\nkubectl wait --for=condition=Ready pod/oom-test --timeout=30s\\nkubectl get pod oom-test\\nkubectl describe pod oom-test | grep -A 5 'Last State'",
+      "output": "Pod shows OOMKilled, restarts repeatedly (CrashLoopBackOff)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Extract all container names from a multi-container pod",
+      "code": "kubectl get pod multi-pod -o jsonpath='{.spec.containers[*].name}'",
+      "output": "app sidecar init-container (space-separated list)"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Pod that exits successfully, verify Succeeded phase",
+      "code": "kubectl run success-pod --image=busybox --restart=Never -- sh -c 'echo success && exit 0'\\nsleep 5\\nkubectl get pod success-pod -o jsonpath='{.status.phase}'",
+      "output": "Succeeded"
+    }
+  ]
+}

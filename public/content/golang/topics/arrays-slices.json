@@ -1,0 +1,61 @@
+{
+  "id": "arrays-slices",
+  "title": "Arrays & Slices",
+  "description": "Fixed-size arrays and dynamic slices. Slices are more commonly used.",
+  "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n    // Array (fixed size)\n    var arr [5]int\n    arr[0] = 1\n    arr[1] = 2\n    \n    // Array literal\n    primes := [6]int{2, 3, 5, 7, 11, 13}\n    \n    // Slice (dynamic)\n    var s []int\n    s = append(s, 1, 2, 3)\n    \n    // Make slice with capacity\n    nums := make([]int, 5)    // len=5, cap=5\n    nums2 := make([]int, 0, 5) // len=0, cap=5\n    \n    // Slice literal\n    foods := []string{\"pizza\", \"burger\", \"pasta\"}\n    \n    // Slicing\n    subSlice := primes[1:4] // [3 5 7]\n    \n    fmt.Println(arr, primes, s, nums, foods, subSlice)\n}",
+  "example": "// Append to slice\nnums := []int{1, 2}\nnums = append(nums, 3, 4, 5)\nnums = append(nums, []int{6, 7, 8}...)\n\n// Copy slice\nsrc := []int{1, 2, 3}\ndst := make([]int, len(src))\ncopy(dst, src)\n\n// Iterate\nfor i, v := range nums {\n    fmt.Printf(\"Index: %d, Value: %d\\n\", i, v)\n}\n\n// Length and capacity\nlen(nums) // Number of elements\ncap(nums) // Capacity",
+  "useCase": "Collections, lists, dynamic arrays, data processing",
+  "explanation": "Arrays are fixed-length values; slices are lightweight descriptors over arrays (pointer, length, capacity). Interviewers often probe append reallocation effects, shared backing array side effects, and copy-based isolation.",
+  "interviewQuestions": [
+    {
+      "question": "Why are slices preferred over arrays in Go APIs?",
+      "answer": "Slices are flexible and ergonomic for variable-size data; arrays include length in type and are less convenient to pass around."
+    },
+    {
+      "question": "What does capacity represent for slices?",
+      "answer": "Maximum length before reallocation from current starting point in backing array."
+    },
+    {
+      "question": "Why can modifying one slice affect another?",
+      "answer": "Different slices may share the same backing array, so writes can be visible across views."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Find len/cap for `s := make([]int, 2, 5)`.",
+      "answer": "len=2, cap=5"
+    },
+    {
+      "type": "debug",
+      "question": "Fix a bug where helper appends to slice but caller doesn’t see expected updates."
+    },
+    {
+      "type": "implement",
+      "question": "Clone a slice defensively before mutation in a function."
+    },
+    {
+      "type": "tricky",
+      "question": "Why can append trigger allocation and break shared data assumptions?",
+      "answer": "Capacity overflow causes new backing array allocation."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Observe len/cap changes during append.",
+      "code": "s := make([]int, 0, 1)\nfor i := 0; i < 4; i++ {\n  s = append(s, i)\n  fmt.Println(len(s), cap(s))\n}",
+      "output": "capacity grows as needed"
+    },
+    {
+      "question": "Program 2: Shared backing array side effect.",
+      "code": "base := []int{1,2,3,4}\na := base[:2]\nb := base[1:3]\na[1] = 99\nfmt.Println(base, b)",
+      "output": "[1 99 3 4] [99 3]"
+    },
+    {
+      "question": "Program 3: Safe clone before mutation.",
+      "code": "src := []int{1,2,3}\ndst := append([]int(nil), src...)\ndst[0] = 100\nfmt.Println(src, dst)",
+      "output": "[1 2 3] [100 2 3]"
+    }
+  ],
+  "category": "Data Structures"
+}

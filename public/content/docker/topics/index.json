@@ -1,0 +1,44 @@
+[
+  {
+    "id": "docker-basics",
+    "file": "topics/docker-basics.json",
+    "title": "Docker Core Concepts",
+    "category": "Docker Basics"
+  },
+  {
+    "id": "dockerfile",
+    "file": "topics/dockerfile.json",
+    "title": "Dockerfile",
+    "category": "Docker Basics"
+  },
+  {
+    "id": "docker-build",
+    "file": "topics/docker-build.json",
+    "title": "Building Images",
+    "category": "Docker Basics"
+  },
+  {
+    "id": "networks",
+    "file": "topics/networks.json",
+    "title": "Docker Networks",
+    "category": "Docker Networking & Volumes"
+  },
+  {
+    "id": "volumes",
+    "file": "topics/volumes.json",
+    "title": "Docker Volumes",
+    "category": "Docker Networking & Volumes"
+  },
+  {
+    "id": "docker-compose",
+    "file": "topics/docker-compose.json",
+    "title": "Docker Compose Basics",
+    "category": "Docker Compose"
+  },
+  {
+    "id": "docker-swarm",
+    "file": "topics/docker-swarm.json",
+    "title": "Docker Commands Reference",
+    "category": "Docker Compose"
+  }
+]

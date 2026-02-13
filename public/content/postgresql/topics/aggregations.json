@@ -1,0 +1,9 @@
+{
+  "id": "aggregations",
+  "title": "Aggregate Functions",
+  "description": "Perform calculations on sets of rows: COUNT, SUM, AVG, MIN, MAX.",
+  "code": "-- COUNT\nSELECT COUNT(*) FROM users;\nSELECT COUNT(DISTINCT city) FROM users;\n\n-- SUM\nSELECT SUM(amount) FROM orders;\n\n-- AVG\nSELECT AVG(price) FROM products;\n\n-- MIN and MAX\nSELECT MIN(price), MAX(price) FROM products;\n\n-- GROUP BY\nSELECT category, COUNT(*), AVG(price) \nFROM products \nGROUP BY category;\n\n-- HAVING (filter groups)\nSELECT category, AVG(price) as avg_price \nFROM products \nGROUP BY category \nHAVING AVG(price) > 100;",
+  "example": "-- Multiple aggregations\nSELECT \n  category,\n  COUNT(*) as product_count,\n  SUM(stock) as total_stock,\n  AVG(price) as avg_price,\n  MIN(price) as min_price,\n  MAX(price) as max_price\nFROM products \nGROUP BY category \nORDER BY product_count DESC;\n\n-- GROUP BY multiple columns\nSELECT \n  DATE(created_at) as date,\n  status,\n  COUNT(*) as order_count,\n  SUM(total) as revenue\nFROM orders \nWHERE created_at >= NOW() - INTERVAL '7 days'\nGROUP BY DATE(created_at), status;",
+  "useCase": "Reports, analytics, statistics, dashboards, summaries",
+  "category": "Basic Queries"
+}

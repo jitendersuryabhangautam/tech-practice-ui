@@ -1,0 +1,164 @@
+{
+  "id": "object-methods",
+  "title": "Object.keys/values/entries",
+  "category": "Object Operations",
+  "description": "Methods to iterate over object properties.",
+  "explanation": "Methods to iterate over object properties.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "implementation": "const user = {name: 'John', age: 30, city: 'NYC'};\n\nObject.keys(user);    // ['name', 'age', 'city']\nObject.values(user);  // ['John', 30, 'NYC']\nObject.entries(user); // [['name','John'], ['age',30], ['city','NYC']]",
+  "example": "const scores = {math: 90, science: 85, history: 88};\n\nObject.entries(scores).forEach(([subject, score]) => {\n  console.log(`${subject}: ${score}`);\n});\n\nconst total = Object.values(scores).reduce((a, b) => a + b);",
+  "useCase": "Iterating objects, converting to arrays, filtering object properties",
+  "interviewQuestions": [
+    {
+      "question": "When to use Object.keys vs Object.values vs Object.entries?",
+      "answer": "Use keys for property names, values for value lists, entries for key-value iteration and transformations."
+    },
+    {
+      "question": "Do these methods include inherited properties?",
+      "answer": "No. They return only own enumerable properties of the object."
+    },
+    {
+      "question": "How can you transform an object using Object.entries?",
+      "answer": "Convert to entries, map/filter entries, then rebuild with Object.fromEntries."
+    },
+    {
+      "question": "What order does Object.keys return?",
+      "answer": "Numeric-like keys are ordered ascending first, then string keys by insertion order."
+    },
+    {
+      "question": "What is a common edge case with Object.entries and symbol keys?",
+      "answer": "Symbol keys are not included by Object.keys/values/entries; use Object.getOwnPropertySymbols when needed."
+    },
+    {
+      "question": "How to iterate key-value pairs safely?",
+      "answer": "Use for (const [k,v] of Object.entries(obj)) for predictable own enumerable iteration."
+    },
+    {
+      "question": "When is Object.fromEntries useful?",
+      "answer": "After mapping/filtering entries, convert back to object using Object.fromEntries(entries)."
+    },
+    {
+      "question": "Does Object.keys include non-enumerable fields?",
+      "answer": "No. It includes only own enumerable string-keyed properties."
+    },
+    {
+      "question": "How to get property descriptors?",
+      "answer": "Use Object.getOwnPropertyDescriptors(obj) when attributes like writable/configurable matter."
+    },
+    {
+      "question": "How to include symbols while iterating all own keys?",
+      "answer": "Use Reflect.ownKeys(obj) to include string keys and symbol keys."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict output: Object.keys({2:\"b\",1:\"a\",x:\"c\"})",
+      "answer": "[\"1\",\"2\",\"x\"]",
+      "output": "[\"1\",\"2\",\"x\"]"
+    },
+    {
+      "type": "output",
+      "question": "Predict output: Object.values({a:1,b:2}).reduce((s,n)=>s+n,0)",
+      "answer": "3",
+      "output": "3"
+    },
+    {
+      "type": "implement",
+      "question": "Write toPairs(obj) using Object.entries."
+    },
+    {
+      "type": "implement",
+      "question": "Create pickBy(obj, predicate) using entries + fromEntries."
+    },
+    {
+      "type": "debug",
+      "question": "for...in iterates unexpected prototype keys. Fix iteration.",
+      "answer": "Use Object.entries/keys or hasOwnProperty check."
+    },
+    {
+      "type": "debug",
+      "question": "Need symbol keys too while iterating. Which API?",
+      "answer": "Use Reflect.ownKeys(obj)."
+    },
+    {
+      "type": "refactor",
+      "question": "Convert object values to total using Object.values + reduce."
+    },
+    {
+      "type": "scenario",
+      "question": "Convert query params object to query string using Object.entries."
+    },
+    {
+      "type": "tricky",
+      "question": "Do Object.keys/values/entries include inherited properties?",
+      "answer": "No, only own enumerable properties."
+    },
+    {
+      "type": "tricky",
+      "question": "Do Object.entries include symbol keys?",
+      "answer": "No. Use Reflect.ownKeys for symbols."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Print all keys from object using Object.keys.",
+      "code": "const obj = { name: \"A\", age: 20, city: \"B\" };\nconsole.log(Object.keys(obj));",
+      "output": "[ \"name\", \"age\", \"city\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Calculate sum of all numeric values using Object.values.",
+      "code": "const marks = { math: 90, sci: 85, eng: 95 };\nconst total = Object.values(marks).reduce((a, b) => a + b, 0);\nconsole.log(total);",
+      "output": "270"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Loop key-value pairs using Object.entries.",
+      "code": "const user = { id: 1, name: \"Amit\" };\nfor (const [k, v] of Object.entries(user)) {\n  console.log(k, v);\n}",
+      "output": "id 1\nname Amit"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Convert object to query string using entries.",
+      "code": "const params = { q: \"js\", page: 2 };\nconst qs = new URLSearchParams(Object.entries(params)).toString();\nconsole.log(qs);",
+      "output": "q=js&page=2"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Filter object keys whose values are numbers only.",
+      "code": "const mixed = { a: 1, b: \"x\", c: 3, d: true };\nconst onlyNums = Object.fromEntries(Object.entries(mixed).filter(([, v]) => typeof v === \"number\"));\nconsole.log(onlyNums);",
+      "output": "{ a: 1, c: 3 }"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Invert object (key<->value) using entries/fromEntries.",
+      "code": "const roleById = { 1: \"admin\", 2: \"user\" };\nconst idByRole = Object.fromEntries(Object.entries(roleById).map(([k, v]) => [v, k]));\nconsole.log(idByRole);",
+      "output": "{ admin: \"1\", user: \"2\" }"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Count object properties using Object.keys length.",
+      "code": "const cart = { apple: 2, banana: 3, orange: 1 };\nconsole.log(Object.keys(cart).length);",
+      "output": "3"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Create array of \"key:value\" strings from object.",
+      "code": "const env = { NODE_ENV: \"dev\", PORT: 3000 };\nconst lines = Object.entries(env).map(([k, v]) => `${k}:${v}`);\nconsole.log(lines);",
+      "output": "[ \"NODE_ENV:dev\", \"PORT:3000\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Check if all values are non-empty strings.",
+      "code": "const form = { first: \"A\", last: \"B\" };\nconst valid = Object.values(form).every(v => typeof v === \"string\" && v.trim() !== \"\");\nconsole.log(valid);",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Build object from transformed entries (uppercase keys).",
+      "code": "const input = { a: 1, b: 2 };\nconst upper = Object.fromEntries(Object.entries(input).map(([k, v]) => [k.toUpperCase(), v]));\nconsole.log(upper);",
+      "output": "{ A: 1, B: 2 }"
+    }
+  ]
+}

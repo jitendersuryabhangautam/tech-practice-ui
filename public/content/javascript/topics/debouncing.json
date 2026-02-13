@@ -1,0 +1,144 @@
+{
+  "id": "debouncing",
+  "title": "Debouncing",
+  "description": "Debouncing limits the rate at which a function is executed. It delays execution until after a specified time period has elapsed since the last invocation. Imagine typing in a search box - without debouncing, a search request would fire for every keystroke. With debouncing, the search only fires after you've stopped typing for a specified duration (e.g., 300ms).",
+  "explanation": "Debouncing is essential for optimizing performance in scenarios where rapid consecutive function calls would be wasteful or harmful. The technique works by setting a timer each time the function is called, and clearing any existing timer. Only when the timer completes without interruption does the function actually execute.\n\nKey benefits:\n- Reduces unnecessary API calls\n- Improves application performance\n- Enhances user experience by preventing jank\n- Saves bandwidth and server resources\n\nHow it works:\n1. User triggers an event (e.g., typing)\n2. Timer starts/resets\n3. If user triggers again before timer ends, reset timer\n4. When user stops, timer completes\n5. Function finally executes",
+  "implementation": "function debounce(func, delay) {\n  let timeoutId;\n  return function(...args) {\n    clearTimeout(timeoutId);\n    timeoutId = setTimeout(() => {\n      func.apply(this, args);\n    }, delay);\n  };\n}",
+  "example": "// Search implementation\nconst searchInput = debounce((query) => {\n  console.log('Searching for:', query);\n  // Make API call here\n  fetch(`/api/search?q=${query}`);\n}, 300);\n\n// Usage in React\nconst handleSearch = (e) => {\n  searchInput(e.target.value);\n};\n\n// Only executes after 300ms of no typing\n<input onChange={handleSearch} />",
+  "useCase": "Search inputs, window resize events, auto-save features, form validation",
+  "interviewQuestions": [
+    {
+      "question": "When should debouncing be used?",
+      "answer": "When repeated rapid events should trigger action only after user stops firing events."
+    },
+    {
+      "question": "Debounce vs throttle in one sentence?",
+      "answer": "Debounce waits for silence; throttle guarantees periodic execution during activity."
+    },
+    {
+      "question": "Leading vs trailing debounce?",
+      "answer": "Leading fires immediately then waits; trailing fires after the quiet period ends."
+    },
+    {
+      "question": "What memory bug appears in naive debounce?",
+      "answer": "Uncleared timers in component lifecycle can leak work; clear on cleanup/unmount."
+    },
+    {
+      "question": "Where is debounce dangerous?",
+      "answer": "Critical actions where delayed execution harms UX or correctness, e.g., urgent controls."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "In trailing debounce(300ms), user types continuously for 2s. How many calls?",
+      "answer": "One call after typing stops (if no pauses >= 300ms)."
+    },
+    {
+      "type": "implement",
+      "question": "Implement debounce(fn, delay).",
+      "code": "function debounce(fn, delay){\n  let t;\n  return (...args)=>{\n    clearTimeout(t);\n    t=setTimeout(()=>fn(...args), delay);\n  };\n}"
+    },
+    {
+      "type": "debug",
+      "question": "Debounced React handler uses stale state. Fix?",
+      "answer": "Use refs/functional updates or recreate handler carefully with dependencies."
+    },
+    {
+      "type": "scenario",
+      "question": "Search API should not fire on every keypress. Apply debounce with 300ms.",
+      "answer": "Wrap search trigger in debounced function and call from input change."
+    },
+    {
+      "type": "output",
+      "question": "User types continuously for 2s with trailing debounce(300). Calls executed?",
+      "answer": "1 final call after typing stops."
+    },
+    {
+      "type": "output",
+      "question": "Debounce with leading=true,trailing=false on quick burst gives?",
+      "answer": "Only immediate first call in each burst window."
+    },
+    {
+      "type": "implement",
+      "question": "Implement debounce(fn, delay) trailing version."
+    },
+    {
+      "type": "implement",
+      "question": "Implement debounce with cancel() support."
+    },
+    {
+      "type": "debug",
+      "question": "Debounced handler in React uses stale props/state. Fix?",
+      "answer": "Use refs/functional updates or recreate debounced callback with correct dependencies."
+    },
+    {
+      "type": "debug",
+      "question": "Memory leak in debounced component. Why?",
+      "answer": "Pending timer not cleared on unmount; cleanup must clearTimeout."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Basic trailing debounce utility.",
+      "code": "function debounce(fn,delay){\n  let t;\n  return (...args)=>{\n    clearTimeout(t);\n    t=setTimeout(()=>fn(...args),delay);\n  };\n}\nconst log=debounce(v=>console.log(v),50);\nlog(\"A\"); log(\"B\"); setTimeout(()=>log(\"C\"),10);",
+      "output": "C"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Debounced search simulation.",
+      "code": "function debounce(fn, d){let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a),d);};}\nconst search=debounce(q=>console.log(\"search:\",q),80);\nsearch(\"j\"); search(\"js\"); search(\"js \"); search(\"js interview\");",
+      "output": "search: js interview"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Debounce with cancel method.",
+      "code": "function makeDebounce(fn,d){\n  let t;\n  const wrapped=(...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a),d);};\n  wrapped.cancel=()=>clearTimeout(t);\n  return wrapped;\n}\nconst d=makeDebounce(console.log,50);\nd(\"will-cancel\"); d.cancel();",
+      "output": "(no output)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Debounce resize handler mock.",
+      "code": "function debounce(fn,d){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),d)}}\nconst onResize=debounce(()=>console.log(\"recalculate layout\"),60);\nonResize(); onResize(); onResize();",
+      "output": "recalculate layout"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Compare direct call vs debounced call count.",
+      "code": "let direct=0, deb=0;\nconst inc=()=>deb++;\nfunction debounce(fn,d){let t;return()=>{clearTimeout(t);t=setTimeout(fn,d)}}\nconst d=debounce(inc,40);\nfor(let i=0;i<5;i++){direct++; d();}\nsetTimeout(()=>console.log(direct,deb),60);",
+      "output": "5 1"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Leading debounce variant (simple).",
+      "code": "function debounceLeading(fn,d){\n  let t=null;\n  return (...a)=>{\n    if(!t) fn(...a);\n    clearTimeout(t);\n    t=setTimeout(()=>{t=null;},d);\n  };\n}\nconst fn=debounceLeading(console.log,50);\nfn(\"A\"); fn(\"B\"); fn(\"C\");",
+      "output": "A"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Debounced autosave mock.",
+      "code": "function debounce(fn,d){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),d)}}\nconst save=debounce(content=>console.log(\"saved:\",content),70);\nsave(\"v1\"); save(\"v2\"); save(\"final\");",
+      "output": "saved: final"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Debounce input validation.",
+      "code": "function debounce(fn,d){let t;return(v)=>{clearTimeout(t);t=setTimeout(()=>fn(v),d)}}\nconst validate=debounce(v=>console.log(v.length>=3),40);\nvalidate(\"j\"); validate(\"js\"); validate(\"js1\");",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Debounce with preserved this using apply.",
+      "code": "function debounce(fn,d){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),d)}}\nconst obj={x:5,print(v){console.log(this.x,v)}};\nobj.d=debounce(obj.print,30);\nobj.d(\"ok\");",
+      "output": "5 ok"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Debounced API call simulator with promise.",
+      "code": "function debounce(fn,d){let t;return(...a)=>new Promise(res=>{clearTimeout(t);t=setTimeout(()=>res(fn(...a)),d);});}\nconst api=q=>`result:${q}`;\nconst d=debounce(api,40);\nd(\"a\"); d(\"ab\"); d(\"abc\").then(console.log);",
+      "output": "result:abc"
+    }
+  ],
+  "category": "Core Concepts"
+}

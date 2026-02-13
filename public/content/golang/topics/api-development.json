@@ -1,0 +1,159 @@
+{
+  "id": "api-development",
+  "title": "API Development (net/http)",
+  "description": "Build HTTP JSON APIs with method guards, validation, middleware, and graceful shutdown.",
+  "explanation": "Interview focus: thin handlers, status code semantics, consistent error models, and context propagation.",
+  "code": "mux := http.NewServeMux()\nmux.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {\n  w.Header().Set(\"Content-Type\", \"application/json\")\n  _ = json.NewEncoder(w).Encode(map[string]string{\"status\":\"ok\"})\n})\nlog.Fatal(http.ListenAndServe(\":8080\", mux))",
+  "example": "if r.Method != http.MethodPost {\n  http.Error(w, \"method not allowed\", http.StatusMethodNotAllowed)\n  return\n}",
+  "useCase": "Service APIs, webhooks, internal backend endpoints.",
+  "interviewQuestions": [
+    {
+      "question": "Why keep handlers thin?",
+      "answer": "Better testability and separation of concerns."
+    },
+    {
+      "question": "Why set Content-Type explicitly?",
+      "answer": "Clients and gateways parse response correctly as JSON."
+    },
+    {
+      "question": "When to return 201?",
+      "answer": "After successful resource creation."
+    },
+    {
+      "question": "Method guard purpose?",
+      "answer": "Return 405 for unsupported methods and enforce contract."
+    },
+    {
+      "question": "How to validate JSON payloads?",
+      "answer": "Decode + field validation + proper 400/422 response."
+    },
+    {
+      "question": "Why pass r.Context downstream?",
+      "answer": "Timeout and cancellation propagation."
+    },
+    {
+      "question": "What does middleware solve?",
+      "answer": "Cross-cutting concerns like logging/auth/recovery."
+    },
+    {
+      "question": "How to protect from oversized payload?",
+      "answer": "Use http.MaxBytesReader."
+    },
+    {
+      "question": "How to shut down gracefully?",
+      "answer": "Use http.Server.Shutdown(ctx)."
+    },
+    {
+      "question": "Common decode bug?",
+      "answer": "Ignoring json decode errors and proceeding."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Implement GET /health returning JSON."
+    },
+    {
+      "type": "implement",
+      "question": "Implement POST /users with decode and validation."
+    },
+    {
+      "type": "output",
+      "question": "Status code for method not allowed?",
+      "answer": "405"
+    },
+    {
+      "type": "debug",
+      "question": "API returns text/plain not JSON. What to fix?"
+    },
+    {
+      "type": "scenario",
+      "question": "Add logging middleware with duration."
+    },
+    {
+      "type": "implement",
+      "question": "Write JSON error helper."
+    },
+    {
+      "type": "debug",
+      "question": "Huge payload crashes service. What protection?"
+    },
+    {
+      "type": "scenario",
+      "question": "Propagate request timeout to DB layer."
+    },
+    {
+      "type": "tricky",
+      "question": "Are net/http handlers concurrent?",
+      "answer": "Yes."
+    },
+    {
+      "type": "tricky",
+      "question": "Should panic be used for validation errors?",
+      "answer": "No."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Minimal health endpoint.",
+      "code": "mux := http.NewServeMux()\nmux.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {\n  _ = json.NewEncoder(w).Encode(map[string]string{\"status\":\"ok\"})\n})",
+      "output": "serves /health"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Method guard block.",
+      "code": "if r.Method != http.MethodPost {\n  http.Error(w, \"method not allowed\", http.StatusMethodNotAllowed)\n  return\n}",
+      "output": "405 on invalid method"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Decode JSON body.",
+      "code": "var body map[string]string\nif err := json.NewDecoder(r.Body).Decode(&body); err != nil {\n  http.Error(w, \"bad request\", http.StatusBadRequest)\n  return\n}",
+      "output": "decoded or 400"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: writeJSON helper.",
+      "code": "func writeJSON(w http.ResponseWriter, code int, v any) {\n  w.Header().Set(\"Content-Type\", \"application/json\")\n  w.WriteHeader(code)\n  _ = json.NewEncoder(w).Encode(v)\n}",
+      "output": "helper ready"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: writeErr helper.",
+      "code": "func writeErr(w http.ResponseWriter, code int, msg string) {\n  writeJSON(w, code, map[string]string{\"error\": msg})\n}",
+      "output": "consistent error body"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Logging middleware.",
+      "code": "func logging(next http.Handler) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    start := time.Now()\n    next.ServeHTTP(w, r)\n    log.Println(r.Method, r.URL.Path, time.Since(start))\n  })\n}",
+      "output": "logs method/path/duration"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Query param read.",
+      "code": "id := r.URL.Query().Get(\"id\")\nfmt.Fprintln(w, \"id:\", id)",
+      "output": "prints id"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Limit body size.",
+      "code": "r.Body = http.MaxBytesReader(w, r.Body, 1<<20)",
+      "output": "max 1MB"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Graceful shutdown skeleton.",
+      "code": "srv := &http.Server{Addr: \":8080\", Handler: mux}\ngo srv.ListenAndServe()\nctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)\ndefer cancel()\n_ = srv.Shutdown(ctx)",
+      "output": "graceful shutdown flow"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Not found fallback check.",
+      "code": "if r.URL.Path != \"/\" {\n  http.NotFound(w, r)\n  return\n}",
+      "output": "404 for unknown routes"
+    }
+  ],
+  "category": "Backend Development"
+}

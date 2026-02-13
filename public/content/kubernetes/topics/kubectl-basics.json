@@ -1,0 +1,147 @@
+{
+  "id": "kubectl-basics",
+  "title": "Essential kubectl Commands",
+  "description": "Core commands for managing Kubernetes clusters and resources.",
+  "command": "# Cluster info\nkubectl cluster-info\nkubectl version\nkubectl get nodes\n\n# Get resources\nkubectl get all\nkubectl get pods --all-namespaces\nkubectl get deployments -o wide\nkubectl get services -o yaml\n\n# Create/apply resources\nkubectl apply -f manifest.yaml\nkubectl apply -f ./manifests/\nkubectl create deployment nginx --image=nginx\n\n# Delete resources\nkubectl delete -f manifest.yaml\nkubectl delete pod my-pod\nkubectl delete deployment my-deploy\n\n# Describe resources\nkubectl describe pod my-pod\nkubectl describe node worker-1\n\n# Edit resources\nkubectl edit deployment my-deploy",
+  "example": "# Watch resources in real-time\nkubectl get pods -w\nkubectl get events -w\n\n# Get resource usage\nkubectl top nodes\nkubectl top pods\n\n# Copy files to/from pod\nkubectl cp ./local-file pod-name:/remote-path\nkubectl cp pod-name:/remote-file ./local-file\n\n# Run temporary pod\nkubectl run test-pod --image=busybox --rm -it -- sh\n\n# Debug pod\nkubectl debug my-pod -it --image=busybox\n\n# Diff before apply\nkubectl diff -f manifest.yaml\n\n# Label resources\nkubectl label pods my-pod environment=production",
+  "useCase": "Daily operations, troubleshooting, resource management, deployments",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between kubectl create and kubectl apply?",
+      "answer": "create: imperative, creates new resource, errors if exists. apply: declarative, creates or updates, uses last-applied-configuration annotation. apply tracks changes, supports GitOps. Use apply for production."
+    },
+    {
+      "question": "What are kubectl resource shortnames and why use them?",
+      "answer": "po=pods, svc=services, deploy=deployments, rs=replicasets, ns=namespaces, cm=configmaps, pv=persistentvolumes, pvc=persistentvolumeclaims, no=nodes. Faster typing: 'kubectl get po' vs 'kubectl get pods'. View all: kubectl api-resources."
+    },
+    {
+      "question": "Output: kubectl get pods -o wide vs -o yaml. What additional info?",
+      "answer": "-o wide: IP, Node, Nominated Node, Readiness Gates (single line). -o yaml: full spec + status (multi-line). Use 'wide' for quick overview, 'yaml' for debugging/copying config."
+    },
+    {
+      "question": "Tricky: kubectl delete pod with grace period. What is default and how to force?",
+      "answer": "Default: 30s grace period (SIGTERM, then SIGKILL after timeout). Force immediate: kubectl delete pod mypod --grace-period=0 --force. Dangerous: may cause data loss, only for stuck pods."
+    },
+    {
+      "question": "What is --dry-run=client vs --dry-run=server?",
+      "answer": "client: validates locally, no API call. server: sends to API server, validates against admission controllers, doesn't persist. Use server for accurate validation (RBAC, webhooks). Combine with -o yaml for manifest generation."
+    },
+    {
+      "question": "How to filter resources using field selectors?",
+      "answer": "kubectl get pods --field-selector=status.phase=Running,metadata.namespace=default. Limited fields supported (status.phase, metadata.name, metadata.namespace, spec.nodeName). Check: kubectl get <resource> --field-selector=''"
+    },
+    {
+      "question": "What is kubectl explain and why is it useful?",
+      "answer": "Shows documentation for resource fields. kubectl explain pod.spec.containers. Recursive: kubectl explain pod --recursive. No internet needed, version-specific docs. Faster than searching online."
+    },
+    {
+      "question": "Tricky: kubectl get events vs kubectl describe. When to use each?",
+      "answer": "kubectl get events: cluster-wide events, sortable (--sort-by=.metadata.creationTimestamp), filterable by namespace. describe: events related to ONE resource only. Use 'get events' for overview, 'describe' for specific resource debugging."
+    },
+    {
+      "question": "Output: kubectl delete -f manifest.yaml with multiple resources. What order?",
+      "answer": "Reverse order of creation. Services deleted before Pods, ConfigMaps after Pods using them. Prevents dependency issues. Use --cascade=foreground for waiting."
+    },
+    {
+      "question": "What is kubectl top and what does it require?",
+      "answer": "Shows resource usage (CPU, memory). Requires metrics-server installed. kubectl top nodes (node usage), kubectl top pods (pod usage), kubectl top pods --containers (per-container). Not historical, current only."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "List all pods in all namespaces showing node and IP",
+      "answer": "kubectl get pods --all-namespaces -o wide"
+    },
+    {
+      "type": "output",
+      "question": "Generate deployment YAML without creating it",
+      "answer": "kubectl create deployment nginx --image=nginx --replicas=3 --dry-run=client -o yaml > deploy.yaml"
+    },
+    {
+      "type": "scenario",
+      "question": "Create pod with multiple labels (app=web, env=prod, version=1.0)",
+      "answer": "kubectl run mypod --image=nginx --labels='app=web,env=prod,version=1.0'"
+    },
+    {
+      "type": "debug",
+      "question": "Pod stuck in Pending. What kubectl commands to diagnose?",
+      "answer": "1) kubectl describe pod <name> (check Events). 2) kubectl get events --sort-by=.metadata.creationTimestamp. 3) kubectl top nodes (check resources). 4) kubectl get pvc (if volumes pending)."
+    },
+    {
+      "type": "command",
+      "question": "Watch pods for changes in real-time",
+      "answer": "kubectl get pods -w (or kubectl get pods --watch)"
+    },
+    {
+      "type": "tricky",
+      "question": "Copy file FROM pod container to local machine",
+      "answer": "kubectl cp <namespace>/<podname>:/path/to/file ./local-file (add -c <container> if multi-container pod)"
+    },
+    {
+      "type": "command",
+      "question": "Force delete a pod immediately (stuck in Terminating)",
+      "answer": "kubectl delete pod mypod --grace-period=0 --force"
+    },
+    {
+      "type": "scenario",
+      "question": "Get logs from previous crashed container",
+      "answer": "kubectl logs mypod --previous (or -p). Shows logs before CrashLoopBackOff restart."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Service not routing to pods. Quick kubectl checks?",
+      "answer": "1) kubectl get endpoints <svc> (endpoints populated?). 2) kubectl get pods -l <selector> (pods matching selector?). 3) kubectl describe svc <svc> (check selector). 4) kubectl get pods -o wide (pod IPs match endpoints?)."
+    },
+    {
+      "type": "command",
+      "question": "Show explain documentation for pod containers spec",
+      "answer": "kubectl explain pod.spec.containers (or kubectl explain pod.spec.containers.resources for nested)"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create deployment imperatively, scale, verify",
+      "code": "kubectl create deployment web --image=nginx --replicas=2\\nkubectl get deploy web\\nkubectl scale deployment web --replicas=5\\nkubectl get pods -l app=web --no-headers | wc -l",
+      "output": "5 (scaled to 5 replicas)"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Generate pod YAML, modify, apply",
+      "code": "kubectl run testpod --image=busybox --dry-run=client -o yaml -- sleep 3600 > pod.yaml\\n# Edit pod.yaml to add label app=test\\nkubectl apply -f pod.yaml\\nkubectl get pod testpod -o jsonpath='{.metadata.labels.app}'",
+      "output": "test"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Test field selector filtering",
+      "code": "kubectl run pod1 --image=nginx\\nkubectl run pod2 --image=busybox -- sleep 3600\\nkubectl get pods --field-selector=status.phase=Running",
+      "output": "Only Running pods listed (pod1, pod2 if both running)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Copy file to pod, exec in pod, verify",
+      "code": "echo 'Hello Kubernetes' > test.txt\\nkubectl run filepod --image=nginx\\nkubectl cp test.txt filepod:/usr/share/nginx/html/index.html\\nkubectl exec filepod -- cat /usr/share/nginx/html/index.html",
+      "output": "Hello Kubernetes"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Test dry-run server validation",
+      "code": "kubectl run test --image=nginx --dry-run=server -o yaml > test.yaml\\nkubectl apply -f test.yaml --dry-run=server\\nkubectl get pods test",
+      "output": "Error: pod not found (dry-run didn't create resource)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Check resource usage with top",
+      "code": "kubectl top nodes\\nkubectl top pods --all-namespaces --sort-by=memory",
+      "output": "Nodes and pods sorted by memory usage (requires metrics-server)"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Watch events in real-time",
+      "code": "kubectl get events -w --sort-by=.metadata.creationTimestamp &\\nkubectl run eventtest --image=nginx\\n# Watch shows pod scheduling, pulling, starting events in real-time",
+      "output": "Events stream: Scheduled → Pulling → Pulled → Created → Started"
+    }
+  ],
+  "category": "kubectl Commands"
+}

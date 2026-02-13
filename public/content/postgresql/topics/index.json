@@ -1,0 +1,50 @@
+[
+  {
+    "id": "select",
+    "file": "topics/select.json",
+    "title": "SELECT Queries",
+    "category": "Basic Queries"
+  },
+  {
+    "id": "insert-update-delete",
+    "file": "topics/insert-update-delete.json",
+    "title": "INSERT, UPDATE, DELETE",
+    "category": "Basic Queries"
+  },
+  {
+    "id": "aggregations",
+    "file": "topics/aggregations.json",
+    "title": "Aggregate Functions",
+    "category": "Basic Queries"
+  },
+  {
+    "id": "joins",
+    "file": "topics/joins.json",
+    "title": "JOIN Types",
+    "category": "Joins & Relationships"
+  },
+  {
+    "id": "subqueries",
+    "file": "topics/subqueries.json",
+    "title": "Subqueries",
+    "category": "Joins & Relationships"
+  },
+  {
+    "id": "indexes",
+    "file": "topics/indexes.json",
+    "title": "Indexes",
+    "category": "Performance & Optimization"
+  },
+  {
+    "id": "query-optimization",
+    "file": "topics/query-optimization.json",
+    "title": "Query Optimization",
+    "category": "Performance & Optimization"
+  },
+  {
+    "id": "transactions",
+    "file": "topics/transactions.json",
+    "title": "Transactions",
+    "category": "Performance & Optimization"
+  }
+]

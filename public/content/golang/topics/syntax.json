@@ -1,0 +1,87 @@
+{
+  "id": "syntax",
+  "title": "Basic Syntax & Types",
+  "description": "Go's fundamental syntax, variable declarations, and basic types.",
+  "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n    // Variable declarations\n    var name string = \"John\"\n    age := 30 // Short declaration\n    \n    // Basic types\n    var i int = 42\n    var f float64 = 3.14\n    var b bool = true\n    var s string = \"Hello\"\n    \n    // Constants\n    const Pi = 3.14159\n    \n    // Multiple declarations\n    var x, y int = 1, 2\n    a, b := \"hello\", true\n    \n    fmt.Println(name, age, i, f, b, s)\n}",
+  "example": "// Type conversion\nvar i int = 42\nvar f float64 = float64(i)\nvar u uint = uint(f)\n\n// Zero values\nvar i int      // 0\nvar f float64  // 0.0\nvar b bool     // false\nvar s string   // \"\"\n\n// Strings\nstr :=\n\n \"Hello, World\"\nmultiline := `Line 1\nLine 2\nLine 3`",
+  "useCase": "Basic Go programs, declaring variables, working with types",
+  "explanation": "This topic is the foundation for every Go interview round. Focus on declaration styles (`var` vs `:=`), default zero values, explicit type conversion (Go avoids implicit numeric coercion), and constants with `iota`. Interviewers often test whether you understand compile-time type safety and practical implications of zero values in real services.",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between `var` and `:=` in Go?",
+      "answer": "`:=` is short declaration with type inference and can be used only inside functions. `var` works at both package and function scope and optionally allows explicit type."
+    },
+    {
+      "question": "Why does Go avoid implicit type conversions?",
+      "answer": "It reduces hidden bugs and forces explicit intent, especially for numeric conversions where precision or sign may change."
+    },
+    {
+      "question": "What are zero values and why are they useful?",
+      "answer": "Every declared variable gets a deterministic default (`0`, `false`, `\"\"`, `nil`). This reduces uninitialized-memory bugs and simplifies defensive coding."
+    },
+    {
+      "question": "When would you prefer explicit type declarations over inference?",
+      "answer": "When API clarity matters, when literal defaults are ambiguous, or when you want to make contracts obvious for teammates and reviewers."
+    },
+    {
+      "question": "How do constants differ from variables in Go?",
+      "answer": "Constants are immutable and can be untyped, enabling flexible compile-time expressions. Variables are runtime values with concrete types."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "theory",
+      "question": "Explain zero value behavior for int, string, bool, slice, map, and pointer."
+    },
+    {
+      "type": "tricky",
+      "question": "Why does `var x int = 3.14` fail while `var y float64 = 3.14` works?",
+      "answer": "Go does not allow implicit narrowing/precision-loss conversion."
+    },
+    {
+      "type": "implement",
+      "question": "Write declarations for the same value using `var` and `:=`, then compare inferred types."
+    },
+    {
+      "type": "output",
+      "question": "What prints: `var s string; fmt.Println(len(s), s == \"\")`?",
+      "answer": "0 true"
+    },
+    {
+      "type": "debug",
+      "question": "Fix a snippet where `:=` is mistakenly used at package scope."
+    },
+    {
+      "type": "scenario",
+      "question": "Choose between typed and untyped constants for a reusable math utility package."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Print zero values for key Go types.",
+      "code": "var i int\nvar f float64\nvar b bool\nvar s string\nvar sl []int\nfmt.Printf(\"%d %.1f %t %q %v\\n\", i, f, b, s, sl == nil)",
+      "output": "0 0.0 false \"\" true"
+    },
+    {
+      "question": "Program 2: Compare `var` and `:=` declarations.",
+      "code": "var a int = 10\nb := 10\nfmt.Printf(\"%T %T\\n\", a, b)",
+      "output": "int int"
+    },
+    {
+      "question": "Program 3: Explicit conversion demo.",
+      "code": "var i int = 42\nvar f float64 = float64(i)\nfmt.Printf(\"%T %.1f\\n\", f, f)",
+      "output": "float64 42.0"
+    },
+    {
+      "question": "Program 4: Untyped constant behavior.",
+      "code": "const n = 5\nvar x int64 = n\nfmt.Printf(\"%T %d\\n\", x, x)",
+      "output": "int64 5"
+    },
+    {
+      "question": "Program 5: Multi-variable declaration and swap.",
+      "code": "x, y := 1, 2\nx, y = y, x\nfmt.Println(x, y)",
+      "output": "2 1"
+    }
+  ],
+  "category": "Go Basics"
+}

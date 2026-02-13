@@ -1,0 +1,98 @@
+[
+  {
+    "id": "destructuring",
+    "file": "topics/destructuring.json",
+    "title": "Object Destructuring",
+    "category": "Object Operations"
+  },
+  {
+    "id": "spread-rest",
+    "file": "topics/spread-rest.json",
+    "title": "Spread & Rest Operators",
+    "category": "Object Operations"
+  },
+  {
+    "id": "object-methods",
+    "file": "topics/object-methods.json",
+    "title": "Object.keys/values/entries",
+    "category": "Object Operations"
+  },
+  {
+    "id": "strings",
+    "file": "topics/strings.json",
+    "title": "Strings",
+    "category": "Core Language"
+  },
+  {
+    "id": "functions",
+    "file": "topics/functions.json",
+    "title": "Functions",
+    "category": "Core Language"
+  },
+  {
+    "id": "map",
+    "file": "topics/map.json",
+    "title": "Array.map()",
+    "category": "Array Methods"
+  },
+  {
+    "id": "filter",
+    "file": "topics/filter.json",
+    "title": "Array.filter()",
+    "category": "Array Methods"
+  },
+  {
+    "id": "find-findindex",
+    "file": "topics/find-findindex.json",
+    "title": "Array.find() & findIndex()",
+    "category": "Array Methods"
+  },
+  {
+    "id": "reduce",
+    "file": "topics/reduce.json",
+    "title": "Array.reduce()",
+    "category": "Array Methods"
+  },
+  {
+    "id": "currying",
+    "file": "topics/currying.json",
+    "title": "Currying",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "promises",
+    "file": "topics/promises.json",
+    "title": "Promises",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "async-await",
+    "file": "topics/async-await.json",
+    "title": "Async/Await",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "promise-all",
+    "file": "topics/promise-all.json",
+    "title": "Promise.all() & Promise.race()",
+    "category": "Async Programming"
+  },
+  {
+    "id": "debouncing",
+    "file": "topics/debouncing.json",
+    "title": "Debouncing",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "throttling",
+    "file": "topics/throttling.json",
+    "title": "Throttling",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "local-storage",
+    "file": "topics/local-storage.json",
+    "title": "Local Storage and Session Storage",
+    "category": "Browser APIs"
+  }
+]

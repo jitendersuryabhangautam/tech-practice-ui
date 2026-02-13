@@ -1,0 +1,148 @@
+{
+  "id": "dockerfile",
+  "title": "Dockerfile",
+  "category": "Docker Basics",
+  "description": "Create custom Docker images using Dockerfile instructions.",
+  "explanation": "A Dockerfile is a text document containing commands to assemble an image. Each instruction creates a layer in the image. Understanding layer caching, multi-stage builds, and instruction order is critical for creating efficient images.\n\nInterview focus:\n- Dockerfile instructions (FROM, RUN, COPY, ADD, ENV, etc.)\n- Layer caching and build optimization\n- Multi-stage builds for smaller images\n- ENTRYPOINT vs CMD\n- Best practices for security and size\n- .dockerignore usage",
+  "code": "# Dockerfile example\nFROM node:18-alpine\n\n# Set working directory\nWORKDIR /app\n\n# Copy package files\nCOPY package*.json ./\n\n# Install dependencies\nRUN npm install --production\n\n# Copy application code\nCOPY . .\n\n# Expose port\nEXPOSE 3000\n\n# Set environment variable\nENV NODE_ENV=production\n\n# Define the command to run the app\nCMD [\"node\", \"server.js\"]",
+  "example": "# Multi-stage build\nFROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm install --production\nCMD [\"node\", \"dist/server.js\"]\n\n# Python Dockerfile\nFROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install -r requirements.txt\nCOPY . .\nCMD [\"python\", \"app.py\"]",
+  "useCase": "Creating custom images, reproducible builds, CI/CD pipelines",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between COPY and ADD in Dockerfile?",
+      "answer": "COPY simply copies files/directories from source to destination. ADD has additional features: can extract tar files and download files from URLs. Best practice is to use COPY unless you specifically need ADD's extra features."
+    },
+    {
+      "question": "What is the difference between CMD and ENTRYPOINT?",
+      "answer": "CMD provides default arguments that can be overridden at runtime. ENTRYPOINT defines the executable and can't be easily overridden. Often used together: ENTRYPOINT for executable, CMD for default arguments. Example: ENTRYPOINT ['python'] CMD ['app.py']"
+    },
+    {
+      "question": "How does Docker layer caching work and why does it matter?",
+      "answer": "Docker caches each layer. If an instruction hasn't changed, it reuses cached layer. Order matters: put frequently changing instructions last. Example: COPY package.json before COPY . so dependency installs are cached even when code changes."
+    },
+    {
+      "question": "What is a multi-stage build and why use it?",
+      "answer": "Multi-stage builds use multiple FROM statements in one Dockerfile. Build artifacts from earlier stages can be copied to later stages. Benefits: much smaller final images (no build tools), cleaner separation of concerns, better security (fewer attack vectors)."
+    },
+    {
+      "question": "How do you minimize Docker image size?",
+      "answer": "Use alpine base images, multi-stage builds, combine RUN commands with &&, remove cache files (apt-get clean, npm cache clean), use .dockerignore, avoid installing unnecessary packages, leverage layer caching properly."
+    },
+    {
+      "question": "What is .dockerignore and why is it important?",
+      "answer": ".dockerignore excludes files from build context, similar to .gitignore. Reduces build context size, speeds up builds, prevents sensitive files from being copied. Include node_modules, .git, logs, test files."
+    },
+    {
+      "question": "Explain the exec form vs shell form for CMD and ENTRYPOINT.",
+      "answer": "Exec form: CMD ['executable', 'param'] - runs directly, no shell processing, PID 1 is the app. Shell form: CMD executable param - runs in /bin/sh -c, enables variable substitution but app isn't PID 1. Exec form is preferred."
+    },
+    {
+      "question": "What is the purpose of ARG instruction?",
+      "answer": "ARG defines build-time variables passed via --build-arg. Only available during build, not in running container. Use for versions, build configs. Example: ARG NODE_VERSION=18, then FROM node:${NODE_VERSION}."
+    },
+    {
+      "question": "Why should you avoid running containers as root?",
+      "answer": "Security risk: if container is compromised, attacker has root privileges. Best practice: create non-root user with RUN useradd, then USER username. Limits damage from security vulnerabilities."
+    },
+    {
+      "question": "How do you handle secrets in Dockerfile?",
+      "answer": "Never hardcode secrets. Use: Docker secrets (swarm), build-time secrets with --secret mount (BuildKit), ENV vars at runtime, external secret management (Vault). Don't use ARG for secrets (visible in image history)."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "write",
+      "question": "Write a Dockerfile for Node.js app with proper layer caching for npm install.",
+      "answer": "FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD ['node', 'server.js']"
+    },
+    {
+      "type": "optimize",
+      "question": "How would you optimize a Dockerfile that runs apt-get update and apt-get install in separate RUN commands?",
+      "answer": "Combine into one RUN: RUN apt-get update && apt-get install -y package && rm -rf /var/lib/apt/lists/* - reduces layers, prevents stale cache, cleans up."
+    },
+    {
+      "type": "debug",
+      "question": "Dockerfile builds successfully but container exits immediately. CMD is 'npm start'. What to check?",
+      "answer": "Check if npm start runs in foreground (not daemon). Verify package.json has start script. Check logs with docker logs. Ensure process doesn't exit. Try running interactively first."
+    },
+    {
+      "type": "scenario",
+      "question": "You need different Dockerfiles for dev and prod. How to organize?",
+      "answer": "Create Dockerfile.dev and Dockerfile.prod. Use docker build -f Dockerfile.prod. Or use multi-stage with target: docker build --target production. Or docker-compose with different build contexts."
+    },
+    {
+      "type": "security",
+      "question": "Review: FROM ubuntu, RUN apt-get install curl, USER root. What's wrong?",
+      "answer": "Ubuntu base is large (use alpine), missing apt-get update before install, running as root (create non-root user), no cleanup. Should minimize base image and use USER."
+    },
+    {
+      "type": "write",
+      "question": "Create multi-stage Dockerfile for Go app: build in one stage, run in alpine.",
+      "answer": "FROM golang:1.21 AS builder\nWORKDIR /app\nCOPY . .\nRUN go build -o main .\n\nFROM alpine\nCOPY --from=builder /app/main .\nCMD ['./main']"
+    },
+    {
+      "type": "explain",
+      "question": "What happens if you have multiple FROM instructions without AS names?",
+      "answer": "Only the last stage is built by default. Previous stages are only built if referenced with --from. Each FROM starts a new build stage."
+    },
+    {
+      "type": "scenario",
+      "question": "How to pass database URL at build time without exposing it in image?",
+      "answer": "Don't. Pass at runtime with -e or env_file. Build-time secrets stay in layers. Use ARG only for non-sensitive build configs. Use runtime ENV for secrets."
+    },
+    {
+      "type": "optimize",
+      "question": "Image is 800MB. How to reduce size for Python Flask app?",
+      "answer": "Use python:3.11-slim or alpine instead of full python image, multi-stage build, remove pip cache with --no-cache-dir, use .dockerignore, remove test/dev dependencies."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Build fails with 'COPY failed: stat /var/lib/docker/tmp/file: no such file'. Why?",
+      "answer": "File not in build context. Check if file exists relative to Dockerfile location. Verify .dockerignore isn't excluding it. Build context is the directory passed to docker build."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create Dockerfile for Python app with requirements.txt",
+      "code": "FROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nEXPOSE 5000\nCMD ['python', 'app.py']",
+      "output": "Successfully builds Python Flask/Django app image"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Multi-stage build for React app (build then serve with nginx)",
+      "code": "FROM node:18 AS build\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nRUN npm run build\n\nFROM nginx:alpine\nCOPY --from=build /app/build /usr/share/nginx/html\nEXPOSE 80\nCMD ['nginx', '-g', 'daemon off;']",
+      "output": "Production-ready React app served by nginx, small image size"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Dockerfile with non-root user for security",
+      "code": "FROM node:18-alpine\nRUN addgroup -g 1001 appgroup && adduser -D -u 1001 -G appgroup appuser\nWORKDIR /app\nCOPY --chown=appuser:appgroup . .\nUSER appuser\nEXPOSE 3000\nCMD ['node', 'app.js']",
+      "output": "Container runs as non-root user appuser"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Dockerfile with ARG for configurable Node version",
+      "code": "ARG NODE_VERSION=18\nFROM node:${NODE_VERSION}-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nCMD ['npm', 'start']\n\n# Build: docker build --build-arg NODE_VERSION=20 -t myapp .",
+      "output": "Builds with specified Node version from build arg"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Create .dockerignore to exclude node_modules, .git, tests",
+      "code": "node_modules\n.git\n.gitignore\n*.md\n.env\n.DS_Store\ntests\n__tests__\n*.test.js\ncoverage",
+      "output": "Build context excludes development files, faster builds"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Dockerfile combining multiple RUN commands efficiently",
+      "code": "FROM ubuntu:22.04\nRUN apt-get update && \\\n    apt-get install -y curl git && \\\n    rm -rf /var/lib/apt/lists/*\nWORKDIR /app",
+      "output": "Single layer with multiple commands, cleaned cache"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: ENTRYPOINT and CMD together for flexible container",
+      "code": "FROM python:3.11-slim\nWORKDIR /app\nCOPY . .\nENTRYPOINT [\"python\"]\nCMD [\"app.py\"]\n\n# Run: docker run image\n# Or: docker run image script.py",
+      "output": "Default runs app.py, can override with different script"
+    }
+  ]
+}

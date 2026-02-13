@@ -1,0 +1,160 @@
+{
+  "id": "db-connection",
+  "title": "Database Connection (database/sql)",
+  "description": "Use database/sql with pooled connections, context-aware queries, and safe parameterized SQL.",
+  "explanation": "Interview focus: sql.Open vs PingContext, connection pool tuning, transactions, and proper error handling (especially sql.ErrNoRows).",
+  "code": "db, err := sql.Open(\"postgres\", dsn)\nif err != nil { return err }\ndefer db.Close()\ndb.SetMaxOpenConns(25)\ndb.SetMaxIdleConns(10)\nctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)\ndefer cancel()\nif err := db.PingContext(ctx); err != nil { return err }",
+  "example": "var name string\nerr := db.QueryRowContext(ctx, \"SELECT name FROM users WHERE id=$1\", id).Scan(&name)\nif err == sql.ErrNoRows {\n  return \"\", errors.New(\"not found\")\n}",
+  "useCase": "Production APIs with PostgreSQL/MySQL, repository pattern, transactional business logic.",
+  "interviewQuestions": [
+    {
+      "question": "What does database/sql provide?",
+      "answer": "A standard abstraction over SQL drivers with pooled connections."
+    },
+    {
+      "question": "Does sql.Open validate connectivity?",
+      "answer": "Not fully; use Ping/PingContext for actual connectivity checks."
+    },
+    {
+      "question": "Why pass context to DB calls?",
+      "answer": "To enforce deadlines and cancellation under slow or failing infrastructure."
+    },
+    {
+      "question": "How do you prevent SQL injection?",
+      "answer": "Use placeholders with query parameters, never string-concatenate user input."
+    },
+    {
+      "question": "When do you use QueryRowContext?",
+      "answer": "When expecting a single row result."
+    },
+    {
+      "question": "How do you handle missing rows?",
+      "answer": "Check `err == sql.ErrNoRows` and map to domain error."
+    },
+    {
+      "question": "Why close rows from QueryContext?",
+      "answer": "To release resources and avoid connection leaks/pool starvation."
+    },
+    {
+      "question": "When should transactions be used?",
+      "answer": "When multiple writes must succeed or fail as one atomic unit."
+    },
+    {
+      "question": "Should sql.DB be created per request?",
+      "answer": "No. Create once and reuse globally."
+    },
+    {
+      "question": "What pool settings usually matter?",
+      "answer": "SetMaxOpenConns, SetMaxIdleConns, SetConnMaxLifetime (and optionally max idle lifetime)."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Implement DB startup health check with 2 second timeout."
+    },
+    {
+      "type": "implement",
+      "question": "Write repository GetByID method returning domain not-found error."
+    },
+    {
+      "type": "output",
+      "question": "What does Scan return when no row exists?",
+      "answer": "sql.ErrNoRows"
+    },
+    {
+      "type": "debug",
+      "question": "Rows are never closed in loop. What symptom appears?",
+      "answer": "Connection leak and eventual DB pool exhaustion."
+    },
+    {
+      "type": "debug",
+      "question": "API hangs under DB load. Which settings do you inspect first?"
+    },
+    {
+      "type": "scenario",
+      "question": "Design transaction rollback strategy for money transfer flow."
+    },
+    {
+      "type": "implement",
+      "question": "Add parameterized insert with context timeout."
+    },
+    {
+      "type": "scenario",
+      "question": "Propagate request context from handler to repository."
+    },
+    {
+      "type": "tricky",
+      "question": "Is sql.DB concurrency-safe?",
+      "answer": "Yes."
+    },
+    {
+      "type": "tricky",
+      "question": "Should you build SQL with fmt.Sprintf(userInput)?",
+      "answer": "No."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Ping DB with timeout.",
+      "code": "ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)\ndefer cancel()\nfmt.Println(db.PingContext(ctx) == nil)",
+      "output": "true (if DB reachable)"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Query one row by id.",
+      "code": "var email string\nerr := db.QueryRowContext(ctx, \"SELECT email FROM users WHERE id=$1\", 1).Scan(&email)\nfmt.Println(err == nil)",
+      "output": "true (if row exists)"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Insert and rows affected.",
+      "code": "res, _ := db.ExecContext(ctx, \"INSERT INTO logs(message) VALUES($1)\", \"hello\")\nn, _ := res.RowsAffected()\nfmt.Println(n)",
+      "output": "1"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Handle sql.ErrNoRows branch.",
+      "code": "err := db.QueryRowContext(ctx, \"SELECT id FROM users WHERE id=$1\", -1).Scan(new(int64))\nfmt.Println(err == sql.ErrNoRows)",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Basic transaction commit/rollback flow.",
+      "code": "tx, _ := db.BeginTx(ctx, nil)\n_, err := tx.ExecContext(ctx, \"UPDATE items SET stock=stock-1 WHERE id=$1\", 1)\nif err != nil { _ = tx.Rollback() } else { _ = tx.Commit() }",
+      "output": "transaction path executed"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Pool setting and stats snapshot.",
+      "code": "db.SetMaxOpenConns(30)\nfmt.Println(db.Stats().MaxOpenConnections)",
+      "output": "30"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Iterate rows with defer Close.",
+      "code": "rows, _ := db.QueryContext(ctx, \"SELECT id FROM users LIMIT 2\")\ndefer rows.Close()\nfor rows.Next() { var id int; _ = rows.Scan(&id); fmt.Println(id) }",
+      "output": "prints ids"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Prepared statement reuse.",
+      "code": "stmt, _ := db.PrepareContext(ctx, \"SELECT name FROM users WHERE id=$1\")\ndefer stmt.Close()\nvar name string\n_ = stmt.QueryRowContext(ctx, 1).Scan(&name)\nfmt.Println(name)",
+      "output": "prints user name"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Timeout cancellation demo.",
+      "code": "ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)\ndefer cancel()\nfmt.Println(db.PingContext(ctx) != nil)",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Repository interface contract.",
+      "code": "type UserRepo interface {\n  GetByID(ctx context.Context, id int64) (User, error)\n}",
+      "output": "compiles"
+    }
+  ],
+  "category": "Backend Development"
+}

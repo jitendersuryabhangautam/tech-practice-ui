@@ -1,0 +1,9 @@
+{
+  "id": "route-handlers",
+  "title": "Route Handlers",
+  "description": "Create API endpoints using route.js files in the app directory.",
+  "code": "// app/api/users/route.js\nimport { NextResponse } from 'next/server';\n\nexport async function GET(request) {\n  const users = await db.getUsers();\n  return NextResponse.json(users);\n}\n\nexport async function POST(request) {\n  const body = await request.json();\n  const newUser = await db.createUser(body);\n  return NextResponse.json(newUser, { status: 201 });\n}\n\nexport async function PUT(request) {\n  // Update logic\n}\n\nexport async function DELETE(request) {\n  // Delete logic\n}",
+  "example": "// With dynamic segments\n// app/api/users/[id]/route.js\nexport async function GET(request, { params }) {\n  const user = await db.getUser(params.id);\n  \n  if (!user) {\n    return NextResponse.json(\n      { error: 'User not found' },\n      { status: 404 }\n    );\n  }\n  \n  return NextResponse.json(user);\n}\n\n// With search params\nexport async function GET(request) {\n  const searchParams = request.nextUrl.searchParams;\n  const query = searchParams.get('q');\n  \n  const results = await search(query);\n  return NextResponse.json(results);\n}",
+  "useCase": "REST APIs, webhooks, form submissions, data mutations, external integrations",
+  "category": "API Routes"
+}

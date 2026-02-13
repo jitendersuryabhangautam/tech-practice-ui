@@ -1,0 +1,148 @@
+{
+  "id": "docker-swarm",
+  "title": "Docker Commands Reference",
+  "category": "Docker Compose",
+  "description": "Essential Docker commands for container management and troubleshooting.",
+  "explanation": "Mastering Docker CLI commands is essential for effective container management, debugging, and optimization. This includes container lifecycle, resource management, monitoring, and system maintenance commands that are frequently asked in interviews.\n\nInterview focus:\n- Container lifecycle commands\n- Resource monitoring and limits\n- System maintenance and cleanup\n- Debugging and troubleshooting\n- Image management and optimization\n- Performance tuning",
+  "command": "# Container management\ndocker run -it --rm alpine sh  # Interactive, remove after exit\ndocker attach container-name   # Attach to running container\ndocker cp file.txt container:/path  # Copy files\ndocker export container > backup.tar  # Export container\n\n# System commands\ndocker system df  # Show disk usage\ndocker system prune  # Remove unused data\ndocker system prune -a  # Remove all unused images\n\n# Image management\ndocker history image-name  # Show image layers\ndocker commit container new-image  # Create image from container\n\n# Container stats and monitoring\ndocker stats  # Live resource usage\ndocker top container-name  # Running processes\ndocker port container-name  # Port mappings\ndocker diff container-name # File system changes",
+  "example": "# Clean up everything\ndocker system prune -a --volumes\n\n# Run with resource limits\ndocker run -d \\\n  --memory=\"512m\" \\\n  --cpus=\"1.5\" \\\n  --name limited-container \\\n  nginx\n\n# Health check in Dockerfile\nHEALTHCHECK --interval=30s --timeout=3s \\\n  CMD curl -f http://localhost/ || exit 1\n\n# Update container restart policy\ndocker update --restart unless-stopped container-name\n\n# View real-time events\ndocker events\n\n# Format output\ndocker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"",
+  "useCase": "Troubleshooting, monitoring, resource management, maintenance",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between docker attach and docker exec?",
+      "answer": "docker attach connects to container's main process (PID 1), shares stdin/stdout, exiting kills container. docker exec runs new process in container, can run commands without affecting main process. Use exec for debugging."
+    },
+    {
+      "question": "How do you limit container memory and CPU usage?",
+      "answer": "Use --memory and --cpus flags: docker run --memory='512m' --cpus='1.5' image. Also: --memory-swap, --memory-reservation, --cpu-shares. Monitor with docker stats. Prevents resource exhaustion."
+    },
+    {
+      "question": "What does docker system prune do and when to use it?",
+      "answer": "Removes unused data: stopped containers, dangling images, unused networks. docker system prune -a removes all unused images (not just dangling). Use regularly to free disk space, especially in CI/CD."
+    },
+    {
+      "question": "How do you copy files between host and container?",
+      "answer": "docker cp: host to container: docker cp file.txt container:/path, container to host: docker cp container:/path/file.txt ./. Works with running or stopped containers. No volume needed."
+    },
+    {
+      "question": "What is docker diff and what does it show?",
+      "answer": "Shows filesystem changes in container vs image. A=added, D=deleted, C=changed files. Useful for debugging, understanding container state, or deciding what to include in new image."
+    },
+    {
+      "question": "How do you view real-time resource usage for all containers?",
+      "answer": "docker stats shows live CPU, memory, network I/O, disk I/O for all running containers. docker stats container-name for specific container. Press Ctrl+C to exit. Useful for performance monitoring."
+    },
+    {
+      "question": "What is docker commit and why is it generally discouraged?",
+      "answer": "Creates new image from container's changes. Discouraged because: not reproducible, no version control, can include secrets/temp files, can't leverage caching. Use Dockerfile instead for production."
+    },
+    {
+      "question": "How do you view what ports a container is listening on?",
+      "answer": "docker port container-name shows port mappings. docker inspect container --format='{{.NetworkSettings.Ports}}' for detailed info in JSON. Lists container ports and their host mappings."
+    },
+    {
+      "question": "What does docker update do and what can you update?",
+      "answer": "Updates container configuration without recreating: --restart policy, --memory, --cpu-shares, --cpus. Example: docker update --restart=always container. Useful for adjusting running containers."
+    },
+    {
+      "question": "How do you monitor Docker events in real-time?",
+      "answer": "docker events shows real-time stream of Docker daemon events: start, stop, die, kill, create, destroy, etc. Filter with --filter event=start. Useful for debugging, auditing, automation."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Show disk usage by Docker (images, containers, volumes)",
+      "answer": "docker system df"
+    },
+    {
+      "type": "command",
+      "question": "Remove all stopped containers, unused networks, dangling images",
+      "answer": "docker system prune"
+    },
+    {
+      "type": "scenario",
+      "question": "Run container with memory limit of 256MB and 0.5 CPU cores",
+      "answer": "docker run --memory='256m' --cpus='0.5' image-name"
+    },
+    {
+      "type": "command",
+      "question": "Copy log file from container to current host directory",
+      "answer": "docker cp container-name:/var/log/app.log ./"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Container using 100% CPU. How to investigate?",
+      "answer": "docker stats container-name to confirm, docker top container-name to see processes, docker exec -it container sh to enter and investigate. Check application logs."
+    },
+    {
+      "type": "command",
+      "question": "View changes made to container filesystem",
+      "answer": "docker diff container-name"
+    },
+    {
+      "type": "command",
+      "question": "Update restart policy of running container to always restart",
+      "answer": "docker update --restart=always container-name"
+    },
+    {
+      "type": "scenario",
+      "question": "View all Docker events related to container starts",
+      "answer": "docker events --filter event=start"
+    },
+    {
+      "type": "command",
+      "question": "Format docker ps output to show only names and status",
+      "answer": "docker ps --format \"table {{.Names}}\\t{{.Status}}\""
+    },
+    {
+      "type": "cleanup",
+      "question": "Remove all Docker data (containers, images, volumes, networks)",
+      "answer": "docker system prune -a --volumes"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Monitor resource usage of running containers",
+      "code": "docker run -d --name web nginx\ndocker run -d --name db postgres\ndocker stats --no-stream",
+      "output": "Shows CPU, memory, network, and disk usage for all containers"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Copy file into container, verify it exists",
+      "code": "echo 'test content' > test.txt\ndocker run -d --name mycontainer alpine sleep 3600\ndocker cp test.txt mycontainer:/tmp/\ndocker exec mycontainer cat /tmp/test.txt",
+      "output": "test content - file successfully copied and read"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Run container with memory limit, trigger OOM",
+      "code": "docker run -it --rm --memory='50m' alpine sh -c 'dd if=/dev/zero of=/dev/null bs=1M count=100'",
+      "output": "Container killed by OOM when exceeding memory limit"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: View container filesystem changes",
+      "code": "docker run -d --name test alpine sh -c 'echo hello > /tmp/newfile && sleep 3600'\ndocker diff test",
+      "output": "A /tmp/newfile - shows files added to container"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Check disk usage, prune unused data",
+      "code": "docker system df\ndocker system prune -f\ndocker system df",
+      "output": "Shows disk usage before and after cleanup, space reclaimed"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: View running processes inside container",
+      "code": "docker run -d --name nginx-test nginx\ndocker top nginx-test",
+      "output": "Shows nginx master and worker processes running in container"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Update container restart policy without stopping it",
+      "code": "docker run -d --name persistent nginx\ndocker update --restart=always persistent\ndocker inspect persistent --format='{{.HostConfig.RestartPolicy.Name}}'",
+      "output": "always - restart policy updated on running container"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "select",
+  "title": "SELECT Queries",
+  "description": "Retrieve data from database tables with filtering, sorting, and limiting results.",
+  "code": "-- Basic SELECT\nSELECT * FROM users;\n\n-- Specific columns\nSELECT name, email, age FROM users;\n\n-- WHERE clause\nSELECT * FROM products \nWHERE price > 100 AND stock > 0;\n\n-- ORDER BY\nSELECT * FROM orders \nORDER BY created_at DESC;\n\n-- LIMIT and OFFSET\nSELECT * FROM posts \nORDER BY created_at DESC \nLIMIT 10 OFFSET 20;\n\n-- DISTINCT\nSELECT DISTINCT category FROM products;",
+  "example": "-- Multiple conditions\nSELECT * FROM users \nWHERE age >= 18 \n  AND city = 'New York' \n  AND status = 'active';\n\n-- LIKE pattern matching\nSELECT * FROM users \nWHERE email LIKE '%@gmail.com';\n\n-- IN operator\nSELECT * FROM orders \nWHERE status IN ('pending', 'processing', 'shipped');\n\n-- BETWEEN\nSELECT * FROM products \nWHERE price BETWEEN 50 AND 100;",
+  "useCase": "Data retrieval, filtering, pagination, searching",
+  "category": "Basic Queries"
+}

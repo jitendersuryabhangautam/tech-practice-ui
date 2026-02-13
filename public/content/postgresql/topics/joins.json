@@ -1,0 +1,9 @@
+{
+  "id": "joins",
+  "title": "JOIN Types",
+  "description": "Combine rows from multiple tables based on related columns.",
+  "code": "-- INNER JOIN (matching rows only)\nSELECT users.name, orders.total, orders.status \nFROM users \nINNER JOIN orders ON users.id = orders.user_id;\n\n-- LEFT JOIN (all from left table)\nSELECT users.name, COUNT(orders.id) as order_count \nFROM users \nLEFT JOIN orders ON users.id = orders.user_id \nGROUP BY users.id, users.name;\n\n-- RIGHT JOIN (all from right table)\nSELECT users.name, orders.total \nFROM users \nRIGHT JOIN orders ON users.id = orders.user_id;\n\n-- FULL OUTER JOIN (all rows from both)\nSELECT * FROM table1 \nFULL OUTER JOIN table2 ON table1.id = table2.foreign_id;\n\n-- CROSS JOIN (cartesian product)\nSELECT * FROM colors CROSS JOIN sizes;",
+  "example": "-- Multiple joins\nSELECT \n  u.name as user_name,\n  o.id as order_id,\n  p.name as product_name,\n  oi.quantity,\n  oi.price\nFROM users u\nINNER JOIN orders o ON u.id = o.user_id\nINNER JOIN order_items oi ON o.id = oi.order_id\nINNER JOIN products p ON oi.product_id = p.id\nWHERE o.status = 'completed';\n\n-- Self join\nSELECT \n  e.name as employee,\n  m.name as manager\nFROM employees e\nLEFT JOIN employees m ON e.manager_id = m.id;",
+  "useCase": "Combining related data, complex queries, reporting, data analysis",
+  "category": "Joins & Relationships"
+}

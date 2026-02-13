@@ -1,0 +1,50 @@
+{
+  "id": "goroutines",
+  "title": "Goroutines",
+  "description": "Lightweight threads managed by Go runtime. Use 'go' keyword to start concurrent execution.",
+  "code": "package main\n\nimport (\n    \"fmt\"\n    \"time\"\n)\n\nfunc say(s string) {\n    for i := 0; i < 5; i++ {\n        time.Sleep(100 * time.Millisecond)\n        fmt.Println(s)\n    }\n}\n\nfunc main() {\n    // Start goroutine\n    go say(\"world\")\n    \n    // Main goroutine\n    say(\"hello\")\n    \n    // Wait for goroutines\n    time.Sleep(time.Second)\n}\n\n// Anonymous goroutine\nfunc main() {\n    go func() {\n        fmt.Println(\"Running in goroutine\")\n    }()\n    \n    time.Sleep(100 * time.Millisecond)\n}",
+  "example": "// Multiple goroutines\nfor i := 0; i < 5; i++ {\n    go func(n int) {\n        fmt.Println(\"Goroutine\", n)\n    }(i)\n}\n\n// Wait with sync.WaitGroup\nvar wg sync.WaitGroup\n\nfor i := 0; i < 5; i++ {\n    wg.Add(1)\n    go func(n int) {\n        defer wg.Done()\n        fmt.Println(\"Task\", n)\n    }(i)\n}\n\nwg.Wait()",
+  "useCase": "Concurrent tasks, parallel processing, background jobs, async operations",
+  "explanation": "Goroutines are lightweight units scheduled by Go runtime, not one-to-one OS threads. Interview depth includes lifecycle management, avoiding goroutine leaks, and synchronization with WaitGroup/context instead of arbitrary sleeps.",
+  "interviewQuestions": [
+    {
+      "question": "Why is `time.Sleep` a weak synchronization strategy?",
+      "answer": "It relies on timing assumptions and can be flaky; WaitGroup/channels/context provide deterministic coordination."
+    },
+    {
+      "question": "What is a goroutine leak?",
+      "answer": "A goroutine blocked forever due to missing cancellation or channel closure, causing resource growth over time."
+    },
+    {
+      "question": "How do you safely wait for multiple goroutines?",
+      "answer": "Use `sync.WaitGroup` and ensure each worker calls `Done()` via `defer`."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Run 5 workers concurrently and wait deterministically for completion."
+    },
+    {
+      "type": "debug",
+      "question": "Fix code where loop variable capture causes all goroutines to print same value."
+    },
+    {
+      "type": "scenario",
+      "question": "Add cancellation to background goroutine processing HTTP requests."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: WaitGroup synchronization.",
+      "code": "var wg sync.WaitGroup\nfor i := 0; i < 3; i++ {\n  wg.Add(1)\n  go func(n int) { defer wg.Done(); fmt.Println(\"job\", n) }(i)\n}\nwg.Wait()\nfmt.Println(\"done\")",
+      "output": "prints jobs then done"
+    },
+    {
+      "question": "Program 2: Loop capture fix.",
+      "code": "for i := 0; i < 3; i++ {\n  go func(v int) { fmt.Println(v) }(i)\n}",
+      "output": "prints 0,1,2 (order not guaranteed)"
+    }
+  ],
+  "category": "Concurrency"
+}

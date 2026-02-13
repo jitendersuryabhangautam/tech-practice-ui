@@ -1,0 +1,51 @@
+{
+  "id": "interfaces",
+  "title": "Interfaces",
+  "description": "Implicit interfaces that define behavior without explicit implementation.",
+  "code": "package main\n\nimport (\n    \"fmt\"\n    \"math\"\n)\n\n// Define interface\ntype Shape interface {\n    Area() float64\n    Perimeter() float64\n}\n\n// Rectangle implements Shape\ntype Rectangle struct {\n    Width, Height float64\n}\n\nfunc (r Rectangle) Area() float64 {\n    return r.Width * r.Height\n}\n\nfunc (r Rectangle) Perimeter() float64 {\n    return 2 * (r.Width + r.Height)\n}\n\n// Circle implements Shape\ntype Circle struct {\n    Radius float64\n}\n\nfunc (c Circle) Area() float64 {\n    return math.Pi * c.Radius * c.Radius\n}\n\nfunc (c Circle) Perimeter() float64 {\n    return 2 * math.Pi * c.Radius\n}\n\nfunc printShapeInfo(s Shape) {\n    fmt.Printf(\"Area: %.2f\\n\", s.Area())\n    fmt.Printf(\"Perimeter: %.2f\\n\", s.Perimeter())\n}\n\nfunc main() {\n    r := Rectangle{Width: 10, Height: 5}\n    c := Circle{Radius: 7}\n    \n    printShapeInfo(r)\n    printShapeInfo(c)\n}",
+  "example": "// Empty interface (any type)\nfunc printAnything(v interface{}) {\n    fmt.Println(v)\n}\n\n// Type assertion\nvar i interface{} = \"hello\"\ns := i.(string)\ns, ok := i.(string) // Safe type assertion\n\n// Type switch\nfunc describe(i interface{}) {\n    switch v := i.(type) {\n    case int:\n        fmt.Printf(\"Integer: %d\\n\", v)\n    case string:\n        fmt.Printf(\"String: %s\\n\", v)\n    default:\n        fmt.Printf(\"Unknown type\\n\")\n    }\n}",
+  "useCase": "Polymorphism, dependency injection, mocking, plugin systems",
+  "explanation": "Interfaces in Go are implicit contracts: a type satisfies an interface by implementing required methods. Interviewers often ask about small-interface design, nil-interface pitfalls, and type assertions/switches.",
+  "interviewQuestions": [
+    {
+      "question": "Why are small interfaces preferred in Go?",
+      "answer": "Small, focused interfaces are easier to implement, mock, and evolve without breaking many consumers."
+    },
+    {
+      "question": "What is the `nil interface` pitfall?",
+      "answer": "An interface can hold a typed nil pointer and still be non-nil because it stores type + value metadata."
+    },
+    {
+      "question": "When should type assertions be used carefully?",
+      "answer": "Use two-value assertion (`v, ok := i.(T)`) when dynamic types may vary to avoid panic."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Design a `Notifier` interface and provide email/sms implementations."
+    },
+    {
+      "type": "scenario",
+      "question": "Refactor a concrete repository dependency into interface-driven design for testing."
+    },
+    {
+      "type": "tricky",
+      "question": "Explain why `var r io.Reader = (*bytes.Buffer)(nil); r != nil`.",
+      "answer": "Interface has dynamic type set, so interface value itself is non-nil."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Interface satisfaction example.",
+      "code": "type Speaker interface{ Speak() string }\ntype Dog struct{}\nfunc (Dog) Speak() string { return \"woof\" }\nvar s Speaker = Dog{}\nfmt.Println(s.Speak())",
+      "output": "woof"
+    },
+    {
+      "question": "Program 2: Type switch handling.",
+      "code": "func kind(v any) string {\n  switch v.(type) {\n  case int: return \"int\"\n  case string: return \"string\"\n  default: return \"other\"\n  }\n}\nfmt.Println(kind(10), kind(\"go\"))",
+      "output": "int string"
+    }
+  ],
+  "category": "Go Basics"
+}

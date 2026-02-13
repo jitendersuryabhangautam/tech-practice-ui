@@ -1,0 +1,164 @@
+{
+  "id": "strings",
+  "category": "Core Language",
+  "title": "Strings",
+  "description": "Master JavaScript string fundamentals and methods used heavily in interviews and production code.",
+  "explanation": "Strings are immutable sequences of UTF-16 code units in JavaScript. Interview focus includes immutability, common methods (slice, substring, split, replace, includes, startsWith, endsWith, trim), template literals, regex usage, and output-based edge cases.\n\nKey points:\n- Strings are immutable; operations return new strings.\n- Prefer clear method choices (slice vs substring).\n- Template literals improve readability and interpolation.\n- Be careful with case sensitivity and locale operations.",
+  "implementation": "const str = \"  JavaScript Interview  \";\nconst clean = str.trim().toLowerCase();\nconst words = clean.split(\" \");\nconst slug = words.join(\"-\");\nconsole.log(slug);",
+  "example": "const email = \"USER@Example.com\";\nconst normalized = email.trim().toLowerCase();\nconsole.log(normalized.endsWith(\"@example.com\")); // true",
+  "useCase": "Input normalization, search, parsing, slug generation, validation, formatting.",
+  "interviewQuestions": [
+    {
+      "question": "Are JavaScript strings mutable?",
+      "answer": "No. Strings are immutable. Any transformation returns a new string."
+    },
+    {
+      "question": "Difference between slice and substring?",
+      "answer": "slice supports negative indexes; substring swaps start/end if needed and treats negatives as 0."
+    },
+    {
+      "question": "When to use template literals?",
+      "answer": "For interpolation, multiline strings, and improved readability over concatenation."
+    },
+    {
+      "question": "How does split behave with empty separator?",
+      "answer": "It splits into individual UTF-16 code units (characters for many common cases)."
+    },
+    {
+      "question": "How to do case-insensitive search safely?",
+      "answer": "Normalize both source and query (usually toLowerCase) before includes/indexOf."
+    },
+    {
+      "question": "What does trim remove?",
+      "answer": "Leading and trailing whitespace only, not inner spaces."
+    },
+    {
+      "question": "replace vs replaceAll?",
+      "answer": "replace replaces first match unless regex global flag used; replaceAll replaces all literal matches."
+    },
+    {
+      "question": "How to reverse a string quickly?",
+      "answer": "str.split(\"\").reverse().join(\"\") for basic cases."
+    },
+    {
+      "question": "What is localeCompare used for?",
+      "answer": "Locale-aware string comparison for sorting and internationalization."
+    },
+    {
+      "question": "Common bug in string comparison?",
+      "answer": "Forgetting normalization (case/whitespace) before comparing user input."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Output: \"abc\".toUpperCase()",
+      "answer": "ABC",
+      "output": "ABC"
+    },
+    {
+      "type": "output",
+      "question": "Output: \"  hi  \".trim().length",
+      "answer": "2",
+      "output": "2"
+    },
+    {
+      "type": "implement",
+      "question": "Implement isPalindrome(str) ignoring spaces and case."
+    },
+    {
+      "type": "implement",
+      "question": "Implement countVowels(str)."
+    },
+    {
+      "type": "debug",
+      "question": "Bug: using replace(\"a\",\"x\") expected all replacements.",
+      "answer": "Use replaceAll or global regex."
+    },
+    {
+      "type": "debug",
+      "question": "Bug: case-sensitive includes fails user search.",
+      "answer": "Normalize with toLowerCase."
+    },
+    {
+      "type": "scenario",
+      "question": "Generate SEO slug from title string."
+    },
+    {
+      "type": "scenario",
+      "question": "Mask email username except first 2 chars."
+    },
+    {
+      "type": "tricky",
+      "question": "Is \"abc\"[0] assignable?",
+      "answer": "No, strings are immutable."
+    },
+    {
+      "type": "tricky",
+      "question": "Difference between == and === for strings?",
+      "answer": "Usually same for primitive strings; === avoids coercion for mixed types."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Reverse a string.",
+      "code": "const s=\"javascript\";\nconsole.log(s.split(\"\").reverse().join(\"\"));",
+      "output": "tpircsavaj"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Check palindrome.",
+      "code": "function isPalindrome(str){\n  const c=str.toLowerCase().replace(/\\s+/g,\"\");\n  return c===c.split(\"\").reverse().join(\"\");\n}\nconsole.log(isPalindrome(\"Never odd or even\"));",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Count vowels.",
+      "code": "function countVowels(s){\n  return (s.match(/[aeiou]/gi)||[]).length;\n}\nconsole.log(countVowels(\"Interview\"));",
+      "output": "4"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Convert sentence to slug.",
+      "code": "const title=\"JavaScript String Methods\";\nconst slug=title.toLowerCase().trim().replace(/\\s+/g,\"-\");\nconsole.log(slug);",
+      "output": "javascript-string-methods"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Capitalize first letter of each word.",
+      "code": "const s=\"hello world\";\nconst out=s.split(\" \").map(w=>w[0].toUpperCase()+w.slice(1)).join(\" \");\nconsole.log(out);",
+      "output": "Hello World"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Remove duplicate characters.",
+      "code": "const s=\"aabbccdde\";\nconsole.log([...new Set(s)].join(\"\"));",
+      "output": "abcde"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Frequency map of characters.",
+      "code": "const s=\"banana\";\nconst freq=[...s].reduce((a,c)=>{a[c]=(a[c]||0)+1;return a;},{});\nconsole.log(freq);",
+      "output": "{ b: 1, a: 3, n: 2 }"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Check substring exists case-insensitively.",
+      "code": "const text=\"Frontend Interview\";\nconst q=\"interview\";\nconsole.log(text.toLowerCase().includes(q.toLowerCase()));",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Mask phone number except last 4.",
+      "code": "const phone=\"9876543210\";\nconsole.log(phone.slice(0,-4).replace(/./g,\"*\")+phone.slice(-4));",
+      "output": "******3210"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Parse CSV line into array.",
+      "code": "const line=\"js,react,next\";\nconsole.log(line.split(\",\"));",
+      "output": "[ \"js\", \"react\", \"next\" ]"
+    }
+  ]
+}

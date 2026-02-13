@@ -1,0 +1,147 @@
+{
+  "id": "filter",
+  "title": "Array.filter()",
+  "category": "Array Methods",
+  "description": "Creates a new array with elements that pass a test condition.",
+  "explanation": "Creates a new array with elements that pass a test condition.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "implementation": "const numbers = [1, 2, 3, 4, 5, 6];\nconst evens = numbers.filter(num => num % 2 === 0);\n// [2, 4, 6]",
+  "example": "const products = [\n  {name: 'Laptop', price: 1000},\n  {name: 'Mouse', price: 25}\n];\nconst expensive = products.filter(p => p.price > 50);",
+  "useCase": "Filtering lists, searching, removing unwanted items",
+  "interviewQuestions": [
+    {
+      "question": "How does Array.filter work?",
+      "answer": "It returns a new array containing only elements for which callback returns truthy."
+    },
+    {
+      "question": "What is the time complexity of filter?",
+      "answer": "O(n), because each element is checked once."
+    },
+    {
+      "question": "How do you remove falsy values quickly?",
+      "answer": "Use arr.filter(Boolean), which keeps only truthy values."
+    },
+    {
+      "question": "What is a subtle bug with filter and object mutation?",
+      "answer": "Filtering does not clone elements. Mutating returned objects can affect original referenced objects."
+    },
+    {
+      "question": "How to combine map and filter efficiently?",
+      "answer": "Use reduce for single pass when performance matters, or keep map/filter for readability in normal cases."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict: [0,1,2,3].filter(Boolean)",
+      "answer": "[1,2,3]",
+      "output": "[1,2,3]"
+    },
+    {
+      "type": "implement",
+      "question": "Filter active users only from users list.",
+      "code": "const active = users.filter(u => u.active);"
+    },
+    {
+      "type": "debug",
+      "question": "Filter callback returns object instead of boolean. Is it valid?",
+      "answer": "Yes, object is truthy; but return explicit boolean for clarity."
+    },
+    {
+      "type": "refactor",
+      "question": "Refactor if-push loop into filter expression.",
+      "answer": "Use source.filter(predicate) instead of manual accumulator loop."
+    },
+    {
+      "type": "output",
+      "question": "Predict output: [1,2,3,4].filter(n=>n%2===0)",
+      "answer": "[2,4]",
+      "output": "[2,4]"
+    },
+    {
+      "type": "output",
+      "question": "Predict output: [\"\", \"a\", 0, 5].filter(Boolean)",
+      "answer": "[\"a\",5]",
+      "output": "[\"a\",5]"
+    },
+    {
+      "type": "implement",
+      "question": "Filter products in stock and price > 100."
+    },
+    {
+      "type": "implement",
+      "question": "Implement removeDuplicates(arr) using filter + indexOf."
+    },
+    {
+      "type": "debug",
+      "question": "Filter callback forgets return in braces. What happens?",
+      "answer": "All results become falsey and output can become empty array."
+    },
+    {
+      "type": "debug",
+      "question": "Filtering objects then mutating item changes source data. Why?",
+      "answer": "Objects are referenced; filter does not deep clone items."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Keep even numbers only.",
+      "code": "const nums=[1,2,3,4,5,6];\nconsole.log(nums.filter(n=>n%2===0));",
+      "output": "[ 2, 4, 6 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Filter words longer than 4 chars.",
+      "code": "const words=[\"js\",\"react\",\"node\",\"api\"];\nconsole.log(words.filter(w=>w.length>4));",
+      "output": "[ \"react\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Filter active users.",
+      "code": "const users=[{name:\"A\",active:true},{name:\"B\",active:false}];\nconsole.log(users.filter(u=>u.active));",
+      "output": "[ { name: \"A\", active: true } ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Remove falsy values.",
+      "code": "const mixed=[0,1,\"\", \"ok\", null, 7];\nconsole.log(mixed.filter(Boolean));",
+      "output": "[ 1, \"ok\", 7 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Filter products with stock > 0.",
+      "code": "const p=[{n:\"Pen\",s:0},{n:\"Book\",s:3}];\nconsole.log(p.filter(x=>x.s>0));",
+      "output": "[ { n: \"Book\", s: 3 } ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Keep unique numbers using filter.",
+      "code": "const arr=[1,2,2,3,1,4];\nconst unique=arr.filter((v,i,a)=>a.indexOf(v)===i);\nconsole.log(unique);",
+      "output": "[ 1, 2, 3, 4 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Filter emails ending with @gmail.com.",
+      "code": "const emails=[\"a@gmail.com\",\"b@yahoo.com\"];\nconsole.log(emails.filter(e=>e.endsWith(\"@gmail.com\")));",
+      "output": "[ \"a@gmail.com\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Filter numbers between 10 and 20.",
+      "code": "const nums=[5,12,19,25];\nconsole.log(nums.filter(n=>n>=10&&n<=20));",
+      "output": "[ 12, 19 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Filter objects by category.",
+      "code": "const items=[{c:\"A\"},{c:\"B\"},{c:\"A\"}];\nconsole.log(items.filter(i=>i.c===\"A\"));",
+      "output": "[ { c: \"A\" }, { c: \"A\" } ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Exclude blocked usernames list.",
+      "code": "const users=[\"ram\",\"sam\",\"tom\"];\nconst blocked=[\"sam\"];\nconsole.log(users.filter(u=>!blocked.includes(u)));",
+      "output": "[ \"ram\", \"tom\" ]"
+    }
+  ]
+}

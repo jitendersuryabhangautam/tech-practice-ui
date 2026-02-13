@@ -1,0 +1,147 @@
+{
+  "id": "kubectl-advanced",
+  "title": "Advanced kubectl Commands",
+  "description": "Powerful kubectl commands for complex operations and debugging.",
+  "command": "# JSONPath queries\nkubectl get pods -o jsonpath='{.items[*].metadata.name' }\n\n# Custom columns\nkubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase\n\n# Filter with field selectors\nkubectl get pods --field-selector=status.phase=Running\n\n# Filter with label selectors\nkubectl get pods -l app=nginx,version=v1\nkubectl get pods -l 'environment in (dev,staging)'\n\n# Patch resources\nkubectl patch deployment my-deploy -p '{\"spec\":{\"replicas\":5}}'\n\n# Wait for condition\nkubectl wait --for=condition=ready pod/my-pod --timeout=60s\n\n# Drain node (for maintenance)\nkubectl drain node-1 --ignore-daemonsets\n\n# Cordon node (prevent scheduling)\nkubectl cordon node-1\nkubectl uncordon node-1",
+  "example": "# Get logs from all containers in pod\nkubectl logs my-pod --all-containers=true\n\n# Logs from previous crashed container\nkubectl logs my-pod --previous\n\n# Logs with timestamps\nkubectl logs my-pod --timestamps\n\n# Follow logs from multiple pods\nkubectl logs -l app=nginx -f\n\n# Resource usage filtering\nkubectl top pods --sort-by=memory\nkubectl top pods -l app=nginx\n\n# Export resources\nkubectl get deployment my-deploy -o yaml > deploy.yaml\n\n# API resources\nkubectl api-resources\nkubectl explain pod.spec.containers",
+  "useCase": "Advanced troubleshooting, automation, complex queries, node maintenance",
+  "interviewQuestions": [
+    {
+      "question": "What is JSONPath in kubectl and provide example?",
+      "answer": "Query language for extracting JSON data. kubectl get pods -o jsonpath='{.items[*].metadata.name}'. Useful: {.items[*].status.podIP} for IPs, {.items[?(@.status.phase==\\\"Running\\\")].metadata.name} for filtering. More powerful than grep."
+    },
+    {
+      "question": "Explain kubectl patch types: strategic, merge, json",
+      "answer": "strategic-merge (default): intelligent merge (adds to arrays). merge: JSON merge patch (replaces arrays). json: JSON patch (RFC 6902, operations: add/remove/replace). Strategic best for K8s, JSON for precise operations."
+    },
+    {
+      "question": "Output: kubectl patch deploy nginx --type json -p '[{\\\"op\\\":\\\"replace\\\",\\\"path\\\":\\\"/spec/replicas\\\",\\\"value\\\":5}]'. What happens?",
+      "answer": "Replicas set to 5 using JSON patch format. 'op' is operation (replace/add/remove), 'path' is JSON pointer, 'value' is new value. More verbose than strategic merge but allows precise array operations."
+    },
+    {
+      "question": "What is kubectl wait and real-world use case?",
+      "answer": "Waits for condition before proceeding. kubectl wait --for=condition=ready pod/mypod --timeout=60s. Use in CI/CD: wait for deployment rollout. kubectl wait --for=condition=available deployment/myapp. Non-zero exit if timeout."
+    },
+    {
+      "question": "Tricky: kubectl drain vs cordon vs delete node. Differences?",
+      "answer": "cordon: mark unschedulable, pods stay. drain: cordon + evict pods (respects PDB). delete: remove from cluster. Drain for maintenance (kubectl drain --ignore-daemonsets), cordon for investigation, delete for permanent removal."
+    },
+    {
+      "question": "What are custom columns and when are they better than JSONPath?",
+      "answer": "kubectl get pods -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,IP:.status.podIP. More readable than JSONPath for tabular data. Supports sorting. Alternative to 'wide' with specific fields."
+    },
+    {
+      "question": "How to debug a pod that immediately crashes using kubectl debug?",
+      "answer": "kubectl debug mypod -it --image=busybox --copy-to=debug-mypod. Creates copy of pod with new container. Or kubectl debug mypod -it --image=busybox --target=mycontainer (ephemeral container in same pod, K8s v1.23+)."
+    },
+    {
+      "question": "Predict: kubectl logs -l app=nginx --tail=10. What if 3 pods match?",
+      "answer": "Shows last 10 lines from FIRST pod only! Not aggregated. For all pods: kubectl logs -l app=nginx --all-containers --prefix. Or use stern tool for multi-pod log tailing."
+    },
+    {
+      "question": "What is kubectl set image vs kubectl patch for updating image?",
+      "answer": "kubectl set image deployment/nginx nginx=nginx:1.21 (imperative shortcut). kubectl patch deployment nginx -p '{\\\"spec\\\":{\\\"template\\\":{\\\"spec\\\":{\\\"containers\\\":[{\\\"name\\\":\\\"nginx\\\",\\\"image\\\":\\\"nginx:1.21\\\"}]}}}}' (more flexible). Use 'set image' for simple updates."
+    },
+    {
+      "question": "Tricky: kubectl get with multiple selectors. Can you combine label and field selectors?",
+      "answer": "Yes! kubectl get pods -l app=nginx --field-selector=status.phase=Running. Both filters applied (AND logic). Label for user-defined, field for system properties. Powerful for complex queries."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Get all pod names and their IPs using JSONPath",
+      "answer": "kubectl get pods -o jsonpath='{range .items[*]}{.metadata.name}{\\\"\\\\t\\\"}{.status.podIP}{\\\"\\\\n\\\"}{end}'"
+    },
+    {
+      "type": "output",
+      "question": "Custom columns: pod name, status, node, IP",
+      "answer": "kubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,NODE:.spec.nodeName,IP:.status.podIP"
+    },
+    {
+      "type": "scenario",
+      "question": "Wait for deployment to be available with 5 min timeout",
+      "answer": "kubectl wait --for=condition=available deployment/myapp --timeout=300s"
+    },
+    {
+      "type": "debug",
+      "question": "Debug CrashLoopBackOff pod by creating debug copy",
+      "answer": "kubectl debug crashpod -it --copy-to=debugpod --image=busybox -- sh"
+    },
+    {
+      "type": "command",
+      "question": "Drain node for maintenance, ignore DaemonSets",
+      "answer": "kubectl drain worker-1 --ignore-daemonsets --delete-emptydir-data"
+    },
+    {
+      "type": "tricky",
+      "question": "Patch deployment to add new env var using strategic merge",
+      "answer": "kubectl patch deployment nginx --type strategic -p '{\\\"spec\\\":{\\\"template\\\":{\\\"spec\\\":{\\\"containers\\\":[{\\\"name\\\":\\\"nginx\\\",\\\"env\\\":[{\\\"name\\\":\\\"DEBUG\\\",\\\"value\\\":\\\"true\\\"}]}]}}}}'"
+    },
+    {
+      "type": "command",
+      "question": "Get pods in Running status using JSONPath filter",
+      "answer": "kubectl get pods -o jsonpath='{.items[?(@.status.phase==\\\"Running\\\")].metadata.name}'"
+    },
+    {
+      "type": "scenario",
+      "question": "Follow logs from all pods with label app=backend, show container names",
+      "answer": "kubectl logs -l app=backend -f --all-containers --prefix"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Node NotReady. Investigate and drain if needed.",
+      "answer": "1) kubectl describe node <node> (check conditions). 2) kubectl get pods -o wide --field-selector=spec.nodeName=<node>. 3) If maintenance needed: kubectl drain <node> --ignore-daemonsets --force."
+    },
+    {
+      "type": "output",
+      "question": "Update deployment image using kubectl set image",
+      "answer": "kubectl set image deployment/nginx nginx=nginx:1.21 (assuming container name is 'nginx')"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Extract pod IPs with JSONPath",
+      "code": "kubectl run pod1 --image=nginx\\nkubectl run pod2 --image=nginx\\nkubectl get pods -o jsonpath='{.items[*].status.podIP}'",
+      "output": "10.244.1.5 10.244.1.6 (space-separated IPs)"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Patch deployment replicas using JSON patch",
+      "code": "kubectl create deployment test --image=nginx --replicas=2\\nkubectl patch deployment test --type json -p '[{\\\"op\\\":\\\"replace\\\",\\\"path\\\":\\\"/spec/replicas\\\",\\\"value\\\":5}]'\\nkubectl get deployment test -o jsonpath='{.spec.replicas}'",
+      "output": "5"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Wait for pod ready condition in script",
+      "code": "kubectl run waitpod --image=nginx\\nkubectl wait --for=condition=ready pod/waitpod --timeout=60s\\necho $?",
+      "output": "0 (exit code 0 on success, non-zero on timeout)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Custom columns for deployment details",
+      "code": "kubectl create deployment app1 --image=nginx --replicas=3\\nkubectl create deployment app2 --image=busybox --replicas=2 -- sleep 3600\\nkubectl get deployments -o custom-columns=NAME:.metadata.name,REPLICAS:.spec.replicas,AVAILABLE:.status.availableReplicas",
+      "output": "NAME  REPLICAS  AVAILABLE\\napp1  3         3\\napp2  2         2"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Cordon node, verify no new pods scheduled",
+      "code": "kubectl cordon worker-1\\nkubectl run testsched --image=nginx\\nkubectl get pod testsched -o jsonpath='{.spec.nodeName}'\\nkubectl uncordon worker-1",
+      "output": "Pod scheduled to different node (worker-1 cordoned)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Filter running pods with label using JSONPath",
+      "code": "kubectl run p1 --image=nginx -l app=test\\nkubectl run p2 --image=busybox -l app=test -- sleep 30\\nkubectl get pods -l app=test -o jsonpath='{.items[?(@.status.phase==\\\"Running\\\")].metadata.name}'",
+      "output": "p1 (only running pod with label app=test)"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Debug crashed pod by creating ephemeral container",
+      "code": "kubectl run crashpod --image=nginx --restart=Never\\nkubectl exec crashpod -- rm /usr/share/nginx/html/index.html\\n# Pod crashes\\nkubectl debug crashpod -it --image=busybox --target=crashpod -- sh\\n# Inside debug container: ls /proc/1/root/usr/share/nginx/html",
+      "output": "Can inspect filesystem of crashed container via shared process namespace"
+    }
+  ],
+  "category": "kubectl Commands"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "client-components",
+  "title": "Client Components",
+  "description": "Use 'use client' directive for interactivity, hooks, and browser APIs.",
+  "code": "'use client';\n\nimport { useState, useEffect } from 'react';\n\nexport default function Counter() {\n  const [count, setCount] = useState(0);\n  \n  useEffect(() => {\n    document.title = `Count: ${count}`;\n  }, [count]);\n  \n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>\n        Increment\n      </button>\n    </div>\n  );\n}",
+  "example": "'use client';\n\nexport default function InteractiveForm() {\n  const [data, setData] = useState({});\n  \n  // Can use browser APIs\n  const handleSubmit = () => {\n    localStorage.setItem('form', JSON.stringify(data));\n    window.alert('Saved!');\n  };\n  \n  return <form onSubmit={handleSubmit}>...</form>;\n}",
+  "useCase": "Interactive UI, event handlers, React hooks, browser APIs, real-time updates",
+  "category": "Data Fetching & Rendering"
+}

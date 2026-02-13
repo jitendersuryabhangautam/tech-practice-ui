@@ -1,0 +1,147 @@
+{
+  "id": "map",
+  "title": "Array.map()",
+  "category": "Array Methods",
+  "description": "Creates a new array with the results of calling a function on every element.",
+  "explanation": "Creates a new array with the results of calling a function on every element.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "implementation": "const numbers = [1, 2, 3, 4];\nconst doubled = numbers.map(num => num * 2);\n// [2, 4, 6, 8]",
+  "example": "const users = [{name: 'John', age: 25}, {name: 'Jane', age: 30}];\nconst names = users.map(user => user.name);\n// ['John', 'Jane']",
+  "useCase": "Transforming data, extracting properties from objects",
+  "interviewQuestions": [
+    {
+      "question": "What does Array.map return?",
+      "answer": "A new array of the same length where each item is transformed by the callback result."
+    },
+    {
+      "question": "Why is map preferred over forEach for transformations?",
+      "answer": "map is declarative, chainable, and communicates that output array is the goal."
+    },
+    {
+      "question": "What are common mistakes with map in React rendering?",
+      "answer": "Forgetting return in callback or forgetting stable key assignment in rendered lists."
+    },
+    {
+      "question": "Can map mutate source array?",
+      "answer": "The method itself does not mutate source, but callback can mutate objects by reference if you do it explicitly."
+    },
+    {
+      "question": "When not to use map?",
+      "answer": "Do not use map when you ignore the returned array. Use forEach or for...of for side effects only."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict: [1,2,3].map(n=>n*2)",
+      "answer": "[2,4,6]",
+      "output": "[2,4,6]"
+    },
+    {
+      "type": "implement",
+      "question": "Map users array to usernames array.",
+      "code": "const usernames = users.map(u => u.username);"
+    },
+    {
+      "type": "debug",
+      "question": "Fix map callback that returns undefined due to braces.",
+      "answer": "Add explicit return inside braces or remove braces for implicit return."
+    },
+    {
+      "type": "scenario",
+      "question": "You need transform API payload to UI card model using map. Draft mapping fields.",
+      "answer": "Return new object with only required fields and formatted values."
+    },
+    {
+      "type": "output",
+      "question": "Predict output: [1,2,3].map((n,i)=>n+i)",
+      "answer": "[1,3,5]",
+      "output": "[1,3,5]"
+    },
+    {
+      "type": "output",
+      "question": "Predict output: [1,2].map(function(){ return this.x }, {x:7})",
+      "answer": "[7,7]",
+      "output": "[7,7]"
+    },
+    {
+      "type": "implement",
+      "question": "Implement toCurrency(prices) using map to return strings like \"$10.00\"."
+    },
+    {
+      "type": "implement",
+      "question": "Map products to {id, label} where label is `${name} - ${price}`."
+    },
+    {
+      "type": "debug",
+      "question": "Fix map callback using braces without return causing undefined entries.",
+      "answer": "Add explicit return or use implicit return with parentheses."
+    },
+    {
+      "type": "debug",
+      "question": "Map over sparse array behaves unexpectedly. Why?",
+      "answer": "map skips empty slots in sparse arrays."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Double all numbers using map.",
+      "code": "const nums=[1,2,3,4];\nconst doubled=nums.map(n=>n*2);\nconsole.log(doubled);",
+      "output": "[ 2, 4, 6, 8 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Convert names to uppercase.",
+      "code": "const names=[\"jit\",\"ram\"];\nconsole.log(names.map(n=>n.toUpperCase()));",
+      "output": "[ \"JIT\", \"RAM\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Extract ids from object list.",
+      "code": "const users=[{id:1,name:\"A\"},{id:2,name:\"B\"}];\nconsole.log(users.map(u=>u.id));",
+      "output": "[ 1, 2 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Format prices to 2 decimal strings.",
+      "code": "const prices=[10,15.5,3];\nconsole.log(prices.map(p=>`$${p.toFixed(2)}`));",
+      "output": "[ \"$10.00\", \"$15.50\", \"$3.00\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Add index to each element text.",
+      "code": "const arr=[\"a\",\"b\",\"c\"];\nconsole.log(arr.map((v,i)=>`${i}:${v}`));",
+      "output": "[ \"0:a\", \"1:b\", \"2:c\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Create boolean pass/fail from marks >= 40.",
+      "code": "const marks=[30,40,90];\nconsole.log(marks.map(m=>m>=40));",
+      "output": "[ false, true, true ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Map nested object array to labels.",
+      "code": "const p=[{name:\"Pen\",price:10},{name:\"Book\",price:50}];\nconsole.log(p.map(x=>`${x.name}-${x.price}`));",
+      "output": "[ \"Pen-10\", \"Book-50\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Parse numeric strings to numbers.",
+      "code": "const s=[\"1\",\"2\",\"3\"];\nconsole.log(s.map(Number));",
+      "output": "[ 1, 2, 3 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Map dates to year values.",
+      "code": "const dates=[\"2024-01-01\",\"2026-02-12\"];\nconsole.log(dates.map(d=>new Date(d).getFullYear()));",
+      "output": "[ 2024, 2026 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Build slug list from titles.",
+      "code": "const titles=[\"Hello World\",\"JS Interview\"];\nconst slugs=titles.map(t=>t.toLowerCase().replace(/\\s+/g,\"-\"));\nconsole.log(slugs);",
+      "output": "[ \"hello-world\", \"js-interview\" ]"
+    }
+  ]
+}

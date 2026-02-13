@@ -1,0 +1,9 @@
+{
+  "id": "server-actions",
+  "title": "Server Actions",
+  "description": "Functions that run on the server, called directly from client components. No API route needed.",
+  "code": "'use server';\n\n// app/actions.js\nexport async function createPost(formData) {\n  const title = formData.get('title');\n  const content = formData.get('content');\n  \n  await db.posts.create({\n    title,\n    content\n  });\n  \n  revalidatePath('/posts');\n  redirect('/posts');\n}\n\n// Use in component\n'use client';\nimport { createPost } from './actions';\n\nexport default function CreatePostForm() {\n  return (\n    <form action={createPost}>\n      <input name=\"title\" />\n      <textarea name=\"content\" />\n      <button type=\"submit\">Create</button>\n    </form>\n  );\n}",
+  "example": "// With useFormState\n'use client';\nimport { useFormState } from 'react-dom';\n\nexport default function Form() {\n  const [state, formAction] = useFormState(createPost, null);\n  \n  return (\n    <form action={formAction}>\n      <input name=\"title\" />\n      {state?.error && <p>{state.error}</p>}\n      <button>Submit</button>\n    </form>\n  );\n}\n\n// Programmatic call\n'use client';\nimport { deletePost } from './actions';\n\nfunction DeleteButton({ postId }) {\n  return (\n    <button onClick={() => deletePost(postId)}>\n      Delete\n    </button>\n  );\n}",
+  "useCase": "Form submissions, mutations, database operations, no API routes needed",
+  "category": "API Routes"
+}

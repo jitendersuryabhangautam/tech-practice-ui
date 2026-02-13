@@ -1,0 +1,9 @@
+{
+  "id": "middleware",
+  "title": "Middleware",
+  "description": "Run code before a request is completed. Useful for auth, redirects, and headers.",
+  "code": "// middleware.js (root of project)\nimport { NextResponse } from 'next/server';\n\nexport function middleware(request) {\n  // Check authentication\n  const token = request.cookies.get('token');\n  \n  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {\n    return NextResponse.redirect(new URL('/login', request.url));\n  }\n  \n  // Add custom header\n  const response = NextResponse.next();\n  response.headers.set('x-custom-header', 'value');\n  return response;\n}\n\n// Configure which paths middleware runs on\nconst config = {\n  matcher: ['/dashboard/:path*', '/admin/:path*']\n};",
+  "example": "// Rewrite URLs\nexport function middleware(request) {\n  if (request.nextUrl.pathname === '/old-page') {\n    return NextResponse.rewrite(new URL('/new-page', request.url));\n  }\n}\n\n// Set cookies\nexport function middleware(request) {\n  const response = NextResponse.next();\n  response.cookies.set('visited', 'true', {\n    maxAge: 60 * 60 * 24 // 24 hours\n  });\n  return response;\n}",
+  "useCase": "Authentication, authorization, redirects, URL rewrites, setting headers/cookies",
+  "category": "API Routes"
+}

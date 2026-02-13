@@ -1,0 +1,149 @@
+{
+  "id": "deployments",
+  "title": "Deployments",
+  "category": "Kubernetes Basics",
+  "description": "Manage replica sets and provide declarative updates for pods.",
+  "explanation": "Deployments are the declarative way to manage stateless applications in Kubernetes. They provide rolling updates, rollbacks, scaling, and self-healing by managing ReplicaSets. Understanding deployment strategies (RollingUpdate, Recreate), rollout mechanics, and troubleshooting failed deployments is critical for production operations.\\n\\nInterview focus:\\n- Deployment vs ReplicaSet vs Pod relationship\\n- Rolling update strategy (maxSurge, maxUnavailable)\\n- Recreate strategy and when to use it\\n- Rollout history and revision management\\n- Rollback mechanisms and commands\\n- Update triggers (image, env, resources, etc.)\\n- Deployment status conditions (Progressing, Available, Failed)\\n- Readiness and liveness probes impact on rollouts",
+  "code": "# deployment.yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: nginx-deployment\n  labels:\n    app: nginx\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: nginx\n  template:\n    metadata:\n      labels:\n        app: nginx\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.21\n        ports:\n        - containerPort: 80",
+  "command": "# Create deployment\nkubectl apply -f deployment.yaml\n\n# List deployments\nkubectl get deployments\n\n# Scale deployment\nkubectl scale deployment nginx-deployment --replicas=5\n\n# Update image\nkubectl set image deployment/nginx-deployment nginx=nginx:1.22\n\n# Rollout status\nkubectl rollout status deployment/nginx-deployment\n\n# Rollout history\nkubectl rollout history deployment/nginx-deployment\n\n# Rollback deployment\nkubectl rollout undo deployment/nginx-deployment\n\n# Delete deployment\nkubectl delete deployment nginx-deployment",
+  "example": "# Deployment with rolling update strategy\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: myapp\nspec:\n  replicas: 3\n  strategy:\n    type: RollingUpdate\n    rollingUpdate:\n      maxSurge: 1\n      maxUnavailable: 1\n  selector:\n    matchLabels:\n      app: myapp\n  template:\n    metadata:\n      labels:\n        app: myapp\n    spec:\n      containers:\n      - name: myapp\n        image: myapp:v2\n        readinessProbe:\n          httpGet:\n            path: /health\n            port: 8080\n          initialDelaySeconds: 5\n          periodSeconds: 10",
+  "useCase": "Application deployment, scaling, rolling updates, rollbacks",
+  "interviewQuestions": [
+    {
+      "question": "What is the relationship between Deployment, ReplicaSet, and Pod?",
+      "answer": "Deployment creates and manages ReplicaSets, ReplicaSet creates and manages Pods. Deployment is declarative config, ReplicaSet ensures desired replica count, Pods run containers. Each update creates new ReplicaSet (old ones kept for rollback). Deployment → ReplicaSet → Pods."
+    },
+    {
+      "question": "Explain maxSurge and maxUnavailable in RollingUpdate strategy.",
+      "answer": "maxSurge: max additional pods above desired count during update (can be number or %). maxUnavailable: max pods that can be unavailable during update. Example: replicas=10, maxSurge=2, maxUnavailable=1 → can have 12 pods max, 9 pods min during roll out. Balances speed vs resource usage."
+    },
+    {
+      "question": "When would you use Recreate strategy instead of RollingUpdate?",
+      "answer": "Recreate: kill all old pods, then create new ones. Use when: 1) Can't run old+new versions together (database migration, shared state) 2) Limited resources 3) Don't need zero downtime. Causes downtime but simpler. RollingUpdate is default."
+    },
+    {
+      "question": "How do you trigger a deployment rollout? What changes cause updates?",
+      "answer": "Triggers: image change, env vars, resource limits, volumes, command/args. NOT triggered by: ConfigMap/Secret changes (must change reference or pod template annotation). Use kubectl set image, kubectl edit, kubectl apply, or kubectl replace."
+    },
+    {
+      "question": "Predict output: Deployment has revisionHistoryLimit: 5. After 10 updates, how many ReplicaSets exist?",
+      "answer": "6 ReplicaSets: current (1) + previous 5 (revisionHistoryLimit). Oldest RS deleted. Default is 10. Setting to 0 prevents rollback. Important for resource management in clusters with frequent deployments."
+    },
+    {
+      "question": "How do you rollback a deployment? Can you rollback to specific revision?",
+      "answer": "Rollback to previous: kubectl rollout undo deployment/name. To specific revision: kubectl rollout undo deployment/name --to-revision=3. View history: kubectl rollout history deployment/name. See revision details: kubectl rollout history deployment/name --revision=3."
+    },
+    {
+      "question": "What happens when you scale deployment while rollout is in progress?",
+      "answer": "Scale operation takes effect immediately on current replicaset. Rollout continues but adjusts to new desired count. E.g., rolling from 5→5 replicas with v1→v2, scale to 10: rollout continues with target of 10 pods at v2."
+    },
+    {
+      "question": "Tricky: Deployment stuck with 2/3 replicas available. How to debug?",
+      "answer": "Check: 1) kubectl rollout status (shows progress) 2) kubectl describe deployment (events, conditions) 3) kubectl get rs (check replicasets) 4) kubectl describe rs (pod creation issues) 5) kubectl get pods (pod statuses) 6) Check readiness probes, image pull, resources, node capacity."
+    },
+    {
+      "question": "What is progressDeadlineSeconds and what happens when exceeded?",
+      "answer": "Max time (default 600s) for deployment to progress. If deployment doesn't make progress (new pods not ready), it's marked as Failed condition. Rollout is NOT automatically rolled back - manual intervention needed. Use to detect stuck rollouts."
+    },
+    {
+      "question": "Output question: kubectl set image deployment/app app=nginx:1.22 --record. What does --record do?",
+      "answer": "Records the command in rollout history (CHANGE-CAUSE field). Deprecated in v1.22, use kubectl annotate deployment/app kubernetes.io/change-cause='reason' instead. Helps track what changed in each revision."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create deployment nginx with 4 replicas imperatively",
+      "answer": "kubectl create deployment nginx --image=nginx --replicas=4"
+    },
+    {
+      "type": "command",
+      "question": "Scale deployment to 10 replicas",
+      "answer": "kubectl scale deployment nginx --replicas=10"
+    },
+    {
+      "type": "scenario",
+      "question": "Update deployment image to nginx:1.23, check rollout status",
+      "answer": "kubectl set image deployment/nginx nginx=nginx:1.23 && kubectl rollout status deployment/nginx"
+    },
+    {
+      "type": "debug",
+      "question": "Deployment shows 0/3 replicas ready. Where to look first?",
+      "answer": "kubectl describe deployment (events), kubectl get rs (replicaset status), kubectl get pods (pod statuses), kubectl describe pod (failing pod details)"
+    },
+    {
+      "type": "command",
+      "question": "Rollback deployment to previous version",
+      "answer": "kubectl rollout undo deployment/nginx"
+    },
+    {
+      "type": "output",
+      "question": "Predict: replicas=5, maxSurge=2, maxUnavailable=1. Maximum pods during rollout?",
+      "answer": "7 pods (5 desired + 2 surge). Minimum 4 pods (5 - 1 unavailable)."
+    },
+    {
+      "type": "tricky",
+      "question": "Can you delete a deployment but keep its pods running?",
+      "answer": "Yes! Use kubectl delete deployment name --cascade=orphan. Pods become orphaned (no owner). Useful for debugging or transitioning management."
+    },
+    {
+      "type": "command",
+      "question": "View rollout history with change causes",
+      "answer": "kubectl rollout history deployment/nginx"
+    },
+    {
+      "type": "scenario",
+      "question": "Pause rollout midway, make multiple changes, resume",
+      "answer": "kubectl rollout pause deployment/nginx, kubectl set image..., kubectl set resources..., kubectl rollout resume deployment/nginx"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Deployment updated but pods still run old image. Why?",
+      "answer": "Check: 1) Image pull policy (IfNotPresent with same tag) 2) Image actually changed? kubectl describe deployment 3) Rollout stuck? kubectl rollout status 4) Node cache issue? Use specific image tags."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create deployment, scale it, check replica count at each step",
+      "code": "kubectl create deployment web --image=nginx --replicas=2\nkubectl get deployment web\nkubectl scale deployment web --replicas=5\nkubectl get deployment web -o jsonpath='{.spec.replicas}:{.status.availableReplicas}'",
+      "output": "2:2 initially, then 5:5 after scaling"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Update deployment, watch rollout, see ReplicaSets",
+      "code": "kubectl create deployment app --image=nginx:1.21 --replicas=3\nkubectl set image deployment/app nginx=nginx:1.22\nkubectl rollout status deployment/app\nkubectl get rs -l app=app",
+      "output": "Shows 2 ReplicaSets: old (0 replicas) and new (3 replicas)"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Create deployment with wrong image, observe failure, rollback",
+      "code": "kubectl create deployment bad --image=nginx:1.22 --replicas=3\nkubectl set image deployment/bad nginx=nginx:nonexistent\nkubectl rollout status deployment/bad --timeout=30s\nkubectl get pods -l app=bad\nkubectl rollout undo deployment/bad\nkubectl rollout status deployment/bad",
+      "output": "New pods ImagePullBackOff, rollback succeeds, old version restored"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Extract revision history and rollback to specific revision",
+      "code": "kubectl create deployment ver --image=nginx:1.19\nkubectl set image deployment/ver nginx=nginx:1.20\nkubectl set image deployment/ver nginx=nginx:1.21\nkubectl rollout history deployment/ver\nkubectl rollout undo deployment/ver --to-revision=1\nkubectl get deployment ver -o jsonpath='{.spec.template.spec.containers[0].image}'",
+      "output": "Shows history with 3 revisions, final image is nginx:1.19"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Test maxSurge and maxUnavailable behavior",
+      "code": "kubectl create deployment surge --image=nginx:1.21 --replicas=4\nkubectl patch deployment surge -p '{\"spec\":{\"strategy\":{\"rollingUpdate\":{\"maxSurge\":2,\"maxUnavailable\":1}}}}'\nkubectl set image deployment/surge nginx=nginx:1.22\nwhile true; do kubectl get pods -l app=surge --no-headers | wc -l; sleep 1; done",
+      "output": "During rollout, pod count varies: 4-6 pods (4 desired, +2 surge, -1 unavailable)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Pause deployment, make changes, resume and observe single rollout",
+      "code": "kubectl create deployment pause-test --image=nginx:1.21\nkubectl rollout pause deployment/pause-test\nkubectl set image deployment/pause-test nginx=nginx:1.22\nkubectl set resources deployment/pause-test -c=nginx --limits=cpu=200m\nkubectl rollout resume deployment/pause-test\nkubectl rollout status deployment/pause-test\nkubectl rollout history deployment/pause-test",
+      "output": "Only 1 new revision created despite 2 changes"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Delete deployment keeping pods, verify orphaned pods",
+      "code": "kubectl create deployment orphan --image=nginx --replicas=3\nkubectl delete deployment orphan --cascade=orphan\nkubectl get pods -l app=orphan\nkubectl get deployment orphan",
+      "output": "Deployment deleted, pods still running (no owner reference)"
+    }
+  ]
+}

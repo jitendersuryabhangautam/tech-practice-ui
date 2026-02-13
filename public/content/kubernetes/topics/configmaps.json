@@ -1,0 +1,148 @@
+{
+  "id": "configmaps",
+  "title": "ConfigMaps",
+  "description": "Store non-confidential configuration data as key-value pairs.",
+  "code": "# configmap.yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\ndata:\n  database_url: \"postgres://db:5432/mydb\"\n  log_level: \"info\"\n  app.properties: |\n    app.name=MyApp\n    app.version=1.0\n    app.port=8080",
+  "command": "# Create ConfigMap from file\nkubectl create configmap app-config --from-file=config.properties\n\n# Create from literal values\nkubectl create configmap app-config \\\n  --from-literal=database_url=postgres://db:5432 \\\n  --from-literal=log_level=info\n\n# Get ConfigMaps\nkubectl get configmaps\nkubectl get cm\n\n# Describe ConfigMap\nkubectl describe configmap app-config\n\n# View ConfigMap data\nkubectl get configmap app-config -o yaml\n\n# Delete ConfigMap\nkubectl delete configmap app-config",
+  "example": "# Use ConfigMap as environment variables\napiVersion: v1\nkind: Pod\nmetadata:\n  name: myapp\nspec:\n  containers:\n  - name: app\n    image: myapp:latest\n    envFrom:\n    - configMapRef:\n        name: app-config\n\n# Use specific keys from ConfigMap\nenv:\n- name: DATABASE_URL\n  valueFrom:\n    configMapKeyRef:\n      name: app-config\n      key: database_url\n\n# Mount ConfigMap as volume\nvolumes:\n- name: config\n  configMap:\n    name: app-config\nvolumeMounts:\n- name: config\n  mountPath: /etc/config",
+  "useCase": "Application configuration, environment-specific settings, feature flags",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between ConfigMap and Secret?",
+      "answer": "ConfigMap: non-sensitive config data, stored plain text. Secret: sensitive data, base64 encoded (not encrypted!), needs RBAC protection. Both: 1MB limit, consumed same way (env/volume). Use Secret for passwords, ConfigMap for app settings."
+    },
+    {
+      "question": "Tricky: You update ConfigMap used by running pod. Does pod see new values?",
+      "answer": "Depends on consumption method. Env vars: NO (pod needs restart). Volume mount: YES (after sync delay ~60s). Use envFrom with configMapRef for env – manual pod restart or rolling update needed."
+    },
+    {
+      "question": "Output: kubectl create configmap myconf --from-file=app.properties. What is the key name?",
+      "answer": "Key name is 'app.properties' (filename). Access as configMapKeyRef: {name: myconf, key: app.properties}. Use --from-file=customkey=app.properties to set custom key name."
+    },
+    {
+      "question": "What happens if ConfigMap referenced in pod doesn't exist?",
+      "answer": "Pod stuck in Pending/CreateContainerConfigError. Use optional: true in configMapKeyRef to make it optional. Pod will start without it. Check: kubectl describe pod shows event missing ConfigMap."
+    },
+    {
+      "question": "How do you create ConfigMap from multiple files in directory?",
+      "answer": "kubectl create configmap myconf --from-file=./config-dir/ creates keys for each file. Or --from-env-file for KEY=VALUE format. Each file becomes separate key in ConfigMap."
+    },
+    {
+      "question": "Predict: ConfigMap has key 'log-level'. How to use as env var LOG_LEVEL?",
+      "answer": "env:\\n- name: LOG_LEVEL\\n  valueFrom:\\n    configMapKeyRef:\\n      name: myconfig\\n      key: log-level\\nNote: key can have hyphens, env var name typically underscores."
+    },
+    {
+      "question": "What is an immutable ConfigMap and why use it?",
+      "answer": "immutable: true prevents changes, provides performance benefits (apiserver doesn't watch), protects production config. Once set, cannot modify – must delete and recreate. Available from K8s v1.19."
+    },
+    {
+      "question": "Tricky: Can ConfigMap be in namespace A and pod in namespace B?",
+      "answer": "No! ConfigMap and Pod must be in same namespace. Cross-namespace referencing not allowed. Duplicate ConfigMap in each namespace or use external config management."
+    },
+    {
+      "question": "What's the size limit for ConfigMap and what happens if exceeded?",
+      "answer": "1MB limit. kubectl create fails with 'request entity too large'. Split into multiple ConfigMaps or use external config store (etcd, Consul, cloud secret managers). etcd has 1MB object limit."
+    },
+    {
+      "question": "How do you update all pods using ConfigMap after config change?",
+      "answer": "If using env: manual restart or rolling update (kubectl rollout restart deployment). If using volume: auto-updates after ~60s. Or: use config hash in deployment annotation to trigger auto-rollout."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create ConfigMap from literal app=myapp version=1.0",
+      "answer": "kubectl create configmap appconf --from-literal=app=myapp --from-literal=version=1.0"
+    },
+    {
+      "type": "scenario",
+      "question": "Create ConfigMap from file config.json and verify data",
+      "answer": "kubectl create configmap fileconf --from-file=config.json && kubectl get cm fileconf -o yaml"
+    },
+    {
+      "type": "output",
+      "question": "ConfigMap mounted as volume updates. How long for pods to see new values?",
+      "answer": "~60 seconds (configmap sync period). Can configure with --sync-frequency flag on kubelet."
+    },
+    {
+      "type": "debug",
+      "question": "Pod shows CreateContainerConfigError. Where to check?",
+      "answer": "kubectl describe pod (Events section shows missing ConfigMap/Secret). Verify ConfigMap exists: kubectl get cm. Check namespace matches."
+    },
+    {
+      "type": "tricky",
+      "question": "Can you base64 encode data in ConfigMap like Secret?",
+      "answer": "Yes, manually encode but not automatic. ConfigMap stores whatever you give it. However, no special handling – just plain text storage."
+    },
+    {
+      "type": "command",
+      "question": "Extract value of key 'database' from ConfigMap 'dbconf'",
+      "answer": "kubectl get configmap dbconf -o jsonpath='{.data.database}'"
+    },
+    {
+      "type": "scenario",
+      "question": "Create immutable ConfigMap",
+      "answer": "Add immutable: true in spec when creating. Or: kubectl create configmap myconf --from-literal=key=value --dry-run=client -o yaml | sed 's/metadata:/&\\n  immutable: true/' | kubectl apply -f -"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "ConfigMap changed but pod still using old values (env vars). Fix?",
+      "answer": "Env vars don't auto-update. Solution: kubectl rollout restart deployment/myapp to recreate pods with new values."
+    },
+    {
+      "type": "command",
+      "question": "Create ConfigMap from all files in directory ./configs/",
+      "answer": "kubectl create configmap dirconf --from-file=./configs/"
+    },
+    {
+      "type": "output",
+      "question": "kubectl create cm test --from-literal=KEY=value. What is stored in etcd?",
+      "answer": "Plain text 'value'. ConfigMaps are NOT encrypted in etcd by default. Need encryption at rest configuration for security."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create ConfigMap, use as env vars in pod",
+      "code": "kubectl create configmap app-env --from-literal=APP_ENV=production --from-literal=LOG_LEVEL=debug\\nkubectl run testpod --image=busybox --restart=Never --dry-run=client -o yaml > pod.yaml\\n# Edit pod.yaml to add envFrom configMapRef\\nkubectl apply -f pod.yaml\\nkubectl exec testpod -- env | grep -E 'APP_ENV|LOG_LEVEL'",
+      "output": "APP_ENV=production\\nLOG_LEVEL=debug"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Mount ConfigMap as volume, verify file contents",
+      "code": "kubectl create configmap vol-config --from-literal=config.txt='Hello from ConfigMap'\\nkubectl run volpod --image=nginx --dry-run=client -o yaml > volpod.yaml\\n# Edit to add volume mount\\nkubectl apply -f volpod.yaml\\nkubectl exec volpod -- cat /etc/config/config.txt",
+      "output": "Hello from ConfigMap"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Create from file, update it, observe volume mount change",
+      "code": "echo 'version=1.0' > app.conf\\nkubectl create configmap appconf --from-file=app.conf\\nkubectl run app --image=nginx --dry-run=client -o yaml > app.yaml\\n# Add volume mount /etc/config\\nkubectl apply -f app.yaml\\nkubectl exec app -- cat /etc/config/app.conf\\n# Update\\necho 'version=2.0' > app.conf\\nkubectl create configmap appconf --from-file=app.conf --dry-run=client -o yaml | kubectl apply -f -\\nsleep 65\\nkubectl exec app -- cat /etc/config/app.conf",
+      "output": "version=1.0, then after 60s: version=2.0"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Test missing ConfigMap causes CreateContainerConfigError",
+      "code": "kubectl run badpod --image=nginx --dry-run=client -o yaml > bad.yaml\\n# Edit to reference non-existent configmap\\nkubectl apply -f bad.yaml\\nkubectl get pod badpod\\nkubectl describe pod badpod | grep Error",
+      "output": "Pod stuck, CreateContainerConfigError: configmap not found"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Create ConfigMap from directory with multiple files",
+      "code": "mkdir configs\\necho 'db=postgres' > configs/database.conf\\necho 'cache=redis' > configs/cache.conf\\nkubectl create configmap multiconf --from-file=configs/\\nkubectl get cm multiconf -o yaml",
+      "output": "Shows data with keys database.conf and cache.conf"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Extract all keys from ConfigMap",
+      "code": "kubectl create configmap sample --from-literal=key1=val1 --from-literal=key2=val2\\nkubectl get configmap sample -o jsonpath='{.data}' | jq 'keys'",
+      "output": "[\\\"key1\\\", \\\"key2\\\"]"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Test envFrom loads all keys as environment variables",
+      "code": "kubectl create configmap allenv --from-literal=DB_HOST=localhost --from-literal=DB_PORT=5432\\nkubectl run envpod --image=busybox --restart=Never --dry-run=client -o yaml > env.yaml\\n# Add envFrom with configMapRef\\nkubectl apply -f env.yaml\\nkubectl exec envpod -- env | grep DB_",
+      "output": "DB_HOST=localhost\\nDB_PORT=5432"
+    }
+  ],
+  "category": "Configuration & Storage"
+}

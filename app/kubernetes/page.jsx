@@ -1,15 +1,35 @@
 "use client";
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
+import { useTopicData } from "@/hooks/useTopicData";
 import { kubernetesData, kubernetesQuiz } from "@/data/kubernetes";
 
 export default function KubernetesPage() {
+  const { data, quiz, loading } = useTopicData(
+    "kubernetes",
+    kubernetesData,
+    kubernetesQuiz
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Loading Kubernetes content...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <InterviewTopicPage
       title="Kubernetes Interview Preparation"
-      description="Cover Kubernetes architecture, workloads, networking, and operational troubleshooting in an interview-first format."
-      topics={kubernetesData}
-      quiz={kubernetesQuiz}
+      description="Master Kubernetes interview questions on Pods, Services, Deployments, ConfigMaps, Secrets, and kubectl commands with practical examples."
+      topics={data}
+      quiz={quiz}
     />
   );
 }

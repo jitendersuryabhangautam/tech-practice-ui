@@ -1,0 +1,167 @@
+{
+  "id": "spread-rest",
+  "title": "Spread & Rest Operators",
+  "category": "Object Operations",
+  "description": "Spread (...) expands arrays/objects. Rest (...) collects multiple elements.",
+  "explanation": "Spread (...) expands arrays/objects. Rest (...) collects multiple elements.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "implementation": "// Spread\nconst arr1 = [1, 2, 3];\nconst arr2 = [...arr1, 4, 5]; // [1,2,3,4,5]\n\nconst obj1 = {a: 1, b: 2};\nconst obj2 = {...obj1, c: 3}; // {a:1, b:2, c:3}\n\n// Rest\nfunction sum(...numbers) {\n  return numbers.reduce((a, b) => a + b, 0);\n}",
+  "example": "// Merging arrays\nconst combined = [...array1, ...array2];\n\n// Copying objects\nconst copy = {...original};\n\n// Function with any number of args\nconst max = Math.max(...numbers);",
+  "useCase": "Cloning objects/arrays, merging data, function arguments",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between spread and rest operators?",
+      "answer": "Spread expands an iterable/object into individual elements. Rest collects remaining elements into an array/object."
+    },
+    {
+      "question": "Is object spread a deep copy?",
+      "answer": "No. It is a shallow copy. Nested objects keep shared references unless cloned separately."
+    },
+    {
+      "question": "When should you use rest parameters in functions?",
+      "answer": "When function arity is variable or you want to pass any number of args without arguments object."
+    },
+    {
+      "question": "How does spread help immutable updates?",
+      "answer": "It creates new arrays/objects while keeping unchanged references for unaffected branches."
+    },
+    {
+      "question": "What is a common interview trap with spread on arrays of objects?",
+      "answer": "Copying array with [...arr] still shares inner object references, so nested mutations affect original objects."
+    },
+    {
+      "question": "How does spread behave with function arguments?",
+      "answer": "It expands iterable items as separate arguments, e.g. fn(...arr)."
+    },
+    {
+      "question": "Can rest be used in object destructuring?",
+      "answer": "Yes. const { id, ...rest } = obj collects remaining own enumerable props into rest."
+    },
+    {
+      "question": "What is parameter order rule for rest?",
+      "answer": "Rest must be the last parameter in function signature or pattern."
+    },
+    {
+      "question": "How do you immutably remove one key from object?",
+      "answer": "Use destructuring + rest: const { removeKey, ...next } = obj."
+    },
+    {
+      "question": "What is a common bug with nested state and spread?",
+      "answer": "Only top-level copy is made; nested structures still share references."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict output: const o={a:1,b:2}; const p={...o,b:9}; console.log(p.b);",
+      "answer": "9",
+      "code": "const o={a:1,b:2};\nconst p={...o,b:9};\nconsole.log(p.b);",
+      "output": "9"
+    },
+    {
+      "type": "output",
+      "question": "Predict output: function f(a,...r){console.log(r.length)}; f(1,2,3,4);",
+      "answer": "3",
+      "code": "function f(a,...r){console.log(r.length)}\nf(1,2,3,4);",
+      "output": "3"
+    },
+    {
+      "type": "implement",
+      "question": "Implement mergeOptions(defaults, overrides) immutably.",
+      "answer": "Return { ...defaults, ...overrides }."
+    },
+    {
+      "type": "implement",
+      "question": "Implement omit(obj, keys) returning object without selected keys."
+    },
+    {
+      "type": "debug",
+      "question": "A copied array of objects mutates original. Why?",
+      "answer": "Spread makes shallow copy only."
+    },
+    {
+      "type": "debug",
+      "question": "Why does nested object in spread still change original after mutation?",
+      "answer": "Nested refs are shared unless explicitly cloned."
+    },
+    {
+      "type": "refactor",
+      "question": "Refactor reducer update to immutable spread style."
+    },
+    {
+      "type": "scenario",
+      "question": "You need variable args sum(...nums). Implement with rest."
+    },
+    {
+      "type": "tricky",
+      "question": "Can rest parameter be anywhere in function arguments?",
+      "answer": "No, it must be last."
+    },
+    {
+      "type": "tricky",
+      "question": "Is object spread a deep clone?",
+      "answer": "No, shallow clone only."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Merge two arrays and remove duplicates using spread + Set.",
+      "code": "const a = [1, 2, 3];\nconst b = [3, 4, 5];\nconst merged = [...new Set([...a, ...b])];\nconsole.log(merged);",
+      "output": "[ 1, 2, 3, 4, 5 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Clone object and override one property without mutation.",
+      "code": "const user = { name: \"Sam\", role: \"user\" };\nconst updated = { ...user, role: \"admin\" };\nconsole.log(user.role, updated.role);",
+      "output": "user admin"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Sum variable arguments using rest parameter.",
+      "code": "function sum(...nums) {\n  return nums.reduce((a, b) => a + b, 0);\n}\nconsole.log(sum(1, 2, 3, 4));",
+      "output": "10"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Remove property password from object using rest destructuring.",
+      "code": "const account = { id: 1, email: \"x@y.com\", password: \"secret\" };\nconst { password, ...safeAccount } = account;\nconsole.log(safeAccount);",
+      "output": "{ id: 1, email: \"x@y.com\" }"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Append item immutably to existing list.",
+      "code": "const tasks = [\"read\", \"code\"];\nconst next = [...tasks, \"sleep\"];\nconsole.log(tasks, next);",
+      "output": "[ \"read\", \"code\" ] [ \"read\", \"code\", \"sleep\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Merge config objects where env overrides defaults.",
+      "code": "const defaults = { host: \"localhost\", port: 3000, secure: false };\nconst env = { port: 8080, secure: true };\nconst config = { ...defaults, ...env };\nconsole.log(config);",
+      "output": "{ host: \"localhost\", port: 8080, secure: true }"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Convert Math.max usage from array by spreading args.",
+      "code": "const nums = [5, 2, 9, 1];\nconsole.log(Math.max(...nums));",
+      "output": "9"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Write logger(level, ...messages) using rest.",
+      "code": "function logger(level, ...messages) {\n  console.log(`[${level}]`, messages.join(\" | \"));\n}\nlogger(\"INFO\", \"server up\", \"port 3000\");",
+      "output": "[INFO] server up | port 3000"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Demonstrate shallow copy behavior with nested object in spread.",
+      "code": "const original = { profile: { city: \"Pune\" } };\nconst copy = { ...original };\ncopy.profile.city = \"Delhi\";\nconsole.log(original.profile.city);",
+      "output": "Delhi"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Build function prependAndAppend(arr, start, end) returning new array.",
+      "code": "function prependAndAppend(arr, start, end) {\n  return [start, ...arr, end];\n}\nconsole.log(prependAndAppend([2, 3, 4], 1, 5));",
+      "output": "[ 1, 2, 3, 4, 5 ]"
+    }
+  ]
+}

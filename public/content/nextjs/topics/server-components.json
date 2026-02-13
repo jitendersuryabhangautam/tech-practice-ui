@@ -1,0 +1,9 @@
+{
+  "id": "server-components",
+  "title": "Server Components",
+  "description": "Default in App Router. Components rendered on the server, reducing client-side JavaScript.",
+  "code": "// Server Component (default in app dir)\nexport default async function ProductList() {\n  // Fetch data directly in component\n  const products = await fetch('https://api.example.com/products')\n    .then(res => res.json());\n  \n  return (\n    <ul>\n      {products.map(product => (\n        <li key={product.id}>{product.name}</li>\n      ))}\n    </ul>\n  );\n}\n\n// No need for useEffect or useState\n// Runs only on the server\n// Can use server-only code (DB queries, file system)",
+  "example": "import { db } from '@/lib/database';\n\nexport default async function Users() {\n  // Direct database query\n  const users = await db.query('SELECT * FROM users');\n  \n  return (\n    <div>\n      {users.map(user => (\n        <div key={user.id}>{user.name}</div>\n      ))}\n    </div>\n  );\n}",
+  "useCase": "Data fetching, reducing bundle size, SEO, static content, server-only operations",
+  "category": "Data Fetching & Rendering"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "usestate",
+  "title": "useState Hook",
+  "description": "useState is the most fundamental React hook that allows you to add state to functional components. It returns an array with the current state value and a function to update it.",
+  "explanation": "The useState hook is React's primary way to manage component state in functional components. Before hooks (introduced in React 16.8), you needed class components to have state.\n\nKey concepts:\n- Returns array: [currentState, setStateFunction]\n- State updates trigger re-renders\n- Can store any type of value (string, number, object, array)\n- Each useState call is independent\n- State updates are batched for performance\n\nBest practices:\n- Use multiple useState calls for unrelated state\n- Don't mutate state directly, always use setState\n- Use functional updates when new state depends on old state\n- Keep state minimal and derived data in variables",
+  "implementation": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  \n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>\n        Increment\n      </button>\n      <button onClick={() => setCount(count - 1)}>\n        Decrement\n      </button>\n      <button onClick={() => setCount(0)}>\n        Reset\n      </button>\n    </div>\n  );\n}",
+  "example": "// Multiple states\nconst [name, setName] = useState('');\nconst [age, setAge] = useState(0);\nconst [isActive, setIsActive] = useState(false);\n\n// Object state\nconst [user, setUser] = useState({ name: '', email: '' });\n\n// Array state\nconst [items, setItems] = useState([]);\n\n// Functional updates (using previous state)\nsetCount(prevCount => prevCount + 1);\n\n// Lazy initialization (computed once)\nconst [data, setData] = useState(() => {\n  return expensiveComputation();\n});",
+  "useCase": "Form inputs, counters, toggles, managing component-level data, UI state like modals/dropdowns",
+  "category": "Core Concepts"
+}

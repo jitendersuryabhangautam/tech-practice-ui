@@ -1,0 +1,51 @@
+{
+  "id": "channels",
+  "title": "Channels",
+  "description": "Typed conduits for communication between goroutines. Send and receive values safely.",
+  "code": "package main\n\nimport \"fmt\"\n\nfunc sum(nums []int, c chan int) {\n    total := 0\n    for _, num := range nums {\n        total += num\n    }\n    c <- total // Send to channel\n}\n\nfunc main() {\n    nums := []int{1, 2, 3, 4, 5, 6}\n    \n    c := make(chan int)\n    \n    go sum(nums[:len(nums)/2], c)\n    go sum(nums[len(nums)/2:], c)\n    \n    x, y := <-c, <-c // Receive from channel\n    \n    fmt.Println(\"Total:\", x+y)\n}",
+  "example": "// Buffered channels\nch := make(chan int, 2)\nch <- 1\nch <- 2\n// ch <- 3 // Would block\n\n// Closing channels\nclose(ch)\n\n// Range over channel\nfor val := range ch {\n    fmt.Println(val)\n}\n\n// Select statement\nselect {\ncase msg1 := <-ch1:\n    fmt.Println(\"Received from ch1:\", msg1)\ncase msg2 := <-ch2:\n    fmt.Println(\"Received from ch2:\", msg2)\ncase <-time.After(time.Second):\n    fmt.Println(\"Timeout\")\ndefault:\n    fmt.Println(\"No data\")\n}",
+  "useCase": "Goroutine communication, synchronization, worker pools, pipelines",
+  "explanation": "Channels coordinate goroutines through message passing. Interviewers evaluate blocking semantics, buffered vs unbuffered trade-offs, closure behavior, and safe ownership rules for closing channels.",
+  "interviewQuestions": [
+    {
+      "question": "Who should close a channel?",
+      "answer": "Typically the sender/producer that knows no more values will be sent."
+    },
+    {
+      "question": "What happens when receiving from a closed channel?",
+      "answer": "Receive succeeds with zero value; in two-value receive, `ok` is false."
+    },
+    {
+      "question": "When are buffered channels useful?",
+      "answer": "To absorb short bursts and decouple producer/consumer speeds, but not as a substitute for design."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Build worker pool with job and result channels."
+    },
+    {
+      "type": "output",
+      "question": "What are values of `v, ok := <-closedCh`?",
+      "answer": "zero value of element type, false"
+    },
+    {
+      "type": "debug",
+      "question": "Fix panic caused by sending on a closed channel."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Buffered channel basic flow.",
+      "code": "ch := make(chan int, 2)\nch <- 10\nch <- 20\nfmt.Println(<-ch, <-ch)",
+      "output": "10 20"
+    },
+    {
+      "question": "Program 2: Close and range.",
+      "code": "ch := make(chan int, 2)\nch <- 1; ch <- 2; close(ch)\nfor v := range ch { fmt.Println(v) }",
+      "output": "1 then 2"
+    }
+  ],
+  "category": "Concurrency"
+}

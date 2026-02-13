@@ -1,0 +1,148 @@
+{
+  "id": "persistent-volumes",
+  "title": "Persistent Volumes & Claims",
+  "description": "Provide persistent storage to pods that survives pod restarts.",
+  "code": "# persistent-volume.yaml\napiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: pv-data\nspec:\n  capacity:\n    storage: 10Gi\n  accessModes:\n  - ReadWriteOnce\n  persistentVolumeReclaimPolicy: Retain\n  hostPath:\n    path: /mnt/data\n\n# persistent-volume-claim.yaml\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: pvc-data\nspec:\n  accessModes:\n  - ReadWriteOnce\n  resources:\n    requests:\n      storage: 5Gi",
+  "command": "# Create PV and PVC\nkubectl apply -f persistent-volume.yaml\nkubectl apply -f persistent-volume-claim.yaml\n\n# List PV and PVC\nkubectl get pv\nkubectl get pvc\n\n# Describe PVC\nkubectl describe pvc pvc-data\n\n# Delete PVC (may not delete PV based on reclaim policy)\nkubectl delete pvc pvc-data",
+  "example": "# Use PVC in Pod\napiVersion: v1\nkind: Pod\nmetadata:\n  name: db-pod\nspec:\n  containers:\n  - name: postgres\n    image: postgres:15\n    volumeMounts:\n    - name: data\n      mountPath: /var/lib/postgresql/data\n  volumes:\n  - name: data\n    persistentVolumeClaim:\n      claimName: pvc-data\n\n# Dynamic provisioning with StorageClass\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: dynamic-pvc\nspec:\n  storageClassName: fast-ssd\n  accessModes:\n  - ReadWriteOnce\n  resources:\n    requests:\n      storage: 20Gi",
+  "useCase": "Databases, file storage, stateful applications, data persistence",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between PV and PVC?",
+      "answer": "PV (PersistentVolume): cluster resource provisioned by admin. PVC (PersistentVolumeClaim): request for storage by user/pod. PV is supply, PVC is demand. PVC binds to PV matching requirements (size, accessMode)."
+    },
+    {
+      "question": "What are PV access modes and which can be used together?",
+      "answer": "ReadWriteOnce (RWO): single node RW. ReadOnlyMany (ROX): multiple nodes RO. ReadWriteMany (RWX): multiple nodes RW. RWO most common, RWX needs NFS/cloud storage. Cannot mix RWO and RWX on same PV."
+    },
+    {
+      "question": "Explain PV reclaim policies: Retain, Delete, Recycle",
+      "answer": "Retain: PV kept after PVC deleted, manual cleanup required. Delete: PV and storage deleted automatically (default for dynamic). Recycle: deprecated, basic scrub (rm -rf). Use Retain for production data safety."
+    },
+    {
+      "question": "Tricky: PVC requests 5Gi, PV has 10Gi. Will it bind?",
+      "answer": "Yes! PVC requests minimum size. PV providing more is acceptable. PVC gets entire PV (10Gi available), but PVC shows requested 5Gi. Over-provisioning is fine."
+    },
+    {
+      "question": "What is dynamic provisioning and StorageClass?",
+      "answer": "StorageClass enables dynamic PV creation. No manual PV needed. PVC specifies storageClassName, provisioner auto-creates PV. Example: AWS EBS, GCE PD, Azure Disk. Set as default: kubectl annotate storageclass <name> storageclass.kubernetes.io/is-default-class=true."
+    },
+    {
+      "question": "Output: PVC stuck in Pending. What are possible reasons?",
+      "answer": "1) No PV matches size/accessMode/storageClass. 2) No StorageClass for dynamic provisioning. 3) StorageClass provisioner failed. 4) Insufficient capacity. 5) Access mode conflict. Check: kubectl describe pvc <name> for Events."
+    },
+    {
+      "question": "What is volumeMode: Filesystem vs Block?",
+      "answer": "Filesystem (default): formatted, mounted as directory. Block: raw block device, no filesystem. Block for databases needing direct disk access (better performance). Must match between PV and PVC."
+    },
+    {
+      "question": "Tricky: Pod deleted, PVC exists. Is data safe?",
+      "answer": "Yes! PVC lifecycle independent of Pod. Data persists even if Pod deleted. Only deleting PVC triggers reclaim policy. This is the point of PVCs – data outlives pods."
+    },
+    {
+      "question": "What happens with RWO PVC when pod on different node uses it?",
+      "answer": "Pod stuck in ContainerCreating. RWO = single node. If pod scheduled to different node, volume can't attach. Must delete old pod first or use RWX. StatefulSets handle this with volumeClaimTemplates."
+    },
+    {
+      "question": "Explain PV lifecycle states: Available, Bound, Released, Failed",
+      "answer": "Available: ready, no claim. Bound: bound to PVC. Released: PVC deleted but PV not reclaimed yet (Retain policy), needs manual cleanup. Failed: reclamation failed. kubectl get pv shows STATUS."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create hostPath PV with 5Gi capacity, RWO mode",
+      "answer": "kubectl apply -f pv.yaml (spec: capacity.storage: 5Gi, accessModes: [ReadWriteOnce], hostPath: {path: /data})"
+    },
+    {
+      "type": "command",
+      "question": "Create PVC requesting 3Gi storage, RWO mode",
+      "answer": "kubectl apply -f pvc.yaml (spec: accessModes: [ReadWriteOnce], resources.requests.storage: 3Gi)"
+    },
+    {
+      "type": "debug",
+      "question": "PVC stuck in Pending for 5 minutes. How to diagnose?",
+      "answer": "kubectl describe pvc <name> → Check Events for errors. kubectl get pv → Check if matching PV exists. kubectl get storageclass → Verify StorageClass exists and provisioner running."
+    },
+    {
+      "type": "scenario",
+      "question": "Pod needs persistent storage that survives node failure. Which accessMode?",
+      "answer": "ReadWriteMany (RWX) allows pod to be rescheduled to any node and access same volume. Or use cloud volumes that support cross-node attachment."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "PV deleted but storage still consuming disk space. Why?",
+      "answer": "Reclaim policy was 'Retain'. PV object deleted but actual storage remains. Manual cleanup: delete storage on backend (hostPath dir, cloud disk, etc)."
+    },
+    {
+      "type": "output",
+      "question": "PV bound to PVC. Delete PVC with Retain policy. What happens?",
+      "answer": "PV status changes from Bound to Released. PV not Available (bound to deleted PVC). Manual intervention: remove claimRef, then Available again."
+    },
+    {
+      "type": "command",
+      "question": "Create StorageClass with provisioner kubernetes.io/no-provisioner",
+      "answer": "kubectl apply -f sc.yaml (kind: StorageClass, provisioner: kubernetes.io/no-provisioner, volumeBindingMode: WaitForFirstConsumer)"
+    },
+    {
+      "type": "scenario",
+      "question": "Mount PVC in pod at /data with subPath logs",
+      "answer": "Pod spec: volumeMounts: [name: storage, mountPath: /data, subPath: logs]. volumes: [name: storage, persistentVolumeClaim: {claimName: my-pvc}]"
+    },
+    {
+      "type": "tricky",
+      "question": "Two PVCs with same storageClassName. What happens?",
+      "answer": "Each PVC gets own dynamically provisioned PV. StorageClass creates separate PV for each claim. Not shared unless explicitly using same PV manually."
+    },
+    {
+      "type": "command",
+      "question": "Expand PVC from 10Gi to 20Gi (if SC allows)",
+      "answer": "kubectl patch pvc my-pvc -p '{\"spec\":{\"resources\":{\"requests\":{\"storage\":\"20Gi\"}}}}' (requires allowVolumeExpansion: true in StorageClass)"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create PV, PVC, verify binding",
+      "code": "kubectl apply -f pv.yaml (5Gi, RWO, hostPath)\\nkubectl apply -f pvc.yaml (3Gi, RWO)\\nkubectl get pv,pvc\\nkubectl describe pvc my-pvc | grep 'Bound'",
+      "output": "STATUS: Bound (PVC bound to PV successfully)"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Use PVC in pod, write data, delete pod, verify persistence",
+      "code": "kubectl run dbpod --image=postgres:15 --dry-run -o yaml > pod.yaml\\n# Add PVC mount at /var/lib/postgresql/data\\nkubectl apply -f pod.yaml\\nkubectl exec dbpod -- sh -c 'echo test > /var/lib/postgresql/data/file.txt'\\nkubectl delete pod dbpod\\nkubectl apply -f pod.yaml\\nkubectl exec dbpod -- cat /var/lib/postgresql/data/file.txt",
+      "output": "test (data persisted across pod deletion)"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Test RWO constraint - try mounting on two pods different nodes",
+      "code": "kubectl apply -f pvc-rwo.yaml (RWO)\\nkubectl run pod1 --image=nginx -- Applies and runs\\nkubectl run pod2 --image=nginx -- (add same PVC mount, schedule to different node)\\nkubectl describe pod pod2 | grep 'FailedAttachVolume'",
+      "output": "Error: volume already attached to different node (RWO violation)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Test PV reclaim policy Retain",
+      "code": "kubectl apply -f pv-retain.yaml (persistentVolumeReclaimPolicy: Retain)\\nkubectl apply -f pvc.yaml\\nkubectl delete pvc my-pvc\\nkubectl get pv my-pv -o jsonpath='{.status.phase}'",
+      "output": "Released (PV not deleted, requires manual cleanup)"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Dynamic provisioning with StorageClass",
+      "code": "kubectl get storageclass\\nkubectl apply -f pvc-dynamic.yaml (storageClassName: standard)\\nkubectl get pv (auto-created PV appears)\\nkubectl describe pv | grep 'Provisioner'",
+      "output": "PV dynamically created by StorageClass provisioner"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Simulate pending PVC - no matching PV",
+      "code": "kubectl apply -f pvc-nomatch.yaml (request 100Gi, no PV has 100Gi)\\nkubectl get pvc pvc-nomatch\\nkubectl describe pvc pvc-nomatch",
+      "output": "STATUS: Pending, Events: waiting for a volume to be created or to become available"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Volume expansion (if supported by StorageClass)",
+      "code": "kubectl get sc standard -o jsonpath='{.allowVolumeExpansion}'\\nkubectl patch pvc my-pvc -p '{\\\"spec\\\":{\\\"resources\\\":{\\\"requests\\\":{\\\"storage\\\":\\\"20Gi\\\"}}}}'\\nkubectl get pvc my-pvc -o jsonpath='{.status.capacity.storage}'",
+      "output": "20Gi (PVC expanded, pod may need restart to recognize new size)"
+    }
+  ],
+  "category": "Configuration & Storage"
+}

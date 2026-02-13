@@ -1,0 +1,9 @@
+{
+  "id": "ssr",
+  "title": "Server-Side Rendering (SSR)",
+  "description": "Renders page on each request. Use dynamic functions to opt-in to SSR.",
+  "code": "import { cookies, headers } from 'next/headers';\n\n// Using cookies() makes this dynamic (SSR)\nexport default async function ProfilePage() {\n  const cookieStore = await cookies();\n  const token = cookieStore.get('token');\n  \n  const user = await fetch('https://api.example.com/user', {\n    headers: { Authorization: `Bearer ${token}` }\n  }).then(r => r.json());\n  \n  return <div>Welcome, {user.name}</div>;\n}\n\n// Force dynamic rendering\nconst dynamic = 'force-dynamic';",
+  "example": "// Using headers\nimport { headers } from 'next/headers';\n\nexport default async function Page() {\n  const headersList = await headers();\n  const userAgent = headersList.get('user-agent');\n  \n  return <div>Your browser: {userAgent}</div>;\n}\n\n// Using searchParams (makes it dynamic)\nexport default async function SearchPage({ searchParams }) {\n  const query = searchParams.q;\n  const results = await search(query);\n  return <div>{results.length} results</div>;\n}",
+  "useCase": "Personalized content, authentication, real-time data, user-specific pages",
+  "category": "Data Fetching & Rendering"
+}

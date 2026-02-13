@@ -1,0 +1,55 @@
+{
+  "id": "structs",
+  "title": "Structs & Methods",
+  "description": "Define custom types with structs and attach methods to them.",
+  "code": "package main\n\nimport \"fmt\"\n\n// Define struct\ntype Person struct {\n    Name string\n    Age  int\n}\n\n// Method on struct\nfunc (p Person) Greet() string {\n    return \"Hello, \" + p.Name\n}\n\n// Pointer receiver (can modify)\nfunc (p *Person) HaveBirthday() {\n    p.Age++\n}\n\n// Constructor function\nfunc NewPerson(name string, age int) *Person {\n    return &Person{\n        Name: name,\n        Age:  age,\n    }\n}\n\nfunc main() {\n    p := Person{Name: \"Alice\", Age: 30}\n    fmt.Println(p.Greet())\n    \n    p.HaveBirthday()\n    fmt.Println(p.Age) // 31\n    \n    p2 := NewPerson(\"Bob\", 25)\n    fmt.Println(p2)\n}",
+  "example": "// Embedded structs\ntype Address struct {\n    City  string\n    State string\n}\n\ntype Employee struct {\n    Person  // Embedded\n    Address // Embedded\n    Salary  int\n}\n\nemp := Employee{\n    Person:  Person{Name: \"John\", Age: 30},\n    Address: Address{City: \"NYC\", State: \"NY\"},\n    Salary:  100000,\n}\n\n// Access embedded fields\nfmt.Println(emp.Name) // From Person\nfmt.Println(emp.City) // From Address",
+  "useCase": "Data modeling, OOP-like patterns, API responses, database models",
+  "explanation": "Structs model domain data, while methods provide behavior. Interviews typically test pointer vs value receivers, embedding for composition, and when constructor helpers improve invariants.",
+  "interviewQuestions": [
+    {
+      "question": "When do you use pointer receiver vs value receiver?",
+      "answer": "Use pointer receiver when mutating state or avoiding copies on large structs; value receiver for immutable small-value semantics."
+    },
+    {
+      "question": "Is embedding inheritance in Go?",
+      "answer": "No, it is composition. Promoted fields/methods provide reuse without classical inheritance hierarchy."
+    },
+    {
+      "question": "Why create constructor-like functions in Go?",
+      "answer": "To validate input and ensure required fields/invariants before exposing values to callers."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Create a `BankAccount` struct with deposit/withdraw methods and balance validation."
+    },
+    {
+      "type": "theory",
+      "question": "Explain method set differences for type `T` and `*T`."
+    },
+    {
+      "type": "tricky",
+      "question": "Why might calling a pointer-receiver method on a value still compile?",
+      "answer": "Go may take the address automatically when value is addressable."
+    },
+    {
+      "type": "debug",
+      "question": "Fix a bug where a value receiver method tries to mutate struct state but change is lost."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Value vs pointer receiver behavior.",
+      "code": "type C struct{ N int }\nfunc (c C) IncV() { c.N++ }\nfunc (c *C) IncP() { c.N++ }\nx := C{N:1}\nx.IncV(); fmt.Println(x.N)\nx.IncP(); fmt.Println(x.N)",
+      "output": "1 then 2"
+    },
+    {
+      "question": "Program 2: Embedded struct field promotion.",
+      "code": "type A struct{ Name string }\ntype B struct{ A; Role string }\nb := B{A: A{Name:\"go\"}, Role:\"dev\"}\nfmt.Println(b.Name, b.Role)",
+      "output": "go dev"
+    }
+  ],
+  "category": "Go Basics"
+}

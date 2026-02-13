@@ -1,0 +1,86 @@
+[
+  {
+    "id": "syntax",
+    "file": "topics/syntax.json",
+    "title": "Basic Syntax & Types",
+    "category": "Go Basics"
+  },
+  {
+    "id": "functions",
+    "file": "topics/functions.json",
+    "title": "Functions",
+    "category": "Go Basics"
+  },
+  {
+    "id": "structs",
+    "file": "topics/structs.json",
+    "title": "Structs & Methods",
+    "category": "Go Basics"
+  },
+  {
+    "id": "interfaces",
+    "file": "topics/interfaces.json",
+    "title": "Interfaces",
+    "category": "Go Basics"
+  },
+  {
+    "id": "goroutines",
+    "file": "topics/goroutines.json",
+    "title": "Goroutines",
+    "category": "Concurrency"
+  },
+  {
+    "id": "channels",
+    "file": "topics/channels.json",
+    "title": "Channels",
+    "category": "Concurrency"
+  },
+  {
+    "id": "select",
+    "file": "topics/select.json",
+    "title": "Select Statement",
+    "category": "Concurrency"
+  },
+  {
+    "id": "sync",
+    "file": "topics/sync.json",
+    "title": "Sync Package (Mutex, WaitGroup)",
+    "category": "Concurrency"
+  },
+  {
+    "id": "arrays-slices",
+    "file": "topics/arrays-slices.json",
+    "title": "Arrays & Slices",
+    "category": "Data Structures"
+  },
+  {
+    "id": "maps",
+    "file": "topics/maps.json",
+    "title": "Maps",
+    "category": "Data Structures"
+  },
+  {
+    "id": "db-connection",
+    "file": "topics/db-connection.json",
+    "title": "Database Connection (database/sql)",
+    "category": "Backend Development"
+  },
+  {
+    "id": "redis-connection",
+    "file": "topics/redis-connection.json",
+    "title": "Redis Connection (go-redis)",
+    "category": "Backend Development"
+  },
+  {
+    "id": "api-development",
+    "file": "topics/api-development.json",
+    "title": "API Development (net/http)",
+    "category": "Backend Development"
+  },
+  {
+    "id": "inbuilt-functions",
+    "file": "topics/inbuilt-functions.json",
+    "title": "Inbuilt Functions and Purpose",
+    "category": "Backend Development"
+  }
+]

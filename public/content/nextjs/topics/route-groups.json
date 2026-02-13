@@ -1,0 +1,9 @@
+{
+  "id": "route-groups",
+  "title": "Route Groups & Parallel Routes",
+  "description": "Organize routes without affecting URL structure using (folder) syntax.",
+  "code": "// Route Groups (don't affect URL)\n// app/(marketing)/about/page.js → /about\n// app/(marketing)/pricing/page.js → /pricing\n// app/(dashboard)/dashboard/page.js → /dashboard\n\n// Each group can have its own layout\n// app/(marketing)/layout.js\nexport default function MarketingLayout({ children }) {\n  return (\n    <div>\n      <header>Marketing Header</header>\n      {children}\n    </div>\n  );\n}",
+  "example": "// Parallel Routes\n// app/dashboard/@analytics/page.js\n// app/dashboard/@team/page.js\n// app/dashboard/layout.js\nexport default function Layout({ children, analytics, team }) {\n  return (\n    <div>\n      {children}\n      <div>{analytics}</div>\n      <div>{team}</div>\n    </div>\n  );\n}",
+  "useCase": "Organizing routes, multiple layouts, role-based layouts, parallel data loading",
+  "category": "App Router & Routing"
+}

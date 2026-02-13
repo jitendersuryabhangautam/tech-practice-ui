@@ -1,0 +1,56 @@
+[
+  {
+    "id": "pods",
+    "file": "topics/pods.json",
+    "title": "Pods",
+    "category": "Kubernetes Basics"
+  },
+  {
+    "id": "deployments",
+    "file": "topics/deployments.json",
+    "title": "Deployments",
+    "category": "Kubernetes Basics"
+  },
+  {
+    "id": "services",
+    "file": "topics/services.json",
+    "title": "Services",
+    "category": "Kubernetes Basics"
+  },
+  {
+    "id": "namespaces",
+    "file": "topics/namespaces.json",
+    "title": "Namespaces",
+    "category": "Kubernetes Basics"
+  },
+  {
+    "id": "configmaps",
+    "file": "topics/configmaps.json",
+    "title": "ConfigMaps",
+    "category": "Configuration & Storage"
+  },
+  {
+    "id": "secrets",
+    "file": "topics/secrets.json",
+    "title": "Secrets",
+    "category": "Configuration & Storage"
+  },
+  {
+    "id": "persistent-volumes",
+    "file": "topics/persistent-volumes.json",
+    "title": "Persistent Volumes & Claims",
+    "category": "Configuration & Storage"
+  },
+  {
+    "id": "kubectl-basics",
+    "file": "topics/kubectl-basics.json",
+    "title": "Essential kubectl Commands",
+    "category": "kubectl Commands"
+  },
+  {
+    "id": "kubectl-advanced",
+    "file": "topics/kubectl-advanced.json",
+    "title": "Advanced kubectl Commands",
+    "category": "kubectl Commands"
+  }
+]

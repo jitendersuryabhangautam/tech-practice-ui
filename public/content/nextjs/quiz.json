@@ -1,0 +1,1036 @@
+[
+  {
+    "question": "What is the main difference between Server and Client Components in Next.js?",
+    "options": [
+      "Server components run on the server, Client components run in the browser",
+      "Server components are faster",
+      "Client components can't use hooks",
+      "There is no difference"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Server Components render on the server and send HTML to the client, while Client Components are hydrated and run in the browser. Server Components can't use hooks or browser APIs."
+  },
+  {
+    "question": "What does SSG (Static Site Generation) do?",
+    "options": [
+      "Generates pages on every request",
+      "Generates HTML at build time",
+      "Only works with client-side rendering",
+      "Requires a Node.js server"
+    ],
+    "correctAnswer": 1,
+    "explanation": "SSG generates HTML pages at build time, which can then be cached and served from a CDN. This provides the best performance but requires rebuilding to update content."
+  },
+  {
+    "question": "What is ISR (Incremental Static Regeneration)?",
+    "options": [
+      "Real-time server rendering",
+      "Static generation with periodic updates",
+      "Client-side rendering only",
+      "Database replication"
+    ],
+    "correctAnswer": 1,
+    "explanation": "ISR allows you to update static pages after build time by revalidating them on a schedule. This combines the benefits of static generation with the ability to update content without full rebuilds."
+  },
+  {
+    "question": "How do you create a dynamic route in Next.js App Router?",
+    "options": [
+      "Use query parameters",
+      "Create a folder with [param] brackets",
+      "Use the Router API",
+      "Add a config file"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In Next.js App Router, dynamic routes are created using folders with brackets, like [id] or [slug]. The parameter is then available in the page component via params prop."
+  },
+  {
+    "question": "What is the purpose of Server Actions in Next.js?",
+    "options": [
+      "To optimize images",
+      "To handle form submissions and mutations on the server without API routes",
+      "To cache data",
+      "To create middleware"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Server Actions allow you to run server-side code directly from components, especially useful for form submissions and data mutations, without creating separate API routes."
+  },
+  {
+    "question": "What is the difference between getStaticProps and getServerSideProps (Pages Router)?",
+    "options": [
+      "No difference",
+      "getStaticProps runs at build time, getServerSideProps runs on each request",
+      "getStaticProps is deprecated",
+      "getServerSideProps is faster"
+    ],
+    "correctAnswer": 1,
+    "explanation": "getStaticProps runs at build time for SSG, while getServerSideProps runs on every request for SSR. Choose based on whether content changes frequently."
+  },
+  {
+    "question": "What does the 'use client' directive do?",
+    "options": [
+      "Forces client-side rendering",
+      "Marks component boundary where client components start",
+      "Optimizes performance",
+      "Enables API calls"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'use client' marks the boundary where Server Components end and Client Components begin. It's needed for components using hooks, browser APIs, or event handlers."
+  },
+  {
+    "question": "What is Next.js middleware?",
+    "options": [
+      "Redux middleware",
+      "Code that runs before request is completed",
+      "Backend framework",
+      "Testing tool"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Next.js middleware runs before a request is completed, allowing you to modify the response, rewrite, redirect, or add headers. Defined in middleware.js at root."
+  },
+  {
+    "question": "What is the purpose of the Image component in Next.js?",
+    "options": [
+      "Display images only",
+      "Automatic image optimization, lazy loading, and responsive images",
+      "Image editing",
+      "Image upload"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Next.js Image component automatically optimizes images (format, size), provides lazy loading, prevents layout shift, and serves responsive images for better performance."
+  },
+  {
+    "question": "What does next/link component do?",
+    "options": [
+      "Creates hyperlinks only",
+      "Enables client-side navigation with prefetching",
+      "External links only",
+      "Database links"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next/link provides client-side navigation between pages without full page reload, with automatic prefetching of pages in the viewport for faster navigation."
+  },
+  {
+    "question": "What is the app directory in Next.js 13+?",
+    "options": [
+      "Application folder",
+      "New routing system with React Server Components support",
+      "Configuration directory",
+      "Build output"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The app directory is the new routing system in Next.js 13+ that supports React Server Components, layouts, loading states, error handling, and more features."
+  },
+  {
+    "question": "What file creates a layout in App Router?",
+    "options": [
+      "index.js",
+      "layout.js",
+      "page.js",
+      "template.js"
+    ],
+    "correctAnswer": 1,
+    "explanation": "layout.js creates a layout that wraps child pages and layouts. Layouts preserve state across navigation and don't re-render, unlike templates."
+  },
+  {
+    "question": "What does the loading.js file do in App Router?",
+    "options": [
+      "Loads data",
+      "Creates automatic loading UI using React Suspense",
+      "Configures loading states",
+      "Imports modules"
+    ],
+    "correctAnswer": 1,
+    "explanation": "loading.js automatically wraps the page in React Suspense and shows the loading UI while the page is being fetched or rendered on the server."
+  },
+  {
+    "question": "What is the purpose of error.js in App Router?",
+    "options": [
+      "Log errors",
+      "Creates error boundary for handling errors in route segment",
+      "Throw errors",
+      "Prevent errors"
+    ],
+    "correctAnswer": 1,
+    "explanation": "error.js creates an error boundary that catches errors in the route segment and its children, displaying fallback UI and allowing recovery."
+  },
+  {
+    "question": "What does revalidate do in fetch requests?",
+    "options": [
+      "Validates data",
+      "Sets cache revalidation time in seconds for ISR",
+      "Checks authentication",
+      "Validates forms"
+    ],
+    "correctAnswer": 1,
+    "explanation": "revalidate option in fetch() sets how often (in seconds) the cache should be revalidated, enabling ISR. revalidate: 60 revalidates every 60 seconds."
+  },
+  {
+    "question": "What is the generateStaticParams function?",
+    "options": [
+      "Generates random parameters",
+      "Pre-renders dynamic routes at build time for SSG",
+      "Creates URL parameters",
+      "Validates parameters"
+    ],
+    "correctAnswer": 1,
+    "explanation": "generateStaticParams pre-renders dynamic routes at build time. It returns array of params to generate static pages for dynamic routes."
+  },
+  {
+    "question": "What does const dynamic = 'force-dynamic' do?",
+    "options": [
+      "Forces dynamic routing",
+      "Forces dynamic rendering (SSR) instead of static generation",
+      "Enables dynamic imports",
+      "Creates dynamic components"
+    ],
+    "correctAnswer": 1,
+    "explanation": "const dynamic = 'force-dynamic' forces the route to be dynamically rendered (SSR) on every request, even if it could be statically generated."
+  },
+  {
+    "question": "What is the notFound() function?",
+    "options": [
+      "404 error creator",
+      "Throws error that renders closest not-found.js UI",
+      "Finds missing files",
+      "Database query"
+    ],
+    "correctAnswer": 1,
+    "explanation": "notFound() is a function that throws an error to render the closest not-found.js file. Used when dynamic route parameter is invalid."
+  },
+  {
+    "question": "What does redirect() function do?",
+    "options": [
+      "Redirects HTTP requests",
+      "Redirects to different URL, works in Server Components and Actions",
+      "Changes routes",
+      "Prevents navigation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "redirect() redirects the user to a different URL. It can be used in Server Components, Route Handlers, and Server Actions to handle redirects."
+  },
+  {
+    "question": "What is Route Handlers in App Router?",
+    "options": [
+      "Route components",
+      "Custom request handlers using Web APIs (replacement for API routes)",
+      "Navigation handlers",
+      "Error handlers"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Route Handlers (route.js) are custom request handlers using Web Request/Response APIs. They replace API routes from Pages Router."
+  },
+  {
+    "question": "What HTTP methods can Route Handlers handle?",
+    "options": [
+      "GET only",
+      "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS",
+      "GET and POST only",
+      "Custom methods only"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Route Handlers support GET, POST, PUT, PATCH, DELETE, HEAD, and OPTIONS methods. Export async functions with these names to handle requests."
+  },
+  {
+    "question": "What is the cookies() function in Next.js?",
+    "options": [
+      "Browser cookies",
+      "Server-side function to read/write cookies in Server Components",
+      "Cookie parser",
+      "Session management"
+    ],
+    "correctAnswer": 1,
+    "explanation": "cookies() is a server-side function to read and modify cookies in Server Components, Route Handlers, and Server Actions."
+  },
+  {
+    "question": "What does the headers() function do?",
+    "options": [
+      "Creates HTTP headers",
+      "Reads incoming request headers in Server Components",
+      "Sets response headers",
+      "Header validation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "headers() is a server-side function to read incoming request headers in Server Components, Route Handlers, and Server Actions."
+  },
+  {
+    "question": "What is the difference between layout and template?",
+    "options": [
+      "No difference",
+      "Layout persists state across navigation, template creates new instance",
+      "Template is deprecated",
+      "Layout is faster"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Layouts preserve state and don't re-render on navigation. Templates create a new instance on each navigation, resetting state."
+  },
+  {
+    "question": "What is parallel routes in Next.js?",
+    "options": [
+      "Concurrent routes",
+      "Simultaneously render multiple pages in same layout with slots",
+      "Multiple domains",
+      "Route duplication"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Parallel routes allow simultaneously rendering multiple pages in the same layout using slots (@folder). Useful for dashboards with independent sections."
+  },
+  {
+    "question": "What is intercepting routes?",
+    "options": [
+      "Blocking routes",
+      "Intercept navigation to show different content (e.g., modal over list)",
+      "Middleware routes",
+      "Protected routes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Intercepting routes ((..)folder) allow you to intercept navigation to show content in current context (like modal) while keeping URL updated."
+  },
+  {
+    "question": "What does next/font do?",
+    "options": [
+      "Font styling",
+      "Automatically optimizes and loads fonts without layout shift",
+      "Font converter",
+      "Web font provider"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next/font automatically optimizes fonts (including custom fonts), hosts them, and removes external network requests, ensuring no layout shift."
+  },
+  {
+    "question": "What is the metadata API in App Router?",
+    "options": [
+      "Data about data",
+      "Define SEO metadata (title, description) using config or generateMetadata",
+      "API metadata",
+      "Database metadata"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Metadata API allows defining SEO-related metadata through config-based (const metadata) or dynamic (generateMetadata function) approach."
+  },
+  {
+    "question": "What file creates the HTML document structure?",
+    "options": [
+      "index.html",
+      "layout.js",
+      "document.js",
+      "app.js"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Root layout.js (app/layout.js) creates the HTML document structure with <html> and <body> tags. It's required and wraps all pages."
+  },
+  {
+    "question": "What is generateMetadata function?",
+    "options": [
+      "Creates metadata",
+      "Async function to generate dynamic metadata based on params or data",
+      "Validates metadata",
+      "Metadata parser"
+    ],
+    "correctAnswer": 1,
+    "explanation": "generateMetadata is an async function that returns metadata object. It can fetch data and use route params to generate dynamic metadata."
+  },
+  {
+    "question": "What does const runtime = 'edge' do?",
+    "options": [
+      "Edge browser only",
+      "Configures route to run on Edge Runtime instead of Node.js",
+      "Network edge",
+      "Edge caching"
+    ],
+    "correctAnswer": 1,
+    "explanation": "const runtime = 'edge' runs the route on Edge Runtime (lightweight) instead of Node.js Runtime. Offers better performance with some limitations."
+  },
+  {
+    "question": "What is the useRouter hook in App Router?",
+    "options": [
+      "Router configuration",
+      "Client-side navigation hook with push, replace, refresh methods",
+      "Route creation",
+      "Server routing"
+    ],
+    "correctAnswer": 1,
+    "explanation": "useRouter (from next/navigation) provides client-side navigation with methods like push(), replace(), refresh(), and back() in Client Components."
+  },
+  {
+    "question": "What does usePathname hook return?",
+    "options": [
+      "Full URL",
+      "Current pathname (route path without domain)",
+      "Route parameters",
+      "Search parameters"
+    ],
+    "correctAnswer": 1,
+    "explanation": "usePathname returns the current pathname (e.g., /blog/post). It's a Client Component hook from next/navigation."
+  },
+  {
+    "question": "What is useSearchParams hook?",
+    "options": [
+      "Search functionality",
+      "Reads current URL query string parameters",
+      "Search form hook",
+      "Database search"
+    ],
+    "correctAnswer": 1,
+    "explanation": "useSearchParams returns a read-only version of URLSearchParams to access current URL's query string in Client Components."
+  },
+  {
+    "question": "What does useParams hook return?",
+    "options": [
+      "Function parameters",
+      "Current route's dynamic parameters",
+      "URL parameters",
+      "Search parameters"
+    ],
+    "correctAnswer": 1,
+    "explanation": "useParams returns an object containing the current route's dynamic parameters filled from the URL in Client Components."
+  },
+  {
+    "question": "What is the useSelectedLayoutSegment hook?",
+    "options": [
+      "Layout selector",
+      "Returns active child segment in layout",
+      "Selection tool",
+      "Segment creator"
+    ],
+    "correctAnswer": 1,
+    "explanation": "useSelectedLayoutSegment returns the active child segment one level below the Layout it's called from. Useful for building navigation."
+  },
+  {
+    "question": "What does next.config.js file do?",
+    "options": [
+      "App configuration",
+      "Configures Next.js behavior with options for images, redirects, headers, etc.",
+      "Build configuration",
+      "Runtime configuration"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next.config.js is the configuration file for customizing Next.js behavior including webpack config, environment variables, redirects, headers, image domains, etc."
+  },
+  {
+    "question": "What is the purpose of rewrites in next.config.js?",
+    "options": [
+      "Rewrite code",
+      "Map incoming request path to different destination path without changing URL",
+      "URL redirection",
+      "Path validation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Rewrites allow mapping an incoming request path to a different destination path without changing the URL in the browser. Useful for API masking."
+  },
+  {
+    "question": "What do redirects in next.config.js do?",
+    "options": [
+      "Route changes",
+      "Redirect incoming path to different destination with URL change",
+      "Error pages",
+      "Navigation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Redirects map an incoming request path to a different destination, changing the URL. Can be permanent (308) or temporary (307) redirects."
+  },
+  {
+    "question": "What is basePath in next.config.js?",
+    "options": [
+      "Base URL",
+      "Deploy Next.js app under subpath of domain",
+      "Root directory",
+      "API base path"
+    ],
+    "correctAnswer": 1,
+    "explanation": "basePath allows deploying Next.js app under a subpath of a domain (e.g., /docs). Automatically added to all paths and links."
+  },
+  {
+    "question": "What does assetPrefix do in next.config.js?",
+    "options": [
+      "Asset naming",
+      "Configure CDN to host static assets",
+      "Asset optimization",
+      "Prefix generator"
+    ],
+    "correctAnswer": 1,
+    "explanation": "assetPrefix allows configuring CDN to serve static assets. Next.js will automatically prefix asset URLs with the specified path."
+  },
+  {
+    "question": "What is the API Routes feature (Pages Router)?",
+    "options": [
+      "External APIs",
+      "Backend API endpoints as serverless functions",
+      "Route documentation",
+      "API testing"
+    ],
+    "correctAnswer": 1,
+    "explanation": "API Routes (pages/api) let you build backend API endpoints as serverless functions within your Next.js app, handling HTTP requests."
+  },
+  {
+    "question": "What is the difference between shallow routing and regular routing?",
+    "options": [
+      "No difference",
+      "Shallow routing changes URL without running data fetching methods",
+      "Shallow is faster",
+      "Regular routing is deprecated"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Shallow routing changes URL without triggering getServerSideProps/getStaticProps. Useful for updating URL with state changes without re-fetching."
+  },
+  {
+    "question": "What does next build command do?",
+    "options": [
+      "Builds UI",
+      "Creates optimized production build",
+      "Installs dependencies",
+      "Runs development server"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next build creates an optimized production build, generating static pages, server functions, and assets in the .next directory."
+  },
+  {
+    "question": "What is next start command?",
+    "options": [
+      "Starts development",
+      "Starts production server serving the built app",
+      "Starts new project",
+      "Starts database"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next start starts the production server that serves the built application. Must run next build first."
+  },
+  {
+    "question": "What does next export do (Pages Router)?",
+    "options": [
+      "Exports data",
+      "Exports app as static HTML (static export)",
+      "Exports configuration",
+      "Creates exports"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next export generates a static HTML export of your app. Each page becomes a static HTML file without requiring Node.js server."
+  },
+  {
+    "question": "What is preview mode in Next.js?",
+    "options": [
+      "Development preview",
+      "Bypass static generation to see draft content from CMS",
+      "Production preview",
+      "Design preview"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Preview mode allows temporarily bypassing static generation to preview draft content from headless CMS before publishing."
+  },
+  {
+    "question": "What is the purpose of _app.js in Pages Router?",
+    "options": [
+      "Application logic",
+      "Initialize pages, persist layout, keep state, inject global CSS",
+      "Main page",
+      "App configuration"
+    ],
+    "correctAnswer": 1,
+    "explanation": "_app.js (pages/_app.js) initializes pages, persists layout between page changes, keeps state when navigating, and allows injecting global CSS."
+  },
+  {
+    "question": "What does _document.js customize in Pages Router?",
+    "options": [
+      "Document content",
+      "Initial HTML document structure (html, body tags)",
+      "Page layout",
+      "Documentation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "_document.js (pages/_document.js) customizes the initial HTML document structure. Used to augment application's <html> and <body> tags."
+  },
+  {
+    "question": "What is the 404.js file?",
+    "options": [
+      "Error page",
+      "Custom 404 Not Found page",
+      "File not found error",
+      "Redirect page"
+    ],
+    "correctAnswer": 1,
+    "explanation": "404.js (pages/404.js) is a custom 404 Not Found page. Statically generated at build time and shown for non-existent routes."
+  },
+  {
+    "question": "What does 500.js file do?",
+    "options": [
+      "Server error",
+      "Custom 500 Internal Server Error page",
+      "Error handling",
+      "Status page"
+    ],
+    "correctAnswer": 1,
+    "explanation": "500.js (pages/500.js) is a custom 500 Internal Server Error page. Statically generated at build time and shown when server errors occur."
+  },
+  {
+    "question": "What is getInitialProps (Pages Router)?",
+    "options": [
+      "Initialize props",
+      "Legacy data fetching method (prefer getStaticProps/getServerSideProps)",
+      "First props",
+      "Default props"
+    ],
+    "correctAnswer": 1,
+    "explanation": "getInitialProps is legacy data fetching method that runs on both server and client. Prefer getStaticProps or getServerSideProps for better performance."
+  },
+  {
+    "question": "What does next/script component do?",
+    "options": [
+      "JavaScript scripts",
+      "Optimizes loading of third-party scripts with strategies",
+      "Script generation",
+      "Script validation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next/script optimizes loading of third-party scripts with strategies (beforeInteractive, afterInteractive, lazyOnload) to prevent blocking page rendering."
+  },
+  {
+    "question": "What is the purpose of output: 'export' in next.config.js?",
+    "options": [
+      "Export configuration",
+      "Generate static export (static HTML/CSS/JS) for static hosting",
+      "Output directory",
+      "Build output"
+    ],
+    "correctAnswer": 1,
+    "explanation": "output: 'export' generates a static export of your Next.js app as static HTML/CSS/JS files that can be hosted on any static hosting service."
+  },
+  {
+    "question": "What is Turbopack in Next.js?",
+    "options": [
+      "Package manager",
+      "Rust-based bundler for faster development (beta)",
+      "Compression tool",
+      "Performance monitor"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Turbopack is an incremental bundler written in Rust, designed to be a faster successor to webpack for Next.js development."
+  },
+  {
+    "question": "What does next/dynamic do?",
+    "options": [
+      "Dynamic routing",
+      "Dynamically import components with code splitting and SSR support",
+      "Dynamic content",
+      "Dynamic types"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next/dynamic enables dynamic imports for components with automatic code splitting. Can disable SSR with ssr: false option."
+  },
+  {
+    "question": "What is Static Export in Next.js?",
+    "options": [
+      "Export variables",
+      "Generate static HTML app without Node.js server",
+      "Data export",
+      "Build export"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Static Export (output: 'export') generates a static HTML/CSS/JS application that can be deployed on any static hosting without Node.js server."
+  },
+  {
+    "question": "What is the trailingSlash option in next.config.js?",
+    "options": [
+      "Slash at end",
+      "Adds trailing slash to URLs or removes them",
+      "URL formatting",
+      "Path separator"
+    ],
+    "correctAnswer": 1,
+    "explanation": "trailingSlash option controls whether URLs should have trailing slashes (true) or not (false). Affects how pages/URLs are exported."
+  },
+  {
+    "question": "What does env in next.config.js do?",
+    "options": [
+      "Environment variables",
+      "Makes environment variables available in browser by embedding them",
+      "Environment settings",
+      "Config variables"
+    ],
+    "correctAnswer": 1,
+    "explanation": "env in next.config.js embeds environment variables at build time, making them available in the browser. Prefer NEXT_PUBLIC_ prefix instead."
+  },
+  {
+    "question": "What is the purpose of NEXT_PUBLIC_ prefix?",
+    "options": [
+      "Public files",
+      "Makes environment variables accessible in browser",
+      "Public API",
+      "Public routes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Environment variables prefixed with NEXT_PUBLIC_ are exposed to the browser. Non-prefixed variables are server-side only for security."
+  },
+  {
+    "question": "What is internationalization (i18n) in Next.js?",
+    "options": [
+      "Translation",
+      "Built-in support for internationalized routing and locales",
+      "Language detection",
+      "Multi-language content"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Next.js has built-in i18n routing support. Configure locales, default locale, and domain locales in next.config.js for multi-language sites."
+  },
+  {
+    "question": "What does useReportWebVitals do?",
+    "options": [
+      "Health monitoring",
+      "Reports Core Web Vitals and custom metrics",
+      "Error reporting",
+      "Analytics"
+    ],
+    "correctAnswer": 1,
+    "explanation": "useReportWebVitals (in _app.js) allows reporting Core Web Vitals and custom performance metrics to analytics services."
+  },
+  {
+    "question": "What is next/head component?",
+    "options": [
+      "Header component",
+      "Appends elements to page <head> (Pages Router)",
+      "Head section",
+      "Navigation header"
+    ],
+    "correctAnswer": 1,
+    "explanation": "next/head component (Pages Router) appends elements to page <head>. In App Router, use Metadata API instead."
+  },
+  {
+    "question": "What does the Link prefetch prop do?",
+    "options": [
+      "Pre-loads data",
+      "Controls if link should be prefetched (default true in production)",
+      "Fetches on click",
+      "Pre-renders page"
+    ],
+    "correctAnswer": 1,
+    "explanation": "prefetch prop on Link controls automatic prefetching of pages in viewport. Defaults to true in production, false in development."
+  },
+  {
+    "question": "What is the scroll prop in Link?",
+    "options": [
+      "Scroll position",
+      "Controls if page scrolls to top after navigation (default true)",
+      "Smooth scrolling",
+      "Scroll event"
+    ],
+    "correctAnswer": 1,
+    "explanation": "scroll prop on Link controls whether page scrolls to top after navigation. Set to false to maintain scroll position."
+  },
+  {
+    "question": "What is the replace prop in Link?",
+    "options": [
+      "Replace content",
+      "Replaces current history state instead of adding new URL to stack",
+      "Replace component",
+      "Replace route"
+    ],
+    "correctAnswer": 1,
+    "explanation": "replace prop on Link replaces current history entry instead of adding new one. Useful for redirects or preventing back navigation."
+  },
+  {
+    "question": "What is Draft Mode in Next.js?",
+    "options": [
+      "Development mode",
+      "Allows bypassing static generation to preview draft content",
+      "Draft documents",
+      "Design drafts"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Draft Mode (replacement for Preview Mode) allows temporarily bypassing static generation to preview draft/unpublished content from headless CMS."
+  },
+  {
+    "question": "What does experimental.appDir do in next.config.js?",
+    "options": [
+      "App directory",
+      "Enables the new app directory (App Router) - now stable",
+      "Experiment configuration",
+      "Directory structure"
+    ],
+    "correctAnswer": 1,
+    "explanation": "experimental.appDir enabled the new app directory in Next.js 13. It's now stable and the recommended approach in Next.js 13.4+."
+  },
+  {
+    "question": "What is Route Groups in App Router?",
+    "options": [
+      "Group routes",
+      "Organize routes without affecting URL structure using (folder)",
+      "Route collections",
+      "Grouped navigation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Route Groups (folder names in parentheses like (marketing)) organize routes without affecting URL structure. Useful for organizing code or layouts."
+  },
+  {
+    "question": "What is the default.js file?",
+    "options": [
+      "Default page",
+      "Fallback for parallel routes when slot not found",
+      "Default configuration",
+      "Error fallback"
+    ],
+    "correctAnswer": 1,
+    "explanation": "default.js provides a fallback to render within a parallel route slot when Next.js cannot recover a slot's active state after full page load."
+  },
+  {
+    "question": "What does the global-error.js file do?",
+    "options": [
+      "Global errors",
+      "Root error boundary for catching errors in root layout",
+      "Error logger",
+      "Error configuration"
+    ],
+    "correctAnswer": 1,
+    "explanation": "global-error.js is a root error boundary that catches errors in the root layout. It must define its own <html> and <body> tags."
+  },
+  {
+    "question": "What is the force-dynamic segment config?",
+    "options": [
+      "Forces dynamics",
+      "Forces route to be dynamically rendered (SSR) on each request",
+      "Dynamic imports",
+      "Dynamic routing"
+    ],
+    "correctAnswer": 1,
+    "explanation": "const dynamic = 'force-dynamic' forces the route to be rendered dynamically (SSR) on each request, disabling static optimization."
+  },
+  {
+    "question": "What does force-static segment config do?",
+    "options": [
+      "Static files",
+      "Forces route to be statically generated at build time",
+      "Static content",
+      "Build optimization"
+    ],
+    "correctAnswer": 1,
+    "explanation": "const dynamic = 'force-static' forces static rendering and caching of route, even if it uses dynamic functions."
+  },
+  {
+    "question": "What is the dynamicParams segment config?",
+    "options": [
+      "Dynamic parameters",
+      "Controls behavior for dynamic segments not in generateStaticParams",
+      "Parameter validation",
+      "URL parameters"
+    ],
+    "correctAnswer": 1,
+    "explanation": "const dynamicParams controls what happens when dynamic segment is visited that wasn't generated. true returns 404, false generates on-demand."
+  },
+  {
+    "question": "What does revalidate: 0 mean?",
+    "options": [
+      "No revalidation",
+      "Equivalent to force-dynamic, always fetches fresh data",
+      "Zero cache",
+      "Immediate refresh"
+    ],
+    "correctAnswer": 1,
+    "explanation": "revalidate: 0 is equivalent to force-dynamic. It ensures data is always fresh by fetching on every request with no caching."
+  },
+  {
+    "question": "What is the fetchCache segment config?",
+    "options": [
+      "Fetch configuration",
+      "Controls default cache behavior of fetch requests in route",
+      "Cache storage",
+      "Fetch optimization"
+    ],
+    "correctAnswer": 1,
+    "explanation": "const fetchCache sets default caching behavior for all fetch requests in the route. Options: 'auto', 'default-cache', 'only-cache', etc."
+  },
+  {
+    "question": "What does preferredRegion segment config do?",
+    "options": [
+      "Region selection",
+      "Specifies preferred region(s) for deploying route",
+      "Geo-location",
+      "Server region"
+    ],
+    "correctAnswer": 1,
+    "explanation": "const preferredRegion specifies the preferred region(s) where the route should be deployed. Useful for edge deployment optimization."
+  },
+  {
+    "question": "What is the maxDuration segment config?",
+    "options": [
+      "Max time",
+      "Sets maximum execution time for route in seconds",
+      "Timeout configuration",
+      "Duration limit"
+    ],
+    "correctAnswer": 1,
+    "explanation": "const maxDuration sets maximum duration (in seconds) the route can run before timing out. Depends on hosting platform limits."
+  },
+  {
+    "question": "What does cache: 'no-store' in fetch mean?",
+    "options": [
+      "No storage",
+      "Disables caching, fetches fresh data on every request",
+      "Memory cache only",
+      "Temporary cache"
+    ],
+    "correctAnswer": 1,
+    "explanation": "fetch('url', { cache: 'no-store' }) disables caching and fetches fresh data on every request, making the route dynamically rendered."
+  },
+  {
+    "question": "What is next: { revalidate: 3600 } in fetch?",
+    "options": [
+      "Revalidation time",
+      "Sets ISR revalidation to 3600 seconds (1 hour) for that fetch",
+      "Cache duration",
+      "Refresh interval"
+    ],
+    "correctAnswer": 1,
+    "explanation": "fetch('url', { next: { revalidate: 3600 } }) sets ISR revalidation for that specific request to 3600 seconds."
+  },
+  {
+    "question": "What does next: { tags: ['products'] } do in fetch?",
+    "options": [
+      "Tag metadata",
+      "Assigns cache tags for on-demand revalidation",
+      "Product tags",
+      "Tag filtering"
+    ],
+    "correctAnswer": 1,
+    "explanation": "fetch('url', { next: { tags: ['products'] } }) assigns cache tags that can be used with revalidateTag() for on-demand revalidation."
+  },
+  {
+    "question": "What is revalidateTag function?",
+    "options": [
+      "Validates tags",
+      "On-demand revalidation of cached data with specific tag",
+      "Tag creation",
+      "Tag verification"
+    ],
+    "correctAnswer": 1,
+    "explanation": "revalidateTag('tag-name') triggers on-demand revalidation of all fetch requests with that tag. Used in Server Actions or Route Handlers."
+  },
+  {
+    "question": "What does revalidatePath function do?",
+    "options": [
+      "Validates paths",
+      "On-demand revalidation of all cached data for specific path",
+      "Path creation",
+      "Path checking"
+    ],
+    "correctAnswer": 1,
+    "explanation": "revalidatePath('/path') triggers on-demand revalidation of a specific path. Useful after data mutations to update cached content."
+  },
+  {
+    "question": "What is unstable_cache in Next.js?",
+    "options": [
+      "Unstable caching",
+      "Experimental API for caching function results (use with caution)",
+      "Cache storage",
+      "Legacy cache"
+    ],
+    "correctAnswer": 1,
+    "explanation": "unstable_cache is experimental API for caching expensive computations or database queries. API may change, use with caution in production."
+  },
+  {
+    "question": "What is the generateImageMetadata function?",
+    "options": [
+      "Image metadata",
+      "Generates multiple variants of image for Open Graph images",
+      "Image information",
+      "Metadata extraction"
+    ],
+    "correctAnswer": 1,
+    "explanation": "generateImageMetadata generates multiple variants of an image (different sizes) for Open Graph images and Twitter cards in one route."
+  },
+  {
+    "question": "What is the opengraph-image file convention?",
+    "options": [
+      "OG image",
+      "Generates Open Graph image for social sharing",
+      "Image file",
+      "Social media image"
+    ],
+    "correctAnswer": 1,
+    "explanation": "opengraph-image.jpg or opengraph-image.tsx generates Open Graph images for social media sharing. Dynamic generation with route segment config."
+  },
+  {
+    "question": "What does the twitter-image file do?",
+    "options": [
+      "Twitter logo",
+      "Generates Twitter card image for social sharing",
+      "Social image",
+      "Card image"
+    ],
+    "correctAnswer": 1,
+    "explanation": "twitter-image.jpg or twitter-image.tsx generates Twitter card images. Similar to opengraph-image but specifically for Twitter."
+  },
+  {
+    "question": "What is the sitemap file convention?",
+    "options": [
+      "Site structure",
+      "Generates sitemap.xml for SEO",
+      "Navigation map",
+      "Page list"
+    ],
+    "correctAnswer": 1,
+    "explanation": "sitemap.js or sitemap.ts generates sitemap.xml file for search engines. Can be static or dynamic based on your data."
+  },
+  {
+    "question": "What does the robots file do?",
+    "options": [
+      "Robot detection",
+      "Generates robots.txt for search engine crawlers",
+      "Bot configuration",
+      "Crawler rules"
+    ],
+    "correctAnswer": 1,
+    "explanation": "robots.js or robots.ts generates robots.txt file that tells search engine crawlers which pages to crawl or not."
+  },
+  {
+    "question": "What is the manifest file convention?",
+    "options": [
+      "File list",
+      "Generates web app manifest for PWA",
+      "App configuration",
+      "Manifest documentation"
+    ],
+    "correctAnswer": 1,
+    "explanation": "manifest.js or manifest.ts generates web app manifest (manifest.json) for Progressive Web Apps with icons, colors, and app info."
+  },
+  {
+    "question": "What is the icon file convention?",
+    "options": [
+      "App icon",
+      "Generates favicon and app icons automatically",
+      "Icon library",
+      "Image file"
+    ],
+    "correctAnswer": 1,
+    "explanation": "icon.ico, icon.png, or icon.tsx generates favicon and various app icons automatically. Supports different sizes and devices."
+  },
+  {
+    "question": "What does apple-icon file do?",
+    "options": [
+      "Apple logo",
+      "Generates Apple-specific touch icons",
+      "iOS icon",
+      "App Store icon"
+    ],
+    "correctAnswer": 1,
+    "explanation": "apple-icon.png or apple-icon.tsx generates Apple touch icons for iOS devices when users save app to home screen."
+  },
+  {
+    "question": "What is instrumentation in Next.js?",
+    "options": [
+      "Music instruments",
+      "Setup observability and monitoring in your app",
+      "Performance tools",
+      "Testing instruments"
+    ],
+    "correctAnswer": 1,
+    "explanation": "instrumentation.js allows setting up observability tools, monitoring, and logging before app starts. Useful for APM tools like Sentry."
+  },
+  {
+    "question": "What is the difference between App Router and Pages Router?",
+    "options": [
+      "No difference",
+      "App Router supports Server Components, layouts, better data fetching",
+      "Pages is newer",
+      "App Router is deprecated"
+    ],
+    "correctAnswer": 1,
+    "explanation": "App Router (app/) is newer with Server Components, built-in layouts, loading/error states, and better data fetching. Pages Router (pages/) is older but still supported."
+  }
+]

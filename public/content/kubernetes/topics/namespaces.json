@@ -1,0 +1,149 @@
+{
+  "id": "namespaces",
+  "title": "Namespaces",
+  "category": "Kubernetes Basics",
+  "description": "Virtual clusters for organizing and isolating resources.",
+  "explanation": "Namespaces provide logical isolation and resource organization within a cluster. They enable multi-tenancy, resource quotas, network policies, and RBAC. Understanding namespace scope, default namespaces, and cross-namespace communication is key for cluster management.\n\nInterview focus:\n- Default namespaces (default, kube-system, kube-public, kube-node-lease)\n- Namespace-scoped vs cluster-scoped resources\n- ResourceQuotas and LimitRanges\n- Cross-namespace communication\n- Namespace deletion and cascading deletion\n- Context and namespace management in kubectl\n- Network policies and namespace isolation",
+  "code": "# namespace.yaml\napiVersion: v1\nkind: Namespace\nmetadata:\n  name: dev\n  labels:\n    environment: development",
+  "command": "# Create namespace\nkubectl create namespace dev\nkubectl apply -f namespace.yaml\n\n# List namespaces\nkubectl get namespaces\nkubectl get ns\n\n# Get resources in namespace\nkubectl get pods -n dev\nkubectl get all -n dev\n\n# Set default namespace for context\nkubectl config set-context --current --namespace=dev\n\n# Delete namespace (deletes all resources)\nkubectl delete namespace dev\n\n# Describe namespace\nkubectl describe namespace dev",
+  "example": "# Deploy to specific namespace\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: myapp\n  namespace: dev\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: myapp\n  template:\n    metadata:\n      labels:\n        app: myapp\n    spec:\n      containers:\n      - name: myapp\n        image: myapp:latest\n\n# Create resources in namespace\nkubectl apply -f deployment.yaml -n dev\nkubectl create deployment nginx --image=nginx -n production",
+  "useCase": "Multi-tenancy, environment separation, resource isolation, organization",
+  "interviewQuestions": [
+    {
+      "question": "What are the 4 default namespaces in Kubernetes and their purposes?",
+      "answer": "default: objects with no namespace specified. kube-system: system pods (kube-dns, metrics-server). kube-public: publicly readable, reserved for cluster usage. kube-node-lease: node heartbeat leases for node health detection."
+    },
+    {
+      "question": "Which resources are namespace-scoped vs cluster-scoped?",
+      "answer": "Namespace-scoped: Pods, Services, Deployments, ConfigMaps, Secrets, PVCs. Cluster-scoped: Nodes, PersistentVolumes, StorageClasses, Namespaces, ClusterRoles. Use kubectl api-resources --namespaced=true/false to list."
+    },
+    {
+      "question": "What happens when you delete a namespace?",
+      "answer": "Cascading deletion: all resources in namespace deleted (Pods, Services, Deployments, etc). PersistentVolumes survive (cluster-scoped). Operation can take time if pods have finalizers. Use --grace-period=0 --force cautiously."
+    },
+    {
+      "question": "Tricky: Two pods in different namespaces have same name. Can they coexist?",
+      "answer": "Yes. Names must be unique within a namespace, not cluster-wide. dev/mypod and prod/mypod are different resources."
+    },
+    {
+      "question": "Output: kubectl config set-context --current --namespace=production. What changes?",
+      "answer": "It sets the default namespace for the current context to production. Commands without -n use production."
+    },
+    {
+      "question": "How do you prevent resource exhaustion in a namespace?",
+      "answer": "Use ResourceQuota (namespace totals) and LimitRange (per-pod/container defaults and limits)."
+    },
+    {
+      "question": "Can pods in namespace A access services in namespace B?",
+      "answer": "Yes, using FQDN like service-name.namespace-b.svc.cluster.local unless NetworkPolicy restricts traffic."
+    },
+    {
+      "question": "Predict: kubectl get pods without -n flag. Which namespace is queried?",
+      "answer": "Current context namespace; if unset, default namespace."
+    },
+    {
+      "question": "What is the label selector for namespace isolation in NetworkPolicy?",
+      "answer": "Use namespaceSelector with matchLabels (for example env=prod)."
+    },
+    {
+      "question": "Tricky: Can you create a pod named 'kube-system'?",
+      "answer": "Yes. That's just a pod name. The reserved namespace kube-system is a different resource type."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create namespace named staging",
+      "answer": "kubectl create namespace staging"
+    },
+    {
+      "type": "scenario",
+      "question": "Deploy nginx in production namespace imperatively",
+      "answer": "kubectl create deployment nginx --image=nginx -n production"
+    },
+    {
+      "type": "command",
+      "question": "Get all pods across all namespaces",
+      "answer": "kubectl get pods --all-namespaces or kubectl get pods -A"
+    },
+    {
+      "type": "output",
+      "question": "kubectl delete ns test. What happens to pods in test namespace?",
+      "answer": "All namespaced resources in test are deleted by cascading deletion."
+    },
+    {
+      "type": "command",
+      "question": "Set default namespace to development for current context",
+      "answer": "kubectl config set-context --current --namespace=development"
+    },
+    {
+      "type": "debug",
+      "question": "kubectl get pods returns empty but pods exist. What's wrong?",
+      "answer": "You are likely querying the wrong namespace; use -A or set correct context namespace."
+    },
+    {
+      "type": "scenario",
+      "question": "Create ResourceQuota limiting namespace to 10 pods max",
+      "answer": "kubectl create quota pod-limit --hard=pods=10 -n myns"
+    },
+    {
+      "type": "command",
+      "question": "List only namespace names (no headers)",
+      "answer": "kubectl get ns -o custom-columns=NAME:.metadata.name --no-headers"
+    },
+    {
+      "type": "tricky",
+      "question": "Can you create a namespace named 'default'?",
+      "answer": "No, it already exists and namespace names must be unique."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Namespace deletion stuck in Terminating state. How to force?",
+      "answer": "Find blocking finalizers and remove them carefully. Last resort: patch finalizers to null."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create namespace, deploy pod, verify isolation from default",
+      "code": "kubectl create namespace isolated\nkubectl run pod1 -n isolated --image=nginx\nkubectl run pod2 --image=nginx\nkubectl get pods -n isolated\nkubectl get pods",
+      "output": "pod1 only visible in isolated namespace, pod2 only in default"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Test cross-namespace service access",
+      "code": "kubectl create namespace ns1\nkubectl create namespace ns2\nkubectl create deployment web -n ns1 --image=nginx\nkubectl expose deployment web -n ns1 --port=80\nkubectl run test -n ns2 --image=busybox --rm -it -- wget -qO- web.ns1.svc.cluster.local",
+      "output": "Pod in ns2 successfully accesses service in ns1 via FQDN"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Create ResourceQuota, exceed it, observe rejection",
+      "code": "kubectl create namespace limited\nkubectl create quota limit --hard=pods=2 -n limited\nkubectl run pod1 -n limited --image=nginx\nkubectl run pod2 -n limited --image=nginx\nkubectl run pod3 -n limited --image=nginx\nkubectl get pods -n limited",
+      "output": "pod1 and pod2 created, pod3 fails with quota error"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Switch default namespace in context, verify",
+      "code": "kubectl config set-context --current --namespace=kube-system\nkubectl get pods\nkubectl config view --minify | grep namespace",
+      "output": "Shows kube-system pods, confirms namespace in current context"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Delete namespace and verify cascading deletion",
+      "code": "kubectl create namespace temp\nkubectl run pod1 -n temp --image=nginx\nkubectl create deployment dep1 -n temp --image=nginx\nkubectl delete namespace temp\nkubectl get all -n temp",
+      "output": "All resources deleted, namespace temp removed"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Count pods per namespace",
+      "code": "kubectl get pods -A --no-headers | awk '{print $1}' | sort | uniq -c",
+      "output": "Lists each namespace with pod count"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Label namespace and select by label",
+      "code": "kubectl create namespace env-prod\nkubectl label namespace env-prod environment=production\nkubectl get namespaces -l environment=production",
+      "output": "env-prod namespace listed with environment=production label"
+    }
+  ]
+}

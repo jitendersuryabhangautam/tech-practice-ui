@@ -1,0 +1,162 @@
+{
+  "id": "throttling",
+  "title": "Throttling",
+  "description": "Throttling ensures a function is called at most once in a specified time period, no matter how many times it's triggered. Unlike debouncing (which delays until calm), throttling executes immediately and then enforces a cooldown. Think of it like a rate limiter - if you throttle to 1 second, the function can only run once per second maximum, even if triggered 100 times.",
+  "explanation": "Throttling is perfect for events that fire continuously but you only need to respond to them at regular intervals. The key difference from debouncing is that throttling guarantees execution at regular intervals during continuous triggering.\n\nKey differences from debouncing:\n- Throttling: Executes at regular intervals DURING activity\n- Debouncing: Executes once AFTER activity stops\n\nUse throttling when:\n- You need periodic updates during continuous activity\n- Scroll position tracking\n- Mouse movement tracking\n- Resize events where you want intermediate updates\n\nUse debouncing when:\n- You only care about the final state\n- Search input\n- Text field auto-save\n- Form validation",
+  "implementation": "function throttle(func, limit) {\n  let inThrottle;\n  return function(...args) {\n    if (!inThrottle) {\n      func.apply(this, args);\n      inThrottle = true;\n      setTimeout(() => inThrottle = false, limit);\n    }\n  };\n}",
+  "example": "// Scroll tracking\nconst handleScroll = throttle(() => {\n  const scrollY = window.scrollY;\n  console.log('Scroll position:', scrollY);\n  \n  // Update progress bar\n  updateProgressBar(scrollY);\n}, 1000);\n\nwindow.addEventListener('scroll', handleScroll);\n\n// Mouse move tracking\nconst trackMouse = throttle((e) => {\n  console.log('Mouse at:', e.clientX, e.clientY);\n}, 100);",
+  "useCase": "Scroll events, button clicks, API rate limiting, mouse tracking, game loop updates",
+  "interviewQuestions": [
+    {
+      "question": "When is throttling better than debouncing?",
+      "answer": "When you need regular updates during continuous events like scroll or mousemove."
+    },
+    {
+      "question": "How does throttle protect performance?",
+      "answer": "It limits handler execution rate, reducing layout/repaint and expensive calculations."
+    },
+    {
+      "question": "What is trailing call behavior in throttle?",
+      "answer": "After cooldown, final call can run with latest args if throttle implementation supports it."
+    },
+    {
+      "question": "A common bug in throttle implementations?",
+      "answer": "Losing last invocation context/args or dropping critical final event state."
+    },
+    {
+      "question": "How to test throttle correctly?",
+      "answer": "Use fake timers and assert call counts plus timing boundaries."
+    },
+    {
+      "question": "What problem does throttling solve?",
+      "answer": "It prevents expensive handlers from running too frequently during high-frequency events."
+    },
+    {
+      "question": "How is throttle different from debounce for UX?",
+      "answer": "Throttle gives periodic feedback; debounce delays feedback until inactivity."
+    },
+    {
+      "question": "What are leading and trailing options?",
+      "answer": "Leading runs at start of interval; trailing runs once with latest args at interval end."
+    },
+    {
+      "question": "Why might trailing throttle be needed for scroll progress?",
+      "answer": "Without trailing call, final state can be missed."
+    },
+    {
+      "question": "How do you preserve context in throttle wrappers?",
+      "answer": "Use regular function and invoke callback via fn.apply(this,args)."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Throttle interval 1000ms, event fires continuously for 2500ms. Approx calls?",
+      "answer": "Around 2-3 calls depending on leading/trailing config."
+    },
+    {
+      "type": "output",
+      "question": "Difference in behavior: throttle executes during activity or after activity?",
+      "answer": "During activity at controlled intervals."
+    },
+    {
+      "type": "implement",
+      "question": "Implement basic leading throttle(fn, limit)."
+    },
+    {
+      "type": "implement",
+      "question": "Implement throttle with trailing execution support."
+    },
+    {
+      "type": "debug",
+      "question": "Final scroll position is not updated with throttle. Fix?",
+      "answer": "Add trailing call with last arguments."
+    },
+    {
+      "type": "debug",
+      "question": "Throttled callback loses this context. Fix?",
+      "answer": "Use fn.apply(this,args) inside wrapped function."
+    },
+    {
+      "type": "refactor",
+      "question": "Refactor direct scroll handler to throttled handler for performance."
+    },
+    {
+      "type": "scenario",
+      "question": "Design mousemove analytics with throttle and batching."
+    },
+    {
+      "type": "tricky",
+      "question": "Throttle vs debounce one-line difference?",
+      "answer": "Throttle limits rate; debounce waits for inactivity."
+    },
+    {
+      "type": "tricky",
+      "question": "Can throttling still drop intermediate event values?",
+      "answer": "Yes, unless implementation stores latest args for trailing call."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Basic throttle implementation.",
+      "code": "function throttle(fn, limit){\n  let waiting=false;\n  return (...args)=>{\n    if(waiting) return;\n    waiting=true;\n    fn(...args);\n    setTimeout(()=>waiting=false, limit);\n  };\n}\nconst t=throttle(console.log,100);\nt(\"A\"); t(\"B\");",
+      "output": "A"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Throttled scroll handler simulation.",
+      "code": "function throttle(fn,limit){let w=false;return(...a)=>{if(w)return;w=true;fn(...a);setTimeout(()=>w=false,limit)}}\nlet calls=0;\nconst onScroll=throttle(()=>{calls++; console.log(\"scroll\",calls)},80);\nfor(let i=0;i<5;i++) onScroll();",
+      "output": "scroll 1"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Throttle with preserved context.",
+      "code": "function throttle(fn,limit){let w=false;return function(...a){if(w)return;w=true;fn.apply(this,a);setTimeout(()=>w=false,limit)}}\nconst obj={x:10,log(){console.log(this.x)}};\nobj.t=throttle(obj.log,50);\nobj.t();",
+      "output": "10"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Count direct vs throttled calls.",
+      "code": "let direct=0, thr=0;\nfunction throttle(fn,l){let w=false;return()=>{if(w)return;w=true;fn();setTimeout(()=>w=false,l)}}\nconst t=throttle(()=>thr++,60);\nfor(let i=0;i<10;i++){direct++; t();}\nsetTimeout(()=>console.log(direct,thr),80);",
+      "output": "10 1"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Throttle periodic API poll trigger.",
+      "code": "function throttle(fn,l){let w=false;return(...a)=>{if(w)return;w=true;fn(...a);setTimeout(()=>w=false,l)}}\nconst hit=throttle((q)=>console.log(\"api\",q),100);\nhit(\"a\"); hit(\"ab\"); hit(\"abc\");",
+      "output": "api a"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Trailing throttle version (simple).",
+      "code": "function throttleTrailing(fn,limit){\n  let waiting=false,lastArgs=null;\n  return (...args)=>{\n    if(waiting){lastArgs=args;return;}\n    fn(...args); waiting=true;\n    setTimeout(()=>{waiting=false; if(lastArgs){ const a=lastArgs; lastArgs=null; fn(...a);} },limit);\n  };\n}\nconst t=throttleTrailing(console.log,50);\nt(\"A\"); t(\"B\");",
+      "output": "A\nB"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Throttled window resize mock.",
+      "code": "function throttle(fn,l){let w=false;return()=>{if(w)return;w=true;fn();setTimeout(()=>w=false,l)}}\nconst onResize=throttle(()=>console.log(\"layout updated\"),70);\nonResize(); onResize(); onResize();",
+      "output": "layout updated"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Throttle button click spam.",
+      "code": "function throttle(fn,l){let w=false;return()=>{if(w)return;w=true;fn();setTimeout(()=>w=false,l)}}\nconst submit=throttle(()=>console.log(\"submitted\"),120);\nsubmit(); submit(); submit();",
+      "output": "submitted"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Throttled mouse tracker sample.",
+      "code": "function throttle(fn,l){let w=false;return(v)=>{if(w)return;w=true;fn(v);setTimeout(()=>w=false,l)}}\nconst track=throttle(v=>console.log(\"x\",v),50);\ntrack(10); track(20); track(30);",
+      "output": "x 10"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Compare debounce vs throttle quickly.",
+      "code": "function throttle(fn,l){let w=false;return()=>{if(w)return;w=true;fn();setTimeout(()=>w=false,l)}}\nlet c=0;\nconst t=throttle(()=>{c++;console.log(c)},40);\nfor(let i=0;i<5;i++) t();",
+      "output": "1"
+    }
+  ],
+  "category": "Core Concepts"
+}

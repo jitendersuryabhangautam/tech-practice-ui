@@ -1,0 +1,147 @@
+{
+  "id": "find-findindex",
+  "title": "Array.find() & findIndex()",
+  "category": "Array Methods",
+  "description": "find() returns the first element that satisfies the condition. findIndex() returns its index.",
+  "explanation": "find() returns the first element that satisfies the condition. findIndex() returns its index.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "implementation": "const users = [\n  {id: 1, name: 'John'},\n  {id: 2, name: 'Jane'}\n];\nconst user = users.find(u => u.id === 2);\nconst index = users.findIndex(u => u.id === 2);",
+  "example": "const numbers = [5, 12, 8, 130, 44];\nconst found = numbers.find(n => n > 10); // 12\nconst foundIndex = numbers.findIndex(n => n > 10); // 1",
+  "useCase": "Searching specific items, locating array positions",
+  "interviewQuestions": [
+    {
+      "question": "Difference between find and filter?",
+      "answer": "find returns first matching element; filter returns all matching elements."
+    },
+    {
+      "question": "What does find return when no match exists?",
+      "answer": "undefined. findIndex returns -1 when no match exists."
+    },
+    {
+      "question": "When is find preferable for performance?",
+      "answer": "When only first match is needed because it short-circuits."
+    },
+    {
+      "question": "How to safely use find result?",
+      "answer": "Check for undefined before property access or use optional chaining."
+    },
+    {
+      "question": "What is an interview follow-up after find?",
+      "answer": "Compare with some/every and explain short-circuit behavior and intent."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict: [5,10,15].find(n=>n>9)",
+      "answer": "10",
+      "output": "10"
+    },
+    {
+      "type": "implement",
+      "question": "Find first overdue invoice by dueDate.",
+      "code": "const overdue = invoices.find(i => i.dueDate < now);"
+    },
+    {
+      "type": "debug",
+      "question": "findIndex returns -1 then used directly as array index. Fix?",
+      "answer": "Check for -1 before indexing, otherwise handle not found branch."
+    },
+    {
+      "type": "scenario",
+      "question": "Need boolean existence check only. Use find or some?",
+      "answer": "Use some() since intent is existence and it returns boolean directly."
+    },
+    {
+      "type": "output",
+      "question": "Predict output: [4,8,12].find(n=>n>20)",
+      "answer": "undefined",
+      "output": "undefined"
+    },
+    {
+      "type": "output",
+      "question": "Predict output: [4,8,12].findIndex(n=>n>10)",
+      "answer": "2",
+      "output": "2"
+    },
+    {
+      "type": "implement",
+      "question": "Find first user by email from users array."
+    },
+    {
+      "type": "implement",
+      "question": "Find index of cart item by id, replace item immutably if found."
+    },
+    {
+      "type": "debug",
+      "question": "Accessing .name on find result throws. Fix?",
+      "answer": "Handle undefined result before property access."
+    },
+    {
+      "type": "debug",
+      "question": "Using findIndex result directly without -1 check causes bug. Fix?",
+      "answer": "Guard for -1 before using as array index."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Find first number > 50.",
+      "code": "const nums=[10,40,70,80];\nconsole.log(nums.find(n=>n>50));",
+      "output": "70"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Find first admin user object.",
+      "code": "const users=[{r:\"user\"},{r:\"admin\"}];\nconsole.log(users.find(u=>u.r===\"admin\"));",
+      "output": "{ r: \"admin\" }"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Find index of item id=3.",
+      "code": "const items=[{id:1},{id:3},{id:4}];\nconsole.log(items.findIndex(i=>i.id===3));",
+      "output": "1"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Return fallback when find gives undefined.",
+      "code": "const arr=[1,2,3];\nconst found=arr.find(n=>n>10) ?? \"Not found\";\nconsole.log(found);",
+      "output": "Not found"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Update first matching task by findIndex immutably.",
+      "code": "const tasks=[{id:1,d:false},{id:2,d:false}];\nconst idx=tasks.findIndex(t=>t.id===2);\nconst next=idx===-1?tasks:[...tasks.slice(0,idx),{...tasks[idx],d:true},...tasks.slice(idx+1)];\nconsole.log(next);",
+      "output": "[ { id: 1, d: false }, { id: 2, d: true } ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Find first string containing \"js\".",
+      "code": "const tags=[\"react\",\"js-core\",\"node\"];\nconsole.log(tags.find(t=>t.includes(\"js\")));",
+      "output": "js-core"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Find index of first negative number.",
+      "code": "const nums=[5,3,-2,-8];\nconsole.log(nums.findIndex(n=>n<0));",
+      "output": "2"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Search user by email in array.",
+      "code": "const users=[{email:\"a@x.com\"},{email:\"b@y.com\"}];\nconsole.log(users.find(u=>u.email===\"b@y.com\"));",
+      "output": "{ email: \"b@y.com\" }"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Find first order with status pending.",
+      "code": "const orders=[{id:1,s:\"done\"},{id:2,s:\"pending\"}];\nconsole.log(orders.find(o=>o.s===\"pending\"));",
+      "output": "{ id: 2, s: \"pending\" }"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Use findIndex for insertion position by condition.",
+      "code": "const arr=[5,10,20,30];\nconst idx=arr.findIndex(n=>n>15);\nconsole.log(idx);",
+      "output": "2"
+    }
+  ]
+}

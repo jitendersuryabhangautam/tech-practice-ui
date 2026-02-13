@@ -1,0 +1,9 @@
+{
+  "id": "isr",
+  "title": "Incremental Static Regeneration",
+  "description": "Regenerate static pages after deployment without rebuilding the entire site.",
+  "code": "// Revalidate every 10 seconds\nconst revalidate = 10;\n\nexport default async function PostsPage() {\n  const posts = await fetch('https://api.example.com/posts', {\n    next: { revalidate: 10 }\n  }).then(r => r.json());\n  \n  return (\n    <ul>\n      {posts.map(post => (\n        <li key={post.id}>{post.title}</li>\n      ))}\n    </ul>\n  );\n}",
+  "example": "// On-demand revalidation\n// app/api/revalidate/route.js\nimport { revalidatePath, revalidateTag } from 'next/cache';\n\nexport async function POST(request) {\n  const { path } = await request.json();\n  \n  revalidatePath(path);\n  // or revalidateTag('posts');\n  \n  return Response.json({ revalidated: true });\n}\n\n// Tag-based revalidation\nfetch('https://api.example.com/posts', {\n  next: { tags: ['posts'] }\n});",
+  "useCase": "E-commerce, news sites, blogs, product listings, semi-dynamic content",
+  "category": "Data Fetching & Rendering"
+}

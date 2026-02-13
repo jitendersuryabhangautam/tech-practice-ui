@@ -1,0 +1,1196 @@
+{
+  "data": [
+    {
+      "category": "Basic Queries",
+      "topics": [
+        {
+          "id": "select",
+          "title": "SELECT Queries",
+          "description": "Retrieve data from database tables with filtering, sorting, and limiting results.",
+          "code": "-- Basic SELECT\nSELECT * FROM users;\n\n-- Specific columns\nSELECT name, email, age FROM users;\n\n-- WHERE clause\nSELECT * FROM products \nWHERE price > 100 AND stock > 0;\n\n-- ORDER BY\nSELECT * FROM orders \nORDER BY created_at DESC;\n\n-- LIMIT and OFFSET\nSELECT * FROM posts \nORDER BY created_at DESC \nLIMIT 10 OFFSET 20;\n\n-- DISTINCT\nSELECT DISTINCT category FROM products;",
+          "example": "-- Multiple conditions\nSELECT * FROM users \nWHERE age >= 18 \n  AND city = 'New York' \n  AND status = 'active';\n\n-- LIKE pattern matching\nSELECT * FROM users \nWHERE email LIKE '%@gmail.com';\n\n-- IN operator\nSELECT * FROM orders \nWHERE status IN ('pending', 'processing', 'shipped');\n\n-- BETWEEN\nSELECT * FROM products \nWHERE price BETWEEN 50 AND 100;",
+          "useCase": "Data retrieval, filtering, pagination, searching"
+        },
+        {
+          "id": "insert-update-delete",
+          "title": "INSERT, UPDATE, DELETE",
+          "description": "Modify data in database tables - add, update, or remove records.",
+          "code": "-- INSERT single row\nINSERT INTO users (name, email, age) \nVALUES ('John Doe', 'john@example.com', 30);\n\n-- INSERT multiple rows\nINSERT INTO products (name, price, stock) \nVALUES \n  ('Product A', 99.99, 50),\n  ('Product B', 149.99, 30),\n  ('Product C', 79.99, 100);\n\n-- UPDATE\nUPDATE users \nSET age = 31, city = 'San Francisco' \nWHERE id = 1;\n\n-- DELETE\nDELETE FROM orders \nWHERE status = 'cancelled' AND created_at < NOW() - INTERVAL '30 days';\n\n-- RETURNING clause\nINSERT INTO users (name, email) \nVALUES ('Jane', 'jane@example.com') \nRETURNING id, created_at;",
+          "example": "-- UPDATE with subquery\nUPDATE products \nSET category_id = (\n  SELECT id FROM categories WHERE name = 'Electronics'\n)\nWHERE name LIKE '%Phone%';\n\n-- DELETE with JOIN\nDELETE FROM order_items \nWHERE order_id IN (\n  SELECT id FROM orders WHERE status = 'cancelled'\n);\n\n-- INSERT from SELECT\nINSERT INTO archived_users \nSELECT * FROM users \nWHERE last_login < NOW() - INTERVAL '1 year';",
+          "useCase": "Data manipulation, CRUD operations, bulk updates, archiving"
+        },
+        {
+          "id": "aggregations",
+          "title": "Aggregate Functions",
+          "description": "Perform calculations on sets of rows: COUNT, SUM, AVG, MIN, MAX.",
+          "code": "-- COUNT\nSELECT COUNT(*) FROM users;\nSELECT COUNT(DISTINCT city) FROM users;\n\n-- SUM\nSELECT SUM(amount) FROM orders;\n\n-- AVG\nSELECT AVG(price) FROM products;\n\n-- MIN and MAX\nSELECT MIN(price), MAX(price) FROM products;\n\n-- GROUP BY\nSELECT category, COUNT(*), AVG(price) \nFROM products \nGROUP BY category;\n\n-- HAVING (filter groups)\nSELECT category, AVG(price) as avg_price \nFROM products \nGROUP BY category \nHAVING AVG(price) > 100;",
+          "example": "-- Multiple aggregations\nSELECT \n  category,\n  COUNT(*) as product_count,\n  SUM(stock) as total_stock,\n  AVG(price) as avg_price,\n  MIN(price) as min_price,\n  MAX(price) as max_price\nFROM products \nGROUP BY category \nORDER BY product_count DESC;\n\n-- GROUP BY multiple columns\nSELECT \n  DATE(created_at) as date,\n  status,\n  COUNT(*) as order_count,\n  SUM(total) as revenue\nFROM orders \nWHERE created_at >= NOW() - INTERVAL '7 days'\nGROUP BY DATE(created_at), status;",
+          "useCase": "Reports, analytics, statistics, dashboards, summaries"
+        }
+      ]
+    },
+    {
+      "category": "Joins & Relationships",
+      "topics": [
+        {
+          "id": "joins",
+          "title": "JOIN Types",
+          "description": "Combine rows from multiple tables based on related columns.",
+          "code": "-- INNER JOIN (matching rows only)\nSELECT users.name, orders.total, orders.status \nFROM users \nINNER JOIN orders ON users.id = orders.user_id;\n\n-- LEFT JOIN (all from left table)\nSELECT users.name, COUNT(orders.id) as order_count \nFROM users \nLEFT JOIN orders ON users.id = orders.user_id \nGROUP BY users.id, users.name;\n\n-- RIGHT JOIN (all from right table)\nSELECT users.name, orders.total \nFROM users \nRIGHT JOIN orders ON users.id = orders.user_id;\n\n-- FULL OUTER JOIN (all rows from both)\nSELECT * FROM table1 \nFULL OUTER JOIN table2 ON table1.id = table2.foreign_id;\n\n-- CROSS JOIN (cartesian product)\nSELECT * FROM colors CROSS JOIN sizes;",
+          "example": "-- Multiple joins\nSELECT \n  u.name as user_name,\n  o.id as order_id,\n  p.name as product_name,\n  oi.quantity,\n  oi.price\nFROM users u\nINNER JOIN orders o ON u.id = o.user_id\nINNER JOIN order_items oi ON o.id = oi.order_id\nINNER JOIN products p ON oi.product_id = p.id\nWHERE o.status = 'completed';\n\n-- Self join\nSELECT \n  e.name as employee,\n  m.name as manager\nFROM employees e\nLEFT JOIN employees m ON e.manager_id = m.id;",
+          "useCase": "Combining related data, complex queries, reporting, data analysis"
+        },
+        {
+          "id": "subqueries",
+          "title": "Subqueries",
+          "description": "Nested queries used within SELECT, FROM, WHERE, or HAVING clauses.",
+          "code": "-- Subquery in WHERE\nSELECT * FROM products \nWHERE price > (SELECT AVG(price) FROM products);\n\n-- Subquery in SELECT\nSELECT \n  name,\n  price,\n  (SELECT AVG(price) FROM products) as avg_price,\n  price - (SELECT AVG(price) FROM products) as diff\nFROM products;\n\n-- Subquery in FROM\nSELECT category, avg_price \nFROM (\n  SELECT category, AVG(price) as avg_price \n  FROM products \n  GROUP BY category\n) as category_averages \nWHERE avg_price > 100;\n\n-- EXISTS\nSELECT * FROM users \nWHERE EXISTS (\n  SELECT 1 FROM orders \n  WHERE orders.user_id = users.id\n);",
+          "example": "-- IN with subquery\nSELECT * FROM products \nWHERE category_id IN (\n  SELECT id FROM categories WHERE active = true\n);\n\n-- NOT IN\nSELECT * FROM users \nWHERE id NOT IN (\n  SELECT DISTINCT user_id FROM orders\n);\n\n-- Correlated subquery\nSELECT \n  p.name,\n  p.price,\n  (SELECT COUNT(*) FROM reviews r WHERE r.product_id = p.id) as review_count\nFROM products p;",
+          "useCase": "Complex filtering, derived tables, conditional logic, data validation"
+        }
+      ]
+    },
+    {
+      "category": "Performance & Optimization",
+      "topics": [
+        {
+          "id": "indexes",
+          "title": "Indexes",
+          "description": "Speed up query performance by creating indexes on frequently queried columns.",
+          "code": "-- Create index\nCREATE INDEX idx_users_email ON users(email);\n\n-- Create unique index\nCREATE UNIQUE INDEX idx_users_username ON users(username);\n\n-- Composite index\nCREATE INDEX idx_orders_user_status \nON orders(user_id, status);\n\n-- Partial index\nCREATE INDEX idx_active_users \nON users(email) \nWHERE status = 'active';\n\n-- Drop index\nDROP INDEX idx_users_email;\n\n-- List all indexes\nSELECT tablename, indexname, indexdef \nFROM pg_indexes \nWHERE schemaname = 'public';",
+          "example": "-- B-tree index (default)\nCREATE INDEX idx_products_price ON products(price);\n\n-- Hash index\nCREATE INDEX idx_users_status USING HASH ON users(status);\n\n-- GIN index (for arrays, JSONB)\nCREATE INDEX idx_posts_tags ON posts USING GIN(tags);\n\n-- Check index usage\nEXPLAIN ANALYZE \nSELECT * FROM users WHERE email = 'test@example.com';",
+          "useCase": "Query optimization, faster lookups, improving JOIN performance"
+        },
+        {
+          "id": "query-optimization",
+          "title": "Query Optimization",
+          "description": "Techniques to improve query performance and efficiency.",
+          "code": "-- EXPLAIN ANALYZE\nEXPLAIN ANALYZE \nSELECT * FROM orders \nWHERE created_at > NOW() - INTERVAL '30 days';\n\n-- Avoid SELECT *\nSELECT id, name, email FROM users; -- Better\nSELECT * FROM users; -- Avoid\n\n-- Use LIMIT\nSELECT * FROM posts \nORDER BY created_at DESC \nLIMIT 100;\n\n-- Indexes for WHERE, JOIN, ORDER BY\nCREATE INDEX idx_orders_created_at ON orders(created_at);\nCREATE INDEX idx_order_items_order_id ON order_items(order_id);\n\n-- Use EXISTS instead of COUNT\nSELECT EXISTS(SELECT 1 FROM users WHERE email = 'test@example.com');\n-- Instead of: SELECT COUNT(*) > 0 FROM users WHERE...",
+          "example": "-- Avoid OR, use UNION\nSELECT * FROM products WHERE category = 'Electronics'\nUNION\nSELECT * FROM products WHERE category = 'Computers';\n\n-- Use BETWEEN instead of >= AND <=\nSELECT * FROM orders \nWHERE created_at BETWEEN '2024-01-01' AND '2024-12-31';\n\n-- Avoid functions on indexed columns\n-- Bad: WHERE LOWER(email) = 'test@example.com'\n-- Good: WHERE email = 'test@example.com'\n\n-- Use prepared statements\nPREPARE user_query AS \nSELECT * FROM users WHERE id = $1;\nEXECUTE user_query(5);",
+          "useCase": "Performance tuning, reducing query time, scalability, production optimization"
+        },
+        {
+          "id": "transactions",
+          "title": "Transactions",
+          "description": "Group multiple operations into atomic units - all succeed or all fail.",
+          "code": "-- Basic transaction\nBEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;\n\n-- Rollback on error\nBEGIN;\nUPDATE products SET stock = stock - 1 WHERE id = 1;\n-- Something goes wrong\nROLLBACK;\n\n-- Savepoints\nBEGIN;\nUPDATE users SET balance = balance - 50 WHERE id = 1;\nSAVEPOINT my_savepoint;\nUPDATE users SET balance = balance + 50 WHERE id = 2;\n-- Oops, error occurred\nROLLBACK TO my_savepoint;\nCOMMIT;",
+          "example": "-- Transaction with error handling (in application)\n-- Python example\nconn.begin()\ntry:\n    cursor.execute(\"UPDATE accounts SET balance = balance - 100 WHERE id = %s\", (1,))\n    cursor.execute(\"UPDATE accounts SET balance = balance + 100 WHERE id = %s\", (2,))\n    conn.commit()\nexcept Exception as e:\n    conn.rollback()\n    raise e\n\n-- Isolation levels\nBEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;\n-- Your queries\nCOMMIT;",
+          "useCase": "Data consistency, banking operations, multi-step processes, preventing partial updates"
+        }
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "question": "What is the difference between INNER JOIN and LEFT JOIN?",
+      "options": [
+        "They are the same",
+        "INNER JOIN returns only matching rows, LEFT JOIN returns all left table rows plus matches",
+        "LEFT JOIN is faster",
+        "INNER JOIN includes NULL values"
+      ],
+      "correctAnswer": 1,
+      "explanation": "INNER JOIN: only rows with matches in both tables. LEFT JOIN (LEFT OUTER JOIN): all left table rows + matching right rows (NULL if no match). RIGHT JOIN: opposite. FULL OUTER JOIN: all rows from both with NULLs for non-matches."
+    },
+    {
+      "question": "What is the primary purpose of an index in PostgreSQL?",
+      "options": [
+        "To store data",
+        "To speed up query performance",
+        "To enforce constraints",
+        "To create backups"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Indexes are data structures that improve the speed of data retrieval operations. They work like a book index, allowing the database to quickly locate rows without scanning the entire table."
+    },
+    {
+      "question": "What does the GROUP BY clause do?",
+      "options": [
+        "Sorts the results",
+        "Groups rows with the same values in specified columns",
+        "Filters rows",
+        "Joins tables"
+      ],
+      "correctAnswer": 1,
+      "explanation": "GROUP BY groups rows that have the same values in specified columns into summary rows. It's often used with aggregate functions like COUNT, SUM, AVG to perform calculations on each group."
+    },
+    {
+      "question": "What is a transaction in PostgreSQL?",
+      "options": [
+        "A single query",
+        "A sequence of operations performed as a single unit of work",
+        "A type of index",
+        "A backup operation"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A transaction is a sequence of operations that are executed as a single unit. Either all operations succeed (COMMIT) or all fail (ROLLBACK), ensuring data consistency."
+    },
+    {
+      "question": "What does EXPLAIN ANALYZE do?",
+      "options": [
+        "Deletes old data",
+        "Shows the execution plan and actually runs the query",
+        "Creates an index",
+        "Backs up the database"
+      ],
+      "correctAnswer": 1,
+      "explanation": "EXPLAIN shows query plan (estimated). EXPLAIN ANALYZE actually runs query and shows: actual rows, actual time, planning time, execution time. Critical for optimization. Use EXPLAIN (ANALYZE, BUFFERS) to see cache hits. Warning: ANALYZE executes query (including writes)!"
+    },
+    {
+      "question": "What's the difference between WHERE and HAVING?",
+      "options": [
+        "They are identical",
+        "WHERE filters rows before grouping, HAVING filters groups after aggregation",
+        "HAVING is faster",
+        "WHERE only works with numbers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "WHERE filters individual rows before GROUP BY is applied. HAVING filters the groups created by GROUP BY, often used with aggregate functions like COUNT or SUM."
+    },
+    {
+      "question": "What is PostgreSQL?",
+      "options": [
+        "A NoSQL database",
+        "An open-source object-relational database system",
+        "A programming language",
+        "A web server"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PostgreSQL is a powerful, open-source object-relational database management system (ORDBMS) with over 35 years of active development, known for reliability and feature robustness."
+    },
+    {
+      "question": "What does ACID stand for in database transactions?",
+      "options": [
+        "Add, Create, Insert, Delete",
+        "Atomicity, Consistency, Isolation, Durability",
+        "Access, Control, Identity, Data",
+        "Automatic, Concurrent, Indexed, Distributed"
+      ],
+      "correctAnswer": 1,
+      "explanation": "ACID properties ensure reliable database transactions: Atomicity (all or nothing), Consistency (valid state), Isolation (concurrent transactions don't interfere), Durability (committed data persists)."
+    },
+    {
+      "question": "What is a primary key?",
+      "options": [
+        "The first column",
+        "A column or set of columns that uniquely identifies each row",
+        "An index",
+        "A foreign key reference"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A primary key is a constraint that uniquely identifies each row in a table. It must contain unique values and cannot contain NULL. Each table can have only one primary key."
+    },
+    {
+      "question": "What is a foreign key?",
+      "options": [
+        "A key from another database",
+        "A column that references the primary key of another table",
+        "An external index",
+        "A backup key"
+      ],
+      "correctAnswer": 1,
+      "explanation": "A foreign key is a constraint that establishes a link between data in two tables. It references the primary key of another table, enforcing referential integrity."
+    },
+    {
+      "question": "What does SELECT DISTINCT do?",
+      "options": [
+        "Selects all rows",
+        "Returns only unique rows, removing duplicates",
+        "Selects distinct tables",
+        "Highlights differences"
+      ],
+      "correctAnswer": 1,
+      "explanation": "SELECT DISTINCT removes duplicate rows from the result set, returning only unique values. It compares all selected columns to determine uniqueness."
+    },
+    {
+      "question": "What is the difference between DELETE and TRUNCATE?",
+      "options": [
+        "No difference",
+        "DELETE removes rows one by one with logging, TRUNCATE is faster and removes all rows",
+        "TRUNCATE is deprecated",
+        "DELETE is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "DELETE removes rows individually, fires triggers, can use WHERE clause. TRUNCATE is faster (doesn't scan table), removes all rows, resets sequences, doesn't fire DELETE triggers. TRUNCATE requires table-level lock."
+    },
+    {
+      "question": "What does the ORDER BY clause do?",
+      "options": [
+        "Orders tables",
+        "Sorts the result set by one or more columns",
+        "Creates order",
+        "Organizes database"
+      ],
+      "correctAnswer": 1,
+      "explanation": "ORDER BY sorts query results in ascending (ASC, default) or descending (DESC) order based on specified columns. Can sort by multiple columns with priority order."
+    },
+    {
+      "question": "What is a subquery?",
+      "options": [
+        "A small query",
+        "A query nested inside another query",
+        "A backup query",
+        "A query template"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Subquery: SELECT inside another query. Locations: SELECT (scalar), FROM (derived table), WHERE (IN, EXISTS), HAVING. Correlated subquery: references outer query. Non-correlated: independent. Can often rewrite as JOIN for better performance."
+    },
+    {
+      "question": "What is the difference between UNION and UNION ALL?",
+      "options": [
+        "No difference",
+        "UNION removes duplicates, UNION ALL includes all rows",
+        "UNION ALL is deprecated",
+        "UNION is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "UNION: combines queries, removes duplicates (sorts, slower). UNION ALL: includes all rows, faster (no duplicate removal). Column count and types must match. Use UNION ALL when duplicates acceptable or known not to exist for better performance."
+    },
+    {
+      "question": "What is a VIEW in PostgreSQL?",
+      "options": [
+        "A window",
+        "A virtual table based on a stored query",
+        "A screen display",
+        "A table copy"
+      ],
+      "correctAnswer": 1,
+      "explanation": "VIEW: virtual table, query stored not data. Executed when accessed. Benefits: simplify complex queries, security (hide columns), abstraction. No performance benefit (unless materialized). Can be updatable under certain conditions."
+    },
+    {
+      "question": "What is a materialized view?",
+      "options": [
+        "A material table",
+        "A view that stores query results physically for faster access",
+        "A physical view",
+        "A real table"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Materialized view: stores query result on disk. Faster reads, but stale data. REFRESH MATERIALIZED VIEW updates it (locks by default). REFRESH MATERIALIZED VIEW CONCURRENTLY avoids locks but requires unique index. Use for expensive, infrequently changed queries."
+    },
+    {
+      "question": "What does REFRESH MATERIALIZED VIEW do?",
+      "options": [
+        "Refreshes screen",
+        "Updates the stored data in a materialized view",
+        "Clears cache",
+        "Restarts view"
+      ],
+      "correctAnswer": 1,
+      "explanation": "REFRESH MATERIALIZED VIEW re-executes the view's defining query and updates the stored result. Use CONCURRENTLY option to allow reads during refresh."
+    },
+    {
+      "question": "What is a CTE (Common Table Expression)?",
+      "options": [
+        "A table type",
+        "A temporary named result set using WITH clause",
+        "A constraint",
+        "An expression syntax"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CTE (WITH clause) creates a temporary named result set for use within a single query. Makes complex queries more readable and allows recursive queries."
+    },
+    {
+      "question": "What is a recursive CTE?",
+      "options": [
+        "A repeating query",
+        "A CTE that references itself to traverse hierarchical data",
+        "A loop",
+        "A circular reference"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Recursive CTE uses WITH RECURSIVE to reference itself, useful for hierarchical data like org charts or tree structures. Has base case and recursive term."
+    },
+    {
+      "question": "What are window functions?",
+      "options": [
+        "Window management",
+        "Functions that perform calculations across row sets related to current row",
+        "GUI functions",
+        "Display functions"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Window functions (OVER clause) perform calculations across a set of rows related to the current row without grouping. Examples: ROW_NUMBER(), RANK(), LAG(), LEAD()."
+    },
+    {
+      "question": "What does ROW_NUMBER() do?",
+      "options": [
+        "Counts rows",
+        "Assigns unique sequential number to each row in partition",
+        "Numbers tables",
+        "Returns row count"
+      ],
+      "correctAnswer": 1,
+      "explanation": "ROW_NUMBER() is a window function that assigns a unique sequential integer to rows within a partition, ordered by specified columns. Useful for pagination and ranking."
+    },
+    {
+      "question": "What is the difference between RANK() and DENSE_RANK()?",
+      "options": [
+        "No difference",
+        "RANK() skips numbers after ties, DENSE_RANK() doesn't skip",
+        "DENSE_RANK() is faster",
+        "RANK() is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "RANK() leaves gaps in ranking after ties (1,2,2,4). DENSE_RANK() doesn't skip numbers (1,2,2,3). Both are window functions for ranking rows."
+    },
+    {
+      "question": "What do LAG() and LEAD() functions do?",
+      "options": [
+        "Slow down queries",
+        "Access data from previous/next rows without self-join",
+        "Delay execution",
+        "Lead queries"
+      ],
+      "correctAnswer": 1,
+      "explanation": "LAG() accesses data from previous row, LEAD() from next row in the result set. Window functions that avoid self-joins for accessing adjacent rows."
+    },
+    {
+      "question": "What is PARTITION BY in window functions?",
+      "options": [
+        "Table partitioning",
+        "Divides result set into partitions for window function calculation",
+        "Disk partitioning",
+        "Data splitting"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PARTITION BY divides the result set into partitions. Window function is applied separately to each partition. Similar to GROUP BY but doesn't collapse rows."
+    },
+    {
+      "question": "What is the LIMIT clause?",
+      "options": [
+        "Sets limits",
+        "Restricts number of rows returned by query",
+        "Limits table size",
+        "Access control"
+      ],
+      "correctAnswer": 1,
+      "explanation": "LIMIT restricts the number of rows returned. OFFSET specifies how many rows to skip. Used for pagination: LIMIT 10 OFFSET 20. Note: OFFSET scans skipped rows, inefficient for large offsets. Use keyset pagination for better performance."
+    },
+    {
+      "question": "What is the difference between CHAR and VARCHAR?",
+      "options": [
+        "No difference",
+        "CHAR is fixed-length, VARCHAR is variable-length",
+        "VARCHAR is deprecated",
+        "CHAR is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CHAR(n) stores fixed-length strings, padding with spaces. VARCHAR(n) stores variable-length strings up to n characters. VARCHAR is generally preferred for flexibility."
+    },
+    {
+      "question": "What is the TEXT data type?",
+      "options": [
+        "Same as VARCHAR",
+        "Variable-length string with no specific length limit",
+        "Fixed-length text",
+        "Binary text"
+      ],
+      "correctAnswer": 1,
+      "explanation": "TEXT is a variable-length string type without explicit length limit. In PostgreSQL, TEXT, VARCHAR without length, and VARCHAR with length perform similarly."
+    },
+    {
+      "question": "What is the SERIAL data type?",
+      "options": [
+        "A string type",
+        "An auto-incrementing integer (shorthand for sequence)",
+        "Serial number",
+        "Array type"
+      ],
+      "correctAnswer": 1,
+      "explanation": "SERIAL creates INTEGER column with sequence for auto-increment. BIGSERIAL uses BIGINT. Modern PostgreSQL prefers GENERATED ALWAYS AS IDENTITY (SQL standard) over SERIAL. SERIAL has drawbacks: sequence not dropped with column."
+    },
+    {
+      "question": "What is the difference between INTEGER and BIGINT?",
+      "options": [
+        "No difference",
+        "INTEGER is 4 bytes (-2B to 2B), BIGINT is 8 bytes (much larger range)",
+        "BIGINT is deprecated",
+        "INTEGER is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "INTEGER: 4 bytes, -2,147,483,648 to 2,147,483,647. BIGINT: 8 bytes, -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807. Also: SMALLINT (2 bytes, -32768 to 32767). Use BIGINT for large-scale IDs or when overflow risk exists."
+    },
+    {
+      "question": "What is the BOOLEAN data type?",
+      "options": [
+        "True/False only",
+        "Stores TRUE, FALSE, or NULL",
+        "0 or 1",
+        "Yes or No"
+      ],
+      "correctAnswer": 1,
+      "explanation": "BOOLEAN stores TRUE, FALSE, or NULL. Accepts various input formats: true/false, yes/no, on/off, 1/0, t/f, y/n."
+    },
+    {
+      "question": "What is the TIMESTAMP data type?",
+      "options": [
+        "Time only",
+        "Date and time (without or with time zone)",
+        "Unix timestamp",
+        "Date only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "TIMESTAMP stores date and time. TIMESTAMPTZ (TIMESTAMP WITH TIME ZONE) stores in UTC, converts to session timezone on retrieval. Best practice: always use TIMESTAMPTZ for timestamps to avoid timezone issues. TIMESTAMP WITHOUT TIME ZONE has no timezone info."
+    },
+    {
+      "question": "What is the difference between DATE, TIME, and TIMESTAMP?",
+      "options": [
+        "No difference",
+        "DATE stores date only, TIME stores time only, TIMESTAMP stores both",
+        "DATE is deprecated",
+        "TIME includes date"
+      ],
+      "correctAnswer": 1,
+      "explanation": "DATE stores dates (year, month, day). TIME stores time of day. TIMESTAMP stores both date and time. Each serves different use cases."
+    },
+    {
+      "question": "What is the JSON data type?",
+      "options": [
+        "String type",
+        "Stores JSON data with validation and special operators",
+        "File format",
+        "Text format"
+      ],
+      "correctAnswer": 1,
+      "explanation": "JSON stores exact text representation with validation. JSONB stores decomposed binary format. JSONB is 99% of time preferred: faster processing, allows indexing (GIN), removes whitespace/duplicate keys. JSON only if exact text preservation needed."
+    },
+    {
+      "question": "What is the difference between JSON and JSONB?",
+      "options": [
+        "No difference",
+        "JSON stores text, JSONB stores binary with better performance and indexing",
+        "JSONB is deprecated",
+        "JSON is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "JSON stores exact text copy. JSONB stores decomposed binary format, slightly slower to input but much faster to process and supports indexing. JSONB is generally preferred."
+    },
+    {
+      "question": "What is an ARRAY data type?",
+      "options": [
+        "List type",
+        "Column can store multiple values as an array",
+        "Table of values",
+        "JSON array"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PostgreSQL allows columns to store arrays: INTEGER[], TEXT[], etc. Access with [1] (1-indexed!). Useful but can violate normalization. Consider separate table for many-to-many. Supports array operators (&&, @>, <@) and functions (array_agg, unnest)."
+    },
+    {
+      "question": "What is the UUID data type?",
+      "options": [
+        "User ID",
+        "128-bit universally unique identifier",
+        "Unique index",
+        "Primary key type"
+      ],
+      "correctAnswer": 1,
+      "explanation": "UUID stores 128-bit universally unique identifiers (e.g., 550e8400-e29b-41d4-a716-446655440000). Useful for distributed systems where global uniqueness is needed."
+    },
+    {
+      "question": "What is NULL in PostgreSQL?",
+      "options": [
+        "Empty string",
+        "Absence of value, unknown or undefined",
+        "Zero",
+        "False"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NULL represents unknown/missing value, not zero or empty string. Comparisons: NULL = NULL returns NULL (unknown), not TRUE. Use IS NULL/IS NOT NULL. NULL in math: 5 + NULL = NULL. NULL in boolean: TRUE OR NULL = TRUE, FALSE AND NULL = FALSE."
+    },
+    {
+      "question": "What is the difference between NULL and empty string?",
+      "options": [
+        "They're the same",
+        "NULL means no value, empty string '' is a value (zero-length string)",
+        "NULL is deprecated",
+        "Empty string is faster"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NULL = unknown/missing. Empty string '' = known string with zero length. LENGTH(NULL) = NULL, LENGTH('') = 0. CONCAT('a', NULL, 'b') = NULL (in most DBs), but PostgreSQL CONCAT returns 'ab' (handles NULLs gracefully). Use COALESCE for NULL handling."
+    },
+    {
+      "question": "What is a UNIQUE constraint?",
+      "options": [
+        "Primary key",
+        "Ensures all values in column(s) are different",
+        "Index type",
+        "Special column"
+      ],
+      "correctAnswer": 1,
+      "explanation": "UNIQUE constraint ensures all non-NULL values are distinct. Allows multiple NULLs (NULL != NULL in SQL). Automatically creates unique index. Can be on single column or multiple columns (composite uniqueness). Table can have multiple UNIQUE constraints."
+    },
+    {
+      "question": "What is a CHECK constraint?",
+      "options": [
+        "Validates checks",
+        "Ensures values meet specified condition",
+        "Data type check",
+        "Table validation"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CHECK constraint enforces boolean condition on column values. Example: CHECK (age >= 18 AND age < 150), CHECK (price > 0). Can reference multiple columns. NOT enforced on NULL (NULL satisfies any CHECK). Table-level or column-level."
+    },
+    {
+      "question": "What is a NOT NULL constraint?",
+      "options": [
+        "No nulls allowed",
+        "Ensures column cannot contain NULL values",
+        "Requires values",
+        "Non-empty constraint"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NOT NULL constraint ensures a column must always contain a value (cannot be NULL). Every INSERT or UPDATE must provide a value for that column."
+    },
+    {
+      "question": "What is CASCADE in foreign key constraints?",
+      "options": [
+        "Waterfall effect",
+        "Automatically propagates delete/update to related rows",
+        "Chain reaction",
+        "Cascading style"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CASCADE with foreign keys automatically propagates changes. ON DELETE CASCADE deletes related rows. ON UPDATE CASCADE updates related foreign key values."
+    },
+    {
+      "question": "What is the difference between CASCADE and RESTRICT?",
+      "options": [
+        "No difference",
+        "CASCADE propagates changes, RESTRICT prevents deletion if references exist",
+        "CASCADE is faster",
+        "RESTRICT is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "ON DELETE CASCADE automatically deletes related rows. ON DELETE RESTRICT (default) prevents deletion if referenced rows exist. SET NULL and SET DEFAULT are other options."
+    },
+    {
+      "question": "What is normalization?",
+      "options": [
+        "Data formatting",
+        "Organizing database to reduce redundancy and improve integrity",
+        "Standard format",
+        "Optimization process"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Normalization is the process of organizing database structure to minimize redundancy and dependency. Typically progresses through normal forms (1NF, 2NF, 3NF, BCNF)."
+    },
+    {
+      "question": "What is the First Normal Form (1NF)?",
+      "options": [
+        "First table",
+        "Each column contains atomic values, no repeating groups",
+        "Primary key exists",
+        "No nulls"
+      ],
+      "correctAnswer": 1,
+      "explanation": "1NF requires: atomic (indivisible) values in each column, no repeating groups or arrays, each record is unique. Foundation for further normalization."
+    },
+    {
+      "question": "What is the Second Normal Form (2NF)?",
+      "options": [
+        "Two tables",
+        "In 1NF and all non-key attributes fully depend on entire primary key",
+        "Two keys",
+        "Double normalized"
+      ],
+      "correctAnswer": 1,
+      "explanation": "2NF requires being in 1NF plus no partial dependencies (non-key attributes must depend on entire primary key, not just part of composite key)."
+    },
+    {
+      "question": "What is the Third Normal Form (3NF)?",
+      "options": [
+        "Three tables",
+        "In 2NF and no transitive dependencies (non-key attributes don't depend on other non-key attributes)",
+        "Three keys",
+        "Triple normalized"
+      ],
+      "correctAnswer": 1,
+      "explanation": "3NF requires being in 2NF plus no transitive dependencies. Every non-key attribute must depend directly on the primary key, not through another non-key attribute."
+    },
+    {
+      "question": "What is denormalization?",
+      "options": [
+        "Breaking normalization",
+        "Intentionally adding redundancy to improve read performance",
+        "Removing normalization",
+        "Data corruption"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Denormalization intentionally introduces redundancy to improve read performance at the cost of write complexity and storage. Trade-off decision based on workload."
+    },
+    {
+      "question": "What does VACUUM do in PostgreSQL?",
+      "options": [
+        "Cleans data",
+        "Reclaims storage by removing dead tuples from MVCC",
+        "Deletes tables",
+        "Compresses database"
+      ],
+      "correctAnswer": 1,
+      "explanation": "VACUUM marks dead tuples as reusable (from MVCC updates/deletes). Prevents transaction ID wraparound (critical!). VACUUM FULL rewrites table to reclaim space to OS but requires exclusive lock (avoid on large tables). Autovacuum runs automatically."
+    },
+    {
+      "question": "What is MVCC in PostgreSQL?",
+      "options": [
+        "Version control",
+        "Multi-Version Concurrency Control for handling concurrent transactions",
+        "Multi-value columns",
+        "Concurrent connections"
+      ],
+      "correctAnswer": 1,
+      "explanation": "MVCC (Multi-Version Concurrency Control) allows multiple versions of rows to exist. Readers don't block writers and writers don't block readers, improving concurrency."
+    },
+    {
+      "question": "What does ANALYZE do?",
+      "options": [
+        "Analyzes queries",
+        "Collects statistics about table contents for query planner",
+        "Debugs code",
+        "Checks errors"
+      ],
+      "correctAnswer": 1,
+      "explanation": "ANALYZE collects statistics: row count, data distribution, most common values, histograms. Query planner uses stats to estimate costs and choose optimal plan. Run after bulk data changes. Autovacuum runs ANALYZE automatically. ANALYZE VERBOSE shows progress."
+    },
+    {
+      "question": "What is an execution plan?",
+      "options": [
+        "Run schedule",
+        "Step-by-step strategy database uses to execute a query",
+        "Execution order",
+        "Query template"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Execution plan is the sequence of operations database performs to execute a query. EXPLAIN shows the plan, EXPLAIN ANALYZE shows plan with actual execution times."
+    },
+    {
+      "question": "What is a sequential scan?",
+      "options": [
+        "Ordered scan",
+        "Reading entire table row-by-row from disk",
+        "Index scan",
+        "Sequential order"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Sequential Scan (Seq Scan): reads all rows in physical order. Efficient when: small table, reading most rows (>5-10%), no suitable index. Parallel sequential scan uses multiple workers. Planner chooses based on cost estimates."
+    },
+    {
+      "question": "What is an index scan?",
+      "options": [
+        "Scanning indexes",
+        "Using index to quickly locate specific rows",
+        "Fast scan",
+        "Index read"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Index scan uses an index to quickly locate rows matching search criteria without reading entire table. Much faster than seq scan for selective queries."
+    },
+    {
+      "question": "What is a bitmap index scan?",
+      "options": [
+        "Image scan",
+        "Scans index to create bitmap of matching pages, then fetches pages",
+        "Binary scan",
+        "Bit scan"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Bitmap index scan creates bitmap of heap pages containing matching rows, then fetches pages in physical order. Efficient for moderately selective queries."
+    },
+    {
+      "question": "What are the different index types in PostgreSQL?",
+      "options": [
+        "Only B-tree",
+        "B-tree, Hash, GiST, GIN, BRIN, SP-GiST",
+        "Primary and secondary",
+        "Clustered and non-clustered"
+      ],
+      "correctAnswer": 1,
+      "explanation": "B-tree: default, general <>=, sorting. Hash: only = (rarely used). GIN: arrays, JSONB, full-text (element containment). GiST: geometric, range types. BRIN: very large tables with natural order. SP-GiST: non-balanced data (IPs, phone numbers)."
+    },
+    {
+      "question": "When should you use a GIN index?",
+      "options": [
+        "Always",
+        "For JSONB, arrays, full-text search (multi-value columns)",
+        "Never",
+        "Only for integers"
+      ],
+      "correctAnswer": 1,
+      "explanation": "GIN (Generalized Inverted Index): multi-value data types. Use for: JSONB (@>, ? operators), arrays (&&, @>, <@ operators), full-text search (tsvector). Larger, slower to update than B-tree, but excellent for containment queries. GIN vs GiST: GIN bigger/faster, GiST smaller/slower."
+    },
+    {
+      "question": "What is a composite index?",
+      "options": [
+        "Multiple indexes",
+        "Index on multiple columns combined",
+        "Complex index",
+        "Joined index"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Composite (multi-column) index: indexes multiple columns together. Column order critical! Index on (a, b, c) supports: (a), (a,b), (a,b,c) queries, but NOT (b), (c), or (b,c). Leftmost prefix rule. Example: idx(last_name, first_name)."
+    },
+    {
+      "question": "What is a partial index?",
+      "options": [
+        "Incomplete index",
+        "Index on subset of rows matching WHERE condition",
+        "Partial columns",
+        "Half index"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Partial index: indexes only rows matching WHERE condition. Example: CREATE INDEX ON orders (user_id) WHERE status = 'pending'. Smaller, faster, lower maintenance cost. Query must use same WHERE condition. Ideal for frequently filtered subsets."
+    },
+    {
+      "question": "What is an expression index?",
+      "options": [
+        "Math index",
+        "Index on result of function or expression",
+        "Complex index",
+        "Formula index"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Expression index (functional index) indexes the result of a function or expression instead of column value. Example: CREATE INDEX ON users (LOWER(email))."
+    },
+    {
+      "question": "What is CLUSTER command?",
+      "options": [
+        "Creates cluster",
+        "Physically reorders table rows based on index",
+        "Clusters tables",
+        "Groups data"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CLUSTER physically reorders table rows to match index order. One-time operation (not auto-maintained). Requires exclusive lock, rewrites entire table. Can improve range scan performance. Rarely used in production due to locking. Consider pg_repack instead."
+    },
+    {
+      "question": "What is a trigger?",
+      "options": [
+        "Event handler",
+        "Automatically executed function in response to table events",
+        "Scheduler",
+        "Action button"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Trigger is a function automatically executed when specific event occurs on table (INSERT, UPDATE, DELETE). Can execute BEFORE, AFTER, or INSTEAD OF the event."
+    },
+    {
+      "question": "What is the difference between BEFORE and AFTER triggers?",
+      "options": [
+        "Timing only",
+        "BEFORE can modify data before operation, AFTER sees final results",
+        "AFTER is faster",
+        "BEFORE is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "BEFORE: fires before operation, can modify NEW row, can skip operation (return NULL for row-level). AFTER: fires after operation complete, cannot modify, sees final state. BEFORE for validation/modification, AFTER for logging/auditing. Row-level vs statement-level triggers."
+    },
+    {
+      "question": "What is a stored procedure?",
+      "options": [
+        "Saved query",
+        "Named block of SQL/PL code stored in database",
+        "Procedure call",
+        "Function backup"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Stored procedure is reusable code block stored in database. In PostgreSQL, functions serve this purpose. Can accept parameters, contain logic, and be called multiple times."
+    },
+    {
+      "question": "What is the difference between a function and a procedure?",
+      "options": [
+        "No difference in PostgreSQL",
+        "Functions return value, procedures don't (procedures added in PG 11)",
+        "Procedures are faster",
+        "Functions are deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Functions: return value, called in expressions, cannot COMMIT/ROLLBACK mid-execution. Procedures (PG 11+): called with CALL, no return value, can contain transaction control (COMMIT/ROLLBACK). Use procedures for multi-statement transactions."
+    },
+    {
+      "question": "What is PL/pgSQL?",
+      "options": [
+        "PostgreSQL syntax",
+        "Procedural language for writing functions and triggers",
+        "Query language",
+        "Admin language"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PL/pgSQL is PostgreSQL's procedural language for writing functions, stored procedures, and triggers. Similar to Oracle's PL/SQL. Supports variables, loops, conditionals."
+    },
+    {
+      "question": "What is table partitioning?",
+      "options": [
+        "Splitting tables",
+        "Dividing large table into smaller physical pieces based on key",
+        "Table division",
+        "Data separation"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Partitioning splits large table into smaller physical pieces (partitions) while appearing as single table. Improves performance and maintenance for very large tables."
+    },
+    {
+      "question": "What are the types of partitioning in PostgreSQL?",
+      "options": [
+        "Only range",
+        "Range, List, Hash partitioning",
+        "Vertical and horizontal",
+        "Primary and secondary"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PostgreSQL supports: Range partitioning (value ranges), List partitioning (specific values), Hash partitioning (hash function). Choose based on data distribution and query patterns."
+    },
+    {
+      "question": "What is range partitioning?",
+      "options": [
+        "Number ranges",
+        "Partitioning based on value ranges (e.g., date ranges)",
+        "Distance partitioning",
+        "Range queries"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Range partitioning divides table based on column value ranges. Common for dates (monthly/yearly partitions) or sequential IDs. Each partition handles specific range."
+    },
+    {
+      "question": "What is list partitioning?",
+      "options": [
+        "Listed tables",
+        "Partitioning based on specific values (e.g., regions, categories)",
+        "Array partitioning",
+        "Value lists"
+      ],
+      "correctAnswer": 1,
+      "explanation": "List partitioning assigns rows to partitions based on explicit lists of values. Good for categorical data like country codes, status values, or categories."
+    },
+    {
+      "question": "What is hash partitioning?",
+      "options": [
+        "Encrypted partitioning",
+        "Partitioning using hash function for even data distribution",
+        "Random partitioning",
+        "Hashed values"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Hash partitioning uses hash function on partition key to distribute data evenly across partitions. Good when data doesn't have natural ranges or categories."
+    },
+    {
+      "question": "What is replication in PostgreSQL?",
+      "options": [
+        "Copying data",
+        "Maintaining synchronized copies of database on multiple servers",
+        "Backup process",
+        "Data duplication"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Replication maintains copies of database on multiple servers for high availability, disaster recovery, and read scaling. PostgreSQL supports streaming and logical replication."
+    },
+    {
+      "question": "What is streaming replication?",
+      "options": [
+        "Video streaming",
+        "Physical replication streaming WAL records to standby servers",
+        "Data streaming",
+        "Network replication"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Streaming replication continuously streams WAL (Write-Ahead Log) records from primary to standby servers. Provides near real-time synchronization for high availability."
+    },
+    {
+      "question": "What is logical replication?",
+      "options": [
+        "Logic-based copying",
+        "Replication based on logical data changes (specific tables/operations)",
+        "Logical copies",
+        "Smart replication"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Logical replication replicates data changes based on replication identity. More flexible than physical - can replicate specific tables, databases, or even between different versions."
+    },
+    {
+      "question": "What is WAL (Write-Ahead Logging)?",
+      "options": [
+        "Logging system",
+        "Durability mechanism writing changes to log before data files",
+        "Write log",
+        "Ahead logging"
+      ],
+      "correctAnswer": 1,
+      "explanation": "WAL ensures changes are logged to durable storage before being applied to data files. Enables crash recovery, replication, and point-in-time recovery."
+    },
+    {
+      "question": "What is pg_dump?",
+      "options": [
+        "Dump command",
+        "Utility for backing up PostgreSQL databases to SQL or archive format",
+        "Data export",
+        "Memory dump"
+      ],
+      "correctAnswer": 1,
+      "explanation": "pg_dump creates logical backup of PostgreSQL database. Outputs SQL script or archive file. Can backup entire database, specific schemas, or tables."
+    },
+    {
+      "question": "What is pg_restore?",
+      "options": [
+        "Restore tool",
+        "Utility for restoring databases from pg_dump archive files",
+        "Recovery command",
+        "Backup restore"
+      ],
+      "correctAnswer": 1,
+      "explanation": "pg_restore restores databases from archive files created by pg_dump (not plain SQL). Supports parallel restore, selective restore, and various formats."
+    },
+    {
+      "question": "What is the difference between pg_dump and pg_dumpall?",
+      "options": [
+        "No difference",
+        "pg_dump backs up one database, pg_dumpall backs up entire cluster",
+        "pg_dumpall is faster",
+        "pg_dump is deprecated"
+      ],
+      "correctAnswer": 1,
+      "explanation": "pg_dump: single database, SQL or custom format (-Fc for compression/parallel restore). pg_dumpall: entire cluster (all databases + roles + tablespaces), only plain SQL. For cluster backup: pg_dumpall for globals + pg_dump -Fc for each database."
+    },
+    {
+      "question": "What is point-in-time recovery (PITR)?",
+      "options": [
+        "Time travel",
+        "Restoring database to specific moment using base backup and WAL",
+        "Recovery time",
+        "Point recovery"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PITR: restore to any point in time. Requires: base backup (pg_basebackup) + continuous WAL archiving. Recovery: restore base backup, replay WAL to target time. Set recovery_target_time. Critical for disaster recovery. Test restores regularly!"
+    },
+    {
+      "question": "What are isolation levels in PostgreSQL?",
+      "options": [
+        "Security levels",
+        "Read Uncommitted, Read Committed, Repeatable Read, Serializable",
+        "Transaction types",
+        "Locking levels"
+      ],
+      "correctAnswer": 1,
+      "explanation": "PostgreSQL has 3 real isolation levels: Read Committed (default), Repeatable Read, Serializable. Read Uncommitted is treated as Read Committed (PostgreSQL never allows dirty reads). Higher levels = more consistency, less concurrency."
+    },
+    {
+      "question": "What is Read Committed isolation level?",
+      "options": [
+        "Read everything",
+        "Sees only data committed before query starts",
+        "Reads all data",
+        "Committed reads only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Read Committed (default) sees only data committed before query starts. Each query in transaction sees fresh snapshot. Prevents dirty reads but allows non-repeatable reads."
+    },
+    {
+      "question": "What is Repeatable Read isolation level?",
+      "options": [
+        "Repeat queries",
+        "All queries in transaction see same snapshot from transaction start",
+        "Repeated reads",
+        "Read twice"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Repeatable Read: transaction sees snapshot from first query. Prevents non-repeatable reads and phantom reads (stronger than SQL standard). May fail with serialization error if conflicts occur. Retry logic needed."
+    },
+    {
+      "question": "What is Serializable isolation level?",
+      "options": [
+        "Serial execution",
+        "Strictest isolation, ensures concurrent transactions behave as if executed serially",
+        "Serialized data",
+        "One at a time"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Serializable: strictest level, prevents all anomalies. Uses Serializable Snapshot Isolation (SSI), not actual serial execution. Concurrent transactions run but abort if conflict detected. Requires retry logic. Performance impact vs Repeatable Read is minimal."
+    },
+    {
+      "question": "What is a deadlock?",
+      "options": [
+        "Locked database",
+        "Two transactions waiting for each other, neither can proceed",
+        "Dead transaction",
+        "Lock timeout"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Deadlock: circular wait where transactions hold locks each other needs. PostgreSQL's deadlock detector runs periodically, aborts one transaction (deadlock victim) with error. Application must retry. Prevent: access tables in consistent order."
+    },
+    {
+      "question": "What is a schema in PostgreSQL?",
+      "options": [
+        "Database structure",
+        "Namespace containing database objects (tables, views, functions)",
+        "Table structure",
+        "Design pattern"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Schema is a namespace within database containing tables, views, functions, etc. Allows organizing objects and avoiding name conflicts. 'public' is default schema."
+    },
+    {
+      "question": "What is the search_path?",
+      "options": [
+        "Search query",
+        "Order of schemas PostgreSQL searches for unqualified object names",
+        "File path",
+        "Index path"
+      ],
+      "correctAnswer": 1,
+      "explanation": "search_path: list of schemas to search for unqualified names. Default: '\"$user\", public'. SET search_path TO myschema, public; SHOW search_path; Security: use qualified names (schema.table) or remove public from search_path for multi-tenant apps."
+    },
+    {
+      "question": "What does GRANT do?",
+      "options": [
+        "Grants wishes",
+        "Gives privileges to users/roles on database objects",
+        "Creates grants",
+        "Allows access"
+      ],
+      "correctAnswer": 1,
+      "explanation": "GRANT gives specific privileges (SELECT, INSERT, UPDATE, DELETE, etc.) on database objects to users or roles. Foundation of PostgreSQL access control."
+    },
+    {
+      "question": "What does REVOKE do?",
+      "options": [
+        "Revokes access",
+        "Removes previously granted privileges from users/roles",
+        "Cancels grants",
+        "Denies access"
+      ],
+      "correctAnswer": 1,
+      "explanation": "REVOKE removes privileges previously granted with GRANT. Use carefully as it can cascade depending on GRANT OPTION and dependencies."
+    },
+    {
+      "question": "What is a role in PostgreSQL?",
+      "options": [
+        "User type",
+        "Database user or group of users with specific privileges",
+        "Permission level",
+        "Access role"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Role is an entity that can own database objects and have privileges. Can represent individual users or groups. Roles with LOGIN privilege can connect (users)."
+    },
+    {
+      "question": "What is the difference between a user and a role?",
+      "options": [
+        "No difference (both are roles)",
+        "User is a role with LOGIN privilege",
+        "Users are actual people",
+        "Roles are deprecated"
+      ],
+      "correctAnswer": 0,
+      "explanation": "In PostgreSQL, users and roles are the same concept. 'User' is historical term for role with LOGIN privilege. CREATE USER is shorthand for CREATE ROLE with LOGIN."
+    },
+    {
+      "question": "What does \\d command do in psql?",
+      "options": [
+        "Deletes data",
+        "Describes table structure (columns, types, constraints)",
+        "Database command",
+        "Display command"
+      ],
+      "correctAnswer": 1,
+      "explanation": "In psql, \\d table_name displays table structure. \\d+ shows additional details. \\dt lists tables, \\di lists indexes, \\dv lists views."
+    },
+    {
+      "question": "What does \\l command do in psql?",
+      "options": [
+        "Lists files",
+        "Lists all databases",
+        "Logs in",
+        "Loads data"
+      ],
+      "correctAnswer": 1,
+      "explanation": "\\l or \\list shows all databases with owner, encoding, and access privileges. Great for seeing available databases in the cluster."
+    },
+    {
+      "question": "What does \\c command do in psql?",
+      "options": [
+        "Copies data",
+        "Connects to a different database",
+        "Closes connection",
+        "Creates database"
+      ],
+      "correctAnswer": 1,
+      "explanation": "\\c database_name or \\connect switches connection to different database. Can also specify user and host: \\c database user host."
+    },
+    {
+      "question": "What is COALESCE function?",
+      "options": [
+        "Combines strings",
+        "Returns first non-NULL value from list of arguments",
+        "Checks equality",
+        "Creates aliases"
+      ],
+      "correctAnswer": 1,
+      "explanation": "COALESCE returns first non-NULL argument. COALESCE(col1, col2, 'default') checks arguments left-to-right. Short-circuits (stops at first non-NULL). Equivalent to nested CASE WHEN. More efficient than CASE for NULL handling."
+    },
+    {
+      "question": "What does the CASE statement do?",
+      "options": [
+        "Case conversion",
+        "Conditional expression (if-then-else logic in SQL)",
+        "Switch case",
+        "Case sensitivity"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CASE provides if-then-else logic in SQL. CASE WHEN condition THEN result ... ELSE default END. Can be simple (test one expression) or searched (multiple conditions)."
+    },
+    {
+      "question": "What is LATERAL join?",
+      "options": [
+        "Side join",
+        "Allows subquery to reference columns from preceding tables",
+        "Left join",
+        "Lateral view"
+      ],
+      "correctAnswer": 1,
+      "explanation": "LATERAL: subquery in FROM can reference earlier FROM items. Like correlated subquery but in FROM clause. SELECT * FROM users, LATERAL (SELECT * FROM orders WHERE user_id = users.id) o. Common with functions returning sets. PostgreSQL 9.3+."
+    },
+    {
+      "question": "What is FULL OUTER JOIN?",
+      "options": [
+        "Complete join",
+        "Returns all rows from both tables, with NULLs where no match",
+        "Full table join",
+        "Outer join only"
+      ],
+      "correctAnswer": 1,
+      "explanation": "FULL OUTER JOIN: all rows from both tables. Matched rows combined. Unmatched left rows: right columns NULL. Unmatched right rows: left columns NULL. Less common than LEFT/INNER. Use case: finding records in either table with no match."
+    },
+    {
+      "question": "What is a CROSS JOIN?",
+      "options": [
+        "Crossed tables",
+        "Cartesian product of two tables (all combinations)",
+        "Intersecting join",
+        "Cross reference"
+      ],
+      "correctAnswer": 1,
+      "explanation": "CROSS JOIN: Cartesian product. Every row from table1 × every row from table2. No ON clause. Result: rows1 × rows2. Example: 10 rows × 5 rows = 50 rows. Rarely needed. Usually accidental (forgot JOIN condition). Use case: generating combinations."
+    },
+    {
+      "question": "What is a self-join?",
+      "options": [
+        "Joining itself",
+        "Joining a table to itself to compare rows within same table",
+        "Self-referencing",
+        "Recursive join"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Self-join: table joined to itself using aliases. Use cases: hierarchical data (employees-managers), finding duplicates, comparing rows. Example: SELECT e.name, m.name FROM employees e JOIN employees m ON e.manager_id = m.id. Requires table aliases."
+    },
+    {
+      "question": "What does NOW() function return?",
+      "options": [
+        "Current time",
+        "Current date and time at start of transaction",
+        "System time",
+        "Server time"
+      ],
+      "correctAnswer": 1,
+      "explanation": "NOW() and CURRENT_TIMESTAMP: transaction start time (stable within transaction). clock_timestamp(): actual current time (changes within transaction). statement_timestamp(): statement start time. timeofday(): current time as text. Use NOW() for consistency."
+    }
+  ]
+}

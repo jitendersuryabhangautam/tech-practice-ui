@@ -1,0 +1,51 @@
+{
+  "id": "select",
+  "title": "Select Statement",
+  "description": "Multiplexing goroutine communications. Wait on multiple channel operations.",
+  "code": "package main\n\nimport (\n    \"fmt\"\n    \"time\"\n)\n\nfunc main() {\n    c1 := make(chan string)\n    c2 := make(chan string)\n    \n    go func() {\n        time.Sleep(1 * time.Second)\n        c1 <- \"one\"\n    }()\n    \n    go func() {\n        time.Sleep(2 * time.Second)\n        c2 <- \"two\"\n    }()\n    \n    for i := 0; i < 2; i++ {\n        select {\n        case msg1 := <-c1:\n            fmt.Println(\"Received\", msg1)\n        case msg2 := <-c2:\n            fmt.Println(\"Received\", msg2)\n        }\n    }\n}",
+  "example": "// Timeout pattern\nselect {\ncase res := <-ch:\n    fmt.Println(res)\ncase <-time.After(1 * time.Second):\n    fmt.Println(\"Timeout\")\n}\n\n// Non-blocking receive\nselect {\ncase msg := <-ch:\n    fmt.Println(\"Received:\", msg)\ndefault:\n    fmt.Println(\"No message\")\n}\n\n// Non-blocking send\nselect {\ncase ch <- value:\n    fmt.Println(\"Sent\")\ndefault:\n    fmt.Println(\"Channel full\")\n}",
+  "useCase": "Timeouts, non-blocking operations, multiplexing channels, cancellation",
+  "explanation": "Select lets one goroutine wait on multiple channel operations and proceed with whichever is ready. In interviews, show timeout patterns, default branch implications, and cancellation-aware flow.",
+  "interviewQuestions": [
+    {
+      "question": "What does `default` do in select?",
+      "answer": "Makes select non-blocking by executing immediately when no channel case is ready."
+    },
+    {
+      "question": "How do you model timeouts in select?",
+      "answer": "Use `case <-time.After(d):` or a context Done channel to enforce deadline behavior."
+    },
+    {
+      "question": "Is case selection deterministic when multiple are ready?",
+      "answer": "No, Go pseudo-randomly chooses one ready case."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Read from two channels and timeout after 500ms."
+    },
+    {
+      "type": "scenario",
+      "question": "Design a fan-in aggregator using select."
+    },
+    {
+      "type": "tricky",
+      "question": "What bug can an always-on default case introduce?",
+      "answer": "Busy loop/high CPU usage due to no blocking."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Select timeout.",
+      "code": "ch := make(chan string)\nselect {\ncase m := <-ch:\n  fmt.Println(m)\ncase <-time.After(50 * time.Millisecond):\n  fmt.Println(\"timeout\")\n}",
+      "output": "timeout"
+    },
+    {
+      "question": "Program 2: Non-blocking receive with default.",
+      "code": "ch := make(chan int)\nselect {\ncase v := <-ch:\n  fmt.Println(v)\ndefault:\n  fmt.Println(\"no value\")\n}",
+      "output": "no value"
+    }
+  ],
+  "category": "Concurrency"
+}

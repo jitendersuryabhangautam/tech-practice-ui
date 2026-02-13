@@ -1,0 +1,1958 @@
+[
+  {
+    "id": 1,
+    "question": "What is the main difference between debouncing and throttling?",
+    "options": [
+      "Debouncing delays execution until calm, throttling limits execution frequency",
+      "Debouncing is faster than throttling",
+      "Throttling only works with events, debouncing works with any function",
+      "They are the same thing with different names"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Debouncing delays function execution until after a period of inactivity, while throttling ensures the function executes at most once per specified time interval."
+  },
+  {
+    "id": 2,
+    "question": "What is the output of: typeof null?",
+    "options": [
+      "'null'",
+      "'object'",
+      "'undefined'",
+      "'number'"
+    ],
+    "correctAnswer": 1,
+    "explanation": "This is a known JavaScript bug. typeof null returns 'object' due to a legacy implementation issue that can't be fixed for backward compatibility."
+  },
+  {
+    "id": 3,
+    "question": "What is a closure in JavaScript?",
+    "options": [
+      "A way to close browser windows",
+      "A function that has access to variables in its outer scope",
+      "A method to end a loop",
+      "A type of object"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A closure is a function that has access to variables in its outer (enclosing) lexical scope, even after the outer function has returned."
+  },
+  {
+    "id": 4,
+    "question": "What will console.log(0.1 + 0.2 === 0.3) output?",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Due to floating-point precision issues in JavaScript, 0.1 + 0.2 actually equals 0.30000000000000004, not 0.3."
+  },
+  {
+    "id": 5,
+    "question": "What does 'use strict' do in JavaScript?",
+    "options": [
+      "Makes code run faster",
+      "Enables strict mode which catches common coding errors",
+      "Compiles code to machine language",
+      "Enables ES6 features"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'use strict' enables strict mode, which catches common coding mistakes, prevents use of reserved keywords, and disallows certain unsafe actions."
+  },
+  {
+    "id": 6,
+    "question": "What is the difference between == and ===?",
+    "options": [
+      "No difference",
+      "== checks value and type, === only checks value",
+      "=== checks value and type, == only checks value",
+      "=== is faster than =="
+    ],
+    "correctAnswer": 2,
+    "explanation": "=== (strict equality) checks both value and type without type coercion, while == (loose equality) performs type coercion before comparison."
+  },
+  {
+    "id": 7,
+    "question": "What is hoisting in JavaScript?",
+    "options": [
+      "Moving functions to top of file",
+      "Variable and function declarations are moved to top of scope during compilation",
+      "Lifting heavy objects",
+      "A design pattern"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Hoisting is JavaScript's behavior of moving declarations to the top of their scope before code execution. Variables declared with var and function declarations are hoisted."
+  },
+  {
+    "id": 8,
+    "question": "What will this code output? console.log([] + [])",
+    "options": [
+      "[]",
+      "''",
+      "'[][]'",
+      "undefined"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When adding arrays, JavaScript converts them to strings. Empty arrays become empty strings, so '' + '' = ''."
+  },
+  {
+    "id": 9,
+    "question": "What is the purpose of Promise.all()?",
+    "options": [
+      "Execute promises one after another",
+      "Execute multiple promises in parallel and wait for all to complete",
+      "Cancel all promises",
+      "Create a new promise"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Promise.all() takes an array of promises and returns a single promise that resolves when all input promises have resolved, or rejects if any promise rejects."
+  },
+  {
+    "id": 10,
+    "question": "What does the spread operator (...) do?",
+    "options": [
+      "Spreads butter",
+      "Expands an iterable into individual elements",
+      "Creates a range of numbers",
+      "Multiplies values"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The spread operator (...) expands an iterable (like an array) into individual elements. It's useful for copying arrays, combining arrays, and passing array elements as function arguments."
+  },
+  {
+    "id": 11,
+    "question": "What is the difference between let, const, and var?",
+    "options": [
+      "No difference, just preference",
+      "let and const are block-scoped, var is function-scoped",
+      "const is faster than let and var",
+      "var is the newest syntax"
+    ],
+    "correctAnswer": 1,
+    "explanation": "let and const are block-scoped and not hoisted to the top. var is function-scoped and hoisted. const cannot be reassigned after declaration."
+  },
+  {
+    "id": 12,
+    "question": "What is the output of: console.log(typeof NaN)?",
+    "options": [
+      "'NaN'",
+      "'number'",
+      "'undefined'",
+      "'object'"
+    ],
+    "correctAnswer": 1,
+    "explanation": "NaN (Not-a-Number) ironically has the type 'number' in JavaScript. It's a special numeric value representing an invalid number."
+  },
+  {
+    "id": 13,
+    "question": "What does Array.prototype.map() return?",
+    "options": [
+      "The same array modified",
+      "A new array with transformed elements",
+      "Nothing (undefined)",
+      "An object"
+    ],
+    "correctAnswer": 1,
+    "explanation": "map() creates and returns a new array with the results of calling a provided function on every element. It doesn't modify the original array."
+  },
+  {
+    "id": 14,
+    "question": "What is event delegation?",
+    "options": [
+      "Passing events between functions",
+      "Attaching a single event listener to a parent to handle events on children",
+      "Preventing default events",
+      "Creating custom events"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Event delegation uses event bubbling to handle events at a higher level in the DOM. You attach an event listener to a parent element to manage events from its children."
+  },
+  {
+    "id": 15,
+    "question": "What is the purpose of the 'this' keyword?",
+    "options": [
+      "References the current file",
+      "References the context in which a function is called",
+      "References the global object always",
+      "References the parent function"
+    ],
+    "correctAnswer": 1,
+    "explanation": "'this' refers to the object that is executing the current function. Its value depends on how the function is called (method, regular function, arrow function, etc.)."
+  },
+  {
+    "id": 16,
+    "question": "What is the difference between .call(), .apply(), and .bind()?",
+    "options": [
+      "They are the same",
+      ".call() and .apply() invoke immediately with different argument formats, .bind() returns a new function",
+      ".bind() is deprecated",
+      "They only work with classes"
+    ],
+    "correctAnswer": 1,
+    "explanation": ".call() invokes function with arguments separated by commas. .apply() uses array of arguments. .bind() returns a new function with 'this' bound without invoking."
+  },
+  {
+    "id": 17,
+    "question": "What is the output of: console.log(1 + '1')?",
+    "options": [
+      "2",
+      "'11'",
+      "11",
+      "Error"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When adding a number and string, JavaScript converts the number to a string and performs concatenation, resulting in '11'."
+  },
+  {
+    "id": 18,
+    "question": "What is a callback function?",
+    "options": [
+      "A function that calls itself",
+      "A function passed as an argument to another function",
+      "A function that returns a value",
+      "A deprecated pattern"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A callback is a function passed as an argument to another function, to be executed later, often after an asynchronous operation completes."
+  },
+  {
+    "id": 19,
+    "question": "What does Object.freeze() do?",
+    "options": [
+      "Stops JavaScript execution",
+      "Makes an object immutable (prevents modifications)",
+      "Converts object to string",
+      "Copies an object"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.freeze() makes an object immutable. You can't add, delete, or modify its properties. Nested objects are not frozen unless explicitly frozen."
+  },
+  {
+    "id": 20,
+    "question": "What is the event loop in JavaScript?",
+    "options": [
+      "A loop that processes events",
+      "Mechanism that handles async operations and callback execution",
+      "A for loop variant",
+      "A DOM event handler"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The event loop is JavaScript's concurrency model. It continuously checks the call stack and task queues, executing callbacks when the stack is empty."
+  },
+  {
+    "id": 21,
+    "question": "What is destructuring in JavaScript?",
+    "options": [
+      "Deleting objects",
+      "Extracting values from arrays or objects into distinct variables",
+      "Breaking code into modules",
+      "A debugging technique"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Destructuring allows unpacking values from arrays or properties from objects into distinct variables using a concise syntax."
+  },
+  {
+    "id": 22,
+    "question": "What does Array.prototype.filter() do?",
+    "options": [
+      "Removes all elements",
+      "Creates array with elements that pass a test",
+      "Modifies original array",
+      "Sorts array elements"
+    ],
+    "correctAnswer": 1,
+    "explanation": "filter() creates a new array with all elements that pass the test implemented by the provided function. It doesn't modify the original array."
+  },
+  {
+    "id": 23,
+    "question": "What is the temporal dead zone?",
+    "options": [
+      "A timezone issue",
+      "Period between scope entry and declaration where let/const variables can't be accessed",
+      "A debugging tool",
+      "A performance issue"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The temporal dead zone is the period from entering a scope until a let/const variable is declared, where accessing the variable throws a ReferenceError."
+  },
+  {
+    "id": 24,
+    "question": "What is a pure function?",
+    "options": [
+      "A function without bugs",
+      "Function that always returns same output for same input with no side effects",
+      "A built-in function",
+      "A function with one parameter"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A pure function always returns the same result for the same arguments and has no side effects (doesn't modify external state)."
+  },
+  {
+    "id": 25,
+    "question": "What does Array.prototype.reduce() do?",
+    "options": [
+      "Reduces array size",
+      "Executes reducer function on array to produce single output value",
+      "Removes duplicates",
+      "Filters negative numbers"
+    ],
+    "correctAnswer": 1,
+    "explanation": "reduce() executes a reducer function on each array element, resulting in a single output value. It's useful for summing, flattening arrays, or any accumulation operation."
+  },
+  {
+    "id": 26,
+    "question": "What is the difference between null and undefined?",
+    "options": [
+      "They are exactly the same",
+      "null is assigned, undefined means no value has been assigned",
+      "undefined is newer than null",
+      "null is a string, undefined is not"
+    ],
+    "correctAnswer": 1,
+    "explanation": "undefined means a variable has been declared but not assigned a value. null is an assignment value representing intentional absence of any object value."
+  },
+  {
+    "id": 27,
+    "question": "What does the 'new' keyword do?",
+    "options": [
+      "Creates a new file",
+      "Creates a new instance of an object from constructor function",
+      "Updates existing object",
+      "Declares new variable"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The 'new' keyword creates an instance of a user-defined object type or built-in object that has a constructor function. It sets up the prototype chain properly."
+  },
+  {
+    "id": 28,
+    "question": "What is memoization?",
+    "options": [
+      "Remembering code",
+      "Caching function results to avoid repeated calculations",
+      "Memory management",
+      "A debugging technique"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Memoization is an optimization technique that stores function results for specific inputs, returning cached result when same input occurs again instead of recalculating."
+  },
+  {
+    "id": 29,
+    "question": "What does Promise.race() do?",
+    "options": [
+      "Compares promise speeds",
+      "Returns promise that resolves/rejects first from array of promises",
+      "Creates racing game",
+      "Cancels slowest promise"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Promise.race() returns a promise that resolves or rejects as soon as one of the promises in the iterable resolves or rejects, with the value/reason from that promise."
+  },
+  {
+    "id": 30,
+    "question": "What is the purpose of Symbol in JavaScript?",
+    "options": [
+      "Mathematical operations",
+      "Creating unique identifiers, especially for object properties",
+      "Text formatting",
+      "Creating emojis"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Symbol is a primitive data type that creates unique, immutable values, commonly used as unique property keys to avoid naming collisions."
+  },
+  {
+    "id": 31,
+    "question": "What is the output of: console.log(![])?",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "[]"
+    ],
+    "correctAnswer": 1,
+    "explanation": "An empty array is a truthy value in JavaScript. The ! operator negates it, so ![] evaluates to false."
+  },
+  {
+    "id": 32,
+    "question": "What does Array.isArray() do?",
+    "options": [
+      "Converts to array",
+      "Checks if value is an array",
+      "Counts array elements",
+      "Sorts array"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Array.isArray() determines whether the passed value is an Array, returning true or false. It's more reliable than typeof for checking arrays."
+  },
+  {
+    "id": 33,
+    "question": "What is a generator function?",
+    "options": [
+      "Function that generates random numbers",
+      "Function that can pause execution and resume later using yield",
+      "Function that creates other functions",
+      "Built-in utility function"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Generator functions (function*) can pause execution with yield keyword and resume later. They return a generator object that conforms to iterator protocol."
+  },
+  {
+    "id": 34,
+    "question": "What does Object.assign() do?",
+    "options": [
+      "Deletes object properties",
+      "Copies properties from source objects to target object",
+      "Creates new object type",
+      "Assigns object to variable"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.assign() copies all enumerable own properties from one or more source objects to a target object. It's commonly used for shallow cloning or merging objects."
+  },
+  {
+    "id": 35,
+    "question": "What is the difference between forEach and map?",
+    "options": [
+      "No difference",
+      "forEach executes function on each element, map returns new array",
+      "map is slower",
+      "forEach is deprecated"
+    ],
+    "correctAnswer": 1,
+    "explanation": "forEach() executes a function on each element and returns undefined. map() creates and returns a new array with transformed elements."
+  },
+  {
+    "id": 36,
+    "question": "What is a WeakMap?",
+    "options": [
+      "A slow Map",
+      "Map with weak references to keys allowing garbage collection",
+      "Map with limited size",
+      "Deprecated data structure"
+    ],
+    "correctAnswer": 1,
+    "explanation": "WeakMap holds weak references to keys (must be objects), allowing them to be garbage collected if no other references exist. Values can be any type."
+  },
+  {
+    "id": 37,
+    "question": "What does the finally block do in try-catch?",
+    "options": [
+      "Catches remaining errors",
+      "Executes code regardless of try-catch outcome",
+      "Prevents errors",
+      "Only runs on errors"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The finally block executes after try and catch blocks, regardless of whether an exception was thrown or caught. It's useful for cleanup operations."
+  },
+  {
+    "id": 38,
+    "question": "What is the rest parameter in functions?",
+    "options": [
+      "Parameter that sleeps",
+      "Syntax (...args) that collects remaining arguments into array",
+      "Optional parameter",
+      "Last parameter only"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Rest parameters (...args) allow representing an indefinite number of arguments as an array. It must be the last parameter in function definition."
+  },
+  {
+    "id": 39,
+    "question": "What does JSON.stringify() do?",
+    "options": [
+      "Parses JSON",
+      "Converts JavaScript value to JSON string",
+      "Validates JSON",
+      "Minifies JSON"
+    ],
+    "correctAnswer": 1,
+    "explanation": "JSON.stringify() converts a JavaScript object or value to a JSON string. It's often used when sending data to a server or for deep cloning simple objects."
+  },
+  {
+    "id": 40,
+    "question": "What is a Set in JavaScript?",
+    "options": [
+      "An array",
+      "Collection that stores unique values of any type",
+      "A function",
+      "An object method"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Set is a collection of unique values. Any duplicate values are ignored. It provides methods like add(), delete(), has(), and can be iterated."
+  },
+  {
+    "id": 41,
+    "question": "What is the output of: console.log([] == false)?",
+    "options": [
+      "false",
+      "true",
+      "undefined",
+      "Error"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Due to type coercion, empty array converts to empty string, which converts to 0, and false also converts to 0. So 0 == 0 is true."
+  },
+  {
+    "id": 42,
+    "question": "What does Object.keys() return?",
+    "options": [
+      "Object values",
+      "Array of object's own enumerable property names",
+      "Number of properties",
+      "Object type"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.keys() returns an array of a given object's own enumerable property names, in the same order as a normal loop would."
+  },
+  {
+    "id": 43,
+    "question": "What is the module pattern?",
+    "options": [
+      "CSS pattern",
+      "Design pattern that provides encapsulation and private state",
+      "Import/export syntax",
+      "File organization"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The module pattern uses closures to create private variables and methods, exposing only a public API. It helps organize code and avoid global namespace pollution."
+  },
+  {
+    "id": 44,
+    "question": "What does Array.prototype.some() do?",
+    "options": [
+      "Returns some elements",
+      "Tests whether at least one element passes the test",
+      "Returns random elements",
+      "Removes some elements"
+    ],
+    "correctAnswer": 1,
+    "explanation": "some() tests whether at least one element in the array passes the test implemented by the provided function. Returns true or false."
+  },
+  {
+    "id": 45,
+    "question": "What is the difference between slice and splice?",
+    "options": [
+      "No difference",
+      "slice returns new array without modifying, splice modifies original",
+      "splice is deprecated",
+      "slice only works on strings"
+    ],
+    "correctAnswer": 1,
+    "explanation": "slice() returns a shallow copy of portion of array without modifying original. splice() changes original array by removing, replacing, or adding elements."
+  },
+  {
+    "id": 46,
+    "question": "What is IIFE (Immediately Invoked Function Expression)?",
+    "options": [
+      "A delayed function",
+      "Function that executes immediately after definition",
+      "Anonymous function",
+      "Recursive function"
+    ],
+    "correctAnswer": 1,
+    "explanation": "IIFE is a function that runs immediately after it's defined. Syntax: (function(){ ... })() or (() => { ... })(). Used to create private scope."
+  },
+  {
+    "id": 47,
+    "question": "What does Array.prototype.every() do?",
+    "options": [
+      "Returns every element",
+      "Tests whether all elements pass the test",
+      "Loops forever",
+      "Creates copy of array"
+    ],
+    "correctAnswer": 1,
+    "explanation": "every() tests whether all elements in the array pass the test implemented by the provided function. Returns true if all pass, false otherwise."
+  },
+  {
+    "id": 48,
+    "question": "What is the difference between arguments and rest parameters?",
+    "options": [
+      "No difference",
+      "arguments is array-like object, rest parameters are real arrays",
+      "rest parameters are deprecated",
+      "arguments work in arrow functions"
+    ],
+    "correctAnswer": 1,
+    "explanation": "arguments is an array-like object available in regular functions. Rest parameters (...args) are actual arrays and work in arrow functions, making them more flexible."
+  },
+  {
+    "id": 49,
+    "question": "What does isNaN() do?",
+    "options": [
+      "Creates NaN",
+      "Checks if value is NaN after type coercion",
+      "Removes NaN from array",
+      "Converts to NaN"
+    ],
+    "correctAnswer": 1,
+    "explanation": "isNaN() checks if a value is NaN after attempting type coercion. Number.isNaN() is stricter and doesn't coerce, only returns true for actual NaN."
+  },
+  {
+    "id": 50,
+    "question": "What is the prototype chain?",
+    "options": [
+      "Chain of function calls",
+      "Mechanism where objects inherit properties from other objects",
+      "Linked list data structure",
+      "Error handling chain"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The prototype chain is how JavaScript objects inherit features from one another. When accessing a property, JS looks up the chain until it finds the property or reaches null."
+  },
+  {
+    "id": 51,
+    "question": "What does Object.create() do?",
+    "options": [
+      "Deletes object",
+      "Creates new object with specified prototype",
+      "Copies object",
+      "Freezes object"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.create() creates a new object with the specified prototype object and properties. It's useful for setting up inheritance without using constructors."
+  },
+  {
+    "id": 52,
+    "question": "What is the difference between function declaration and expression?",
+    "options": [
+      "No difference",
+      "Declarations are hoisted, expressions are not",
+      "Expressions are faster",
+      "Declarations are deprecated"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Function declarations are fully hoisted (can be called before definition). Function expressions (including arrow functions) are not hoisted and must be defined before use."
+  },
+  {
+    "id": 53,
+    "question": "What does Array.from() do?",
+    "options": [
+      "Gets array from server",
+      "Creates array from array-like or iterable object",
+      "Converts array to object",
+      "Removes array elements"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Array.from() creates a new, shallow-copied Array instance from an array-like or iterable object (like NodeList, Set, Map, or string)."
+  },
+  {
+    "id": 54,
+    "question": "What is short-circuit evaluation?",
+    "options": [
+      "Fast code execution",
+      "Logical operators stop evaluating once result is determined",
+      "Breaking out of loops",
+      "Error handling"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Short-circuit evaluation means && stops at first falsy value, || stops at first truthy value, without evaluating remaining expressions. Useful for default values and conditionals."
+  },
+  {
+    "id": 55,
+    "question": "What does the delete operator do?",
+    "options": [
+      "Deletes files",
+      "Removes property from object",
+      "Deletes variables",
+      "Clears memory"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The delete operator removes a property from an object. It returns true if successful, false otherwise. It doesn't delete variables or functions."
+  },
+  {
+    "id": 56,
+    "question": "What is the comma operator?",
+    "options": [
+      "Creates lists",
+      "Evaluates multiple expressions, returns last one",
+      "Separates parameters",
+      "Concatenates strings"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The comma operator evaluates each operand from left to right and returns the value of the last operand. Rarely used except in for loops."
+  },
+  {
+    "id": 57,
+    "question": "What is a polyfill?",
+    "options": [
+      "Performance optimizer",
+      "Code that implements feature not natively supported by browser",
+      "Security patch",
+      "Testing tool"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A polyfill is code that implements a feature on browsers that don't support it natively. It provides backward compatibility for newer JavaScript features."
+  },
+  {
+    "id": 58,
+    "question": "What does String.prototype.trim() do?",
+    "options": [
+      "Shortens string length",
+      "Removes whitespace from both ends of string",
+      "Converts to lowercase",
+      "Removes all spaces"
+    ],
+    "correctAnswer": 1,
+    "explanation": "trim() removes whitespace from both ends of a string. trimStart() and trimEnd() remove from beginning or end only. It doesn't modify original string."
+  },
+  {
+    "id": 59,
+    "question": "What is the difference between Map and Object?",
+    "options": [
+      "No difference",
+      "Map allows any type as key, maintains insertion order, has size property",
+      "Object is newer",
+      "Map is slower"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Map allows any value (including objects) as keys, maintains insertion order, has size property, and better performance for frequent additions/deletions. Objects have prototype properties."
+  },
+  {
+    "id": 60,
+    "question": "What does the in operator do?",
+    "options": [
+      "Logs in user",
+      "Checks if property exists in object or its prototype chain",
+      "Adds property to object",
+      "Imports module"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The 'in' operator returns true if the specified property is in the object or its prototype chain. Different from hasOwnProperty() which checks only own properties."
+  },
+  {
+    "id": 61,
+    "question": "What is BigInt used for?",
+    "options": [
+      "Large files",
+      "Representing integers larger than Number.MAX_SAFE_INTEGER",
+      "Performance",
+      "Binary operations"
+    ],
+    "correctAnswer": 1,
+    "explanation": "BigInt is a numeric primitive that can represent integers with arbitrary precision, beyond the safe integer limit of Number (2^53 - 1). Created with n suffix or BigInt()."
+  },
+  {
+    "id": 62,
+    "question": "What does Array.prototype.flat() do?",
+    "options": [
+      "Removes duplicates",
+      "Flattens nested arrays into single-level array",
+      "Sorts array",
+      "Removes falsy values"
+    ],
+    "correctAnswer": 1,
+    "explanation": "flat() creates a new array with all sub-array elements concatenated into it recursively up to specified depth. Default depth is 1. flat(Infinity) flattens all levels."
+  },
+  {
+    "id": 63,
+    "question": "What is the optional chaining operator (?.)? ",
+    "options": [
+      "Ternary operator",
+      "Safely accesses nested properties without checking each level",
+      "Question mark operator",
+      "Comparison operator"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Optional chaining (?.) allows reading value of property deep within object chain without validating each reference. Returns undefined if reference is nullish instead of throwing error."
+  },
+  {
+    "id": 64,
+    "question": "What does the nullish coalescing operator (??) do?",
+    "options": [
+      "Checks null values",
+      "Returns right operand when left is null or undefined",
+      "Creates null values",
+      "Compares null and undefined"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Nullish coalescing (??) returns right operand when left is null or undefined (not other falsy values like 0 or ''). Different from || which checks all falsy values."
+  },
+  {
+    "id": 65,
+    "question": "What is the difference between undefined and not defined?",
+    "options": [
+      "Same thing",
+      "undefined is a value, not defined means variable doesn't exist",
+      "undefined is an error",
+      "not defined is deprecated"
+    ],
+    "correctAnswer": 1,
+    "explanation": "undefined is a primitive value assigned to declared variables with no value. 'not defined' (ReferenceError) occurs when trying to access a variable that hasn't been declared."
+  },
+  {
+    "id": 66,
+    "question": "What does String.prototype.split() return?",
+    "options": [
+      "Split strings",
+      "Array of strings split at specified delimiter",
+      "Number of parts",
+      "Modified string"
+    ],
+    "correctAnswer": 1,
+    "explanation": "split() divides a string into an ordered list of substrings based on a delimiter (string or regex), returning these substrings as an array."
+  },
+  {
+    "id": 67,
+    "question": "What is the purpose of WeakSet?",
+    "options": [
+      "Small sets",
+      "Set with weak object references allowing garbage collection",
+      "Set with limited size",
+      "Deprecated structure"
+    ],
+    "correctAnswer": 1,
+    "explanation": "WeakSet is a collection of objects (only) with weak references. Objects can be garbage collected if no other references exist. No size property, not iterable."
+  },
+  {
+    "id": 68,
+    "question": "What does Number.isInteger() do?",
+    "options": [
+      "Converts to integer",
+      "Checks if value is an integer",
+      "Rounds number",
+      "Counts digits"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Number.isInteger() determines whether the passed value is an integer. Returns true for integers, false for floats, NaN, Infinity, and non-numbers."
+  },
+  {
+    "id": 69,
+    "question": "What is the difference between parameters and arguments?",
+    "options": [
+      "No difference",
+      "Parameters are in function definition, arguments are actual values passed",
+      "Parameters are deprecated",
+      "Arguments are global"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Parameters are variables in function definition. Arguments are the actual values passed to function when called. function fn(param) { } vs fn(argument)."
+  },
+  {
+    "id": 70,
+    "question": "What does Object.values() return?",
+    "options": [
+      "Object keys",
+      "Array of object's own enumerable property values",
+      "Number of properties",
+      "Object copy"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.values() returns an array of a given object's own enumerable property values, in the same order as for...in loop (but without prototype properties)."
+  },
+  {
+    "id": 71,
+    "question": "What is tail call optimization?",
+    "options": [
+      "Array optimization",
+      "Optimization where recursive function call in tail position reuses stack frame",
+      "String optimization",
+      "Loop optimization"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Tail call optimization allows recursive function to reuse same stack frame when function call is in tail position (last operation), preventing stack overflow."
+  },
+  {
+    "id": 72,
+    "question": "What does Array.prototype.includes() do?",
+    "options": [
+      "Adds elements",
+      "Checks if array includes certain value, returns boolean",
+      "Merges arrays",
+      "Counts occurrences"
+    ],
+    "correctAnswer": 1,
+    "explanation": "includes() determines whether an array includes a certain value among its entries, returning true or false. More readable than indexOf() !== -1."
+  },
+  {
+    "id": 73,
+    "question": "What is a higher-order function?",
+    "options": [
+      "Complex function",
+      "Function that takes function as argument or returns function",
+      "Fast function",
+      "Built-in function"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Higher-order function takes one or more functions as arguments or returns a function. Examples: map, filter, reduce. Enables functional programming patterns."
+  },
+  {
+    "id": 74,
+    "question": "What does String.prototype.repeat() do?",
+    "options": [
+      "Finds repeated characters",
+      "Returns string repeated specified number of times",
+      "Removes repeated characters",
+      "Counts repetitions"
+    ],
+    "correctAnswer": 1,
+    "explanation": "repeat() constructs and returns a new string containing specified number of copies of the string on which it was called, concatenated together."
+  },
+  {
+    "id": 75,
+    "question": "What is the difference between for...in and for...of?",
+    "options": [
+      "No difference",
+      "for...in iterates enumerable properties, for...of iterates iterable values",
+      "for...of is deprecated",
+      "for...in is faster"
+    ],
+    "correctAnswer": 1,
+    "explanation": "for...in loops over enumerable property names (including inherited). for...of loops over values of iterable objects (Arrays, Maps, Sets, etc.)."
+  },
+  {
+    "id": 76,
+    "question": "What does Object.entries() return?",
+    "options": [
+      "Object keys",
+      "Array of object's [key, value] pairs",
+      "Entry count",
+      "Object values"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.entries() returns an array of a given object's own enumerable property [key, value] pairs. Useful for iterating or converting to Map."
+  },
+  {
+    "id": 77,
+    "question": "What is a Proxy in JavaScript?",
+    "options": [
+      "Network proxy",
+      "Object that wraps another object to intercept operations",
+      "Design pattern",
+      "Security feature"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Proxy creates a wrapper around object allowing you to intercept and customize fundamental operations (property lookup, assignment, enumeration, function invocation, etc.)."
+  },
+  {
+    "id": 78,
+    "question": "What does String.prototype.padStart() do?",
+    "options": [
+      "Removes padding",
+      "Pads string from start with another string until target length",
+      "Aligns text",
+      "Adds prefix"
+    ],
+    "correctAnswer": 1,
+    "explanation": "padStart() pads the current string with another string (repeated if needed) from the start until the resulting string reaches the given length."
+  },
+  {
+    "id": 79,
+    "question": "What is the Reflect API?",
+    "options": [
+      "Reflection in mirrors",
+      "Built-in object providing methods for interceptable JavaScript operations",
+      "Debugging tool",
+      "Performance monitor"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Reflect is built-in object providing methods for interceptable JavaScript operations. Similar to Proxy traps but as functions. Makes Object operations more functional."
+  },
+  {
+    "id": 80,
+    "question": "What does Array.prototype.findIndex() do?",
+    "options": [
+      "Finds all indexes",
+      "Returns index of first element satisfying test function",
+      "Counts elements",
+      "Sorts by index"
+    ],
+    "correctAnswer": 1,
+    "explanation": "findIndex() returns the index of the first element that satisfies the test function. Returns -1 if no element passes the test."
+  },
+  {
+    "id": 81,
+    "question": "What is the difference between shallow copy and deep copy?",
+    "options": [
+      "No difference",
+      "Shallow copies references, deep copy creates independent copies",
+      "Deep copy is faster",
+      "Shallow copy is deprecated"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Shallow copy copies only first level (nested objects are still referenced). Deep copy recursively copies all levels, creating completely independent objects."
+  },
+  {
+    "id": 82,
+    "question": "What does String.prototype.startsWith() do?",
+    "options": [
+      "Gets first character",
+      "Checks if string starts with specified characters",
+      "Removes start of string",
+      "Adds prefix"
+    ],
+    "correctAnswer": 1,
+    "explanation": "startsWith() determines whether a string begins with the characters of a specified string, returning true or false. Can specify start position."
+  },
+  {
+    "id": 83,
+    "question": "What is the Iterator protocol?",
+    "options": [
+      "Loop syntax",
+      "Protocol defining standard way to produce sequence of values",
+      "Array method",
+      "Design pattern"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Iterator protocol defines standard way to produce sequence of values. Object is iterator when it implements next() method returning {value, done} object."
+  },
+  {
+    "id": 84,
+    "question": "What does Math.trunc() do?",
+    "options": [
+      "Rounds number",
+      "Returns integer part by removing fractional digits",
+      "Truncates string",
+      "Limits range"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Math.trunc() returns integer part of number by removing any fractional digits. Different from Math.floor() for negative numbers. trunc(-1.5) = -1, floor(-1.5) = -2."
+  },
+  {
+    "id": 85,
+    "question": "What is the Intl object?",
+    "options": [
+      "Internet object",
+      "Internationalization API for language-sensitive operations",
+      "Internal object",
+      "Interface object"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Intl provides language-sensitive string comparison, number formatting, and date/time formatting. Includes DateTimeFormat, NumberFormat, Collator, etc."
+  },
+  {
+    "id": 86,
+    "question": "What does Array.prototype.copyWithin() do?",
+    "options": [
+      "Copies array",
+      "Shallow copies part of array to another location in same array",
+      "Duplicates elements",
+      "Creates array copy"
+    ],
+    "correctAnswer": 1,
+    "explanation": "copyWithin() shallow copies part of array to another location in the same array without modifying its length. Modifies array in place."
+  },
+  {
+    "id": 87,
+    "question": "What is the difference between window and document?",
+    "options": [
+      "No difference",
+      "window is global browser object, document is DOM representation",
+      "document is newer",
+      "window is deprecated"
+    ],
+    "correctAnswer": 1,
+    "explanation": "window is global browser object representing browser window. document is property of window representing DOM (Document Object Model) - the HTML page content."
+  },
+  {
+    "id": 88,
+    "question": "What does String.prototype.localeCompare() do?",
+    "options": [
+      "Compares lengths",
+      "Compares strings according to locale, returns number",
+      "Finds location",
+      "Translates string"
+    ],
+    "correctAnswer": 1,
+    "explanation": "localeCompare() compares strings according to locale (language/region) rules. Returns negative if before, positive if after, 0 if equal. Handles special characters properly."
+  },
+  {
+    "id": 89,
+    "question": "What is the purpose of void operator?",
+    "options": [
+      "Creates empty space",
+      "Evaluates expression and returns undefined",
+      "Deletes variables",
+      "Checks for void"
+    ],
+    "correctAnswer": 1,
+    "explanation": "void operator evaluates expression and returns undefined. Often used with void 0 to get undefined value safely, or in href=\"javascript:void(0)\" to prevent navigation."
+  },
+  {
+    "id": 90,
+    "question": "What does Number.parseFloat() do?",
+    "options": [
+      "Creates float",
+      "Parses string and returns floating point number",
+      "Checks if float",
+      "Converts to integer"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Number.parseFloat() (or global parseFloat()) parses string argument and returns floating point number. Stops parsing at first non-numeric character."
+  },
+  {
+    "id": 91,
+    "question": "What is a tagged template literal?",
+    "options": [
+      "HTML template",
+      "Function that processes template literal, receiving parts and values",
+      "String with tags",
+      "Labeled template"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Tagged template literal is advanced form where function processes template literal. Function receives array of string parts and values, can return formatted result."
+  },
+  {
+    "id": 92,
+    "question": "What does Object.getOwnPropertyNames() return?",
+    "options": [
+      "All property names",
+      "Array of all own property names including non-enumerable",
+      "Enumerable properties only",
+      "Inherited properties"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.getOwnPropertyNames() returns array of all own property names (including non-enumerable) found directly on object, excluding Symbol properties and inherited."
+  },
+  {
+    "id": 93,
+    "question": "What is the instanceof operator?",
+    "options": [
+      "Creates instances",
+      "Checks if object is instance of constructor/class",
+      "Counts instances",
+      "Compares instances"
+    ],
+    "correctAnswer": 1,
+    "explanation": "instanceof tests whether object's prototype chain contains the prototype property of constructor. Returns true if object is instance of specified constructor."
+  },
+  {
+    "id": 94,
+    "question": "What does Array.prototype.fill() do?",
+    "options": [
+      "Fills array to capacity",
+      "Fills array elements with static value from start to end index",
+      "Removes empty slots",
+      "Adds elements"
+    ],
+    "correctAnswer": 1,
+    "explanation": "fill() fills all elements from start index to end index with static value. Modifies original array. Useful for initializing arrays with default values."
+  },
+  {
+    "id": 95,
+    "question": "What is the difference between innerHTML and textContent?",
+    "options": [
+      "No difference",
+      "innerHTML parses HTML, textContent gets/sets text only",
+      "textContent is deprecated",
+      "innerHTML is faster"
+    ],
+    "correctAnswer": 1,
+    "explanation": "innerHTML gets/sets HTML content (parses tags). textContent gets/sets text content only (treats tags as text). textContent is faster and safer against XSS."
+  },
+  {
+    "id": 96,
+    "question": "What does String.prototype.match() return?",
+    "options": [
+      "Boolean",
+      "Array of matches or null if no match",
+      "Match count",
+      "Matched string only"
+    ],
+    "correctAnswer": 1,
+    "explanation": "match() retrieves result of matching string against regular expression. Returns array of matches (with capture groups) or null if no match found."
+  },
+  {
+    "id": 97,
+    "question": "What is the globalThis object?",
+    "options": [
+      "Global variable",
+      "Standard way to access global 'this' across environments",
+      "Window object",
+      "Module scope"
+    ],
+    "correctAnswer": 1,
+    "explanation": "globalThis provides standard way to access global 'this' value (global object) across different environments (browser: window, Node: global, workers: self)."
+  },
+  {
+    "id": 98,
+    "question": "What does Array.of() do?",
+    "options": [
+      "Gets elements of array",
+      "Creates new array from arguments regardless of type or number",
+      "Checks array type",
+      "Converts to array"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Array.of() creates new Array instance from variable number of arguments, regardless of type. Difference from Array constructor: Array.of(5) creates [5], Array(5) creates empty array length 5."
+  },
+  {
+    "id": 99,
+    "question": "What is the purpose of Object.seal()?",
+    "options": [
+      "Encrypts object",
+      "Prevents adding/removing properties but allows modifying existing ones",
+      "Makes object immutable",
+      "Closes object"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.seal() prevents adding new properties or deleting existing ones. Existing properties can still be modified. Less restrictive than freeze(), more than preventExtensions()."
+  },
+  {
+    "id": 100,
+    "question": "What does String.prototype.replace() do?",
+    "options": [
+      "Removes characters",
+      "Returns new string with pattern replaced",
+      "Modifies original string",
+      "Finds and counts"
+    ],
+    "correctAnswer": 1,
+    "explanation": "replace() returns new string with some or all matches of pattern replaced by replacement. Doesn't modify original. Use replaceAll() for all occurrences or regex with g flag."
+  },
+  {
+    "id": 101,
+    "question": "What is the output? const { a = 1 } = { a: undefined }; console.log(a);",
+    "options": [
+      "1",
+      "undefined",
+      "null",
+      "Throws error"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Default value is applied when property value is undefined."
+  },
+  {
+    "id": 102,
+    "question": "Which syntax renames a destructured property?",
+    "options": [
+      "const { name => userName } = user",
+      "const { name as userName } = user",
+      "const { name: userName } = user",
+      "const { userName: name } = user"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Property rename syntax is { sourceKey: localVariableName }."
+  },
+  {
+    "id": 103,
+    "question": "Output of: const {x=2} = {x:null}; console.log(x);",
+    "options": [
+      "2",
+      "null",
+      "undefined",
+      "0"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Defaults apply only for undefined, not for null."
+  },
+  {
+    "id": 104,
+    "question": "What is true for object spread {...obj}?",
+    "options": [
+      "Deep copy",
+      "Shallow copy",
+      "Reference copy only",
+      "Always immutable recursively"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object spread clones only top-level properties."
+  },
+  {
+    "id": 105,
+    "question": "Output: const a=[1,2]; const b=[...a]; a.push(3); console.log(b.length);",
+    "options": [
+      "2",
+      "3",
+      "0",
+      "Throws"
+    ],
+    "correctAnswer": 0,
+    "explanation": "b is a new array copy; later push on a does not affect b length."
+  },
+  {
+    "id": 106,
+    "question": "Rest parameter in function signature collects values into:",
+    "options": [
+      "Object",
+      "Set",
+      "Array",
+      "Promise"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Rest syntax (...args) collects remaining args into an array."
+  },
+  {
+    "id": 107,
+    "question": "Object.entries(obj) returns:",
+    "options": [
+      "Array of keys",
+      "Array of values",
+      "Array of [key, value] pairs",
+      "Map instance"
+    ],
+    "correctAnswer": 2,
+    "explanation": "entries returns key-value tuple array."
+  },
+  {
+    "id": 108,
+    "question": "Output: Object.keys({2:\"b\",1:\"a\",x:\"c\"})[0] ?",
+    "options": [
+      "2",
+      "1",
+      "x",
+      "undefined"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Numeric-like keys are ordered ascending, so 1 comes first."
+  },
+  {
+    "id": 109,
+    "question": "Which method gives only own enumerable values?",
+    "options": [
+      "for...in",
+      "Object.values",
+      "Reflect.ownKeys",
+      "Object.getOwnPropertyNames"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object.values returns own enumerable property values."
+  },
+  {
+    "id": 110,
+    "question": "Array.map callback should return:",
+    "options": [
+      "Boolean only",
+      "New transformed value for each element",
+      "Nothing",
+      "Promise always"
+    ],
+    "correctAnswer": 1,
+    "explanation": "map transforms each element and returns a new array."
+  },
+  {
+    "id": 111,
+    "question": "Output: [1,2,3].map(n=>{ n*2 })",
+    "options": [
+      "[2,4,6]",
+      "[undefined,undefined,undefined]",
+      "[]",
+      "Error"
+    ],
+    "correctAnswer": 1,
+    "explanation": "With braces, explicit return is required."
+  },
+  {
+    "id": 112,
+    "question": "map mutates original array by default?",
+    "options": [
+      "Always",
+      "Never",
+      "Only in strict mode",
+      "Only for numbers"
+    ],
+    "correctAnswer": 1,
+    "explanation": "map returns new array; source is unchanged unless callback mutates nested references."
+  },
+  {
+    "id": 113,
+    "question": "Output: [0,1,2].filter(Boolean)",
+    "options": [
+      "[0,1,2]",
+      "[1,2]",
+      "[0,2]",
+      "[]"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Boolean removes falsy values, including 0."
+  },
+  {
+    "id": 114,
+    "question": "filter callback should return:",
+    "options": [
+      "Transformed value",
+      "Truthy/falsy decision",
+      "Index only",
+      "Accumulator"
+    ],
+    "correctAnswer": 1,
+    "explanation": "filter keeps elements where callback result is truthy."
+  },
+  {
+    "id": 115,
+    "question": "Which is better when you need just first match?",
+    "options": [
+      "filter",
+      "map",
+      "find",
+      "reduce"
+    ],
+    "correctAnswer": 2,
+    "explanation": "find short-circuits at first match."
+  },
+  {
+    "id": 116,
+    "question": "find returns what when not found?",
+    "options": [
+      "-1",
+      "null",
+      "undefined",
+      "false"
+    ],
+    "correctAnswer": 2,
+    "explanation": "find returns undefined for no match."
+  },
+  {
+    "id": 117,
+    "question": "Output: [4,8,12].findIndex(n=>n>10)",
+    "options": [
+      "2",
+      "1",
+      "-1",
+      "12"
+    ],
+    "correctAnswer": 0,
+    "explanation": "12 is at index 2."
+  },
+  {
+    "id": 118,
+    "question": "find vs findIndex difference?",
+    "options": [
+      "Same return type",
+      "find returns item, findIndex returns position",
+      "findIndex is async",
+      "find mutates array"
+    ],
+    "correctAnswer": 1,
+    "explanation": "find gives element; findIndex gives numeric index."
+  },
+  {
+    "id": 119,
+    "question": "What does reduce require for safe empty-array handling?",
+    "options": [
+      "sort first",
+      "initial accumulator value",
+      "map first",
+      "no callback"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Provide initial value to avoid TypeError on empty arrays."
+  },
+  {
+    "id": 120,
+    "question": "Output: [1,2,3].reduce((a,b)=>a+b)",
+    "options": [
+      "3",
+      "5",
+      "6",
+      "Error"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Without initial value, accumulator starts at first element, result is 6."
+  },
+  {
+    "id": 121,
+    "question": "Best structure for frequency counter with reduce?",
+    "options": [
+      "Array accumulator",
+      "Object/Map accumulator",
+      "Boolean accumulator",
+      "String accumulator"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object or Map is typical for key-count aggregation."
+  },
+  {
+    "id": 122,
+    "question": "Currying converts f(a,b) into:",
+    "options": [
+      "f(a+b)",
+      "f(a)(b)",
+      "f([a,b])",
+      "f(a,b,c)"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Curried function takes one argument per invocation chain."
+  },
+  {
+    "id": 123,
+    "question": "Output: const add=a=>b=>a+b; add(1)(4)",
+    "options": [
+      "5",
+      "14",
+      "undefined",
+      "NaN"
+    ],
+    "correctAnswer": 0,
+    "explanation": "First call captures a=1, second adds b=4."
+  },
+  {
+    "id": 124,
+    "question": "Main advantage of currying in interviews?",
+    "options": [
+      "Less memory always",
+      "Enables partial application and composability",
+      "Faster runtime always",
+      "Avoids closures"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Currying improves reusability/composition patterns."
+  },
+  {
+    "id": 125,
+    "question": "Promise callback queue runs in:",
+    "options": [
+      "Macro task queue only",
+      "Microtask queue",
+      "Call stack directly",
+      "Render queue"
+    ],
+    "correctAnswer": 1,
+    "explanation": "then/catch callbacks run in microtask queue after current stack."
+  },
+  {
+    "id": 126,
+    "question": "Output order: Promise.resolve().then(()=>console.log(\"A\")); console.log(\"B\")",
+    "options": [
+      "A then B",
+      "B then A",
+      "Only A",
+      "Only B"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Synchronous log runs first, then microtask callback."
+  },
+  {
+    "id": 127,
+    "question": "How to propagate value to next then?",
+    "options": [
+      "throw value",
+      "return value",
+      "console.log value",
+      "setTimeout value"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Return statement passes resolution value through chain."
+  },
+  {
+    "id": 128,
+    "question": "async function always returns:",
+    "options": [
+      "Plain value",
+      "Promise",
+      "Generator",
+      "Observable"
+    ],
+    "correctAnswer": 1,
+    "explanation": "async wraps return value into resolved Promise."
+  },
+  {
+    "id": 129,
+    "question": "Output: async function f(){return 3}; f() instanceof Promise",
+    "options": [
+      "true",
+      "false",
+      "undefined",
+      "throws"
+    ],
+    "correctAnswer": 0,
+    "explanation": "All async functions return Promise instances."
+  },
+  {
+    "id": 130,
+    "question": "Best way to run independent async calls together?",
+    "options": [
+      "await in loop",
+      "Promise.all with await",
+      "Nested try blocks",
+      "setInterval"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Promise.all provides concurrent execution for independent tasks."
+  },
+  {
+    "id": 131,
+    "question": "Promise.allSettled returns:",
+    "options": [
+      "First success only",
+      "Array of status/result for each promise",
+      "Single boolean",
+      "Throws always"
+    ],
+    "correctAnswer": 1,
+    "explanation": "allSettled never short-circuits and reports each promise state."
+  },
+  {
+    "id": 132,
+    "question": "Output: await Promise.all([Promise.resolve(1), Promise.resolve(2)])",
+    "options": [
+      "1",
+      "2",
+      "[1,2]",
+      "undefined"
+    ],
+    "correctAnswer": 2,
+    "explanation": "all resolves to array of values in input order."
+  },
+  {
+    "id": 133,
+    "question": "Promise.race is best for:",
+    "options": [
+      "Collecting all errors",
+      "Timeout/fallback fastest-response patterns",
+      "Sorting promises",
+      "Retry logic only"
+    ],
+    "correctAnswer": 1,
+    "explanation": "race settles with first settled promise."
+  },
+  {
+    "id": 134,
+    "question": "Debounce primarily optimizes:",
+    "options": [
+      "One-time startup code",
+      "High-frequency burst events",
+      "CPU threads",
+      "Memory allocation only"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Debounce reduces redundant calls during rapid event bursts."
+  },
+  {
+    "id": 135,
+    "question": "In trailing debounce, function executes when:",
+    "options": [
+      "Event starts",
+      "Cooldown starts",
+      "Silence window completes",
+      "Every interval"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Trailing debounce fires after no new events for delay duration."
+  },
+  {
+    "id": 136,
+    "question": "Output: debounced fn called 5 times quickly with delay 200ms; how many executions (trailing only)?",
+    "options": [
+      "0",
+      "1",
+      "5",
+      "Depends but never 1"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Rapid calls collapse into one final trailing invocation."
+  },
+  {
+    "id": 137,
+    "question": "Throttle ensures:",
+    "options": [
+      "Only last call runs",
+      "At most one call per interval",
+      "No dropped calls ever",
+      "Infinite retries"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Throttle rate-limits execution frequency."
+  },
+  {
+    "id": 138,
+    "question": "Best use case for throttle:",
+    "options": [
+      "Submit button once",
+      "Scroll position updates",
+      "Build-time transpilation",
+      "Static data parse"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Scroll/mousemove need periodic updates, not every event."
+  },
+  {
+    "id": 139,
+    "question": "Output style question: throttle 1000ms with leading true over 2500ms continuous events gives approximately:",
+    "options": [
+      "1 call",
+      "2-3 calls",
+      "10 calls",
+      "2500 calls"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Execution count depends on implementation, usually around 3 with leading/trailing options."
+  },
+  {
+    "id": 140,
+    "question": "Output: const {a=1} = {a:null}; console.log(a);",
+    "options": [
+      "1",
+      "null",
+      "undefined",
+      "Error"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Default is not used for null; only for undefined."
+  },
+  {
+    "id": 141,
+    "question": "Output: const [x=3,y=4] = [undefined,2]; console.log(x+y);",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "NaN"
+    ],
+    "correctAnswer": 0,
+    "explanation": "x defaults to 3, y is 2, total is 5."
+  },
+  {
+    "id": 142,
+    "question": "Which is safest function signature for destructuring optional arg?",
+    "options": [
+      "function f({a}){}",
+      "function f(obj){const {a}=obj}",
+      "function f({a} = {}){}",
+      "function f(...a){}"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Default empty object prevents crash when arg is missing."
+  },
+  {
+    "id": 143,
+    "question": "What does const {a: alias} = obj do?",
+    "options": [
+      "Creates key alias in obj",
+      "Renames extracted variable only",
+      "Deletes a from obj",
+      "Creates deep copy"
+    ],
+    "correctAnswer": 1,
+    "explanation": "It renames local variable, not object key."
+  },
+  {
+    "id": 144,
+    "question": "Output: let a=1,b=2; [a,b]=[b,a]; console.log(a,b);",
+    "options": [
+      "1 2",
+      "2 1",
+      "undefined undefined",
+      "Error"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Array destructuring swap works without temp variable."
+  },
+  {
+    "id": 145,
+    "question": "Output: const a=[1,[2]]; const b=[...a]; b[1][0]=9; console.log(a[1][0]);",
+    "options": [
+      "2",
+      "9",
+      "undefined",
+      "Error"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Nested array reference is shared because spread is shallow."
+  },
+  {
+    "id": 146,
+    "question": "What is true for rest in objects?",
+    "options": [
+      "Collects inherited properties too",
+      "Collects remaining own enumerable properties",
+      "Creates deep clone",
+      "Works only on arrays"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Object rest collects remaining own enumerable properties."
+  },
+  {
+    "id": 147,
+    "question": "Output: function g(...x){return x[0]+x[2]} console.log(g(1,2,3));",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "correctAnswer": 1,
+    "explanation": "x[0]=1 and x[2]=3 => 4."
+  },
+  {
+    "id": 148,
+    "question": "Which operation is immutable?",
+    "options": [
+      "arr.push(x)",
+      "[...arr, x]",
+      "obj.a=2",
+      "delete obj.a"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Spread creates a new array rather than mutating original."
+  },
+  {
+    "id": 149,
+    "question": "Output: const o={a:1}; const p={...o}; o.a=5; console.log(p.a);",
+    "options": [
+      "1",
+      "5",
+      "undefined",
+      "Error"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Primitive value copied at spread time; later mutation on o does not change p.a."
+  },
+  {
+    "id": 150,
+    "question": "Output: Object.keys({a:1,b:2}).length",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Two own enumerable keys exist."
+  },
+  {
+    "id": 151,
+    "question": "Output: Object.fromEntries([[\"x\",10],[\"y\",20]]).y",
+    "options": [
+      "10",
+      "20",
+      "undefined",
+      "Error"
+    ],
+    "correctAnswer": 1,
+    "explanation": "fromEntries reconstructs object with provided pairs."
+  },
+  {
+    "id": 152,
+    "question": "Best method to transform object values and rebuild object?",
+    "options": [
+      "Object.keys only",
+      "Object.values only",
+      "Object.entries + map + Object.fromEntries",
+      "JSON.stringify"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Entries pipeline is idiomatic and explicit for object transforms."
+  },
+  {
+    "id": 153,
+    "question": "Output: const o=Object.create({z:9}); o.a=1; console.log(Object.keys(o));",
+    "options": [
+      "[\"a\",\"z\"]",
+      "[\"z\"]",
+      "[\"a\"]",
+      "[]"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Object.keys excludes inherited prototype keys."
+  },
+  {
+    "id": 154,
+    "question": "Which includes symbol keys?",
+    "options": [
+      "Object.keys",
+      "Object.entries",
+      "Reflect.ownKeys",
+      "Object.values"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Reflect.ownKeys returns all own keys including symbols."
+  },
+  {
+    "id": 155,
+    "question": "Throttle best use-case?",
+    "options": [
+      "Typing search input",
+      "Continuous scroll updates",
+      "One-time init",
+      "Static config load"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Throttle is ideal for frequent continuous events like scroll/resize."
+  },
+  {
+    "id": 156,
+    "question": "In throttle, if events fire faster than interval, calls are:",
+    "options": [
+      "All executed",
+      "Rate-limited",
+      "Queued forever",
+      "Converted to promises"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Throttle limits execution frequency."
+  },
+  {
+    "id": 157,
+    "question": "String methods mutate original string?",
+    "options": [
+      "Yes",
+      "No",
+      "Only slice mutates",
+      "Only replace mutates"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Strings are immutable in JavaScript."
+  },
+  {
+    "id": 158,
+    "question": "Output: \"Hello\".slice(1,4)",
+    "options": [
+      "ell",
+      "ello",
+      "Hel",
+      "ll"
+    ],
+    "correctAnswer": 0,
+    "explanation": "slice extracts from index 1 up to (not including) 4."
+  },
+  {
+    "id": 159,
+    "question": "Arrow function has its own this?",
+    "options": [
+      "Yes",
+      "No",
+      "Only in strict mode",
+      "Only in classes"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Arrow functions lexically inherit this."
+  },
+  {
+    "id": 160,
+    "question": "Which invokes function immediately with provided this?",
+    "options": [
+      "bind",
+      "call",
+      "freeze",
+      "map"
+    ],
+    "correctAnswer": 1,
+    "explanation": "call invokes immediately; bind returns a new bound function."
+  },
+  {
+    "id": 161,
+    "question": "localStorage value type is:",
+    "options": [
+      "Any JSON type directly",
+      "String only",
+      "Number only",
+      "Object only"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Storage APIs store string values."
+  },
+  {
+    "id": 162,
+    "question": "sessionStorage scope is:",
+    "options": [
+      "Shared across all tabs forever",
+      "Current tab/session",
+      "Server-side only",
+      "Global system"
+    ],
+    "correctAnswer": 1,
+    "explanation": "sessionStorage is scoped to tab session."
+  },
+  {
+    "id": 163,
+    "question": "Best way to store object in localStorage?",
+    "options": [
+      "setItem(key, obj)",
+      "setItem(key, JSON.stringify(obj))",
+      "setItem(key, obj.toString())",
+      "Not possible"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Serialize objects with JSON.stringify."
+  }
+]

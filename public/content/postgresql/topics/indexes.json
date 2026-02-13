@@ -1,0 +1,9 @@
+{
+  "id": "indexes",
+  "title": "Indexes",
+  "description": "Speed up query performance by creating indexes on frequently queried columns.",
+  "code": "-- Create index\nCREATE INDEX idx_users_email ON users(email);\n\n-- Create unique index\nCREATE UNIQUE INDEX idx_users_username ON users(username);\n\n-- Composite index\nCREATE INDEX idx_orders_user_status \nON orders(user_id, status);\n\n-- Partial index\nCREATE INDEX idx_active_users \nON users(email) \nWHERE status = 'active';\n\n-- Drop index\nDROP INDEX idx_users_email;\n\n-- List all indexes\nSELECT tablename, indexname, indexdef \nFROM pg_indexes \nWHERE schemaname = 'public';",
+  "example": "-- B-tree index (default)\nCREATE INDEX idx_products_price ON products(price);\n\n-- Hash index\nCREATE INDEX idx_users_status USING HASH ON users(status);\n\n-- GIN index (for arrays, JSONB)\nCREATE INDEX idx_posts_tags ON posts USING GIN(tags);\n\n-- Check index usage\nEXPLAIN ANALYZE \nSELECT * FROM users WHERE email = 'test@example.com';",
+  "useCase": "Query optimization, faster lookups, improving JOIN performance",
+  "category": "Performance & Optimization"
+}

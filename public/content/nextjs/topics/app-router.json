@@ -1,0 +1,9 @@
+{
+  "id": "app-router",
+  "title": "App Router",
+  "description": "Next.js 13+ file-system based router using the app directory. Supports layouts, nested routes, and server components.",
+  "code": "// app/layout.js\nexport default function RootLayout({ children }) {\n  return (\n    <html lang=\"en\">\n      <body>{children}</body>\n    </html>\n  );\n}\n\n// app/page.js\nexport default function HomePage() {\n  return <h1>Home Page</h1>;\n}\n\n// app/blog/page.js\nexport default function BlogPage() {\n  return <h1>Blog Page</h1>;\n}",
+  "example": "// Dynamic routes: app/blog/[slug]/page.js\nexport default function BlogPost({ params }) {\n  return <h1>Post: {params.slug}</h1>;\n}\n\n// Nested layouts: app/dashboard/layout.js\nexport default function DashboardLayout({ children }) {\n  return (\n    <div>\n      <Sidebar />\n      <main>{children}</main>\n    </div>\n  );\n}",
+  "useCase": "Modern Next.js routing, nested layouts, server components, parallel routes",
+  "category": "App Router & Routing"
+}

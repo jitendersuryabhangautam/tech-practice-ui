@@ -1,0 +1,65 @@
+{
+  "id": "functions",
+  "title": "Functions",
+  "description": "Function declarations, multiple return values, and variadic functions.",
+  "code": "package main\n\nimport \"fmt\"\n\n// Basic function\nfunc add(x int, y int) int {\n    return x + y\n}\n\n// Shortened parameter syntax\nfunc multiply(x, y int) int {\n    return x * y\n}\n\n// Multiple return values\nfunc swap(x, y string) (string, string) {\n    return y, x\n}\n\n// Named return values\nfunc split(sum int) (x, y int) {\n    x = sum * 4 / 9\n    y = sum - x\n    return // Naked return\n}\n\n// Variadic function\nfunc sum(nums ...int) int {\n    total := 0\n    for _, num := range nums {\n        total += num\n    }\n    return total\n}\n\nfunc main() {\n    fmt.Println(add(42, 13))\n    a, b := swap(\"hello\", \"world\")\n    fmt.Println(a, b)\n    fmt.Println(sum(1, 2, 3, 4, 5))\n}",
+  "example": "// Function as value\nfunc compute(fn func(int, int) int) int {\n    return fn(3, 4)\n}\n\nfunc main() {\n    add := func(a, b int) int {\n        return a + b\n    }\n    fmt.Println(compute(add))\n}\n\n// Closures\nfunc counter() func() int {\n    i := 0\n    return func() int {\n        i++\n        return i\n    }\n}",
+  "useCase": "Business logic, utilities, error handling, closures",
+  "explanation": "Functions are central in Go interviews because they connect readability, testability, and error handling style. Be strong in multiple returns (`value, err`), variadic signatures, closures, and named return values (and when to avoid naked returns in production for clarity).",
+  "interviewQuestions": [
+    {
+      "question": "Why does Go prefer multiple return values over exceptions?",
+      "answer": "It makes error flow explicit and local, so call sites must consciously handle success/failure."
+    },
+    {
+      "question": "When are variadic functions useful?",
+      "answer": "For APIs that accept flexible argument counts, such as logging helpers, aggregators, and builders."
+    },
+    {
+      "question": "When should named return values be avoided?",
+      "answer": "In long functions where naked returns reduce readability and make control flow harder to follow."
+    },
+    {
+      "question": "How do closures help in interviews and production?",
+      "answer": "They capture lexical state, useful for counters, middleware, decorators, and dependency injection patterns."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Write a function returning `(User, error)` and handle error in caller idiomatically."
+    },
+    {
+      "type": "tricky",
+      "question": "Why can `sum(nums []int)` and `sum(nums ...int)` have different call ergonomics?",
+      "answer": "Variadic function accepts unpacked arguments and slice expansion with `...`."
+    },
+    {
+      "type": "output",
+      "question": "Output of closure counter called 3 times?",
+      "answer": "1 2 3"
+    },
+    {
+      "type": "debug",
+      "question": "Fix a bug where a function ignores returned `err` value."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Value and error return pattern.",
+      "code": "func divide(a, b int) (int, error) {\n  if b == 0 { return 0, fmt.Errorf(\"divide by zero\") }\n  return a / b, nil\n}\nv, err := divide(10, 2)\nfmt.Println(v, err == nil)",
+      "output": "5 true"
+    },
+    {
+      "question": "Program 2: Variadic sum with slice expansion.",
+      "code": "func sum(nums ...int) int { t := 0; for _, n := range nums { t += n }; return t }\narr := []int{1,2,3}\nfmt.Println(sum(arr...))",
+      "output": "6"
+    },
+    {
+      "question": "Program 3: Closure counter.",
+      "code": "func counter() func() int {\n  i := 0\n  return func() int { i++; return i }\n}\nc := counter()\nfmt.Println(c(), c(), c())",
+      "output": "1 2 3"
+    }
+  ],
+  "category": "Go Basics"
+}

@@ -2,6 +2,7 @@
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import { nextjsData, nextjsQuiz } from "@/data/nextjs";
+import { useTopicData } from "@/hooks/useTopicData";
 
 const MIN_INTERVIEW_QUESTIONS = 10;
 const MIN_EXERCISES = 10;
@@ -197,11 +198,30 @@ function enrichTopic(topic) {
 }
 
 export default function NextJSPage() {
-  const enrichedTopics = nextjsData.map((section) => ({
+  const { data, quiz, title, description, loading } = useTopicData(
+    "nextjs",
+    nextjsData,
+    nextjsQuiz
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Loading Next.js content...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const enrichedTopics = (data || []).map((section) => ({
     ...section,
     topics: (section.topics || []).map(enrichTopic),
   }));
-  const mergedQuiz = [...nextjsQuiz];
+  const mergedQuiz = [...(quiz || [])];
   const seen = new Set(mergedQuiz.map((q) => q.question));
   for (const q of NEXTJS_ENRICHED_QUIZ) {
     if (!seen.has(q.question)) {
@@ -212,8 +232,11 @@ export default function NextJSPage() {
 
   return (
     <InterviewTopicPage
-      title="Next.js Interview Preparation"
-      description="Master App Router, rendering strategies, caching, APIs, and production patterns asked in modern interviews."
+      title={title || "Next.js Interview Preparation"}
+      description={
+        description ||
+        "Master App Router, rendering strategies, caching, APIs, and production patterns asked in modern interviews."
+      }
       topics={enrichedTopics}
       quiz={mergedQuiz}
     />

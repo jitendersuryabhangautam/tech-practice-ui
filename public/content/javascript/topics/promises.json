@@ -1,0 +1,145 @@
+{
+  "id": "promises",
+  "title": "Promises",
+  "description": "Promises represent the eventual completion or failure of an asynchronous operation. They provide a cleaner way to handle async code compared to callbacks, avoiding callback hell.",
+  "explanation": "A Promise is an object representing the eventual completion or failure of an asynchronous operation. It's a proxy for a value not necessarily known when the promise is created.\n\nPromise States:\n1. Pending: Initial state, neither fulfilled nor rejected\n2. Fulfilled: Operation completed successfully\n3. Rejected: Operation failed\n\nPromises solve the callback hell problem by allowing you to chain operations using .then() and handle errors with .catch().\n\nKey advantages:\n- Better error handling with .catch()\n- Chainable operations with .then()\n- Multiple promises with Promise.all()\n- Race conditions with Promise.race()\n- Cleaner, more readable code",
+  "implementation": "const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const success = true;\n    if (success) {\n      resolve('Operation successful!');\n    } else {\n      reject('Operation failed!');\n    }\n  }, 1000);\n});\n\npromise\n  .then(result => console.log(result))\n  .catch(error => console.error(error))\n  .finally(() => console.log('Done'));",
+  "example": "// API call example\nfunction fetchUser(userId) {\n  return new Promise((resolve, reject) => {\n    fetch(`/api/users/${userId}`)\n      .then(response => {\n        if (!response.ok) {\n          reject('User not found');\n        }\n        return response.json();\n      })\n      .then(data => resolve(data))\n      .catch(error => reject(error));\n  });\n}\n\n// Chaining promises\nfetchUser(1)\n  .then(user => {\n    console.log('User:', user);\n    return fetchUserPosts(user.id);\n  })\n  .then(posts => {\n    console.log('Posts:', posts);\n  })\n  .catch(error => {\n    console.error('Error:', error);\n  });",
+  "useCase": "API calls, file operations, timers, async operations, chaining async tasks",
+  "interviewQuestions": [
+    {
+      "question": "What are Promise states?",
+      "answer": "pending, fulfilled, rejected. State is immutable after settle."
+    },
+    {
+      "question": "How does .catch propagate in chains?",
+      "answer": "It catches rejections from previous links and can recover by returning value/promise."
+    },
+    {
+      "question": "Difference between then(onFulfilled, onRejected) and catch?",
+      "answer": "catch is preferred for centralized error flow and readability."
+    },
+    {
+      "question": "How do you wrap callback APIs in Promise?",
+      "answer": "Create new Promise and call resolve/reject from callback branches."
+    },
+    {
+      "question": "What is an anti-pattern with promises?",
+      "answer": "Nesting chains instead of returning promises, which breaks composition."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict output order: Promise.resolve().then(()=>console.log(\"A\")); console.log(\"B\");",
+      "answer": "B then A",
+      "output": "B\nA"
+    },
+    {
+      "type": "implement",
+      "question": "Wrap setTimeout in delay(ms) returning Promise.",
+      "code": "function delay(ms){\n  return new Promise(resolve => setTimeout(resolve, ms));\n}"
+    },
+    {
+      "type": "debug",
+      "question": "Promise chain stops after then. Cause?",
+      "answer": "Likely forgot return in then callback, breaking chain value flow."
+    },
+    {
+      "type": "scenario",
+      "question": "Need retry API promise 3 times. What structure?",
+      "answer": "Use recursive/loop retry wrapper that catches failure and retries until max attempts."
+    },
+    {
+      "type": "output",
+      "question": "Predict output: Promise.reject(\"X\").catch(e=>e+\"!\").then(console.log)",
+      "answer": "X!",
+      "output": "X!"
+    },
+    {
+      "type": "implement",
+      "question": "Implement delay(ms) returning Promise resolved after ms."
+    },
+    {
+      "type": "implement",
+      "question": "Wrap callback-style setTimeout in Promise and log result."
+    },
+    {
+      "type": "debug",
+      "question": "Promise chain stops unexpectedly after then. Fix?",
+      "answer": "Return value/promise from then callback so chain continues."
+    },
+    {
+      "type": "debug",
+      "question": "Unhandled rejection appears even with catch in another function. Why?",
+      "answer": "The rejected promise path was not returned/awaited in caller chain."
+    },
+    {
+      "type": "refactor",
+      "question": "Refactor nested then callbacks to flat chain with proper returns."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create resolved promise and print value.",
+      "code": "Promise.resolve(\"Done\").then(console.log);",
+      "output": "Done"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Create rejected promise and handle with catch.",
+      "code": "Promise.reject(\"Fail\").catch(err=>console.log(\"Handled:\",err));",
+      "output": "Handled: Fail"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Implement delay promise and await result.",
+      "code": "const delay=ms=>new Promise(r=>setTimeout(r,ms));\ndelay(100).then(()=>console.log(\"After 100ms\"));",
+      "output": "After 100ms"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Chain promises for arithmetic operations.",
+      "code": "Promise.resolve(5)\n .then(n=>n*2)\n .then(n=>n+1)\n .then(console.log);",
+      "output": "11"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Demonstrate finally in promise chain.",
+      "code": "Promise.resolve(\"ok\")\n .then(v=>console.log(v))\n .finally(()=>console.log(\"cleanup\"));",
+      "output": "ok\ncleanup"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Wrap setTimeout in Promise function.",
+      "code": "function wait(msg,ms){\n  return new Promise(res=>setTimeout(()=>res(msg),ms));\n}\nwait(\"hello\",50).then(console.log);",
+      "output": "hello"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Promise.all with two resolved promises.",
+      "code": "Promise.all([Promise.resolve(1), Promise.resolve(2)])\n .then(v=>console.log(v));",
+      "output": "[ 1, 2 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Promise.race timeout example.",
+      "code": "const fast=Promise.resolve(\"fast\");\nconst slow=new Promise(r=>setTimeout(()=>r(\"slow\"),100));\nPromise.race([fast,slow]).then(console.log);",
+      "output": "fast"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Convert callback API to Promise.",
+      "code": "function asyncDouble(n){\n  return new Promise(res=>setTimeout(()=>res(n*2),50));\n}\nasyncDouble(6).then(console.log);",
+      "output": "12"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Handle thrown error in then chain.",
+      "code": "Promise.resolve(1)\n .then(()=>{throw new Error(\"boom\")})\n .catch(e=>console.log(e.message));",
+      "output": "boom"
+    }
+  ],
+  "category": "Core Concepts"
+}

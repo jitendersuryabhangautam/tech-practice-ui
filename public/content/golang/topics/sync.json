@@ -1,0 +1,50 @@
+{
+  "id": "sync",
+  "title": "Sync Package (Mutex, WaitGroup)",
+  "description": "Synchronization primitives for coordinating goroutines.",
+  "code": "package main\n\nimport (\n    \"fmt\"\n    \"sync\"\n)\n\ntype SafeCounter struct {\n    mu sync.Mutex\n    v  map[string]int\n}\n\nfunc (c *SafeCounter) Inc(key string) {\n    c.mu.Lock()\n    c.v[key]++\n    c.mu.Unlock()\n}\n\nfunc (c *SafeCounter) Value(key string) int {\n    c.mu.Lock()\n    defer c.mu.Unlock()\n    return c.v[key]\n}\n\nfunc main() {\n    c := SafeCounter{v: make(map[string]int)}\n    var wg sync.WaitGroup\n    \n    for i := 0; i < 1000; i++ {\n        wg.Add(1)\n        go func() {\n            defer wg.Done()\n            c.Inc(\"key\")\n        }()\n    }\n    \n    wg.Wait()\n    fmt.Println(c.Value(\"key\"))\n}",
+  "example": "// RWMutex (reader/writer lock)\nvar rwMu sync.RWMutex\n\n// Read lock (multiple readers allowed)\nrwMu.RLock()\nvalue := data[key]\nrwMu.RUnlock()\n\n// Write lock (exclusive)\nrwMu.Lock()\ndata[key] = newValue\nrwMu.Unlock()\n\n// Once (execute only once)\nvar once sync.Once\nonce.Do(func() {\n    fmt.Println(\"This runs only once\")\n})",
+  "useCase": "Protecting shared data, preventing race conditions, one-time initialization",
+  "explanation": "Synchronization primitives coordinate shared-memory concurrency. Interviews test mutex correctness, lock granularity, RWMutex trade-offs, WaitGroup lifecycle, and `go test -race` usage.",
+  "interviewQuestions": [
+    {
+      "question": "When is `RWMutex` better than `Mutex`?",
+      "answer": "Read-heavy workloads with infrequent writes, though contention patterns must be measured."
+    },
+    {
+      "question": "Why use `defer mu.Unlock()` often?",
+      "answer": "It guarantees unlock on all return paths, reducing deadlock risk from missed unlocks."
+    },
+    {
+      "question": "How do you detect data races in Go?",
+      "answer": "Run with race detector: `go test -race` or `go run -race`."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Write thread-safe in-memory counter with Mutex and unit test using -race."
+    },
+    {
+      "type": "debug",
+      "question": "Fix deadlock due to double lock in nested call path."
+    },
+    {
+      "type": "scenario",
+      "question": "Choose atomic increment vs mutex for shared request counter and justify."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Mutex-guarded counter.",
+      "code": "type Counter struct { mu sync.Mutex; n int }\nfunc (c *Counter) Inc() { c.mu.Lock(); c.n++; c.mu.Unlock() }\nfunc (c *Counter) Value() int { c.mu.Lock(); defer c.mu.Unlock(); return c.n }",
+      "output": "thread-safe methods defined"
+    },
+    {
+      "question": "Program 2: sync.Once initialization.",
+      "code": "var once sync.Once\ncount := 0\nfor i := 0; i < 3; i++ { once.Do(func(){ count++ }) }\nfmt.Println(count)",
+      "output": "1"
+    }
+  ],
+  "category": "Concurrency"
+}

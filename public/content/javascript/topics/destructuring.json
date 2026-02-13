@@ -1,0 +1,169 @@
+{
+  "id": "destructuring",
+  "title": "Object Destructuring",
+  "category": "Object Operations",
+  "description": "Extracts properties from objects into distinct variables.",
+  "explanation": "Extracts properties from objects into distinct variables.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "implementation": "const user = {name: 'John', age: 30, email: 'john@example.com'};\nconst {name, age} = user;\n\n// With renaming\nconst {name: userName, age: userAge} = user;\n\n// With default values\nconst {name, country = 'USA'} = user;",
+  "example": "function greet({name, age}) {\n  console.log(`Hello ${name}, you are ${age} years old`);\n}\ngreet({name: 'John', age: 30});",
+  "useCase": "Function parameters, importing specific exports, extracting API response data",
+  "interviewQuestions": [
+    {
+      "question": "What is object destructuring and why is it useful?",
+      "answer": "Object destructuring extracts object properties into local variables with concise syntax, reducing repetitive property access and improving readability."
+    },
+    {
+      "question": "How do you rename a destructured property?",
+      "answer": "Use alias syntax: const { name: userName } = user; this keeps source key as name and local variable as userName."
+    },
+    {
+      "question": "How do default values work in destructuring?",
+      "answer": "Defaults are used only when extracted value is undefined, not when it is null, false, or 0."
+    },
+    {
+      "question": "What is a common bug with nested destructuring?",
+      "answer": "Destructuring nested keys without guarding can throw if parent object is undefined. Use defaults or optional chaining before destructuring deeply."
+    },
+    {
+      "question": "How would you destructure function parameters safely?",
+      "answer": "Use function signature defaults, e.g. function f({a} = {}) so call sites without argument do not crash."
+    },
+    {
+      "question": "How do you destructure nested objects?",
+      "answer": "Use nested pattern syntax, e.g. const { profile: { email } } = user, and guard missing parents with defaults."
+    },
+    {
+      "question": "Can destructuring be used with arrays and objects together?",
+      "answer": "Yes. You can destructure arrays by position and objects by key in the same statement."
+    },
+    {
+      "question": "What happens when you destructure a missing property?",
+      "answer": "The value becomes undefined unless a default value is provided in the pattern."
+    },
+    {
+      "question": "How do you skip elements in array destructuring?",
+      "answer": "Use commas as placeholders, e.g. const [first, , third] = arr."
+    },
+    {
+      "question": "Why is destructuring useful in API response handling?",
+      "answer": "It extracts needed fields directly and keeps transformation code concise and readable."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict output: const [a,,c=9] = [1,2]; console.log(a,c);",
+      "answer": "1 9",
+      "code": "const [a,,c=9] = [1,2];\nconsole.log(a,c);",
+      "output": "1 9"
+    },
+    {
+      "type": "output",
+      "question": "Predict output: const {x:{y}= {y:7}} = {}; console.log(y);",
+      "answer": "7",
+      "code": "const {x:{y}= {y:7}} = {};\nconsole.log(y);",
+      "output": "7"
+    },
+    {
+      "type": "implement",
+      "question": "Write swap([a,b]) returning [b,a] using destructuring assignment.",
+      "answer": "Use temporary-less swap with [a,b] = [b,a]."
+    },
+    {
+      "type": "implement",
+      "question": "Build function getConfig({host=\"localhost\", port=3000}={}) returning normalized config."
+    },
+    {
+      "type": "debug",
+      "question": "Fix crash: function f({x}) { return x; } called as f().",
+      "answer": "Use function f({x} = {}) { return x; }."
+    },
+    {
+      "type": "debug",
+      "question": "Fix invalid syntax: const {a:b:c} = obj;",
+      "answer": "Use const { a: b } = obj; then use b."
+    },
+    {
+      "type": "refactor",
+      "question": "Refactor repeated user.name and user.email reads into concise syntax.",
+      "answer": "Use const { name, email } = user once."
+    },
+    {
+      "type": "scenario",
+      "question": "Given API payload {data:{items,meta}}, extract items and page in one line with defaults."
+    },
+    {
+      "type": "scenario",
+      "question": "How will you destructure optional function param to avoid runtime error?",
+      "answer": "Provide default empty object in parameter signature."
+    },
+    {
+      "type": "tricky",
+      "question": "Does default value apply when source value is null?",
+      "answer": "No. Defaults only apply for undefined."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Swap two numbers without temp variable using array destructuring.",
+      "answer": "Use [a, b] = [b, a].",
+      "code": "let a = 10;\nlet b = 25;\n[a, b] = [b, a];\nconsole.log(a, b);",
+      "output": "25 10"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Extract name and city from user object with defaults.",
+      "code": "const user = { name: \"Jitender\" };\nconst { name, city = \"Unknown\" } = user;\nconsole.log(name, city);",
+      "output": "Jitender Unknown"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Destructure nested API response to read first product title safely.",
+      "code": "const response = { data: { products: [{ title: \"Laptop\" }] } };\nconst { data: { products: [{ title } = {}] = [] } = {} } = response;\nconsole.log(title);",
+      "output": "Laptop"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Build function that returns {id, email} from input object parameter using destructuring.",
+      "code": "function pickIdEmail({ id, email }) {\n  return { id, email };\n}\nconsole.log(pickIdEmail({ id: 7, email: \"a@b.com\", role: \"admin\" }));",
+      "output": "{ id: 7, email: \"a@b.com\" }"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Convert array [first, second, third] into object using destructuring.",
+      "code": "const arr = [\"red\", \"green\", \"blue\"];\nconst [first, second, third] = arr;\nconst result = { first, second, third };\nconsole.log(result);",
+      "output": "{ first: \"red\", second: \"green\", third: \"blue\" }"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Skip middle values and print first and last using destructuring.",
+      "code": "const nums = [10, 20, 30, 40, 50];\nconst [first, , , , last] = nums;\nconsole.log(first, last);",
+      "output": "10 50"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Destructure object key and rename variable (name -> fullName).",
+      "code": "const profile = { name: \"Ravi\", exp: 3 };\nconst { name: fullName, exp } = profile;\nconsole.log(fullName, exp);",
+      "output": "Ravi 3"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Write function with safe default parameter destructuring.",
+      "code": "function connect({ host = \"localhost\", port = 5432 } = {}) {\n  return `${host}:${port}`;\n}\nconsole.log(connect());\nconsole.log(connect({ host: \"db.local\" }));",
+      "output": "localhost:5432\ndb.local:5432"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Destructure top 2 elements and store rest in a new array.",
+      "code": "const scores = [98, 91, 88, 80, 75];\nconst [top1, top2, ...others] = scores;\nconsole.log(top1, top2, others);",
+      "output": "98 91 [ 88, 80, 75 ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Extract date parts from \"YYYY-MM-DD\" string using destructuring.",
+      "code": "const date = \"2026-02-12\";\nconst [year, month, day] = date.split(\"-\");\nconsole.log(year, month, day);",
+      "output": "2026 02 12"
+    }
+  ]
+}

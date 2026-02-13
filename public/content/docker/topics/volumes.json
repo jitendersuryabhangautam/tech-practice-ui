@@ -1,0 +1,148 @@
+{
+  "id": "volumes",
+  "title": "Docker Volumes",
+  "category": "Docker Networking & Volumes",
+  "description": "Persistent data storage for containers.",
+  "explanation": "Docker volumes provide persistent storage that exists independently of container lifecycles. Understanding volumes vs bind mounts, volume drivers, and data management patterns is essential for stateful applications.\n\nInterview focus:\n- Volumes vs bind mounts vs tmpfs\n- Named volumes vs anonymous volumes\n- Volume drivers and plugins\n- Data persistence strategies\n- Backup and restore patterns\n- Volume sharing between containers",
+  "command": "# Create volume\ndocker volume create my-data\n\n# List volumes\ndocker volume ls\n\n# Inspect volume\ndocker volume inspect my-data\n\n# Run container with volume\ndocker run -d -v my-data:/app/data postgres\n\n# Run with bind mount (host directory)\ndocker run -d -v /host/path:/container/path nginx\n\n# Run with read-only volume\ndocker run -d -v my-data:/app/data:ro nginx\n\n# Remove volume\ndocker volume rm my-data\n\n# Remove all unused volumes\ndocker volume prune",
+  "example": "# Named volume\ndocker run -d \\\n  -v postgres-data:/var/lib/postgresql/data \\\n  --name db \\\n  postgres\n\n# Bind mount for development\ndocker run -d \\\n  -v $(pwd):/app \\\n  -v /app/node_modules \\\n  --name dev-server \\\n  node:18\n\n# Anonymous volume\ndocker run -d -v /app/data nginx\n\n# Volume from another container\ndocker run -d --volumes-from container1 container2",
+  "useCase": "Data persistence, sharing data between containers, backups",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between volumes and bind mounts?",
+      "answer": "Volumes are managed by Docker (stored in /var/lib/docker/volumes), work cross-platform, can use volume drivers. Bind mounts map any host path, depend on host directory structure. Volumes are recommended for production."
+    },
+    {
+      "question": "When would you use a bind mount instead of a volume?",
+      "answer": "Development (live code reload), sharing host config files, accessing host logs, when you need specific host path. Example: -v $(pwd):/app for live development with hot reload."
+    },
+    {
+      "question": "What is an anonymous volume and when is it created?",
+      "answer": "Volume without a name, created with VOLUME in Dockerfile or -v /container/path. Docker generates random name. Hard to manage, can't easily reuse. Named volumes are preferred."
+    },
+    {
+      "question": "How do you backup data from a Docker volume?",
+      "answer": "Run temporary container with volume mounted and backup destination: docker run --rm -v mydata:/data -v $(pwd):/backup alpine tar czf /backup/backup.tar.gz /data"
+    },
+    {
+      "question": "What happens to volume data when container is removed?",
+      "answer": "Volume persists even after container deletion. Data is preserved. Use docker volume rm to delete volume, or docker-compose down -v to remove volumes with containers."
+    },
+    {
+      "question": "What is tmpfs mount and when to use it?",
+      "answer": "Temporary filesystem stored in host memory (RAM), not persisted. Use for sensitive data (never touches disk) or temp files. Example: --mount type=tmpfs,destination=/app/cache"
+    },
+    {
+      "question": "How can multiple containers share the same volume?",
+      "answer": "Mount same named volume in multiple containers: docker run -v shared-data:/data. All containers can read/write. Useful for shared config, logging, or data processing pipelines."
+    },
+    {
+      "question": "What is the ro flag in volume mounts?",
+      "answer": "Read-only mount: -v mydata:/data:ro. Container can read but not write. Security best practice for config files, code in production, or data that shouldn't be modified."
+    },
+    {
+      "question": "What is --volumes-from and when to use it?",
+      "answer": "Mounts all volumes from another container: docker run --volumes-from container1 image. Useful for data containers pattern, backup containers, or sharing volumes without knowing volume names."
+    },
+    {
+      "question": "How do volume drivers extend Docker storage capabilities?",
+      "answer": "Volume drivers enable remote storage (NFS, cloud storage), encryption, replication. Examples: local (default), nfs, rexray for EBS/EFS. Specified with --driver or VOLUME_DRIVER in compose."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create named volume called postgres-data",
+      "answer": "docker volume create postgres-data"
+    },
+    {
+      "type": "command",
+      "question": "Run postgres container with named volume for data persistence",
+      "answer": "docker run -d -v postgres-data:/var/lib/postgresql/data --name db postgres"
+    },
+    {
+      "type": "scenario",
+      "question": "Mount current directory as bind mount for live development",
+      "answer": "docker run -d -v $(pwd):/app --name dev node:18"
+    },
+    {
+      "type": "command",
+      "question": "Inspect volume to see mount point and options",
+      "answer": "docker volume inspect postgres-data"
+    },
+    {
+      "type": "scenario",
+      "question": "How to prevent container from writing to mounted volume?",
+      "answer": "Add :ro flag: docker run -v myvolume:/data:ro image. Makes mount read-only."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Volume data disappeared after docker-compose down. Why?",
+      "answer": "Used docker-compose down -v which removes volumes. Use docker-compose down (without -v) to preserve volumes."
+    },
+    {
+      "type": "backup",
+      "question": "Backup volume named appdata to tar file",
+      "answer": "docker run --rm -v appdata:/data -v $(pwd):/backup alpine tar czf /backup/appdata-backup.tar.gz -C /data ."
+    },
+    {
+      "type": "restore",
+      "question": "Restore backup.tar.gz to volume",
+      "answer": "docker run --rm -v appdata:/data -v $(pwd):/backup alpine tar xzf /backup/backup.tar.gz -C /data"
+    },
+    {
+      "type": "command",
+      "question": "Remove all unused volumes to free space",
+      "answer": "docker volume prune"
+    },
+    {
+      "type": "scenario",
+      "question": "Share volume between nginx and app container for static files",
+      "answer": "docker run -v static-files:/static app\ndocker run -v static-files:/usr/share/nginx/html:ro nginx"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create volume, write file from container, verify persistence",
+      "code": "docker volume create testdata\ndocker run --rm -v testdata:/data alpine sh -c 'echo Hello > /data/test.txt'\ndocker run --rm -v testdata:/data alpine cat /data/test.txt",
+      "output": "Hello - data persists across different containers"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Bind mount local directory, modify file from container",
+      "code": "mkdir -p testdir\ndocker run --rm -v $(pwd)/testdir:/work alpine sh -c 'echo mounted > /work/file.txt'\ncat testdir/file.txt",
+      "output": "File created in container appears in host directory"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Test read-only volume - write should fail",
+      "code": "docker volume create readonly-test\ndocker run --rm -v readonly-test:/data:ro alpine sh -c 'echo test > /data/file.txt'",
+      "output": "Error: Read-only file system - write operation fails"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Share volume between two containers",
+      "code": "docker volume create shared\ndocker run -d --name writer -v shared:/data alpine sh -c 'while true; do date > /data/time.txt; sleep 2; done'\ndocker run --rm -v shared:/data alpine watch -n 1 cat /data/time.txt",
+      "output": "Second container reads data written by first container"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Backup volume to tar, remove volume, restore",
+      "code": "docker run --rm -v mydata:/data -v $(pwd):/backup alpine tar czf /backup/data.tar.gz /data\ndocker volume rm mydata\ndocker volume create mydata\ndocker run --rm -v mydata:/data -v $(pwd):/backup alpine tar xzf /backup/data.tar.gz -C /",
+      "output": "Data successfully backed up and restored"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Use --volumes-from to access another container's volumes",
+      "code": "docker run -d --name data-container -v /data alpine sleep 3600\ndocker run --rm --volumes-from data-container alpine ls /data",
+      "output": "Second container accesses first container's volume mount"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Inspect volume to find host mount point",
+      "code": "docker volume create inspect-test\ndocker volume inspect inspect-test --format=\"{{.Mountpoint}}\"",
+      "output": "/var/lib/docker/volumes/inspect-test/_data (Linux) or similar"
+    }
+  ]
+}

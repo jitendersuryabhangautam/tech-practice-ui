@@ -1,0 +1,163 @@
+{
+  "id": "local-storage",
+  "category": "Browser APIs",
+  "title": "Local Storage and Session Storage",
+  "description": "Learn browser storage APIs for persisting client-side data, including JSON serialization and common interview pitfalls.",
+  "explanation": "localStorage and sessionStorage are key-value string stores in browsers. localStorage persists across tabs/browser restarts; sessionStorage persists only for tab session.\n\nKey points:\n- Values are strings; serialize objects with JSON.stringify.\n- localStorage is synchronous and can block if overused.\n- Use try/catch for JSON parsing and storage quota issues.\n- Avoid storing sensitive tokens directly if security posture is weak.",
+  "implementation": "const user = { id: 1, name: \"Jitender\" };\nlocalStorage.setItem(\"user\", JSON.stringify(user));\nconst restored = JSON.parse(localStorage.getItem(\"user\") || \"null\");\nconsole.log(restored?.name);",
+  "example": "sessionStorage.setItem(\"draft\", \"hello\");\nconsole.log(sessionStorage.getItem(\"draft\"));\nsessionStorage.removeItem(\"draft\");",
+  "useCase": "Theme preference, draft forms, lightweight caching, onboarding flags, client settings.",
+  "interviewQuestions": [
+    {
+      "question": "localStorage vs sessionStorage?",
+      "answer": "localStorage persists across browser sessions; sessionStorage is per-tab and cleared when tab closes."
+    },
+    {
+      "question": "Can we store objects directly?",
+      "answer": "No, store as JSON string via JSON.stringify and parse on retrieval."
+    },
+    {
+      "question": "Is localStorage async?",
+      "answer": "No, it is synchronous."
+    },
+    {
+      "question": "What data type does getItem return?",
+      "answer": "String or null if key not found."
+    },
+    {
+      "question": "How to clear one key vs all keys?",
+      "answer": "removeItem(key) for one key, clear() for all keys."
+    },
+    {
+      "question": "Security concern of localStorage?",
+      "answer": "XSS can read stored data; avoid storing highly sensitive tokens in unsafe contexts."
+    },
+    {
+      "question": "Storage size limitation?",
+      "answer": "Browser-dependent, typically around 5MB per origin."
+    },
+    {
+      "question": "What event tracks storage changes?",
+      "answer": "window storage event for cross-tab updates."
+    },
+    {
+      "question": "How to handle malformed JSON in storage?",
+      "answer": "Use try/catch around JSON.parse with safe fallback."
+    },
+    {
+      "question": "When to avoid localStorage?",
+      "answer": "High-frequency writes or sensitive data requirements."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What does localStorage.getItem(\"missing\") return?",
+      "answer": "null",
+      "output": "null"
+    },
+    {
+      "type": "output",
+      "question": "If localStorage.setItem(\"x\", 1), stored value type?",
+      "answer": "String \"1\""
+    },
+    {
+      "type": "implement",
+      "question": "Implement saveJSON(key, value) and loadJSON(key, fallback)."
+    },
+    {
+      "type": "implement",
+      "question": "Implement toggleTheme using localStorage persistence."
+    },
+    {
+      "type": "debug",
+      "question": "JSON.parse throws from corrupted storage data. Fix?",
+      "answer": "Wrap parse in try/catch and fallback to defaults."
+    },
+    {
+      "type": "debug",
+      "question": "Stored object appears as [object Object]. Why?",
+      "answer": "Object was stored without JSON.stringify."
+    },
+    {
+      "type": "scenario",
+      "question": "Save form draft and restore on reload."
+    },
+    {
+      "type": "scenario",
+      "question": "Sync logout across tabs using storage event."
+    },
+    {
+      "type": "tricky",
+      "question": "Is storage shared across different domains?",
+      "answer": "No, it is origin-scoped."
+    },
+    {
+      "type": "tricky",
+      "question": "Can storage API be unavailable?",
+      "answer": "Yes in some privacy modes or restricted environments; code defensively."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Save and read simple string from localStorage.",
+      "code": "localStorage.setItem(\"lang\",\"js\");\nconsole.log(localStorage.getItem(\"lang\"));",
+      "output": "js"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Save object in localStorage.",
+      "code": "const user={id:1,name:\"Dev\"};\nlocalStorage.setItem(\"user\",JSON.stringify(user));\nconsole.log(JSON.parse(localStorage.getItem(\"user\")).name);",
+      "output": "Dev"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Remove key from storage.",
+      "code": "localStorage.setItem(\"temp\",\"123\");\nlocalStorage.removeItem(\"temp\");\nconsole.log(localStorage.getItem(\"temp\"));",
+      "output": "null"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Clear all storage keys.",
+      "code": "localStorage.setItem(\"a\",\"1\");\nlocalStorage.setItem(\"b\",\"2\");\nlocalStorage.clear();\nconsole.log(localStorage.length);",
+      "output": "0"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: sessionStorage basic save/read.",
+      "code": "sessionStorage.setItem(\"draft\",\"hello\");\nconsole.log(sessionStorage.getItem(\"draft\"));",
+      "output": "hello"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Safe JSON loader with fallback.",
+      "code": "function loadJSON(key,fallback){\n  try{\n    const raw=localStorage.getItem(key);\n    return raw?JSON.parse(raw):fallback;\n  }catch{\n    return fallback;\n  }\n}\nconsole.log(loadJSON(\"missing\",[]));",
+      "output": "[]"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Persist theme preference.",
+      "code": "function setTheme(theme){ localStorage.setItem(\"theme\",theme); }\nfunction getTheme(){ return localStorage.getItem(\"theme\") || \"light\"; }\nsetTheme(\"dark\");\nconsole.log(getTheme());",
+      "output": "dark"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Increment page visit counter in localStorage.",
+      "code": "const key=\"visits\";\nconst n=Number(localStorage.getItem(key)||0)+1;\nlocalStorage.setItem(key,String(n));\nconsole.log(localStorage.getItem(key));",
+      "output": "1 (or incremented value)"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Store array and append new value.",
+      "code": "const key=\"skills\";\nconst arr=JSON.parse(localStorage.getItem(key)||\"[]\");\narr.push(\"javascript\");\nlocalStorage.setItem(key,JSON.stringify(arr));\nconsole.log(JSON.parse(localStorage.getItem(key)));",
+      "output": "[ \"javascript\" ] (or appended list)"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Listen storage event (cross-tab sync).",
+      "code": "window.addEventListener(\"storage\", (e) => {\n  if (e.key === \"auth\") console.log(\"Auth changed\", e.newValue);\n});",
+      "output": "Logs when key changes in another tab"
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "id": "currying",
+  "title": "Currying",
+  "description": "Currying is a functional programming technique that transforms a function with multiple arguments into a sequence of functions, each taking a single argument. It allows you to create specialized versions of functions by partially applying arguments. For example, a function add(a, b, c) becomes curriedAdd(a)(b)(c). This enables powerful function composition and reusability patterns.",
+  "explanation": "Currying transforms a function that takes multiple arguments into a sequence of functions that each take a single argument. This is a cornerstone of functional programming.\n\nBenefits:\n- Create specialized functions by partial application\n- Better function composition\n- More reusable code\n- Cleaner function signatures\n- Easier to test and reason about\n\nReal-world applications:\n- Event handlers with preset values\n- Configuration functions\n- Higher-order components in React\n- Middleware patterns\n- API request builders",
+  "implementation": "function curry(func) {\n  return function curried(...args) {\n    if (args.length >= func.length) {\n      return func.apply(this, args);\n    }\n    return function(...nextArgs) {\n      return curried.apply(this, args.concat(nextArgs));\n    };\n  };\n}",
+  "example": "// Basic example\nconst add = (a, b, c) => a + b + c;\nconst curriedAdd = curry(add);\n\nconsole.log(curriedAdd(1)(2)(3)); // 6\nconsole.log(curriedAdd(1, 2)(3)); // 6\nconsole.log(curriedAdd(1)(2, 3)); // 6\n\n// Practical example\nconst multiply = (a, b) => a * b;\nconst curriedMultiply = curry(multiply);\n\n// Create specialized functions\nconst double = curriedMultiply(2);\nconst triple = curriedMultiply(3);\n\nconsole.log(double(5)); // 10\nconsole.log(triple(5)); // 15\n\n// Event handler example\nconst handleClick = curry((id, event) => {\n  console.log(`Button ${id} clicked`);\n});\n\nconst handleButton1 = handleClick('button1');\nconst handleButton2 = handleClick('button2');",
+  "useCase": "Function composition, creating specialized functions, event handlers, configuration builders",
+  "interviewQuestions": [
+    {
+      "question": "What is currying?",
+      "answer": "Transforming f(a,b,c) into f(a)(b)(c) so arguments can be partially applied."
+    },
+    {
+      "question": "Difference between currying and partial application?",
+      "answer": "Currying enforces unary steps. Partial application fixes some arguments without requiring unary function chain."
+    },
+    {
+      "question": "Real use cases of currying in JS apps?",
+      "answer": "Configurable validators, reusable event handlers, and composable utility functions."
+    },
+    {
+      "question": "How does function.length help curry implementations?",
+      "answer": "It indicates declared parameter count, used to decide when enough args are collected."
+    },
+    {
+      "question": "What is a caveat of currying in modern codebases?",
+      "answer": "Overusing it can reduce readability for teammates not used to functional patterns."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict: const add=a=>b=>a+b; console.log(add(2)(3));",
+      "answer": "5",
+      "output": "5"
+    },
+    {
+      "type": "implement",
+      "question": "Create multiply(a)(b) curry function.",
+      "code": "const multiply = a => b => a * b;"
+    },
+    {
+      "type": "scenario",
+      "question": "Create validator minLength(n)(value) returning boolean.",
+      "code": "const minLength = n => value => value.length >= n;"
+    },
+    {
+      "type": "debug",
+      "question": "Currying util fails for optional args. Why?",
+      "answer": "Arity-based completion using function.length may not suit optional/default params."
+    },
+    {
+      "type": "output",
+      "question": "Predict output: const add=a=>b=>a+b; console.log(add(3)(4));",
+      "answer": "7",
+      "output": "7"
+    },
+    {
+      "type": "output",
+      "question": "Predict output: const mul=a=>b=>c=>a*b*c; mul(2)(3)(4)",
+      "answer": "24",
+      "output": "24"
+    },
+    {
+      "type": "implement",
+      "question": "Implement simple curryAdd(a)(b)."
+    },
+    {
+      "type": "implement",
+      "question": "Implement priceWithTax(tax)(price) function."
+    },
+    {
+      "type": "debug",
+      "question": "Currying util fails for optional params. Why?",
+      "answer": "Arity detection via function.length may not match optional/default arguments."
+    },
+    {
+      "type": "debug",
+      "question": "Curried function logs stale value in closure. Why?",
+      "answer": "Captured outer variable changed unexpectedly; pass value explicitly to avoid stale closures."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Basic curried add function.",
+      "code": "const add=a=>b=>a+b;\nconsole.log(add(5)(7));",
+      "output": "12"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Curried multiply function with 3 args.",
+      "code": "const mul=a=>b=>c=>a*b*c;\nconsole.log(mul(2)(3)(4));",
+      "output": "24"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Curried tax calculator.",
+      "code": "const withTax=tax=>price=>price+price*tax;\nconsole.log(withTax(0.18)(100));",
+      "output": "118"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Curried greeting by locale.",
+      "code": "const greet=locale=>name=>locale===\"hi\"?`Namaste ${name}`:`Hello ${name}`;\nconsole.log(greet(\"hi\")(\"Jitender\"));",
+      "output": "Namaste Jitender"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Curried startsWith checker.",
+      "code": "const startsWith=prefix=>str=>str.startsWith(prefix);\nconsole.log(startsWith(\"pre\")(\"prefix\"));",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Build reusable discount function via currying.",
+      "code": "const discount=rate=>price=>price-(price*rate);\nconst tenOff=discount(0.10);\nconsole.log(tenOff(500));",
+      "output": "450"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Curried power function.",
+      "code": "const power=exp=>base=>base**exp;\nconst square=power(2);\nconsole.log(square(9));",
+      "output": "81"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Curried formatter with prefix and suffix.",
+      "code": "const formatter=pre=>suf=>val=>`${pre}${val}${suf}`;\nconsole.log(formatter(\"<\",\">\")(\"tag\"));",
+      "output": "<tag>"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Generic curry utility for 2 args.",
+      "code": "function curry2(fn){return a=>b=>fn(a,b)}\nconst sub=curry2((a,b)=>a-b);\nconsole.log(sub(10)(4));",
+      "output": "6"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Curried validator min length.",
+      "code": "const minLen=n=>value=>value.length>=n;\nconsole.log(minLen(5)(\"hello\"));",
+      "output": "true"
+    }
+  ],
+  "category": "Core Concepts"
+}

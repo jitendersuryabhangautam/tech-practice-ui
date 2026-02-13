@@ -1,0 +1,146 @@
+{
+  "id": "promise-all",
+  "title": "Promise.all() & Promise.race()",
+  "category": "Async Programming",
+  "description": "Promise.all waits for all promises. Promise.race returns the first settled promise.",
+  "explanation": "Promise.all waits for all promises. Promise.race returns the first settled promise.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "implementation": "// Promise.all - waits for all\nconst results = await Promise.all([\n  fetch('/api/users'),\n  fetch('/api/posts'),\n  fetch('/api/comments')\n]);\n\n// Promise.race - first to complete\nconst fastest = await Promise.race([\n  fetch('/api/server1'),\n  fetch('/api/server2')\n]);",
+  "example": "async function loadPageData() {\n  try {\n    const [users, products, settings] = await Promise.all([\n      fetchUsers(),\n      fetchProducts(),\n      fetchSettings()\n    ]);\n    return {users, products, settings};\n  } catch (error) {\n    console.error('Failed to load:', error);\n  }\n}",
+  "useCase": "Parallel API calls, loading multiple resources, timeout implementations",
+  "interviewQuestions": [
+    {
+      "question": "When to use Promise.all?",
+      "answer": "When tasks are independent and all results are required together."
+    },
+    {
+      "question": "What happens if one Promise.all task rejects?",
+      "answer": "Whole Promise.all rejects immediately with that rejection reason."
+    },
+    {
+      "question": "Difference between all and allSettled?",
+      "answer": "all fails-fast; allSettled always resolves with status/result for each input."
+    },
+    {
+      "question": "When to use Promise.race?",
+      "answer": "For timeout patterns or taking fastest response among alternatives."
+    },
+    {
+      "question": "What is a production concern with Promise.all on huge arrays?",
+      "answer": "Unbounded concurrency can overload APIs or memory; use controlled batching."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict Promise.all([Promise.resolve(1), 2]) result.",
+      "answer": "[1, 2]",
+      "output": "[1,2]"
+    },
+    {
+      "type": "implement",
+      "question": "Fetch users and posts in parallel with Promise.all.",
+      "code": "const [users, posts] = await Promise.all([fetchUsers(), fetchPosts()]);"
+    },
+    {
+      "type": "debug",
+      "question": "One Promise.all task fails and all data is lost. Alternative?",
+      "answer": "Use Promise.allSettled to collect success/failure of each task."
+    },
+    {
+      "type": "scenario",
+      "question": "Implement timeout wrapper using Promise.race.",
+      "code": "function withTimeout(p, ms){\n  return Promise.race([p, new Promise((_,r)=>setTimeout(()=>r(new Error(\"Timeout\")), ms))]);\n}"
+    },
+    {
+      "type": "output",
+      "question": "Predict output: await Promise.all([Promise.resolve(1), 2])",
+      "answer": "[1,2]",
+      "output": "[1,2]"
+    },
+    {
+      "type": "output",
+      "question": "Promise.race between 50ms and 200ms promises resolves with?",
+      "answer": "The 50ms promise result."
+    },
+    {
+      "type": "implement",
+      "question": "Implement loadDashboardData() with Promise.all(users, stats, notifications)."
+    },
+    {
+      "type": "implement",
+      "question": "Write withTimeout(promise, ms) using Promise.race."
+    },
+    {
+      "type": "debug",
+      "question": "One Promise.all task rejects and all fail. Alternative?",
+      "answer": "Use Promise.allSettled to collect all outcomes."
+    },
+    {
+      "type": "debug",
+      "question": "Order of Promise.all results seems wrong. Why?",
+      "answer": "Results are returned by input order, not completion order."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Promise.all with two resolved values.",
+      "code": "Promise.all([Promise.resolve(\"A\"), Promise.resolve(\"B\")])\n  .then(console.log);",
+      "output": "[ \"A\", \"B\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Promise.all rejection behavior.",
+      "code": "Promise.all([Promise.resolve(1), Promise.reject(\"X\")])\n  .then(console.log)\n  .catch(console.log);",
+      "output": "X"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Promise.all order is input order, not finish order.",
+      "code": "const slow=new Promise(r=>setTimeout(()=>r(\"slow\"),50));\nconst fast=Promise.resolve(\"fast\");\nPromise.all([slow,fast]).then(console.log);",
+      "output": "[ \"slow\", \"fast\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Promise.race fastest response demo.",
+      "code": "const p1=new Promise(r=>setTimeout(()=>r(\"one\"),100));\nconst p2=new Promise(r=>setTimeout(()=>r(\"two\"),20));\nPromise.race([p1,p2]).then(console.log);",
+      "output": "two"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Timeout wrapper with race.",
+      "code": "function withTimeout(p,ms){\n  return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(\"timeout\"),ms))]);\n}\nwithTimeout(new Promise(r=>setTimeout(()=>r(\"ok\"),30)),10).catch(console.log);",
+      "output": "timeout"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Promise.allSettled status inspection.",
+      "code": "Promise.allSettled([Promise.resolve(1), Promise.reject(\"e\")])\n  .then(res=>console.log(res.map(x=>x.status)));",
+      "output": "[ \"fulfilled\", \"rejected\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Parallel API simulation with Promise.all.",
+      "code": "const api=(v,ms)=>new Promise(r=>setTimeout(()=>r(v),ms));\nPromise.all([api(\"users\",20),api(\"posts\",10)]).then(console.log);",
+      "output": "[ \"users\", \"posts\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Race rejection if fastest promise rejects.",
+      "code": "const a=new Promise((_,rej)=>setTimeout(()=>rej(\"bad\"),10));\nconst b=new Promise(r=>setTimeout(()=>r(\"good\"),50));\nPromise.race([a,b]).catch(console.log);",
+      "output": "bad"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: allSettled to split success and failures.",
+      "code": "Promise.allSettled([Promise.resolve(10), Promise.reject(\"E\")])\n.then(r=>{\n  const ok=r.filter(x=>x.status===\"fulfilled\").map(x=>x.value);\n  const err=r.filter(x=>x.status===\"rejected\").map(x=>x.reason);\n  console.log(ok, err);\n});",
+      "output": "[ 10 ] [ \"E\" ]"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Promise.any-like fallback with race of resolved tasks (simple).",
+      "code": "const p1=new Promise(r=>setTimeout(()=>r(\"backup\"),40));\nconst p2=new Promise(r=>setTimeout(()=>r(\"primary\"),20));\nPromise.race([p1,p2]).then(console.log);",
+      "output": "primary"
+    }
+  ]
+}

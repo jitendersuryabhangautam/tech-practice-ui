@@ -1,0 +1,149 @@
+{
+  "id": "services",
+  "title": "Services",
+  "category": "Kubernetes Basics",
+  "description": "Expose pods to network traffic with stable endpoints and load balancing.",
+  "explanation": "Services provide stable networking endpoints for ephemeral Pods, enabling service discovery and load balancing. Understanding service types (ClusterIP, NodePort, LoadBalancer, ExternalName), endpoint management, and kube-proxy modes is essential for building distributed systems.\n\nInterview focus:\n- Service types and when to use each\n- Label selectors and endpoint selection\n- ClusterIP vs NodePort vs LoadBalancer\n- Headless services and StatefulSets\n- Session affinity and load balancing\n- DNS resolution (service-name.namespace.svc.cluster.local)\n- EndpointSlices vs Endpoints\n- kube-proxy modes (iptables, ipvs, userspace)",
+  "code": "# service.yaml - ClusterIP (internal)\napiVersion: v1\nkind: Service\nmetadata:\n  name: nginx-service\nspec:\n  selector:\n    app: nginx\n  ports:\n  - protocol: TCP\n    port: 80\n    targetPort: 80\n  type: ClusterIP\n\n# service-loadbalancer.yaml\napiVersion: v1\nkind: Service\nmetadata:\n  name: nginx-lb\nspec:\n  selector:\n    app: nginx\n  ports:\n  - protocol: TCP\n    port: 80\n    targetPort: 80\n  type: LoadBalancer",
+  "command": "# Create service\nkubectl apply -f service.yaml\n\n# List services\nkubectl get services\nkubectl get svc\n\n# Describe service\nkubectl describe service nginx-service\n\n# Get service endpoints\nkubectl get endpoints nginx-service\n\n# Delete service\nkubectl delete service nginx-service\n\n# Port forwarding for testing\nkubectl port-forward service/nginx-service 8080:80",
+  "example": "# NodePort service (external access)\napiVersion: v1\nkind: Service\nmetadata:\n  name: nginx-nodeport\nspec:\n  type: NodePort\n  selector:\n    app: nginx\n  ports:\n  - protocol: TCP\n    port: 80\n    targetPort: 80\n    nodePort: 30080\n\n# Headless service (for StatefulSets)\napiVersion: v1\nkind: Service\nmetadata:\n  name: mysql-headless\nspec:\n  clusterIP: None\n  selector:\n    app: mysql\n  ports:\n  - port: 3306",
+  "useCase": "Service discovery, load balancing, exposing applications, networking",
+  "interviewQuestions": [
+    {
+      "question": "Explain the 4 Service types and when to use each.",
+      "answer": "ClusterIP (default): internal cluster access only, for backend services. NodePort: exposes on each node's IP at static port (30000-32767), for development/testing. LoadBalancer: cloud provider LB, for production external access. ExternalName: maps to external DNS, for integrating external services."
+    },
+    {
+      "question": "How does a Service discover Pods? What happens if Pod labels change?",
+      "answer": "Service uses selector to match Pod labels. Continuously watches for matching Pods, updates Endpoints automatically. If Pod labels change and no longer match, it's removed from Endpoints. If changed to match, it's added. Dynamic and real-time."
+    },
+    {
+      "question": "What is a headless service and why use it?",
+      "answer": "Service with clusterIP: None. No load balancing, DNS returns all Pod IPs instead of single VIP. Use for StatefulSets (stable network identity), client-side load balancing, peer discovery. Example: Cassandra, Kafka, databases needing direct pod access."
+    },
+    {
+      "question": "Output: kubectl get svc mysvc shows CLUSTER-IP as <none>. What type is it?",
+      "answer": "Headless service (clusterIP: None). Used for StatefulSets or when clients need direct pod IPs. DNS returns A records for each pod instead of single ClusterIP."
+    },
+    {
+      "question": "Explain port, targetPort, and nodePort in Service spec.",
+      "answer": "port: Service's exposed port (other pods use this). targetPort: Pod's container port (where traffic routes). nodePort: External port on nodes (30000-32767). Example: port:80, targetPort:8080 means service:80 → pod:8080."
+    },
+    {
+      "question": "Service has selector app=web but no Endpoints. What are 3 possible reasons?",
+      "answer": "1) No Pods with label app=web exist 2) Pods exist but not Ready (readiness probe failing) 3) Pods in different namespace (service and pods must be in same namespace) 4) Typo in selector or labels."
+    },
+    {
+      "question": "What is sessionAffinity and when would you use it?",
+      "answer": "Routes traffic from same client IP to same Pod. Values: None (default), ClientIP. Use for: stateful apps without shared storage, WebSocket connections, connection pooling. Only considers client IP, not cookies/headers."
+    },
+    {
+      "question": "Tricky: Can a Service route to Pods in different namespaces?",
+      "answer": "No. Services only route to Pods in the same namespace. Workaround: use ExternalName service or manual Endpoints to point to service in another namespace."
+    },
+    {
+      "question": "How do you access a service from another namespace?",
+      "answer": "Use FQDN: service-name.namespace.svc.cluster.local. Example: mysql.database.svc.cluster.local. Within same namespace, just service-name works. Cross-namespace requires full DNS name."
+    },
+    {
+      "question": "What happens when LoadBalancer service is created in non-cloud environment?",
+      "answer": "Stays in Pending state with no external IP assigned. Cloud controller manager handles LB provisioning. On-prem: use MetalLB, NodePort, or Ingress. kubectl get svc shows <pending> under EXTERNAL-IP."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create ClusterIP service exposing Pod on port 8080 imperatively",
+      "answer": "kubectl expose pod mypod --port=8080 --name=mysvc"
+    },
+    {
+      "type": "output",
+      "question": "Service YAML has port:80, targetPort:8080. If you curl service:80, where does traffic go?",
+      "answer": "Pod's container on port 8080. Service port 80 maps to pod container port 8080."
+    },
+    {
+      "type": "scenario",
+      "question": "Expose deployment with 3 replicas using NodePort on port 30001",
+      "answer": "kubectl expose deployment myapp --type=NodePort --port=80 --target-port=8080 --node-port=30001"
+    },
+    {
+      "type": "debug",
+      "question": "Service created but can't reach pods. How to debug?",
+      "answer": "1) kubectl get endpoints servicename (check if populated) 2) kubectl get pods --show-labels (verify labels match selector) 3) kubectl describe pod (check readiness) 4) Test pod directly: kubectl exec"
+    },
+    {
+      "type": "tricky",
+      "question": "Can two services select the same pods?",
+      "answer": "Yes! Multiple services can select same pods with same labels. Use for: different ports, internal vs external access, canary routing with different selectors."
+    },
+    {
+      "type": "command",
+      "question": "Get DNS name for service mysql in namespace production",
+      "answer": "mysql.production.svc.cluster.local"
+    },
+    {
+      "type": "scenario",
+      "question": "Create headless service for StatefulSet",
+      "answer": "kubectl create service clusterip myapp --tcp=80:80 --clusterip=None"
+    },
+    {
+      "type": "output",
+      "question": "NodePort range in Kubernetes defaults?",
+      "answer": "30000-32767. Can configure apiserver --service-node-port-range flag to change."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "LoadBalancer service external IP shows <pending> for 10 minutes. Why?",
+      "answer": "Not in cloud environment or cloud controller not configured. Check: kubectl get events, cloud provider integration, use NodePort or Ingress instead."
+    },
+    {
+      "type": "command",
+      "question": "Port forward local 8080 to service port 80",
+      "answer": "kubectl port-forward svc/myservice 8080:80"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create deployment, expose as ClusterIP, test from another pod",
+      "code": "kubectl create deployment web --image=nginx --replicas=2\nkubectl expose deployment web --port=80\nkubectl run test --image=busybox --rm -it -- wget -qO- web:80",
+      "output": "Nginx welcome page HTML returned from service load-balanced across 2 pods"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Verify service selects pods by checking endpoints",
+      "code": "kubectl create deployment app --image=nginx --replicas=3\nkubectl expose deployment app --port=80\nkubectl get endpoints app -o yaml\nkubectl get pods -l app=app -o wide",
+      "output": "Endpoints show 3 pod IPs matching the 3 pod IPs from get pods"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Create NodePort service, access from outside cluster",
+      "code": "kubectl create deployment np --image=nginx\nkubectl expose deployment np --type=NodePort --port=80\nNODE_PORT=$(kubectl get svc np -o jsonpath='{.spec.ports[0].nodePort}')\nNODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[0].address}')\ncurl http://$NODE_IP:$NODE_PORT",
+      "output": "Nginx welcome page accessible via node IP and NodePort"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Test headless service returning all pod IPs",
+      "code": "kubectl create deployment hl --image=nginx --replicas=3\nkubectl expose deployment hl --port=80 --cluster-ip=None\nkubectl run test --image=busybox --rm -it -- nslookup hl",
+      "output": "DNS returns 3 A records with individual pod IPs, not single ClusterIP"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Service with no matching pods has empty endpoints",
+      "code": "kubectl create service clusterip orphan --tcp=80:80\nkubectl get endpoints orphan\nkubectl get svc orphan",
+      "output": "Service exists but endpoints show <none> (no matching pods)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Test cross-namespace service access with FQDN",
+      "code": "kubectl create namespace ns1\nkubectl create namespace ns2\nkubectl create deployment web -n ns1 --image=nginx\nkubectl expose deployment web -n ns1 --port=80\nkubectl run test -n ns2 --image=busybox --rm -it -- wget -qO- web.ns1.svc.cluster.local:80",
+      "output": "Pod in ns2 successfully reaches service in ns1 using FQDN"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Session affinity routes same client to same pod",
+      "code": "kubectl create deployment sticky --image=nginx --replicas=3\nkubectl expose deployment sticky --port=80\nkubectl patch svc sticky -p '{\"spec\":{\"sessionAffinity\":\"ClientIP\"}}'\nfor i in {1..5}; do kubectl run test-$i --image=busybox --rm --restart=Never -- wget -qO- sticky:80; done",
+      "output": "Same client IP consistently routed to same pod (check pod names in logs)"
+    }
+  ]
+}

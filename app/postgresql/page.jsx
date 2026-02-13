@@ -2,6 +2,7 @@
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import { postgresqlData, postgresqlQuiz } from "@/data/postgresql";
+import { useTopicData } from "@/hooks/useTopicData";
 
 const MIN_INTERVIEW_QUESTIONS = 10;
 const MIN_EXERCISES = 10;
@@ -91,7 +92,8 @@ WHERE o.created_at >= date_trunc('month', now()) - INTERVAL '1 month'
               "EXISTS is often better for correlated existence checks and can stop early after first match.",
           },
           {
-            question: "What is a window function and how is it different from GROUP BY?",
+            question:
+              "What is a window function and how is it different from GROUP BY?",
             answer:
               "Window functions compute over partitions without collapsing rows; GROUP BY collapses rows into aggregates.",
           },
@@ -127,16 +129,55 @@ WHERE o.created_at >= date_trunc('month', now()) - INTERVAL '1 month'
           },
         ],
         exercises: [
-          { type: "implement", question: "Write query for monthly revenue by city from completed orders." },
-          { type: "implement", question: "Find customers whose latest order is cancelled." },
-          { type: "output", question: "What changes when UNION is replaced by UNION ALL?", answer: "Duplicates are kept; usually faster." },
-          { type: "debug", question: "Fix query that overcounts revenue because of duplicate joins." },
-          { type: "theory", question: "Explain difference between window aggregate and grouped aggregate." },
-          { type: "tricky", question: "Why can `NOT IN (subquery)` fail with NULL values?", answer: "NULL semantics can make predicate unknown; use NOT EXISTS safely." },
-          { type: "scenario", question: "Design query for top 3 products per category for the last 30 days." },
-          { type: "implement", question: "Use CTE to separate filtering stage from ranking stage." },
-          { type: "output", question: "Predict output ordering when ORDER BY is omitted.", answer: "No guaranteed order." },
-          { type: "scenario", question: "Rewrite heavy correlated subquery into JOIN + aggregation." },
+          {
+            type: "implement",
+            question:
+              "Write query for monthly revenue by city from completed orders.",
+          },
+          {
+            type: "implement",
+            question: "Find customers whose latest order is cancelled.",
+          },
+          {
+            type: "output",
+            question: "What changes when UNION is replaced by UNION ALL?",
+            answer: "Duplicates are kept; usually faster.",
+          },
+          {
+            type: "debug",
+            question:
+              "Fix query that overcounts revenue because of duplicate joins.",
+          },
+          {
+            type: "theory",
+            question:
+              "Explain difference between window aggregate and grouped aggregate.",
+          },
+          {
+            type: "tricky",
+            question: "Why can `NOT IN (subquery)` fail with NULL values?",
+            answer:
+              "NULL semantics can make predicate unknown; use NOT EXISTS safely.",
+          },
+          {
+            type: "scenario",
+            question:
+              "Design query for top 3 products per category for the last 30 days.",
+          },
+          {
+            type: "implement",
+            question: "Use CTE to separate filtering stage from ranking stage.",
+          },
+          {
+            type: "output",
+            question: "Predict output ordering when ORDER BY is omitted.",
+            answer: "No guaranteed order.",
+          },
+          {
+            type: "scenario",
+            question:
+              "Rewrite heavy correlated subquery into JOIN + aggregation.",
+          },
         ],
         programExercises: [
           {
@@ -280,7 +321,8 @@ WHERE o.status = 'completed'
               "Joining one-to-many relations without controlling granularity before aggregation.",
           },
           {
-            question: "Why avoid function-wrapped predicates on indexed columns?",
+            question:
+              "Why avoid function-wrapped predicates on indexed columns?",
             answer:
               "They can prevent index usage unless expression index exists.",
           },
@@ -291,16 +333,54 @@ WHERE o.status = 'completed'
           },
         ],
         exercises: [
-          { type: "implement", question: "Create composite index for `customer_id + created_at` access pattern." },
-          { type: "implement", question: "Design monthly range partitions for orders table." },
-          { type: "scenario", question: "Your join report doubled revenue unexpectedly. Find likely root cause." },
-          { type: "tricky", question: "Why can LEFT JOIN + WHERE right_table.col = value behave like INNER JOIN?" },
-          { type: "output", question: "What plan change do you expect after adding selective index?", answer: "Seq scan may become index scan/bitmap scan." },
-          { type: "debug", question: "Partitioned table query scans all partitions; what predicate fix is needed?" },
-          { type: "theory", question: "Explain index-only scan requirements in PostgreSQL." },
-          { type: "scenario", question: "Choose BRIN vs B-tree for very large append-only time-series table." },
-          { type: "implement", question: "Add partial index for frequently queried active users." },
-          { type: "debug", question: "Write path slowed after adding many indexes. What to audit first?" },
+          {
+            type: "implement",
+            question:
+              "Create composite index for `customer_id + created_at` access pattern.",
+          },
+          {
+            type: "implement",
+            question: "Design monthly range partitions for orders table.",
+          },
+          {
+            type: "scenario",
+            question:
+              "Your join report doubled revenue unexpectedly. Find likely root cause.",
+          },
+          {
+            type: "tricky",
+            question:
+              "Why can LEFT JOIN + WHERE right_table.col = value behave like INNER JOIN?",
+          },
+          {
+            type: "output",
+            question:
+              "What plan change do you expect after adding selective index?",
+            answer: "Seq scan may become index scan/bitmap scan.",
+          },
+          {
+            type: "debug",
+            question:
+              "Partitioned table query scans all partitions; what predicate fix is needed?",
+          },
+          {
+            type: "theory",
+            question: "Explain index-only scan requirements in PostgreSQL.",
+          },
+          {
+            type: "scenario",
+            question:
+              "Choose BRIN vs B-tree for very large append-only time-series table.",
+          },
+          {
+            type: "implement",
+            question: "Add partial index for frequently queried active users.",
+          },
+          {
+            type: "debug",
+            question:
+              "Write path slowed after adding many indexes. What to audit first?",
+          },
         ],
         programExercises: [
           {
@@ -384,11 +464,11 @@ const POSTGRES_ENRICHED_QUIZ = [
     question: "Which join returns unmatched rows from both tables?",
     options: ["INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "FULL OUTER JOIN"],
     correctAnswer: 3,
-    explanation: "FULL OUTER JOIN includes matched and unmatched rows from both sides.",
+    explanation:
+      "FULL OUTER JOIN includes matched and unmatched rows from both sides.",
   },
   {
-    question:
-      "Why can `NOT IN (subquery)` be dangerous with NULLs?",
+    question: "Why can `NOT IN (subquery)` be dangerous with NULLs?",
     options: [
       "It is always fast",
       "It can produce unknown/empty result unexpectedly",
@@ -400,8 +480,7 @@ const POSTGRES_ENRICHED_QUIZ = [
       "If subquery returns NULL, comparisons can evaluate to unknown; NOT EXISTS is usually safer.",
   },
   {
-    question:
-      "Best index type for JSONB containment (`@>`) queries?",
+    question: "Best index type for JSONB containment (`@>`) queries?",
     options: ["B-tree", "Hash", "GIN", "BRIN"],
     correctAnswer: 2,
     explanation: "GIN is typically preferred for JSONB containment lookups.",
@@ -422,9 +501,15 @@ const POSTGRES_ENRICHED_QUIZ = [
   {
     question:
       "Partition pruning mainly depends on predicate over which column?",
-    options: ["Any selected column", "Partition key", "Primary key only", "Indexed column only"],
+    options: [
+      "Any selected column",
+      "Partition key",
+      "Primary key only",
+      "Indexed column only",
+    ],
     correctAnswer: 1,
-    explanation: "Planner prunes partitions when conditions constrain partition key.",
+    explanation:
+      "Planner prunes partitions when conditions constrain partition key.",
   },
   {
     question: "What does `EXPLAIN ANALYZE` add over plain EXPLAIN?",
@@ -438,8 +523,7 @@ const POSTGRES_ENRICHED_QUIZ = [
     explanation: "It executes the query and shows real runtime stats.",
   },
   {
-    question:
-      "Tricky: `LEFT JOIN b ... WHERE b.id IS NOT NULL` behaves like?",
+    question: "Tricky: `LEFT JOIN b ... WHERE b.id IS NOT NULL` behaves like?",
     options: ["FULL JOIN", "CROSS JOIN", "INNER JOIN", "SELF JOIN"],
     correctAnswer: 2,
     explanation:
@@ -458,7 +542,8 @@ function ensureMinimum(items, min, createItem) {
 function fallbackInterviewQuestion(topic, index) {
   const n = index + 1;
   const description =
-    topic.description || "Explain this PostgreSQL concept with practical context.";
+    topic.description ||
+    "Explain this PostgreSQL concept with practical context.";
   const useCase =
     topic.useCase || "Discuss real production impact, trade-offs, and risk.";
   const templates = [
@@ -488,11 +573,26 @@ function fallbackInterviewQuestion(topic, index) {
 function fallbackExercise(topic, index) {
   const n = index + 1;
   const templates = [
-    { type: "theory", question: `Exercise ${n}: Write detailed notes on ${topic.title} with two production pitfalls.` },
-    { type: "implement", question: `Exercise ${n}: Implement a SQL solution for ${topic.title} on e-commerce schema.` },
-    { type: "debug", question: `Exercise ${n}: Debug a slow ${topic.title} query and propose concrete fixes.` },
-    { type: "output", question: `Exercise ${n}: Predict output for a ${topic.title} query with duplicates/NULLs.` },
-    { type: "tricky", question: `Exercise ${n}: Explain one tricky interview edge case in ${topic.title}.` },
+    {
+      type: "theory",
+      question: `Exercise ${n}: Write detailed notes on ${topic.title} with two production pitfalls.`,
+    },
+    {
+      type: "implement",
+      question: `Exercise ${n}: Implement a SQL solution for ${topic.title} on e-commerce schema.`,
+    },
+    {
+      type: "debug",
+      question: `Exercise ${n}: Debug a slow ${topic.title} query and propose concrete fixes.`,
+    },
+    {
+      type: "output",
+      question: `Exercise ${n}: Predict output for a ${topic.title} query with duplicates/NULLs.`,
+    },
+    {
+      type: "tricky",
+      question: `Exercise ${n}: Explain one tricky interview edge case in ${topic.title}.`,
+    },
   ];
   return templates[index % templates.length];
 }
@@ -530,14 +630,31 @@ function enrichTopic(topic) {
 }
 
 export default function PostgreSQLPage() {
-  const enrichedTopics = [...postgresqlData, ...POSTGRES_ADVANCED_TOPICS].map(
+  const { data, quiz, title, description, loading } = useTopicData(
+    "postgresql",
+    postgresqlData,
+    postgresqlQuiz
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-4">Loading PostgreSQL content...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const enrichedTopics = [...(data || []), ...POSTGRES_ADVANCED_TOPICS].map(
     (section) => ({
       ...section,
       topics: (section.topics || []).map(enrichTopic),
     })
   );
 
-  const mergedQuiz = [...postgresqlQuiz];
+  const mergedQuiz = [...(quiz || [])];
   const seen = new Set(mergedQuiz.map((q) => q.question));
   for (const q of POSTGRES_ENRICHED_QUIZ) {
     if (!seen.has(q.question)) {
@@ -548,8 +665,11 @@ export default function PostgreSQLPage() {
 
   return (
     <InterviewTopicPage
-      title="PostgreSQL Interview Preparation"
-      description="Build confidence in SQL, indexing, optimization, transactions, and schema design with interview-ready explanations."
+      title={title || "PostgreSQL Interview Preparation"}
+      description={
+        description ||
+        "Build confidence in SQL, indexing, optimization, transactions, and schema design with interview-ready explanations."
+      }
       topics={enrichedTopics}
       quiz={mergedQuiz}
     />

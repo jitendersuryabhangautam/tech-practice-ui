@@ -1,0 +1,9 @@
+{
+  "id": "navigation",
+  "title": "Navigation & Link",
+  "description": "Client-side navigation using Link component and useRouter hook.",
+  "code": "import Link from 'next/link';\nimport { useRouter } from 'next/navigation';\n\nexport default function Navigation() {\n  const router = useRouter();\n  \n  const handleClick = () => {\n    router.push('/dashboard');\n    // router.replace('/dashboard'); // No back button\n    // router.back(); // Go back\n    // router.refresh(); // Refresh current route\n  };\n  \n  return (\n    <nav>\n      <Link href=\"/\">Home</Link>\n      <Link href=\"/about\">About</Link>\n      <Link href=\"/blog/first-post\">Blog Post</Link>\n      <button onClick={handleClick}>Go to Dashboard</button>\n    </nav>\n  );\n}",
+  "example": "// Dynamic href\n<Link href={`/products/${productId}`}>Product</Link>\n\n// With query string\n<Link href={{ pathname: '/search', query: { q: 'shoes' } }}>\n  Search\n</Link>\n\n// Prefetch (default: true)\n<Link href=\"/dashboard\" prefetch={false}>Dashboard</Link>\n\n// Scroll to top (default: true)\n<Link href=\"/about\" scroll={false}>About</Link>",
+  "useCase": "Navigation menus, breadcrumbs, pagination, programmatic routing",
+  "category": "App Router & Routing"
+}

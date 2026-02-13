@@ -1,0 +1,148 @@
+{
+  "id": "networks",
+  "title": "Docker Networks",
+  "category": "Docker Networking & Volumes",
+  "description": "Container networking for communication between containers.",
+  "explanation": "Docker networking enables containers to communicate with each other and external systems. Understanding network drivers (bridge, host, overlay, macvlan), DNS resolution, and port mapping is crucial for building distributed applications.\n\nInterview focus:\n- Network drivers and when to use each\n- Container-to-container communication\n- Port mapping and exposure\n- DNS and service discovery\n- Network isolation and security\n- Overlay networks for Swarm",
+  "command": "# List networks\ndocker network ls\n\n# Create network\ndocker network create my-network\n\n# Create bridge network\ndocker network create --driver bridge my-bridge\n\n# Inspect network\ndocker network inspect my-network\n\n# Connect container to network\ndocker network connect my-network container-name\n\n# Disconnect container from network\ndocker network disconnect my-network container-name\n\n# Run container on specific network\ndocker run -d --network my-network --name web nginx\n\n# Remove network\ndocker network rm my-network",
+  "example": "# Create custom bridge network\ndocker network create --subnet=172.18.0.0/16 my-custom-network\n\n# Run containers on same network\ndocker run -d --network my-network --name db postgres\ndocker run -d --network my-network --name web -p 80:80 nginx\n\n# Containers can communicate using names\n# From 'web' container: curl http://db:5432\n\n# Host network (share host's network)\ndocker run -d --network host nginx",
+  "useCase": "Microservices communication, container isolation, service discovery",
+  "interviewQuestions": [
+    {
+      "question": "What are the different Docker network drivers?",
+      "answer": "Bridge (default, isolated network), host (share host network), overlay (multi-host Swarm), macvlan (assign MAC addresses), none (no networking). Each suits different use cases."
+    },
+    {
+      "question": "How do containers on the same custom bridge network communicate?",
+      "answer": "By container name via Docker's embedded DNS server. Example: curl http://container-name:port. Default bridge requires --link or IP addresses. Custom bridge is recommended."
+    },
+    {
+      "question": "What is the difference between -p and --expose?",
+      "answer": "-p publishes port to host (accessible externally): -p 8080:80. --expose only documents port (doesn't publish). EXPOSE in Dockerfile also just documents, needs -P or -p to publish."
+    },
+    {
+      "question": "When would you use host network mode?",
+      "answer": "For maximum performance (no network overhead), when container needs host network stack, or binding to many ports. Drawback: loses network isolation, port conflicts possible."
+    },
+    {
+      "question": "How does Docker DNS work?",
+      "answer": "Docker runs embedded DNS server (127.0.0.11). Containers on custom networks can resolve each other by name. Maps container names to IP addresses automatically. Default bridge doesn't have DNS (needs --link)."
+    },
+    {
+      "question": "What is an overlay network?",
+      "answer": "Overlay networks span multiple Docker hosts in Swarm mode. Enables container communication across hosts. Uses VXLAN tunneling. Required for multi-host deployments and orchestration."
+    },
+    {
+      "question": "How do you isolate containers from each other?",
+      "answer": "Put them on different networks. Containers can only communicate if on same network. Use network segmentation for microservices. Connect containers to multiple networks if needed."
+    },
+    {
+      "question": "What happens to container networking when you docker stop?",
+      "answer": "Container keeps its IP and network connections but stops responding. Network interface stays registered. On restart with docker start, same IP is typically reassigned (not guaranteed)."
+    },
+    {
+      "question": "How do you connect a running container to a new network?",
+      "answer": "Use docker network connect: docker network connect my-network container-name. Container can be on multiple networks. Each network assigns separate IP address."
+    },
+    {
+      "question": "What is the default Docker bridge network?",
+      "answer": "docker0 bridge, created automatically. Containers use it by default. Limited features: no DNS, requires --link. Best practice: create custom bridge networks with docker network create."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create custom bridge network named app-network",
+      "answer": "docker network create app-network"
+    },
+    {
+      "type": "scenario",
+      "question": "Run nginx and postgres on same network so nginx can connect to postgres by name",
+      "answer": "docker network create mynet\ndocker run -d --network mynet --name db postgres\ndocker run -d --network mynet --name web nginx\n# Web can access: http://db:5432"
+    },
+    {
+      "type": "command",
+      "question": "Inspect network to see connected containers and subnet",
+      "answer": "docker network inspect my-network"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Container can't resolve other container by name. Why?",
+      "answer": "Likely on default bridge network (no DNS). Create custom bridge network and put both containers on it, or use --link (deprecated)."
+    },
+    {
+      "type": "command",
+      "question": "Connect running container named api to network named backend",
+      "answer": "docker network connect backend api"
+    },
+    {
+      "type": "explain",
+      "question": "What is the output of docker network ls?",
+      "answer": "Lists all networks: NETWORK ID, NAME, DRIVER, SCOPE. Shows bridge, host, none by default, plus any custom networks."
+    },
+    {
+      "type": "scenario",
+      "question": "You need container to access host services on localhost. How?",
+      "answer": "Use host.docker.internal (Mac/Windows) or host network mode (--network host on Linux). Or use host IP address."
+    },
+    {
+      "type": "security",
+      "question": "Why is network isolation important?",
+      "answer": "Prevents unauthorized access between containers. Apply least privilege: only connect containers that need to communicate. Separate frontend/backend/database networks."
+    },
+    {
+      "type": "command",
+      "question": "Remove network (but it fails if containers are connected)",
+      "answer": "docker network rm my-network\n# If fails: disconnect containers first or docker network rm -f"
+    },
+    {
+      "type": "scenario",
+      "question": "Create network with custom subnet 10.0.0.0/24 and gateway 10.0.0.1",
+      "answer": "docker network create --subnet=10.0.0.0/24 --gateway=10.0.0.1 my-network"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create network, run two containers, verify they can ping each other by name",
+      "code": "docker network create testnet\ndocker run -d --network testnet --name c1 alpine sleep 3600\ndocker run -d --network testnet --name c2 alpine sleep 3600\ndocker exec c1 ping -c 2 c2",
+      "output": "Successful ping from c1 to c2 using container name"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Inspect network to find container IP addresses",
+      "code": "docker network inspect testnet --format=\"{{json .Containers}}\" | jq",
+      "output": "JSON showing containers with their IPs on the network"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Run container on host network, verify it uses host IP",
+      "code": "docker run --rm --network host alpine ip addr show\n# Compare with host:\nip addr show",
+      "output": "Container shows same network interfaces as host"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Connect existing container to additional network",
+      "code": "docker network create net1\ndocker network create net2\ndocker run -d --network net1 --name multi alpine sleep 3600\ndocker network connect net2 multi\ndocker inspect multi --format='{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}'",
+      "output": "Container has IP address on both networks"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Port mapping - map container port 80 to host port 8080",
+      "code": "docker run -d -p 8080:80 --name web nginx\ncurl http://localhost:8080",
+      "output": "Nginx welcome page accessible on host port 8080"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Test network isolation - containers on different networks can't communicate",
+      "code": "docker network create net-a\ndocker network create net-b\ndocker run -d --network net-a --name container-a alpine sleep 3600\ndocker run -d --network net-b --name container-b alpine sleep 3600\ndocker exec container-a ping -c 2 container-b",
+      "output": "Ping fails - containers isolated on separate networks"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Create network with custom subnet and run container in it",
+      "code": "docker network create --subnet=192.168.100.0/24 custom-subnet\ndocker run -d --network custom-subnet --ip 192.168.100.10 --name static-ip nginx\ndocker inspect static-ip --format='{{.NetworkSettings.Networks.custom-subnet.IPAddress}}'",
+      "output": "Container assigned static IP 192.168.100.10"
+    }
+  ]
+}

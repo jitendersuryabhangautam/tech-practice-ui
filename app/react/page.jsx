@@ -2,6 +2,7 @@
 
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import reactContent from "@/public/data/react.json";
+import { useTopicData } from "@/hooks/useTopicData";
 
 const MIN_INTERVIEW_QUESTIONS = 10;
 const MIN_EXERCISES = 10;
@@ -204,8 +205,27 @@ function enrichTopic(topic) {
 }
 
 export default function ReactPage() {
-  const enrichedTopics = (reactContent.topics || []).map(enrichTopic);
-  const mergedQuiz = [...(reactContent.quiz || [])];
+  const { data, quiz, title, description, loading } = useTopicData(
+    "react",
+    reactContent.topics || [],
+    reactContent.quiz || []
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Loading React content...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const enrichedTopics = (data || []).map(enrichTopic);
+  const mergedQuiz = [...(quiz || [])];
   const seen = new Set(mergedQuiz.map((q) => q.question));
   for (const q of REACT_ENRICHED_QUIZ) {
     if (!seen.has(q.question)) {
@@ -216,8 +236,8 @@ export default function ReactPage() {
 
   return (
     <InterviewTopicPage
-      title={reactContent.title}
-      description={reactContent.description}
+      title={title || reactContent.title}
+      description={description || reactContent.description}
       topics={enrichedTopics}
       quiz={mergedQuiz}
     />

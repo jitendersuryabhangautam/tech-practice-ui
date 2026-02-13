@@ -1,0 +1,14 @@
+[
+  {
+    "id": "usestate",
+    "file": "topics/usestate.json",
+    "title": "useState Hook",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "useeffect",
+    "file": "topics/useeffect.json",
+    "title": "useEffect Hook",
+    "category": "Core Concepts"
+  }
+]

@@ -3,6 +3,7 @@
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import { golangData, golangQuiz } from "@/data/golang";
 import { golangExtraData, golangExtraQuiz } from "@/data/golang_extra";
+import { useTopicData } from "@/hooks/useTopicData";
 
 const MIN_INTERVIEW_QUESTIONS = 10;
 const MIN_EXERCISES = 10;
@@ -300,13 +301,34 @@ func main() {
 }
 
 export default function GolangPage() {
-  const mergedTopics = [...golangData, ...golangExtraData].map((section) => ({
+  const fallbackTopics = [...golangData, ...golangExtraData];
+  const fallbackQuiz = [...golangQuiz, ...golangExtraQuiz];
+  const { data, quiz, title, description, loading } = useTopicData(
+    "golang",
+    fallbackTopics,
+    fallbackQuiz
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Loading Golang content...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const mergedTopics = (data || []).map((section) => ({
     ...section,
     topics: (section.topics || []).map(enrichTopic),
   }));
-  const mergedQuiz = [...golangQuiz];
+  const mergedQuiz = [...(quiz || [])];
   const seen = new Set(mergedQuiz.map((q) => q.question));
-  for (const q of [...golangExtraQuiz, ...GO_ENRICHED_QUIZ]) {
+  for (const q of GO_ENRICHED_QUIZ) {
     if (!seen.has(q.question)) {
       mergedQuiz.push(q);
       seen.add(q.question);
@@ -315,8 +337,11 @@ export default function GolangPage() {
 
   return (
     <InterviewTopicPage
-      title="Golang Interview Preparation"
-      description="Prepare for backend interviews with Go fundamentals, concurrency models, data structures, and production practices."
+      title={title || "Golang Interview Preparation"}
+      description={
+        description ||
+        "Prepare for backend interviews with Go fundamentals, concurrency models, data structures, and production practices."
+      }
       topics={mergedTopics}
       quiz={mergedQuiz}
     />

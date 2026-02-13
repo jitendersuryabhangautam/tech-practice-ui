@@ -6,6 +6,9 @@ const nextConfig = {
   },
   basePath: "/tech-practice-ui",
   assetPrefix: "/tech-practice-ui/",
+  env: {
+    NEXT_PUBLIC_BASE_PATH: "/tech-practice-ui",
+  },
 };
 
 module.exports = nextConfig;

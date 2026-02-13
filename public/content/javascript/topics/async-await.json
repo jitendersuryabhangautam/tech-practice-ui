@@ -1,0 +1,146 @@
+{
+  "id": "async-await",
+  "title": "Async/Await",
+  "description": "Async/await is syntactic sugar built on top of Promises that makes asynchronous code look and behave like synchronous code, making it easier to read and write.",
+  "explanation": "Async/await is modern JavaScript syntax for working with Promises. The async keyword makes a function return a Promise, while await pauses execution until a Promise resolves.\n\nKey concepts:\n- async functions always return a Promise\n- await can only be used inside async functions\n- await pauses execution until Promise resolves\n- Errors are handled with try/catch blocks\n- Much more readable than .then() chains\n\nBest practices:\n- Always use try/catch for error handling\n- Don't await unnecessarily in loops\n- Use Promise.all() for parallel operations\n- Return early to avoid unnecessary awaits\n- Handle errors at appropriate levels",
+  "implementation": "async function fetchData() {\n  try {\n    const response = await fetch('/api/data');\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('Error:', error);\n    throw error;\n  }\n}",
+  "example": "// Sequential operations\nasync function getUserWithPosts(userId) {\n  try {\n    const user = await fetchUser(userId);\n    const posts = await fetchUserPosts(userId);\n    const comments = await fetchUserComments(userId);\n    \n    return { user, posts, comments };\n  } catch (error) {\n    console.error('Failed to load user data:', error);\n  }\n}\n\n// Parallel operations (faster!)\nasync function getUserDataParallel(userId) {\n  try {\n    const [user, posts, comments] = await Promise.all([\n      fetchUser(userId),\n      fetchUserPosts(userId),\n      fetchUserComments(userId)\n    ]);\n    \n    return { user, posts, comments };\n  } catch (error) {\n    console.error('Failed to load user data:', error);\n  }\n}",
+  "useCase": "API calls, database queries, file operations, any async operation requiring clean code",
+  "interviewQuestions": [
+    {
+      "question": "How is async/await related to promises?",
+      "answer": "async functions return promises; await pauses inside async until promise settles."
+    },
+    {
+      "question": "How do you handle errors in async/await?",
+      "answer": "Use try/catch around await or attach .catch at call site for centralized handling."
+    },
+    {
+      "question": "Why can await in loops be slow?",
+      "answer": "It serializes operations. Use Promise.all for parallelizable tasks."
+    },
+    {
+      "question": "What happens if you forget await?",
+      "answer": "You pass unresolved promise forward, often causing logic bugs or unexpected output."
+    },
+    {
+      "question": "What is best practice for top-level async flows?",
+      "answer": "Keep async boundaries explicit, handle cancellation/timeouts, and always surface actionable errors."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "output",
+      "question": "Predict: async function f(){return 7} f().then(console.log)",
+      "answer": "7",
+      "output": "7"
+    },
+    {
+      "type": "implement",
+      "question": "Write getJson(url) using async/await with error throw on !ok.",
+      "code": "async function getJson(url){\n  const res = await fetch(url);\n  if(!res.ok) throw new Error(\"Request failed\");\n  return res.json();\n}"
+    },
+    {
+      "type": "debug",
+      "question": "Unhandled rejection still appears with try/catch. Why?",
+      "answer": "Promise may be created but not awaited inside try block, so rejection escapes."
+    },
+    {
+      "type": "refactor",
+      "question": "Convert nested then-chain to async/await while keeping error handling.",
+      "answer": "Move sequence into async function with await calls and a single try/catch."
+    },
+    {
+      "type": "output",
+      "question": "Predict output order: async function f(){console.log(\"A\"); await Promise.resolve(); console.log(\"B\")} f(); console.log(\"C\")",
+      "answer": "A, C, B",
+      "output": "A\nC\nB"
+    },
+    {
+      "type": "output",
+      "question": "What is returned by async function when returning 10?",
+      "answer": "A Promise resolved with 10."
+    },
+    {
+      "type": "implement",
+      "question": "Implement fetchJson(url) with async/await and !ok error throw."
+    },
+    {
+      "type": "implement",
+      "question": "Write async function that fetches users then posts sequentially."
+    },
+    {
+      "type": "debug",
+      "question": "Unhandled rejection still occurs even with try/catch. Why?",
+      "answer": "Promise was not awaited inside try block or function caller did not await/catch."
+    },
+    {
+      "type": "debug",
+      "question": "Parallel tasks run slowly. Cause?",
+      "answer": "Using await in loop serializes calls; use Promise.all for parallel execution."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Basic async function returning value.",
+      "code": "async function f(){ return 42; }\nf().then(console.log);",
+      "output": "42"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Await resolved promise and print.",
+      "code": "async function run(){\n  const v = await Promise.resolve(\"ok\");\n  console.log(v);\n}\nrun();",
+      "output": "ok"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Async error handling with try/catch.",
+      "code": "async function run(){\n  try {\n    await Promise.reject(new Error(\"fail\"));\n  } catch(e){\n    console.log(e.message);\n  }\n}\nrun();",
+      "output": "fail"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Sequential async tasks.",
+      "code": "const wait = ms => new Promise(r=>setTimeout(r,ms));\nasync function seq(){\n  await wait(10);\n  console.log(\"first\");\n  await wait(10);\n  console.log(\"second\");\n}\nseq();",
+      "output": "first\nsecond"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Parallel async tasks with Promise.all + await.",
+      "code": "const a=Promise.resolve(1);\nconst b=Promise.resolve(2);\n(async()=>{\n  const [x,y]=await Promise.all([a,b]);\n  console.log(x+y);\n})();",
+      "output": "3"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Async wrapper for JSON parse simulation.",
+      "code": "async function parseAsync(str){\n  return JSON.parse(str);\n}\nparseAsync(\"{\\\"x\\\":1}\").then(v=>console.log(v.x));",
+      "output": "1"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Retry once on failure with async/await.",
+      "code": "let tries=0;\nasync function task(){\n  tries++;\n  if(tries===1) throw new Error(\"retry\");\n  return \"success\";\n}\n(async()=>{\n  try{ await task(); }catch{ console.log(await task()); }\n})();",
+      "output": "success"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Convert then-chain to async/await result.",
+      "code": "const get=()=>Promise.resolve(5);\n(async()=>{\n  const v = await get();\n  console.log(v*2);\n})();",
+      "output": "10"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Await in loop (sequential) demo.",
+      "code": "const wait=ms=>new Promise(r=>setTimeout(r,ms));\n(async()=>{\n  for(const n of [1,2,3]){\n    await wait(5);\n    console.log(n);\n  }\n})();",
+      "output": "1\n2\n3"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Top-level style async IIFE with final log.",
+      "code": "(async()=>{\n  const a = await Promise.resolve(\"JS\");\n  console.log(`${a} async`);\n})();",
+      "output": "JS async"
+    }
+  ],
+  "category": "Core Concepts"
+}

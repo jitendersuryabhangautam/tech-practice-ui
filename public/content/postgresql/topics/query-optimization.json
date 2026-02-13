@@ -1,0 +1,9 @@
+{
+  "id": "query-optimization",
+  "title": "Query Optimization",
+  "description": "Techniques to improve query performance and efficiency.",
+  "code": "-- EXPLAIN ANALYZE\nEXPLAIN ANALYZE \nSELECT * FROM orders \nWHERE created_at > NOW() - INTERVAL '30 days';\n\n-- Avoid SELECT *\nSELECT id, name, email FROM users; -- Better\nSELECT * FROM users; -- Avoid\n\n-- Use LIMIT\nSELECT * FROM posts \nORDER BY created_at DESC \nLIMIT 100;\n\n-- Indexes for WHERE, JOIN, ORDER BY\nCREATE INDEX idx_orders_created_at ON orders(created_at);\nCREATE INDEX idx_order_items_order_id ON order_items(order_id);\n\n-- Use EXISTS instead of COUNT\nSELECT EXISTS(SELECT 1 FROM users WHERE email = 'test@example.com');\n-- Instead of: SELECT COUNT(*) > 0 FROM users WHERE...",
+  "example": "-- Avoid OR, use UNION\nSELECT * FROM products WHERE category = 'Electronics'\nUNION\nSELECT * FROM products WHERE category = 'Computers';\n\n-- Use BETWEEN instead of >= AND <=\nSELECT * FROM orders \nWHERE created_at BETWEEN '2024-01-01' AND '2024-12-31';\n\n-- Avoid functions on indexed columns\n-- Bad: WHERE LOWER(email) = 'test@example.com'\n-- Good: WHERE email = 'test@example.com'\n\n-- Use prepared statements\nPREPARE user_query AS \nSELECT * FROM users WHERE id = $1;\nEXECUTE user_query(5);",
+  "useCase": "Performance tuning, reducing query time, scalability, production optimization",
+  "category": "Performance & Optimization"
+}

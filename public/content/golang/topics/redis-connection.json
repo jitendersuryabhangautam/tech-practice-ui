@@ -1,0 +1,161 @@
+{
+  "id": "redis-connection",
+  "title": "Redis Connection (go-redis)",
+  "description": "Connect Go services to Redis for cache, counters, and lightweight coordination.",
+  "explanation": "Interview focus: redis.Nil behavior, TTL strategy, cache-aside flow, and timeout/circuit fallback under outages.",
+  "code": "rdb := redis.NewClient(&redis.Options{Addr: \"localhost:6379\"})\ndefer rdb.Close()\nif err := rdb.Ping(ctx).Err(); err != nil { return err }",
+  "example": "_ = rdb.Set(ctx, \"k\", \"v\", time.Minute).Err()\nv, err := rdb.Get(ctx, \"k\").Result()",
+  "useCase": "Caching expensive reads, rate limiting, OTP/session storage.",
+  "interviewQuestions": [
+    {
+      "question": "What does redis.Nil indicate?",
+      "answer": "Key miss."
+    },
+    {
+      "question": "Why add TTL to cache keys?",
+      "answer": "To avoid stale infinite data and control memory."
+    },
+    {
+      "question": "What is cache-aside?",
+      "answer": "Read cache -> miss -> source -> write cache."
+    },
+    {
+      "question": "Set vs SetNX?",
+      "answer": "Set writes always, SetNX writes only when absent."
+    },
+    {
+      "question": "Why use context on Redis calls?",
+      "answer": "Timeout/cancel support under network failure."
+    },
+    {
+      "question": "What is cache stampede?",
+      "answer": "Many concurrent misses recompute same expensive value."
+    },
+    {
+      "question": "How to reduce stampede risk?",
+      "answer": "Singleflight lock + jittered TTL + prewarm."
+    },
+    {
+      "question": "When to use Redis pipeline?",
+      "answer": "Batch commands to reduce round trips."
+    },
+    {
+      "question": "Can Redis replace SQL database completely?",
+      "answer": "Usually no, it complements primary persistence."
+    },
+    {
+      "question": "What happens if expiration is zero?",
+      "answer": "Key persists until delete/overwrite."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Implement getOrSet cache helper with loader + TTL."
+    },
+    {
+      "type": "output",
+      "question": "Get on missing key returns what error?",
+      "answer": "redis.Nil"
+    },
+    {
+      "type": "debug",
+      "question": "Stale cache persists forever. What was likely missing?",
+      "answer": "TTL/invalidation."
+    },
+    {
+      "type": "scenario",
+      "question": "Design login attempt rate limiter using INCR + EXPIRE."
+    },
+    {
+      "type": "implement",
+      "question": "Store/retrieve JSON payload in Redis."
+    },
+    {
+      "type": "debug",
+      "question": "Requests hang when Redis is down. What to add?",
+      "answer": "Timeouts and fallback/circuit strategy."
+    },
+    {
+      "type": "scenario",
+      "question": "Invalidate cache key after successful DB update."
+    },
+    {
+      "type": "tricky",
+      "question": "Is redis.Nil == nil?",
+      "answer": "No."
+    },
+    {
+      "type": "tricky",
+      "question": "Is Redis data typed automatically in Go?",
+      "answer": "No, values are serialized/deserialized."
+    },
+    {
+      "type": "implement",
+      "question": "Use SetNX for short lock key with expiry."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create client and ping.",
+      "code": "rdb := redis.NewClient(&redis.Options{Addr:\"localhost:6379\"})\nfmt.Println(rdb.Ping(ctx).Err() == nil)",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Set/get key with TTL.",
+      "code": "_ = rdb.Set(ctx, \"k\", \"v\", time.Minute).Err()\nv, _ := rdb.Get(ctx, \"k\").Result()\nfmt.Println(v)",
+      "output": "v"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Missing key check.",
+      "code": "_, err := rdb.Get(ctx, \"missing\").Result()\nfmt.Println(err == redis.Nil)",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Counter increment.",
+      "code": "n, _ := rdb.Incr(ctx, \"hits\").Result()\nfmt.Println(n)",
+      "output": "1 (or incremented value)"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Conditional set with SetNX.",
+      "code": "ok, _ := rdb.SetNX(ctx, \"lock:key\", \"1\", 5*time.Second).Result()\nfmt.Println(ok)",
+      "output": "true (if absent)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Delete and verify miss.",
+      "code": "_ = rdb.Del(ctx, \"k\").Err()\nfmt.Println(rdb.Get(ctx, \"k\").Err() == redis.Nil)",
+      "output": "true"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Pipeline execution.",
+      "code": "pipe := rdb.Pipeline()\npipe.Set(ctx, \"a\", \"1\", 0)\npipe.Incr(ctx, \"a\")\n_, _ = pipe.Exec(ctx)",
+      "output": "commands executed"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Store JSON in Redis.",
+      "code": "raw, _ := json.Marshal(map[string]string{\"name\":\"go\"})\n_ = rdb.Set(ctx, \"u:1\", raw, time.Minute).Err()",
+      "output": "stored"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Read JSON from Redis.",
+      "code": "b, _ := rdb.Get(ctx, \"u:1\").Bytes()\nvar m map[string]string\n_ = json.Unmarshal(b, &m)\nfmt.Println(m[\"name\"])",
+      "output": "go"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: TTL check.",
+      "code": "ttl, _ := rdb.TTL(ctx, \"u:1\").Result()\nfmt.Println(ttl > 0)",
+      "output": "true"
+    }
+  ],
+  "category": "Backend Development"
+}
