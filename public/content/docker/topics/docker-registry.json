@@ -1,0 +1,166 @@
+{
+  "id": "docker-registry",
+  "title": "Docker Registry & Image Management",
+  "category": "Docker Security",
+  "description": "Private registries, image lifecycle management, and registry operations.",
+  "explanation": "A Docker registry stores and distributes container images. Docker Hub is the default public registry, but production environments typically use private registries for security, compliance, and performance.\n\nRegistry types:\n- Docker Hub: Public/private repos, automated builds, vulnerability scanning. Free tier: 1 private repo.\n- Amazon ECR: Fully managed, IAM integration, image scanning, lifecycle policies.\n- Google Artifact Registry: Multi-format (Docker, npm, Maven), IAM, vulnerability scanning.\n- Azure Container Registry: Geo-replication, content trust, ACR Tasks for building.\n- Self-hosted: Docker Registry (open source), Harbor (enterprise features: replication, signing, scanning, RBAC).\n\nImage tagging strategy:\n- Semantic versioning: myapp:1.2.3, myapp:1.2, myapp:1 (cascading tags).\n- Git SHA: myapp:sha-abc123 (immutable, traceable to exact commit).\n- Branch: myapp:main, myapp:develop (mutable, latest from branch).\n- Never rely on :latest in production — it's mutable and unpredictable.\n- Use image digests for maximum reproducibility: myapp@sha256:abc...\n\nImage lifecycle:\n- Build → Scan → Tag → Push → Deploy → Monitor → Deprecate → Delete.\n- Implement lifecycle policies to auto-delete old images (e.g., keep last 10 tags, delete untagged after 7 days).\n- Use image promotion: dev registry → staging registry → prod registry.\n\nContent Trust & Signing:\n- Docker Content Trust (DCT) uses Notary for image signing.\n- Cosign (Sigstore) is the modern alternative — keyless signing with OIDC identity.\n- Verify signatures before deployment using admission controllers (Kyverno, OPA).\n\nOptimizing pull performance:\n- Place registry close to deployment (same region/network).\n- Use registry mirrors/caches for frequently pulled images.\n- Layer sharing: common base images are pulled once and shared across containers.\n- Use --pull-policy=IfNotPresent in Kubernetes to avoid unnecessary pulls.",
+  "command": "# Login to registry\ndocker login\ndocker login registry.example.com\n\n# Tag for private registry\ndocker tag myapp:1.0 registry.example.com/team/myapp:1.0\n\n# Push image\ndocker push registry.example.com/team/myapp:1.0\n\n# Pull image\ndocker pull registry.example.com/team/myapp:1.0\n\n# List tags (Docker Hub API)\ncurl -s https://hub.docker.com/v2/repositories/library/nginx/tags | python3 -m json.tool\n\n# Run local registry\ndocker run -d -p 5000:5000 --name registry registry:2\n\n# Push to local registry\ndocker tag myapp localhost:5000/myapp\ndocker push localhost:5000/myapp\n\n# Pull by digest (immutable)\ndocker pull nginx@sha256:abc123...",
+  "example": "# Self-hosted registry with TLS and authentication\ndocker run -d -p 443:5000 \\\n  --name secure-registry \\\n  -v /certs:/certs \\\n  -v /auth:/auth \\\n  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/fullchain.pem \\\n  -e REGISTRY_HTTP_TLS_KEY=/certs/privkey.pem \\\n  -e REGISTRY_AUTH=htpasswd \\\n  -e REGISTRY_AUTH_HTPASSWD_REALM=Registry \\\n  -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \\\n  registry:2\n\n# CI/CD tagging pattern\nexport SHA=$(git rev-parse --short HEAD)\nexport BRANCH=$(git branch --show-current)\ndocker build -t myapp:$SHA -t myapp:$BRANCH -t myapp:latest .\ndocker push myapp:$SHA\ndocker push myapp:$BRANCH",
+  "useCase": "Image distribution, CI/CD pipelines, air-gapped deployments, compliance, image lifecycle",
+  "interviewQuestions": [
+    {
+      "question": "What happens when you docker push an image?",
+      "answer": "Docker pushes each layer individually. Registry checks if layer already exists (by digest) — skips existing layers. Only new/changed layers are uploaded. Manifest (metadata linking layers to image) is pushed last. Efficient for incremental updates."
+    },
+    {
+      "question": "How do you set up a private Docker registry?",
+      "answer": "Run official registry image: docker run -d -p 5000:5000 registry:2. For production: add TLS certificates, htpasswd/token authentication, persistent volume for storage, configure garbage collection. Alternatives: Harbor (enterprise), ECR, GCR, ACR."
+    },
+    {
+      "question": "What is the difference between image tag and image digest?",
+      "answer": "Tag is a mutable pointer (nginx:latest can change). Digest is an immutable SHA256 hash of the image manifest (nginx@sha256:abc...). Tags can be overwritten; digests cannot. Use digests in production for reproducibility. Use tags for human readability."
+    },
+    {
+      "question": "Explain Docker image layer sharing and its benefits.",
+      "answer": "Layers are content-addressable and shared across images. If two images use the same base (node:18-alpine), the base layers are stored and pulled only once. Saves disk space, speeds up pulls. This is why consistent base images across teams are important."
+    },
+    {
+      "question": "How do you implement image lifecycle policies?",
+      "answer": "Cloud registries (ECR, GCR) have built-in lifecycle policies. Rules: delete untagged images after N days, keep last N tagged images, delete images older than N days. Self-hosted: use registry garbage collection (registry garbage-collect config.yml). Script cleanup for Docker Hub."
+    },
+    {
+      "question": "What is Docker Content Trust and how does it work?",
+      "answer": "DCT uses digital signatures (Notary) to verify image integrity and publisher identity. Set DOCKER_CONTENT_TRUST=1. Publishers sign with private key on push. Consumers verify with public key on pull. Prevents pulling tampered images. Modern alternative: Cosign with keyless signing."
+    },
+    {
+      "question": "How do you handle registry credentials securely?",
+      "answer": "Docker stores credentials in ~/.docker/config.json (plaintext by default). Use credential helpers: docker-credential-ecr-login (AWS), docker-credential-gcr (GCP), docker-credential-pass (GPG-encrypted). In CI/CD: use short-lived tokens, not persistent passwords. In K8s: imagePullSecrets."
+    },
+    {
+      "question": "What is registry mirroring and when to use it?",
+      "answer": "Mirror caches images from upstream registries locally. Reduces external bandwidth, speeds up pulls, works in air-gapped environments. Configure in Docker daemon.json: registry-mirrors. Pull-through cache: registry requests image, caches on first pull, serves from cache on subsequent pulls."
+    },
+    {
+      "question": "How do you migrate images between registries?",
+      "answer": "Options: (1) docker pull/tag/push (simple but slow, pulls full image). (2) skopeo copy (doesn't require Docker daemon, preserves digests). (3) crane copy (Google's tool, fast). (4) Registry replication (Harbor supports built-in replication between registries)."
+    },
+    {
+      "question": "Explain multi-architecture images (manifest lists).",
+      "answer": "A single tag (nginx:latest) can contain images for multiple CPU architectures (amd64, arm64, etc.). Docker automatically pulls the correct architecture. Created with docker buildx build --platform linux/amd64,linux/arm64. Manifest list is a JSON that maps platform to digest."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Run a local Docker registry and push an image to it.",
+      "answer": "docker run -d -p 5000:5000 registry:2\ndocker tag nginx localhost:5000/nginx\ndocker push localhost:5000/nginx"
+    },
+    {
+      "type": "scenario",
+      "question": "Your team uses :latest tag for production deployments. What problems can occur?",
+      "answer": "Unpredictable: latest can change without notice. Different environments may run different versions. Can't audit what version is running. Rollback is impossible (tag overwritten). Fix: use immutable tags (semantic version or git SHA)."
+    },
+    {
+      "type": "command",
+      "question": "Pull an image by its digest instead of tag for guaranteed immutability.",
+      "answer": "docker inspect nginx:latest --format='{{.RepoDigests}}'\ndocker pull nginx@sha256:<digest-from-above>"
+    },
+    {
+      "type": "explain",
+      "question": "What is the difference between docker save/load and docker push/pull?",
+      "answer": "save/load: exports/imports image as tar file (offline transfer, air-gapped environments). push/pull: transfers via registry protocol (incremental, only changed layers). save includes all layers in tar; push skips existing layers in registry."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "docker push fails with 'denied: requested access to the resource is denied'. What to check?",
+      "answer": "Check: (1) docker login to correct registry, (2) image tag matches registry path, (3) user has push permissions, (4) repository exists (some registries require creating repo first), (5) token/credentials not expired."
+    },
+    {
+      "type": "scenario",
+      "question": "How do you set up Docker authentication in a CI/CD pipeline securely?",
+      "answer": "Use CI/CD secret variables for registry password. Login with: echo $REGISTRY_PASSWORD | docker login -u $REGISTRY_USER --password-stdin registry.example.com. For AWS ECR: use IAM role with aws ecr get-login-password. Never hardcode credentials in pipeline files."
+    },
+    {
+      "type": "security",
+      "question": "A developer accidentally pushed an image containing secrets to a public registry. What to do?",
+      "answer": "Immediately: (1) Delete image/tag from registry, (2) Rotate ALL exposed secrets, (3) Audit access logs for unauthorized pulls, (4) Add image scanning to pipeline to prevent recurrence. Note: deleting from Docker Hub doesn't remove from CDN cache immediately."
+    },
+    {
+      "type": "command",
+      "question": "List all tags for an image in Docker Hub using the API.",
+      "answer": "curl -s 'https://hub.docker.com/v2/repositories/library/nginx/tags/?page_size=10' | python3 -m json.tool | grep '\"name\"'"
+    },
+    {
+      "type": "optimize",
+      "question": "Image pulls in Kubernetes are slow. How to optimize?",
+      "answer": "Use imagePullPolicy: IfNotPresent (avoid re-pulling). Use registry mirror/cache in same network. Pre-pull common base images on nodes (DaemonSet). Use smaller images (alpine/distroless). Enable image streaming (GKE) or lazy pulling."
+    },
+    {
+      "type": "write",
+      "question": "Write a CI/CD script that builds, tags (SHA + branch + latest), and pushes an image.",
+      "answer": "SHA=$(git rev-parse --short HEAD)\nBRANCH=$(git branch --show-current)\nIMAGE=registry.example.com/myapp\ndocker build -t $IMAGE:$SHA -t $IMAGE:$BRANCH -t $IMAGE:latest .\ndocker push $IMAGE:$SHA\ndocker push $IMAGE:$BRANCH\ndocker push $IMAGE:latest"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Run local registry, tag and push image, pull it back",
+      "code": "docker run -d -p 5000:5000 --name local-reg registry:2\ndocker pull alpine\ndocker tag alpine localhost:5000/myalpine:v1\ndocker push localhost:5000/myalpine:v1\ndocker rmi localhost:5000/myalpine:v1\ndocker pull localhost:5000/myalpine:v1\ndocker images | grep myalpine",
+      "output": "Image pushed to local registry, pulled back successfully"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: List images in local registry via API",
+      "code": "curl -s http://localhost:5000/v2/_catalog\ncurl -s http://localhost:5000/v2/myalpine/tags/list",
+      "output": "{\"repositories\":[\"myalpine\"]} / {\"name\":\"myalpine\",\"tags\":[\"v1\"]}"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Get image digest for immutable reference",
+      "code": "docker inspect nginx:latest --format='{{index .RepoDigests 0}}'",
+      "output": "nginx@sha256:abc123... (immutable digest reference)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Verify layer sharing between images with same base",
+      "code": "docker pull node:18-alpine\ndocker pull node:20-alpine\ndocker system df -v | grep -A5 'SHARED SIZE'",
+      "output": "Shared size shows common alpine layers reused between both images"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Tag image with git SHA and branch for CI/CD",
+      "code": "SHA=$(git rev-parse --short HEAD 2>/dev/null || echo 'abc1234')\ndocker tag nginx myregistry/nginx:$SHA\ndocker tag nginx myregistry/nginx:main\ndocker images | grep myregistry",
+      "output": "Same image ID with SHA tag and branch tag, ready for push"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: save image to tar for air-gapped transfer",
+      "code": "docker save nginx:alpine -o nginx-alpine.tar\nls -lh nginx-alpine.tar\ndocker rmi nginx:alpine\ndocker load -i nginx-alpine.tar\ndocker images | grep nginx",
+      "output": "Image saved (~40MB tar), removed, restored from tar file"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Check image manifest for multi-arch support",
+      "code": "docker manifest inspect nginx:latest | python3 -c \"import sys,json; m=json.load(sys.stdin); print([p['platform']['architecture'] for p in m.get('manifests',[])])\"",
+      "output": "['amd64', 'arm64', 'arm', '386', ...] (supported architectures)"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Login to registry with --password-stdin (secure)",
+      "code": "echo 'mypassword' | docker login localhost:5000 -u admin --password-stdin\ncat ~/.docker/config.json | python3 -m json.tool",
+      "output": "Login Succeeded. config.json shows auth entry for localhost:5000"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Run registry with persistent volume for data safety",
+      "code": "docker volume create reg-data\ndocker run -d -p 5000:5000 -v reg-data:/var/lib/registry --name persistent-reg registry:2\ndocker tag alpine localhost:5000/persist:v1\ndocker push localhost:5000/persist:v1\ndocker rm -f persistent-reg\ndocker run -d -p 5000:5000 -v reg-data:/var/lib/registry --name persistent-reg2 registry:2\ncurl -s http://localhost:5000/v2/_catalog",
+      "output": "{\"repositories\":[\"persist\"]} — data survived registry container recreation"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Delete image from local registry via API",
+      "code": "DIGEST=$(curl -s -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' http://localhost:5000/v2/myalpine/manifests/v1 -I | grep Docker-Content-Digest | tr -d '\\r' | cut -d' ' -f2)\ncurl -X DELETE http://localhost:5000/v2/myalpine/manifests/$DIGEST\ncurl -s http://localhost:5000/v2/myalpine/tags/list",
+      "output": "Tag deleted, tags list shows empty (registry GC needed to reclaim space)"
+    }
+  ]
+}
