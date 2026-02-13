@@ -1,0 +1,146 @@
+[
+  {
+    "id": "sd-process",
+    "file": "topics/sd-process.json",
+    "title": "System Design Interview Framework",
+    "category": "Foundations"
+  },
+  {
+    "id": "capacity-consistency",
+    "file": "topics/capacity-consistency.json",
+    "title": "Capacity Planning, Consistency & Trade-offs",
+    "category": "Foundations"
+  },
+  {
+    "id": "load-balancing",
+    "file": "topics/load-balancing.json",
+    "title": "Load Balancing & Reverse Proxy",
+    "category": "Foundations"
+  },
+  {
+    "id": "caching",
+    "file": "topics/caching.json",
+    "title": "Caching Strategies",
+    "category": "Foundations"
+  },
+  {
+    "id": "database-sharding",
+    "file": "topics/database-sharding.json",
+    "title": "Database Partitioning & Sharding",
+    "category": "Foundations"
+  },
+  {
+    "id": "message-queues",
+    "file": "topics/message-queues.json",
+    "title": "Message Queues & Event Streaming",
+    "category": "Foundations"
+  },
+  {
+    "id": "rate-limiting",
+    "file": "topics/rate-limiting.json",
+    "title": "Rate Limiting & Throttling",
+    "category": "Foundations"
+  },
+  {
+    "id": "api-design",
+    "file": "topics/api-design.json",
+    "title": "API Design & Versioning",
+    "category": "Foundations"
+  },
+  {
+    "id": "microservices",
+    "file": "topics/microservices.json",
+    "title": "Microservices Patterns",
+    "category": "Foundations"
+  },
+  {
+    "id": "consistent-hashing",
+    "file": "topics/consistent-hashing.json",
+    "title": "Consistent Hashing",
+    "category": "Foundations"
+  },
+  {
+    "id": "cdn-architecture",
+    "file": "topics/cdn-architecture.json",
+    "title": "CDN Architecture",
+    "category": "Foundations"
+  },
+  {
+    "id": "monitoring",
+    "file": "topics/monitoring.json",
+    "title": "Monitoring & Observability",
+    "category": "Foundations"
+  },
+  {
+    "id": "netflix-lld",
+    "file": "topics/netflix-lld.json",
+    "title": "Netflix: Playback & Streaming",
+    "category": "Company LLD"
+  },
+  {
+    "id": "facebook-feed-lld",
+    "file": "topics/facebook-feed-lld.json",
+    "title": "Facebook: News Feed",
+    "category": "Company LLD"
+  },
+  {
+    "id": "youtube-lld",
+    "file": "topics/youtube-lld.json",
+    "title": "YouTube: Upload & Transcode",
+    "category": "Company LLD"
+  },
+  {
+    "id": "zomato-lld",
+    "file": "topics/zomato-lld.json",
+    "title": "Zomato: Order & Dispatch",
+    "category": "Company LLD"
+  },
+  {
+    "id": "bookmyshow-lld",
+    "file": "topics/bookmyshow-lld.json",
+    "title": "BookMyShow: Seat Booking",
+    "category": "Company LLD"
+  },
+  {
+    "id": "delhivery-lld",
+    "file": "topics/delhivery-lld.json",
+    "title": "Delhivery: Shipment Tracking",
+    "category": "Company LLD"
+  },
+  {
+    "id": "url-shortener",
+    "file": "topics/url-shortener.json",
+    "title": "URL Shortener (TinyURL)",
+    "category": "Company HLD"
+  },
+  {
+    "id": "chat-system",
+    "file": "topics/chat-system.json",
+    "title": "Chat System (WhatsApp)",
+    "category": "Company HLD"
+  },
+  {
+    "id": "notification-system",
+    "file": "topics/notification-system.json",
+    "title": "Notification System",
+    "category": "Company HLD"
+  },
+  {
+    "id": "search-autocomplete",
+    "file": "topics/search-autocomplete.json",
+    "title": "Search & Autocomplete",
+    "category": "Company HLD"
+  },
+  {
+    "id": "ride-matching",
+    "file": "topics/ride-matching.json",
+    "title": "Ride Matching (Uber/Ola)",
+    "category": "Company HLD"
+  },
+  {
+    "id": "payment-system",
+    "file": "topics/payment-system.json",
+    "title": "Payment System",
+    "category": "Company HLD"
+  }
+]

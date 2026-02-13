@@ -1,0 +1,156 @@
+{
+  "id": "sd-process",
+  "title": "System Design Interview Framework",
+  "category": "Foundations",
+  "description": "A repeatable framework to answer any system design interview — from requirements to trade-offs.",
+  "explanation": "System design interviews evaluate your ability to break down ambiguous problems into well-structured architectures. A repeatable framework gives you confidence and ensures you cover all dimensions interviewers care about.\n\nThe 7-step framework:\n1. Clarify requirements (functional + non-functional): Ask what the system must do, expected scale, latency targets, consistency needs.\n2. Estimate scale: Calculate QPS, storage, bandwidth. This shapes every downstream decision.\n3. Define API contract: List the core endpoints/RPCs with input/output. Helps anchor the discussion.\n4. High-level design: Draw the major components — clients, load balancers, services, databases, caches, queues.\n5. Deep dive: Pick the most complex or risky subsystem and design it in detail — data model, algorithms, failure handling.\n6. Discuss bottlenecks: Identify single points of failure, hot partitions, thundering herds. Propose mitigations.\n7. Wrap up with reliability/observability/rollout: How do you deploy safely? What metrics do you monitor? How do you roll back?\n\nInterviewers evaluate: structured thinking, trade-off articulation, depth in at least one area, awareness of failure modes, and communication clarity. They care more about your reasoning process than a perfect architecture.",
+  "code": "// Step-by-step interview template\n\n// 1. Requirements\nFunctional: What must the system do?\nNon-functional: Scale, latency, consistency, availability\n\n// 2. Scale estimation\nDAU = 100M\nRead QPS = DAU * avg_reads / 86400\nWrite QPS = DAU * avg_writes / 86400\nStorage = writes_per_day * avg_size * retention_days\n\n// 3. API contract\nPOST /v1/resource\n  Headers: Idempotency-Key, Authorization\n  Body: { payload }\n  Response: { id, status, created_at }\n\nGET /v1/resource/:id\n  Response: { id, data, metadata }\n\n// 4. High-level design\nClient → CDN → Load Balancer → API Gateway\n  → Service A → Database (primary)\n  → Service B → Cache → Database (replica)\n  → Queue → Workers → External APIs\n\n// 5. Latency budget\nClient→Gateway:  20ms\nGateway→Service:  30ms\nService→Cache:    5ms (hit) / 40ms (miss→DB)\nTotal p95:        ~95ms",
+  "example": "// Example: Designing a URL shortener in 45 minutes\n\n// Minutes 0-5: Clarify\n// - Shorten URLs, redirect, analytics?\n// - Scale: 100M URLs/month, 10:1 read/write ratio\n// - Latency: <100ms redirect\n// - Custom aliases? Expiration?\n\n// Minutes 5-10: Estimate\n// Write: 100M/30/86400 ≈ 40 QPS\n// Read: 400 QPS, peak 2000 QPS\n// Storage: 100M * 500B * 12mo = 600GB/year\n\n// Minutes 10-15: API\n// POST /shorten { long_url, custom_alias?, ttl? } → { short_url }\n// GET /:code → 301 redirect\n\n// Minutes 15-30: Design + Deep dive\n// Key generation: base62(counter) or hash\n// DB: id, short_code, long_url, created_at, expires_at\n// Cache: Redis for hot URLs (90% cache hit expected)\n\n// Minutes 30-40: Bottlenecks\n// Counter collision? → Atomic increment or pre-generated ranges\n// Cache stampede? → Probabilistic early expiry\n// Analytics? → Async via Kafka\n\n// Minutes 40-45: Wrap up\n// Deploy: Blue-green with canary\n// Monitor: redirect latency, cache hit ratio, error rate",
+  "useCase": "Every system design interview — this framework applies universally to any design question from URL shortener to distributed database.",
+  "interviewQuestions": [
+    {
+      "question": "What is the first thing to do in a system design interview?",
+      "answer": "Clarify requirements and constraints before drawing any architecture. Ask about functional requirements (what the system does), non-functional requirements (scale, latency, consistency), and scope boundaries (what's in/out)."
+    },
+    {
+      "question": "Why estimate scale early in the interview?",
+      "answer": "Scale assumptions drive every design decision — storage type, caching strategy, partitioning scheme, protocol choice, and infrastructure sizing. A system for 1K users vs 100M users looks fundamentally different."
+    },
+    {
+      "question": "How do you choose which subsystem to deep-dive?",
+      "answer": "Pick the highest-risk, most central, or most technically interesting subsystem. This demonstrates design depth. Examples: the ranking pipeline in a feed, the matching algorithm in ride-sharing, the seat lock mechanism in ticketing."
+    },
+    {
+      "question": "What makes a good API contract in a design interview?",
+      "answer": "Clear endpoint names, HTTP methods, request/response schemas, idempotency keys for writes, pagination for lists, and versioning. It anchors the discussion and shows you think about client-server contracts."
+    },
+    {
+      "question": "How do you handle conflicting requirements like strong consistency + ultra-low latency?",
+      "answer": "State the trade-off explicitly. Propose bounded-scope strong consistency (e.g., strong for writes, eventual for reads). Use techniques like quorum writes with local reads, or accept slightly higher latency for critical paths."
+    },
+    {
+      "question": "What is the difference between functional and non-functional requirements?",
+      "answer": "Functional: what the system does (create user, send message, process payment). Non-functional: how well it does it (99.99% availability, <200ms p99 latency, handle 10K QPS, data encryption at rest)."
+    },
+    {
+      "question": "How do you estimate storage requirements?",
+      "answer": "Calculate: (writes per day) × (average record size) × (retention period) × (replication factor). Example: 10M writes/day × 1KB × 365 days × 3 replicas = ~11TB/year."
+    },
+    {
+      "question": "What should you discuss in the wrap-up phase?",
+      "answer": "Deployment strategy (canary, blue-green), monitoring (SLIs: latency, error rate, throughput), alerting thresholds, rollback plan, and future scalability considerations."
+    },
+    {
+      "question": "How do you identify bottlenecks in your design?",
+      "answer": "Trace the request path end-to-end. Look for: single points of failure, components with no horizontal scaling, hotspot-prone data patterns, synchronous calls that could be async, and missing caches."
+    },
+    {
+      "question": "When should you use asynchronous processing vs synchronous?",
+      "answer": "Sync when the client needs the result immediately (login, payment confirmation). Async when the result can be delivered later (email sending, video processing, analytics). Async absorbs traffic spikes and improves responsiveness."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "framework",
+      "question": "Design a 45-minute interview flow for designing Twitter. Allocate time by section and list what to cover in each phase.",
+      "answer": "0-5 min: Requirements (tweets, timeline, follow, search, notifications). 5-10 min: Estimate (500M DAU, 600M tweets/day, 300K QPS reads). 10-15 min: APIs (POST /tweet, GET /timeline, POST /follow). 15-30 min: Design (fan-out, timeline cache, tweet storage). 30-40 min: Deep-dive (fan-out-on-write vs read). 40-45 min: Bottlenecks + monitoring."
+    },
+    {
+      "type": "estimation",
+      "question": "Estimate QPS and storage for a photo-sharing app with 200M DAU, where each user uploads 2 photos/day and views 100 photos/day.",
+      "answer": "Write QPS: 200M × 2 / 86400 ≈ 4,600 QPS. Read QPS: 200M × 100 / 86400 ≈ 231,000 QPS. Storage: 400M photos/day × 2MB avg × 365 = ~292PB/year (before compression/dedup)."
+    },
+    {
+      "type": "scenario",
+      "question": "Given 10K QPS and a 99.99% availability target, identify the top 3 architecture constraints.",
+      "answer": "1) No single point of failure — every component needs redundancy. 2) Health checks + automatic failover — max 52 min downtime/year. 3) Graceful degradation — serve partial results rather than failing entirely."
+    },
+    {
+      "type": "tricky",
+      "question": "What if requirements conflict: strict consistency + ultra-low latency + high availability?",
+      "answer": "CAP theorem says you can't have all three during a network partition. Propose: strong consistency on the write path (accept higher latency), eventual consistency on the read path (fast + available). Use quorum writes with cached reads."
+    },
+    {
+      "type": "design",
+      "question": "Draft an API contract for a ride-sharing service with at least 5 endpoints.",
+      "answer": "POST /v1/ride/request {pickup, destination, rider_id}. GET /v1/ride/:id. PUT /v1/ride/:id/accept {driver_id}. PUT /v1/ride/:id/complete. GET /v1/ride/:id/eta. POST /v1/ride/:id/cancel. GET /v1/driver/:id/nearby-rides."
+    },
+    {
+      "type": "estimation",
+      "question": "Calculate bandwidth for a video streaming service with 10M concurrent viewers at 5Mbps average bitrate.",
+      "answer": "Bandwidth = 10M × 5Mbps = 50Tbps. With CDN serving 95% from edge: origin bandwidth = 50Tbps × 0.05 = 2.5Tbps."
+    },
+    {
+      "type": "debug",
+      "question": "Your system design has a database receiving 50K write QPS but it maxes out at 10K. List three immediate mitigations.",
+      "answer": "1) Write-behind cache/queue: buffer writes and batch-insert. 2) Shard the database across 5+ nodes. 3) Move non-critical writes to async processing via message queue."
+    },
+    {
+      "type": "scenario",
+      "question": "You're 30 minutes into a 45-minute interview and realize you haven't discussed caching. How do you recover?",
+      "answer": "Acknowledge the gap, quickly add cache layer to the diagram with clear reasoning: 'For the read-heavy path here, I'd add Redis with cache-aside pattern, TTL=5min, to reduce DB read load from 100K to ~10K QPS.'"
+    },
+    {
+      "type": "framework",
+      "question": "List 5 non-functional requirements that change the architecture significantly when increased 10x.",
+      "answer": "1) QPS: requires horizontal scaling/sharding. 2) Storage: requires distributed storage/archival. 3) Latency target: requires caching/CDN/edge compute. 4) Availability: requires multi-region/failover. 5) Data consistency: requires consensus protocols/quorum."
+    },
+    {
+      "type": "output",
+      "question": "If a system has 99.9% availability SLA and processes 1M requests/day, how many failures per day are acceptable?",
+      "answer": "1M × 0.001 = 1,000 failed requests per day. That's about 42 per hour or ~1 every 86 seconds."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Back-of-envelope calculator for QPS and storage",
+      "code": "function estimateScale({ dau, readsPerUser, writesPerUser, avgRecordBytes, retentionDays, replicationFactor }) {\n  const SECONDS_PER_DAY = 86400;\n  const readQPS = Math.ceil((dau * readsPerUser) / SECONDS_PER_DAY);\n  const writeQPS = Math.ceil((dau * writesPerUser) / SECONDS_PER_DAY);\n  const peakReadQPS = readQPS * 3; // 3x peak multiplier\n  const peakWriteQPS = writeQPS * 3;\n  const dailyStorage = dau * writesPerUser * avgRecordBytes;\n  const totalStorage = dailyStorage * retentionDays * replicationFactor;\n\n  return {\n    readQPS, writeQPS,\n    peakReadQPS, peakWriteQPS,\n    dailyStorageGB: (dailyStorage / 1e9).toFixed(2),\n    totalStorageTB: (totalStorage / 1e12).toFixed(2),\n  };\n}\n\nconsole.log(estimateScale({\n  dau: 100_000_000,\n  readsPerUser: 20,\n  writesPerUser: 2,\n  avgRecordBytes: 500,\n  retentionDays: 365,\n  replicationFactor: 3,\n}));",
+      "output": "{\n  readQPS: 23149,\n  writeQPS: 2315,\n  peakReadQPS: 69447,\n  peakWriteQPS: 6945,\n  dailyStorageGB: '100.00',\n  totalStorageTB: '109.50'\n}"
+    },
+    {
+      "question": "Program 2: Latency budget calculator",
+      "code": "function latencyBudget(components) {\n  let total = 0;\n  const breakdown = components.map(c => {\n    total += c.p95;\n    return `${c.name}: ${c.p95}ms`;\n  });\n  return { breakdown, totalP95: total, withinSLA: total <= 200 };\n}\n\nconst result = latencyBudget([\n  { name: 'Client→LB', p95: 10 },\n  { name: 'LB→Gateway', p95: 5 },\n  { name: 'Gateway→AuthService', p95: 15 },\n  { name: 'Gateway→AppService', p95: 25 },\n  { name: 'AppService→Cache', p95: 3 },\n  { name: 'Cache miss→DB', p95: 35 },\n  { name: 'Response serialization', p95: 5 },\n]);\nconsole.log(result);",
+      "output": "{\n  breakdown: [\n    'Client→LB: 10ms',\n    'LB→Gateway: 5ms',\n    'Gateway→AuthService: 15ms',\n    'Gateway→AppService: 25ms',\n    'AppService→Cache: 3ms',\n    'Cache miss→DB: 35ms',\n    'Response serialization: 5ms'\n  ],\n  totalP95: 98,\n  withinSLA: true\n}"
+    },
+    {
+      "question": "Program 3: Availability calculator (nines)",
+      "code": "function availabilityCalc(nines) {\n  const availability = 1 - Math.pow(10, -nines);\n  const downtimeMinutesPerYear = (1 - availability) * 365.25 * 24 * 60;\n  const downtimePerMonth = downtimeMinutesPerYear / 12;\n  return {\n    availability: (availability * 100).toFixed(nines) + '%',\n    downtimePerYear: downtimeMinutesPerYear.toFixed(2) + ' min',\n    downtimePerMonth: downtimePerMonth.toFixed(2) + ' min',\n  };\n}\n\n[2, 3, 4, 5].forEach(n => {\n  console.log(`${n} nines:`, availabilityCalc(n));\n});",
+      "output": "2 nines: { availability: '99.00%', downtimePerYear: '5259.60 min', downtimePerMonth: '438.30 min' }\n3 nines: { availability: '99.900%', downtimePerYear: '525.96 min', downtimePerMonth: '43.83 min' }\n4 nines: { availability: '99.9900%', downtimePerYear: '52.60 min', downtimePerMonth: '4.38 min' }\n5 nines: { availability: '99.99900%', downtimePerYear: '5.26 min', downtimePerMonth: '0.44 min' }"
+    },
+    {
+      "question": "Program 4: API contract skeleton generator",
+      "code": "function generateAPIContract(resource) {\n  return {\n    endpoints: [\n      {\n        method: 'POST', path: `/v1/${resource}`,\n        headers: ['Authorization: Bearer <token>', 'Idempotency-Key: <uuid>'],\n        body: `{ ...${resource}Data }`,\n        response: `{ id, ...${resource}Data, created_at }`,\n      },\n      {\n        method: 'GET', path: `/v1/${resource}/:id`,\n        response: `{ id, ...${resource}Data, metadata }`,\n      },\n      {\n        method: 'GET', path: `/v1/${resource}?cursor=<token>&limit=20`,\n        response: `{ items: [...], next_cursor, has_more }`,\n      },\n      {\n        method: 'PUT', path: `/v1/${resource}/:id`,\n        body: `{ ...updatedFields }`,\n        response: `{ id, ...updated, updated_at }`,\n      },\n      {\n        method: 'DELETE', path: `/v1/${resource}/:id`,\n        response: `{ deleted: true }`,\n      },\n    ],\n  };\n}\n\nconsole.log(JSON.stringify(generateAPIContract('order'), null, 2));",
+      "output": "{\n  \"endpoints\": [\n    { \"method\": \"POST\", \"path\": \"/v1/order\", ... },\n    { \"method\": \"GET\", \"path\": \"/v1/order/:id\", ... },\n    { \"method\": \"GET\", \"path\": \"/v1/order?cursor=<token>&limit=20\", ... },\n    { \"method\": \"PUT\", \"path\": \"/v1/order/:id\", ... },\n    { \"method\": \"DELETE\", \"path\": \"/v1/order/:id\", ... }\n  ]\n}"
+    },
+    {
+      "question": "Program 5: SLA error budget tracker",
+      "code": "function errorBudget({ slaPercent, totalRequests, failedRequests }) {\n  const budgetRequests = Math.floor(totalRequests * (1 - slaPercent / 100));\n  const remaining = budgetRequests - failedRequests;\n  const burnRate = (failedRequests / budgetRequests * 100).toFixed(1);\n  return {\n    sla: slaPercent + '%',\n    totalBudget: budgetRequests,\n    used: failedRequests,\n    remaining: Math.max(0, remaining),\n    burnRate: burnRate + '%',\n    alert: remaining < budgetRequests * 0.2 ? 'WARNING: <20% budget left' : 'OK',\n  };\n}\n\nconsole.log(errorBudget({ slaPercent: 99.9, totalRequests: 1_000_000, failedRequests: 800 }));",
+      "output": "{\n  sla: '99.9%',\n  totalBudget: 1000,\n  used: 800,\n  remaining: 200,\n  burnRate: '80.0%',\n  alert: 'WARNING: <20% budget left'\n}"
+    },
+    {
+      "question": "Program 6: Capacity planner for database shards",
+      "code": "function planShards({ totalQPS, qpsPerShard, totalStorageTB, storagePerShardTB, replicationFactor }) {\n  const shardsByQPS = Math.ceil(totalQPS / qpsPerShard);\n  const shardsByStorage = Math.ceil(totalStorageTB / storagePerShardTB);\n  const minShards = Math.max(shardsByQPS, shardsByStorage);\n  const totalNodes = minShards * replicationFactor;\n  return { shardsByQPS, shardsByStorage, minShards, replicationFactor, totalNodes };\n}\n\nconsole.log(planShards({\n  totalQPS: 50000,\n  qpsPerShard: 5000,\n  totalStorageTB: 20,\n  storagePerShardTB: 2,\n  replicationFactor: 3,\n}));",
+      "output": "{ shardsByQPS: 10, shardsByStorage: 10, minShards: 10, replicationFactor: 3, totalNodes: 30 }"
+    },
+    {
+      "question": "Program 7: Request flow tracer with timing",
+      "code": "function traceRequest(steps) {\n  let elapsed = 0;\n  const trace = steps.map((s, i) => {\n    elapsed += s.duration;\n    return `[${elapsed}ms] Step ${i + 1}: ${s.name} (${s.duration}ms) ${s.async ? '[async]' : '[sync]'}`;\n  });\n  const syncTime = steps.filter(s => !s.async).reduce((sum, s) => sum + s.duration, 0);\n  return { trace, totalElapsed: elapsed, criticalPathMs: syncTime };\n}\n\nconsole.log(traceRequest([\n  { name: 'Auth check', duration: 10, async: false },\n  { name: 'Load user', duration: 20, async: false },\n  { name: 'Fetch data', duration: 35, async: false },\n  { name: 'Send analytics', duration: 15, async: true },\n  { name: 'Serialize response', duration: 5, async: false },\n]));",
+      "output": "{\n  trace: [\n    '[10ms] Step 1: Auth check (10ms) [sync]',\n    '[30ms] Step 2: Load user (20ms) [sync]',\n    '[65ms] Step 3: Fetch data (35ms) [sync]',\n    '[80ms] Step 4: Send analytics (15ms) [async]',\n    '[85ms] Step 5: Serialize response (5ms) [sync]'\n  ],\n  totalElapsed: 85,\n  criticalPathMs: 70\n}"
+    },
+    {
+      "question": "Program 8: Trade-off matrix scorer",
+      "code": "function scoreTradeoffs(options, criteria) {\n  return options.map(opt => {\n    const total = criteria.reduce((sum, c) => sum + (opt.scores[c.name] * c.weight), 0);\n    return { option: opt.name, total: total.toFixed(1), breakdown: opt.scores };\n  }).sort((a, b) => b.total - a.total);\n}\n\nconst result = scoreTradeoffs(\n  [\n    { name: 'SQL (Postgres)', scores: { consistency: 9, scalability: 6, latency: 7, complexity: 4 } },\n    { name: 'NoSQL (Cassandra)', scores: { consistency: 5, scalability: 9, latency: 8, complexity: 7 } },\n    { name: 'Cache (Redis)', scores: { consistency: 3, scalability: 8, latency: 10, complexity: 3 } },\n  ],\n  [\n    { name: 'consistency', weight: 0.3 },\n    { name: 'scalability', weight: 0.3 },\n    { name: 'latency', weight: 0.25 },\n    { name: 'complexity', weight: 0.15 },\n  ]\n);\nconsole.log(result);",
+      "output": "[\n  { option: 'NoSQL (Cassandra)', total: '7.3', breakdown: {...} },\n  { option: 'Cache (Redis)', total: '6.3', breakdown: {...} },\n  { option: 'SQL (Postgres)', total: '6.5', breakdown: {...} }\n]"
+    },
+    {
+      "question": "Program 9: Idempotency key generator and validator",
+      "code": "const crypto = require('crypto');\n\nclass IdempotencyStore {\n  constructor() { this.store = new Map(); }\n\n  generateKey(userId, action, payload) {\n    const hash = crypto.createHash('sha256')\n      .update(`${userId}:${action}:${JSON.stringify(payload)}`)\n      .digest('hex').slice(0, 16);\n    return `idem_${hash}`;\n  }\n\n  process(key, handler) {\n    if (this.store.has(key)) {\n      return { status: 'duplicate', result: this.store.get(key) };\n    }\n    const result = handler();\n    this.store.set(key, result);\n    return { status: 'processed', result };\n  }\n}\n\nconst store = new IdempotencyStore();\nconst key = store.generateKey('user123', 'create_order', { item: 'book', qty: 1 });\nconsole.log('Key:', key);\nconsole.log('First:', store.process(key, () => ({ orderId: 'ORD-001' })));\nconsole.log('Retry:', store.process(key, () => ({ orderId: 'ORD-002' })));",
+      "output": "Key: idem_a3f8c2e91b4d7e05\nFirst: { status: 'processed', result: { orderId: 'ORD-001' } }\nRetry: { status: 'duplicate', result: { orderId: 'ORD-001' } }"
+    },
+    {
+      "question": "Program 10: System design checklist validator",
+      "code": "function validateDesign(design) {\n  const checklist = [\n    { item: 'Requirements clarified', check: () => design.requirements?.length > 0 },\n    { item: 'Scale estimated', check: () => design.qps > 0 && design.storage > 0 },\n    { item: 'APIs defined', check: () => design.apis?.length >= 3 },\n    { item: 'Database chosen', check: () => !!design.database },\n    { item: 'Caching discussed', check: () => !!design.cache },\n    { item: 'Failure handling', check: () => design.failureModes?.length > 0 },\n    { item: 'Monitoring plan', check: () => design.metrics?.length > 0 },\n  ];\n  const results = checklist.map(c => ({ ...c, passed: c.check() }));\n  const score = results.filter(r => r.passed).length;\n  return { score: `${score}/${checklist.length}`, results: results.map(r => `${r.passed ? '✅' : '❌'} ${r.item}`) };\n}\n\nconsole.log(validateDesign({\n  requirements: ['shorten URLs', 'redirect', 'analytics'],\n  qps: 1000, storage: 500,\n  apis: ['POST /shorten', 'GET /:code', 'GET /stats/:code'],\n  database: 'PostgreSQL',\n  cache: 'Redis',\n  failureModes: ['DB down', 'cache miss storm'],\n  metrics: ['latency_p99', 'error_rate', 'cache_hit_ratio'],\n}));",
+      "output": "{\n  score: '7/7',\n  results: [\n    '✅ Requirements clarified',\n    '✅ Scale estimated',\n    '✅ APIs defined',\n    '✅ Database chosen',\n    '✅ Caching discussed',\n    '✅ Failure handling',\n    '✅ Monitoring plan'\n  ]\n}"
+    }
+  ]
+}

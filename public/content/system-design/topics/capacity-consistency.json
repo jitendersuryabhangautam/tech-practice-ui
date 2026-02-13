@@ -1,0 +1,156 @@
+{
+  "id": "capacity-consistency",
+  "title": "Capacity Planning, Consistency & Trade-offs",
+  "category": "Foundations",
+  "description": "Convert traffic assumptions into storage/throughput design and choose the right consistency model.",
+  "explanation": "Capacity planning quantifies the resources your system needs. Start with DAU, estimate read/write QPS, apply peak multipliers (2-5x), and calculate storage with retention and replication. Then choose a consistency model by business semantics.\n\nCapacity planning steps:\n1. Estimate DAU and actions per user per day\n2. Calculate average and peak QPS (reads and writes separately)\n3. Estimate storage: records/day × avg size × retention × replication\n4. Estimate bandwidth: QPS × avg payload size\n5. Derive infrastructure needs: number of servers, DB shards, cache nodes\n\nConsistency models:\n- Strong consistency: All reads see the latest write. Use for money movement, seat booking, inventory. Cost: higher latency, lower availability during partitions.\n- Eventual consistency: Reads may see stale data temporarily. Use for feeds, counters, notifications. Benefit: higher availability and lower latency.\n- Causal consistency: Preserves cause-effect ordering. Good for chat messages, comment threads.\n- Read-your-writes: User always sees their own updates. Common compromise for user-facing apps.\n\nCAP theorem: During a network partition, you must choose between Consistency and Availability. In practice, most systems are AP (available + partition-tolerant) with eventual consistency, using strong consistency only for critical paths.",
+  "code": "// Capacity estimation worksheet\n\n// Input assumptions\nconst DAU = 200_000_000;        // 200M daily active users\nconst readsPerUser = 50;         // feed views, searches\nconst writesPerUser = 3;         // posts, messages\nconst avgReadPayload = 2_000;    // 2KB response\nconst avgWritePayload = 500;     // 500B request\nconst retentionDays = 365;\nconst replicationFactor = 3;\n\n// QPS\nconst avgReadQPS = (DAU * readsPerUser) / 86400;   // ~115,741\nconst avgWriteQPS = (DAU * writesPerUser) / 86400;  // ~6,944\nconst peakReadQPS = avgReadQPS * 3;                  // ~347,222\nconst peakWriteQPS = avgWriteQPS * 5;                // ~34,722\n\n// Storage\nconst dailyNewData = DAU * writesPerUser * avgWritePayload; // ~300GB/day\nconst totalStorage = dailyNewData * retentionDays * replicationFactor;\n// ~328TB total\n\n// Bandwidth\nconst ingressBandwidth = peakWriteQPS * avgWritePayload; // ~17MB/s\nconst egressBandwidth = peakReadQPS * avgReadPayload;    // ~694MB/s",
+  "example": "// Example: Consistency choice for different features\n\n// Feature 1: Wallet balance\n// Consistency: STRONG\n// Reason: Cannot show stale balance — user might double-spend\n// Implementation: Single-leader DB with serializable transactions\n\n// Feature 2: Feed like count\n// Consistency: EVENTUAL\n// Reason: Showing 1,002 vs 1,005 likes is acceptable\n// Implementation: Async counter with periodic materialization\n\n// Feature 3: Chat messages\n// Consistency: CAUSAL\n// Reason: Messages must appear in order within a conversation\n// Implementation: Per-conversation sequence numbers\n\n// Feature 4: User profile edit\n// Consistency: READ-YOUR-WRITES\n// Reason: User sees own changes immediately, others can lag\n// Implementation: Read from primary after write, replicas for others\n\n// Anti-pattern: Using strong consistency for everything\n// Problem: High latency, low throughput, poor availability\n// Fix: Classify each feature by consistency need",
+  "useCase": "Every system design interview starts with capacity estimation. Consistency trade-offs come up in database selection, caching strategy, and replication design for any distributed system.",
+  "interviewQuestions": [
+    {
+      "question": "When do you choose eventual consistency over strong consistency?",
+      "answer": "For user-facing non-critical data where low latency and high availability matter more than strict freshness — feeds, like counts, recommendations, notifications. The brief staleness window is acceptable."
+    },
+    {
+      "question": "What is a bad shard key and why?",
+      "answer": "A key with skewed distribution (e.g., user_country) causes hotspots — one shard gets 80% of traffic while others are idle. Good shard keys distribute evenly (user_id hash, UUID)."
+    },
+    {
+      "question": "How do you handle sudden 10x traffic spikes?",
+      "answer": "1) Autoscale stateless tiers. 2) Rate limit to protect backends. 3) Queue burst writes for async processing. 4) Serve from cache/CDN for reads. 5) Degrade gracefully (partial results, reduced features)."
+    },
+    {
+      "question": "Explain the CAP theorem with a practical example.",
+      "answer": "During a network partition between two data centers: CP system (like ZooKeeper) rejects writes to maintain consistency. AP system (like Cassandra) accepts writes on both sides, resolving conflicts later. Most web apps choose AP with eventual consistency."
+    },
+    {
+      "question": "How do you estimate if you need caching?",
+      "answer": "Calculate read QPS vs DB capacity. If reads exceed DB throughput (e.g., 100K QPS vs 10K DB limit), add cache. Also consider: read/write ratio (>10:1 benefits from cache), latency requirements, and data access patterns (hot keys)."
+    },
+    {
+      "question": "What is read-your-writes consistency?",
+      "answer": "After a user writes data, their subsequent reads always reflect that write. Other users may see stale data. Implemented by routing the writing user's reads to the primary or using session-sticky connections."
+    },
+    {
+      "question": "How do you plan for data growth over 3 years?",
+      "answer": "Calculate daily data generation, apply retention policy, multiply by replication factor, and project 3 years. Add 50% buffer for indexes, metadata, and unexpected growth. Plan re-sharding strategy before hitting capacity."
+    },
+    {
+      "question": "What's the difference between horizontal and vertical scaling?",
+      "answer": "Vertical: bigger machine (more CPU/RAM). Simple but has limits and is a single point of failure. Horizontal: more machines. Complex (needs load balancing, data partitioning) but scales linearly and provides redundancy."
+    },
+    {
+      "question": "How do you handle hot partitions?",
+      "answer": "1) Add random suffix to hot keys to spread across partitions. 2) Use a separate cache layer for hot keys. 3) Re-shard with more granular key. 4) Rate limit writes to hot partitions. 5) Monitor partition metrics."
+    },
+    {
+      "question": "When would you choose a multi-leader replication setup?",
+      "answer": "For multi-region deployments where each region needs low-latency writes. Trade-off: conflict resolution complexity. Use timestamp-based LWW (last-writer-wins) or application-level merge for conflicts."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "estimation",
+      "question": "Estimate storage for 200M events/day retained for 180 days with 1.5KB/event and 3x replication.",
+      "answer": "Daily: 200M × 1.5KB = 300GB. Total: 300GB × 180 days = 54TB. With replication: 54TB × 3 = 162TB."
+    },
+    {
+      "type": "design",
+      "question": "Pick strong vs eventual consistency for: wallet balance, feed likes, chat unread count, order status.",
+      "answer": "Wallet: Strong (money). Feed likes: Eventual (cosmetic). Chat unread: Eventual with read-your-writes (user expects own reads to clear). Order status: Strong for transitions (PAID→SHIPPED), eventual for display."
+    },
+    {
+      "type": "debug",
+      "question": "A shard is 5x hotter than others. List three immediate mitigations.",
+      "answer": "1) Move hot keys to a dedicated cache. 2) Split the hot shard into sub-shards. 3) Add read replicas for the hot shard. Long-term: re-evaluate shard key strategy."
+    },
+    {
+      "type": "estimation",
+      "question": "A service needs 99.99% availability. Calculate max downtime per year and per month.",
+      "answer": "Per year: 365.25 × 24 × 60 × 0.0001 = 52.6 minutes. Per month: 52.6 / 12 = 4.38 minutes. This means any single incident must be resolved in under 4 minutes."
+    },
+    {
+      "type": "scenario",
+      "question": "Your database is at 80% capacity. You expect 2x data growth in 6 months. What is your plan?",
+      "answer": "Immediate: Archive/compress old data, add read replicas. 30-day: Implement sharding or migrate to horizontally-scalable DB. 90-day: Test with 3x load and validate capacity headroom."
+    },
+    {
+      "type": "tricky",
+      "question": "Can you have strong consistency AND high availability? Under what conditions?",
+      "answer": "Yes, when there is no network partition. CAP only forces a choice during partitions. In a single-region, well-connected setup, you can have both. Multi-region strong consistency is possible with quorum (e.g., Raft) but with higher latency."
+    },
+    {
+      "type": "estimation",
+      "question": "An image service stores 5M images/day, avg 3MB each. Estimate storage cost at $0.023/GB/month for 1 year.",
+      "answer": "Daily: 5M × 3MB = 15TB. Yearly: 15TB × 365 = 5,475TB = 5,475,000GB. Monthly cost: 5,475,000 × $0.023 = $125,925/month (at full year's accumulation)."
+    },
+    {
+      "type": "design",
+      "question": "Design a replication strategy for a global e-commerce platform with users in US, EU, and Asia.",
+      "answer": "Multi-region with regional replicas in each region. Write to nearest leader. Use async replication between regions (50-200ms lag acceptable). Strong consistency for orders/payments within the region, eventual for catalog/reviews."
+    },
+    {
+      "type": "output",
+      "question": "If peak QPS is 50K reads and each DB node handles 5K QPS, how many read replicas do you need with 50% headroom?",
+      "answer": "Base: 50K / 5K = 10 nodes. With 50% headroom: 10 × 1.5 = 15 read replicas."
+    },
+    {
+      "type": "debug",
+      "question": "Latency spikes to 5s during peak hours. DB CPU is at 95%. Cache hit ratio dropped from 90% to 60%. Diagnose.",
+      "answer": "Cache is expiring too many keys simultaneously (TTL thundering herd). Fix: Add jitter to TTL values (TTL ± random 10-20%). Pre-warm cache before peak. Add more cache nodes or increase memory."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Throughput planner",
+      "code": "function planThroughput({ avgQPS, peakMultiplier, writeRatio }) {\n  const peakQPS = avgQPS * peakMultiplier;\n  const writeQPS = Math.ceil(peakQPS * writeRatio);\n  const readQPS = Math.ceil(peakQPS * (1 - writeRatio));\n  return { avgQPS, peakQPS, writeQPS, readQPS, ratio: `${Math.round((1 - writeRatio) / writeRatio)}:1 read:write` };\n}\nconsole.log(planThroughput({ avgQPS: 10000, peakMultiplier: 5, writeRatio: 0.3 }));",
+      "output": "{ avgQPS: 10000, peakQPS: 50000, writeQPS: 15000, readQPS: 35000, ratio: '2:1 read:write' }"
+    },
+    {
+      "question": "Program 2: Shard calculator",
+      "code": "function calcShards({ totalDataTB, maxPerShardTB, peakQPS, maxQPSPerShard }) {\n  const byStorage = Math.ceil(totalDataTB / maxPerShardTB);\n  const byQPS = Math.ceil(peakQPS / maxQPSPerShard);\n  const recommended = Math.max(byStorage, byQPS);\n  return { byStorage, byQPS, recommended, bottleneck: byStorage > byQPS ? 'storage' : 'throughput' };\n}\nconsole.log(calcShards({ totalDataTB: 50, maxPerShardTB: 5, peakQPS: 80000, maxQPSPerShard: 10000 }));",
+      "output": "{ byStorage: 10, byQPS: 8, recommended: 10, bottleneck: 'storage' }"
+    },
+    {
+      "question": "Program 3: Consistency requirement classifier",
+      "code": "function classifyConsistency(features) {\n  const rules = {\n    money: 'strong', payment: 'strong', booking: 'strong', inventory: 'strong',\n    feed: 'eventual', likes: 'eventual', views: 'eventual', recommendations: 'eventual',\n    chat: 'causal', comments: 'causal', profile: 'read-your-writes',\n  };\n  return features.map(f => {\n    const match = Object.keys(rules).find(k => f.toLowerCase().includes(k));\n    return { feature: f, consistency: match ? rules[match] : 'evaluate case-by-case' };\n  });\n}\nconsole.log(classifyConsistency(['Wallet Balance', 'Feed Likes', 'Chat Messages', 'Seat Booking', 'User Profile', 'View Counter']));",
+      "output": "[\n  { feature: 'Wallet Balance', consistency: 'strong' },\n  { feature: 'Feed Likes', consistency: 'eventual' },\n  { feature: 'Chat Messages', consistency: 'causal' },\n  { feature: 'Seat Booking', consistency: 'strong' },\n  { feature: 'User Profile', consistency: 'read-your-writes' },\n  { feature: 'View Counter', consistency: 'eventual' }\n]"
+    },
+    {
+      "question": "Program 4: Replication lag monitor",
+      "code": "function monitorReplicationLag(replicas) {\n  const threshold = 100; // ms\n  return replicas.map(r => ({\n    replica: r.name,\n    lagMs: r.lagMs,\n    status: r.lagMs <= threshold ? 'healthy' : r.lagMs <= 500 ? 'warning' : 'critical',\n    action: r.lagMs > 500 ? 'Route reads to primary' : r.lagMs > threshold ? 'Monitor closely' : 'None',\n  }));\n}\nconsole.log(monitorReplicationLag([\n  { name: 'replica-us-east-1', lagMs: 15 },\n  { name: 'replica-eu-west-1', lagMs: 250 },\n  { name: 'replica-ap-south-1', lagMs: 800 },\n]));",
+      "output": "[\n  { replica: 'replica-us-east-1', lagMs: 15, status: 'healthy', action: 'None' },\n  { replica: 'replica-eu-west-1', lagMs: 250, status: 'warning', action: 'Monitor closely' },\n  { replica: 'replica-ap-south-1', lagMs: 800, status: 'critical', action: 'Route reads to primary' }\n]"
+    },
+    {
+      "question": "Program 5: Hot key detector",
+      "code": "function detectHotKeys(accessLog, threshold) {\n  const counts = {};\n  accessLog.forEach(key => { counts[key] = (counts[key] || 0) + 1; });\n  const total = accessLog.length;\n  return Object.entries(counts)\n    .filter(([, count]) => (count / total) > threshold)\n    .map(([key, count]) => ({ key, count, percentage: (count / total * 100).toFixed(1) + '%' }))\n    .sort((a, b) => b.count - a.count);\n}\nconst log = Array(1000).fill(null).map((_, i) => i < 400 ? 'user:123' : i < 600 ? 'user:456' : `user:${i}`);\nconsole.log(detectHotKeys(log, 0.1));",
+      "output": "[\n  { key: 'user:123', count: 400, percentage: '40.0%' },\n  { key: 'user:456', count: 200, percentage: '20.0%' }\n]"
+    },
+    {
+      "question": "Program 6: TTL jitter generator to prevent thundering herd",
+      "code": "function ttlWithJitter(baseTTLSeconds, jitterPercent = 0.2) {\n  const jitter = baseTTLSeconds * jitterPercent;\n  const min = baseTTLSeconds - jitter;\n  const max = baseTTLSeconds + jitter;\n  return Math.floor(min + Math.random() * (max - min));\n}\n\n// Generate 10 TTLs for 300s base\nconst ttls = Array.from({ length: 10 }, () => ttlWithJitter(300));\nconsole.log('Base TTL: 300s');\nconsole.log('Jittered TTLs:', ttls);\nconsole.log('Range:', Math.min(...ttls), '-', Math.max(...ttls));",
+      "output": "Base TTL: 300s\nJittered TTLs: [287, 312, 245, 340, 298, 275, 321, 260, 330, 290]\nRange: 245 - 340"
+    },
+    {
+      "question": "Program 7: Bandwidth estimator",
+      "code": "function estimateBandwidth({ peakQPS, avgPayloadKB, direction }) {\n  const bwMBps = (peakQPS * avgPayloadKB) / 1024;\n  const bwGbps = (bwMBps * 8) / 1024;\n  return { direction, peakQPS, avgPayloadKB: avgPayloadKB + 'KB', bandwidthMBps: bwMBps.toFixed(1) + ' MB/s', bandwidthGbps: bwGbps.toFixed(2) + ' Gbps' };\n}\nconsole.log(estimateBandwidth({ peakQPS: 100000, avgPayloadKB: 5, direction: 'egress' }));\nconsole.log(estimateBandwidth({ peakQPS: 10000, avgPayloadKB: 2, direction: 'ingress' }));",
+      "output": "{ direction: 'egress', peakQPS: 100000, avgPayloadKB: '5KB', bandwidthMBps: '488.3 MB/s', bandwidthGbps: '3.81 Gbps' }\n{ direction: 'ingress', peakQPS: 10000, avgPayloadKB: '2KB', bandwidthMBps: '19.5 MB/s', bandwidthGbps: '0.15 Gbps' }"
+    },
+    {
+      "question": "Program 8: CAP theorem decision helper",
+      "code": "function capDecision(requirements) {\n  const { needsStrongConsistency, needsHighAvailability, multiRegion } = requirements;\n  if (!multiRegion) return { type: 'CA', note: 'Single region — no partition risk. Can have both C and A.' };\n  if (needsStrongConsistency && needsHighAvailability) return { type: 'Impossible during partition', note: 'Must choose: CP for critical writes, AP for reads.' };\n  if (needsStrongConsistency) return { type: 'CP', note: 'Reject writes during partition. Use Raft/Paxos consensus.', examples: 'ZooKeeper, etcd, Spanner' };\n  return { type: 'AP', note: 'Accept writes on both sides, merge later.', examples: 'Cassandra, DynamoDB, CouchDB' };\n}\nconsole.log(capDecision({ needsStrongConsistency: true, needsHighAvailability: false, multiRegion: true }));\nconsole.log(capDecision({ needsStrongConsistency: false, needsHighAvailability: true, multiRegion: true }));",
+      "output": "{ type: 'CP', note: 'Reject writes during partition. Use Raft/Paxos consensus.', examples: 'ZooKeeper, etcd, Spanner' }\n{ type: 'AP', note: 'Accept writes on both sides, merge later.', examples: 'Cassandra, DynamoDB, CouchDB' }"
+    },
+    {
+      "question": "Program 9: Storage cost projection",
+      "code": "function projectStorageCost({ dailyDataGB, retentionDays, replication, costPerGBMonth, months }) {\n  const projections = [];\n  for (let m = 1; m <= months; m++) {\n    const effectiveDays = Math.min(m * 30, retentionDays);\n    const totalGB = dailyDataGB * effectiveDays * replication;\n    const monthlyCost = totalGB * costPerGBMonth;\n    projections.push({ month: m, storageGB: Math.round(totalGB), cost: '$' + Math.round(monthlyCost) });\n  }\n  return projections;\n}\nconsole.log(projectStorageCost({ dailyDataGB: 100, retentionDays: 90, replication: 3, costPerGBMonth: 0.023, months: 6 }));",
+      "output": "[\n  { month: 1, storageGB: 9000, cost: '$207' },\n  { month: 2, storageGB: 18000, cost: '$414' },\n  { month: 3, storageGB: 27000, cost: '$621' },\n  { month: 4, storageGB: 27000, cost: '$621' },\n  { month: 5, storageGB: 27000, cost: '$621' },\n  { month: 6, storageGB: 27000, cost: '$621' }\n]"
+    },
+    {
+      "question": "Program 10: Read/write ratio analyzer",
+      "code": "function analyzeRWRatio(logs) {\n  const reads = logs.filter(l => l.type === 'read').length;\n  const writes = logs.filter(l => l.type === 'write').length;\n  const total = logs.length;\n  const ratio = (reads / writes).toFixed(1);\n  let strategy;\n  if (reads / writes > 10) strategy = 'Heavy caching + read replicas';\n  else if (reads / writes > 3) strategy = 'Cache + single primary';\n  else if (reads / writes > 1) strategy = 'Balanced — consider write-behind cache';\n  else strategy = 'Write-heavy — use append-only log + async reads';\n  return { reads, writes, total, ratio: ratio + ':1', strategy };\n}\nconst mockLogs = [\n  ...Array(850).fill({ type: 'read' }),\n  ...Array(150).fill({ type: 'write' }),\n];\nconsole.log(analyzeRWRatio(mockLogs));",
+      "output": "{ reads: 850, writes: 150, total: 1000, ratio: '5.7:1', strategy: 'Cache + single primary' }"
+    }
+  ]
+}
