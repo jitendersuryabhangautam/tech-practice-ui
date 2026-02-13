@@ -1,0 +1,167 @@
+{
+  "id": "rbac",
+  "title": "RBAC (Role-Based Access Control)",
+  "category": "Kubernetes Security",
+  "description": "Controlling access to Kubernetes resources using Roles, ClusterRoles, RoleBindings, and ClusterRoleBindings.",
+  "explanation": "RBAC (Role-Based Access Control) regulates access to Kubernetes resources based on the roles assigned to users, groups, or service accounts.\n\nCore objects:\n- Role: Grants permissions within a specific namespace. Contains rules with apiGroups, resources, and verbs.\n- ClusterRole: Like Role but cluster-wide. Can grant access to cluster-scoped resources (nodes, namespaces) or across all namespaces.\n- RoleBinding: Binds a Role (or ClusterRole) to subjects within a namespace.\n- ClusterRoleBinding: Binds a ClusterRole to subjects cluster-wide.\n\nSubjects (who gets access):\n- User: External identity (certificate CN, OIDC token). Not a K8s object — managed externally.\n- Group: Set of users. system:masters (cluster admin), system:authenticated, system:unauthenticated.\n- ServiceAccount: In-cluster identity for pods. Created in a namespace. Pods use ServiceAccount tokens to authenticate to the API server.\n\nVerbs (what actions are allowed):\n- get, list, watch: Read operations.\n- create, update, patch, delete: Write operations.\n- deletecollection: Delete multiple resources.\n- Special: use (PodSecurityPolicies), bind, escalate (prevent privilege escalation), impersonate.\n\nKey principles:\n- Least privilege: Grant minimum permissions needed. Start with no access, add incrementally.\n- Namespace isolation: Use Roles + RoleBindings for team/environment isolation.\n- Avoid cluster-admin: Don't bind cluster-admin ClusterRole to regular users.\n- Audit: kubectl auth can-i to test permissions. kubectl auth can-i --list to see all permissions.\n\nDefault ClusterRoles:\n- cluster-admin: Full access to everything (superuser).\n- admin: Full access within a namespace (no ResourceQuotas or namespace itself).\n- edit: Read/write most resources in a namespace (no Roles, RoleBindings).\n- view: Read-only access to most resources (no Secrets by default).\n\nService Account best practices:\n- Don't use default ServiceAccount — create dedicated ones per workload.\n- Disable auto-mounting: automountServiceAccountToken: false when not needed.\n- Use projected token volumes (bound tokens) instead of legacy long-lived tokens.\n- K8s 1.24+ no longer auto-creates Secret-based tokens for ServiceAccounts.",
+  "code": "# Role: read-only access to pods in 'dev' namespace\napiVersion: rbac.authorization.k8s.io/v1\nkind: Role\nmetadata:\n  name: pod-reader\n  namespace: dev\nrules:\n- apiGroups: [\"\"]\n  resources: [\"pods\", \"pods/log\"]\n  verbs: [\"get\", \"list\", \"watch\"]\n---\n# RoleBinding: bind pod-reader to user 'jane'\napiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\n  name: jane-pod-reader\n  namespace: dev\nsubjects:\n- kind: User\n  name: jane\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: Role\n  name: pod-reader\n  apiGroup: rbac.authorization.k8s.io\n---\n# ClusterRole: read nodes across cluster\napiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole\nmetadata:\n  name: node-reader\nrules:\n- apiGroups: [\"\"]\n  resources: [\"nodes\"]\n  verbs: [\"get\", \"list\", \"watch\"]\n---\n# ClusterRoleBinding: bind to group\napiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding\nmetadata:\n  name: ops-node-reader\nsubjects:\n- kind: Group\n  name: ops-team\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: ClusterRole\n  name: node-reader\n  apiGroup: rbac.authorization.k8s.io",
+  "command": "# Check if you can perform an action\nkubectl auth can-i create deployments --namespace dev\n\n# Check permissions as another user\nkubectl auth can-i get pods --as jane --namespace dev\n\n# List all permissions for current user\nkubectl auth can-i --list\n\n# Create Role imperatively\nkubectl create role pod-reader --verb=get,list,watch --resource=pods -n dev\n\n# Create RoleBinding imperatively\nkubectl create rolebinding jane-read --role=pod-reader --user=jane -n dev\n\n# Create ClusterRole\nkubectl create clusterrole node-reader --verb=get,list,watch --resource=nodes\n\n# Create ClusterRoleBinding\nkubectl create clusterrolebinding ops-nodes --clusterrole=node-reader --group=ops-team\n\n# Create ServiceAccount\nkubectl create serviceaccount app-sa -n dev\n\n# Bind ClusterRole to ServiceAccount in namespace\nkubectl create rolebinding app-sa-edit --clusterrole=edit --serviceaccount=dev:app-sa -n dev",
+  "example": "# Full RBAC setup for a dev team\n# 1. Create namespace\napiVersion: v1\nkind: Namespace\nmetadata:\n  name: team-alpha\n---\n# 2. ServiceAccount for the team's app\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: alpha-app\n  namespace: team-alpha\n---\n# 3. Role: manage deployments and services\napiVersion: rbac.authorization.k8s.io/v1\nkind: Role\nmetadata:\n  name: alpha-developer\n  namespace: team-alpha\nrules:\n- apiGroups: [\"apps\"]\n  resources: [\"deployments\", \"replicasets\"]\n  verbs: [\"get\", \"list\", \"watch\", \"create\", \"update\", \"patch\", \"delete\"]\n- apiGroups: [\"\"]\n  resources: [\"pods\", \"pods/log\", \"services\", \"configmaps\"]\n  verbs: [\"get\", \"list\", \"watch\", \"create\", \"update\", \"patch\", \"delete\"]\n- apiGroups: [\"\"]\n  resources: [\"secrets\"]\n  verbs: [\"get\", \"list\"]\n---\n# 4. Bind to team group\napiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\n  name: alpha-developers\n  namespace: team-alpha\nsubjects:\n- kind: Group\n  name: team-alpha-devs\n  apiGroup: rbac.authorization.k8s.io\n- kind: ServiceAccount\n  name: alpha-app\n  namespace: team-alpha\nroleRef:\n  kind: Role\n  name: alpha-developer\n  apiGroup: rbac.authorization.k8s.io",
+  "useCase": "Multi-tenant clusters, team isolation, CI/CD service accounts, compliance, least-privilege access, audit requirements",
+  "interviewQuestions": [
+    {
+      "question": "What is RBAC in Kubernetes and why is it important?",
+      "answer": "RBAC controls who (subjects) can do what (verbs) on which resources. Uses 4 objects: Role (namespace-scoped permissions), ClusterRole (cluster-wide), RoleBinding, ClusterRoleBinding. Important for security, multi-tenancy, compliance, and preventing unauthorized access. Enabled by default since K8s 1.8."
+    },
+    {
+      "question": "What is the difference between Role and ClusterRole?",
+      "answer": "Role: namespace-scoped, grants permissions within a specific namespace. ClusterRole: cluster-scoped, can grant access to cluster resources (nodes, namespaces, PVs) or same permissions across all namespaces. A ClusterRole can be bound in a namespace via RoleBinding (common pattern for reusable roles)."
+    },
+    {
+      "question": "Can a RoleBinding reference a ClusterRole? What happens?",
+      "answer": "Yes. RoleBinding + ClusterRole grants the ClusterRole's permissions but only within the RoleBinding's namespace. Common pattern: define ClusterRole once (e.g., 'edit'), bind it per namespace with RoleBindings. Avoids duplicating Role definitions across namespaces."
+    },
+    {
+      "question": "How do ServiceAccounts work in RBAC?",
+      "answer": "ServiceAccount is an in-cluster identity for pods. Created per namespace. Pod specifies serviceAccountName. K8s auto-mounts a token. ServiceAccount can be bound to Roles/ClusterRoles via RoleBinding/ClusterRoleBinding. Subject format: system:serviceaccount:<namespace>:<name>."
+    },
+    {
+      "question": "How do you check what permissions a user or ServiceAccount has?",
+      "answer": "kubectl auth can-i <verb> <resource> — checks your own permissions. Add --as=<user> to impersonate. kubectl auth can-i --list — shows all permissions. kubectl auth can-i --list --as=system:serviceaccount:dev:app-sa — check ServiceAccount permissions. Also: kubectl get rolebindings,clusterrolebindings."
+    },
+    {
+      "question": "What is the principle of least privilege in RBAC?",
+      "answer": "Grant only the minimum permissions required. Don't use cluster-admin for regular users. Create specific Roles per use case. Use namespace-scoped Roles instead of ClusterRoles when possible. Regularly audit permissions. Avoid wildcard (*) in verbs or resources. Review and remove unused bindings."
+    },
+    {
+      "question": "Explain the default ClusterRoles (cluster-admin, admin, edit, view).",
+      "answer": "cluster-admin: Superuser, all resources all verbs. admin: Full access within a namespace (no quota/namespace mgmt). edit: Read/write most namespace resources (no roles/bindings). view: Read-only (no secrets). These are aggregated ClusterRoles — custom ClusterRoles can extend them."
+    },
+    {
+      "question": "How do you prevent privilege escalation in RBAC?",
+      "answer": "K8s prevents creating Roles with more permissions than you have. Can't bind a Role you can't create. The 'escalate' verb is needed to create Roles with permissions beyond your own. The 'bind' verb controls who can create RoleBindings. Never give wildcard (*) permissions to non-admins."
+    },
+    {
+      "question": "How do you implement multi-tenancy with RBAC?",
+      "answer": "Create namespace per tenant. Define Roles with tenant-specific permissions. Create RoleBindings for tenant users/groups. Add ResourceQuotas and LimitRanges per namespace. Use NetworkPolicies for network isolation. Consider OPA/Kyverno for additional policy enforcement beyond RBAC."
+    },
+    {
+      "question": "What changed with ServiceAccount tokens in Kubernetes 1.24+?",
+      "answer": "K8s 1.24+ no longer auto-creates long-lived Secret-based tokens for ServiceAccounts. Instead uses projected bound tokens: time-limited, audience-bound, auto-rotated. More secure — tokens expire and can't be extracted. For long-lived tokens (discouraged), manually create: kubectl create token <sa-name>."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create a Role that allows reading pods and their logs in the 'staging' namespace.",
+      "answer": "kubectl create role pod-log-reader --verb=get,list,watch --resource=pods,pods/log -n staging"
+    },
+    {
+      "type": "command",
+      "question": "Bind the pod-log-reader Role to user 'alice' in the 'staging' namespace.",
+      "answer": "kubectl create rolebinding alice-pod-reader --role=pod-log-reader --user=alice -n staging"
+    },
+    {
+      "type": "explain",
+      "question": "Why should you avoid using the default ServiceAccount?",
+      "answer": "The default ServiceAccount exists in every namespace and gets auto-mounted to pods. If granted extra permissions, ALL pods in that namespace inherit them (unintended privilege). Create dedicated ServiceAccounts per workload with specific permissions. Set automountServiceAccountToken: false on default."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "A user gets 'forbidden' when trying to list pods in namespace 'dev'. How to debug?",
+      "answer": "Check: (1) kubectl auth can-i list pods -n dev --as=<user>, (2) kubectl get rolebindings -n dev — verify binding exists, (3) kubectl describe rolebinding <name> — verify subject matches user, (4) Check if Role has 'list' verb for 'pods', (5) Verify user identity (certificate CN or OIDC claim)."
+    },
+    {
+      "type": "write",
+      "question": "Write a ClusterRole that allows managing deployments across all namespaces.",
+      "answer": "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole\nmetadata:\n  name: deployment-manager\nrules:\n- apiGroups: [\"apps\"]\n  resources: [\"deployments\"]\n  verbs: [\"get\", \"list\", \"watch\", \"create\", \"update\", \"patch\", \"delete\"]"
+    },
+    {
+      "type": "scenario",
+      "question": "Your CI/CD pipeline needs to deploy to the 'production' namespace only. How to set up RBAC?",
+      "answer": "Create ServiceAccount 'ci-deployer' in 'production'. Create Role with verbs on deployments, services, configmaps, secrets. Create RoleBinding binding the Role to the ServiceAccount. Generate a token: kubectl create token ci-deployer -n production. Use token in CI/CD kubeconfig."
+    },
+    {
+      "type": "command",
+      "question": "Check all permissions for a ServiceAccount named 'app-sa' in namespace 'dev'.",
+      "answer": "kubectl auth can-i --list --as=system:serviceaccount:dev:app-sa -n dev"
+    },
+    {
+      "type": "write",
+      "question": "Write a RoleBinding that binds the built-in 'view' ClusterRole to a group 'interns' in namespace 'sandbox'.",
+      "answer": "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\n  name: interns-view\n  namespace: sandbox\nsubjects:\n- kind: Group\n  name: interns\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: ClusterRole\n  name: view\n  apiGroup: rbac.authorization.k8s.io"
+    },
+    {
+      "type": "scenario",
+      "question": "A developer needs to exec into pods for debugging but shouldn't delete them. What Role?",
+      "answer": "apiVersion: rbac.authorization.k8s.io/v1\nkind: Role\nmetadata:\n  name: pod-debugger\nrules:\n- apiGroups: [\"\"]\n  resources: [\"pods\"]\n  verbs: [\"get\", \"list\", \"watch\"]\n- apiGroups: [\"\"]\n  resources: [\"pods/exec\", \"pods/log\"]\n  verbs: [\"get\", \"create\"]"
+    },
+    {
+      "type": "command",
+      "question": "List all RoleBindings and ClusterRoleBindings that reference a specific user.",
+      "answer": "kubectl get rolebindings,clusterrolebindings --all-namespaces -o json | python3 -c \"import sys,json; data=json.load(sys.stdin); [print(i['metadata']['name'], i['metadata'].get('namespace','cluster-wide')) for i in data['items'] for s in i.get('subjects',[]) if s.get('name')=='alice']\""
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create Role and RoleBinding, test access",
+      "code": "kubectl create namespace rbac-test\nkubectl create role pod-reader --verb=get,list --resource=pods -n rbac-test\nkubectl create rolebinding test-read --role=pod-reader --user=testuser -n rbac-test\nkubectl auth can-i list pods -n rbac-test --as=testuser\nkubectl auth can-i delete pods -n rbac-test --as=testuser",
+      "output": "yes / no (can list pods but cannot delete them)"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Create ServiceAccount and bind to Role",
+      "code": "kubectl create serviceaccount app-sa -n rbac-test\nkubectl create role app-role --verb=get,list,create,update --resource=deployments.apps,services -n rbac-test\nkubectl create rolebinding app-sa-binding --role=app-role --serviceaccount=rbac-test:app-sa -n rbac-test\nkubectl auth can-i create deployments -n rbac-test --as=system:serviceaccount:rbac-test:app-sa",
+      "output": "yes (ServiceAccount can create deployments in rbac-test namespace)"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Use built-in ClusterRole with namespace RoleBinding",
+      "code": "kubectl create rolebinding view-binding --clusterrole=view --user=viewer -n rbac-test\nkubectl auth can-i list pods -n rbac-test --as=viewer\nkubectl auth can-i list pods -n default --as=viewer\nkubectl auth can-i create pods -n rbac-test --as=viewer",
+      "output": "yes / no / no (view role only in rbac-test, read-only)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: List all permissions for a user",
+      "code": "kubectl auth can-i --list --as=testuser -n rbac-test",
+      "output": "Resources: pods  Verbs: [get list]\nplus non-resource URLs and self-subject access reviews"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Create ClusterRole and ClusterRoleBinding",
+      "code": "kubectl create clusterrole node-viewer --verb=get,list,watch --resource=nodes\nkubectl create clusterrolebinding all-node-view --clusterrole=node-viewer --group=developers\nkubectl auth can-i list nodes --as=devuser --as-group=developers",
+      "output": "yes (any user in 'developers' group can list nodes cluster-wide)"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Pod with specific ServiceAccount",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: sa-test\n  namespace: rbac-test\nspec:\n  serviceAccountName: app-sa\n  automountServiceAccountToken: true\n  containers:\n  - name: test\n    image: bitnami/kubectl\n    command: ['sleep', '3600']\nEOF\nkubectl exec -n rbac-test sa-test -- kubectl auth can-i list deployments",
+      "output": "yes (pod uses app-sa ServiceAccount which has deployment permissions)"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Role with resource names restriction",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: rbac.authorization.k8s.io/v1\nkind: Role\nmetadata:\n  name: specific-cm-reader\n  namespace: rbac-test\nrules:\n- apiGroups: [\"\"]\n  resources: [\"configmaps\"]\n  resourceNames: [\"app-config\", \"db-config\"]\n  verbs: [\"get\"]\nEOF\nkubectl create rolebinding cm-reader --role=specific-cm-reader --user=limited -n rbac-test\nkubectl auth can-i get configmaps/app-config -n rbac-test --as=limited\nkubectl auth can-i get configmaps/other-config -n rbac-test --as=limited",
+      "output": "yes / no (can only read specific named ConfigMaps)"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Audit all RoleBindings in a namespace",
+      "code": "kubectl get rolebindings -n rbac-test -o custom-columns='BINDING:.metadata.name,ROLE:.roleRef.name,ROLE-KIND:.roleRef.kind,SUBJECTS:.subjects[*].name'",
+      "output": "Lists all bindings with associated roles and subjects in one view"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Create token for ServiceAccount",
+      "code": "kubectl create token app-sa -n rbac-test --duration=1h\n# Decode token header\nTOKEN=$(kubectl create token app-sa -n rbac-test --duration=1h)\necho $TOKEN | cut -d. -f2 | base64 -d 2>/dev/null | python3 -m json.tool",
+      "output": "JWT token with sub:system:serviceaccount:rbac-test:app-sa, audience, expiry"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Disable ServiceAccount auto-mount on pod",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: no-sa-mount\n  namespace: rbac-test\nspec:\n  automountServiceAccountToken: false\n  containers:\n  - name: app\n    image: busybox\n    command: ['sh', '-c', 'ls /var/run/secrets/kubernetes.io/serviceaccount/ 2>&1 || echo No token mounted; sleep 3600']\nEOF\nkubectl logs no-sa-mount -n rbac-test",
+      "output": "No token mounted (pod cannot authenticate to API server — more secure)"
+    }
+  ]
+}

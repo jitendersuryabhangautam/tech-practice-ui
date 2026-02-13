@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+
+const MODE_QUIZ = "quiz";
+const MODE_STUDY = "study";
 
 export default function MCQSection({ quiz, isVisible, onToggle }) {
+  const [mode, setMode] = useState(MODE_QUIZ);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
@@ -49,12 +53,18 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
 
   const question = shuffledQuiz[currentQuestion];
 
-  const resetQuiz = () => {
+  const resetQuiz = (nextMode = MODE_QUIZ) => {
+    setMode(nextMode);
     setCurrentQuestion(0);
     setSelectedAnswer(null);
     setShowResult(false);
     setScore(0);
     setShuffleKey((prev) => prev + 1); // Trigger new shuffle
+  };
+
+  const closeAndReset = () => {
+    resetQuiz(MODE_QUIZ);
+    onToggle();
   };
 
   const handleAnswer = (answerIndex) => {
@@ -67,12 +77,25 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
     }
   };
 
+  const handleModeChange = (nextMode) => {
+    if (nextMode === mode) {
+      return;
+    }
+    resetQuiz(nextMode);
+  };
+
   const nextQuestion = () => {
     if (currentQuestion < shuffledQuiz.length - 1) {
       setCurrentQuestion((value) => value + 1);
       setSelectedAnswer(null);
       return;
     }
+
+    if (mode === MODE_STUDY) {
+      closeAndReset();
+      return;
+    }
+
     setShowResult(true);
   };
 
@@ -100,7 +123,7 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
             </h3>
             <button
               type="button"
-              onClick={onToggle}
+              onClick={closeAndReset}
               className="text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
             >
               Close
@@ -123,14 +146,14 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <button
               type="button"
-              onClick={resetQuiz}
+              onClick={() => resetQuiz(MODE_QUIZ)}
               className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
             >
-              Retry
+              Retry Quiz
             </button>
             <button
               type="button"
-              onClick={onToggle}
+              onClick={closeAndReset}
               className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-600 dark:text-slate-200"
             >
               Back To Topic
@@ -142,20 +165,46 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
   }
 
   const progress = ((currentQuestion + 1) / shuffledQuiz.length) * 100;
+  const correctAnswerText = question.options[question.correctAnswer];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
       <div className="content-card min-w-0 max-h-[92vh] w-full max-w-2xl overflow-y-auto p-4 sm:p-6">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between gap-2">
           <h3 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-slate-100">
             Interview Practice MCQ
           </h3>
           <button
             type="button"
-            onClick={onToggle}
+            onClick={closeAndReset}
             className="text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
           >
             Close
+          </button>
+        </div>
+
+        <div className="mb-4 flex w-full rounded-lg border border-slate-200 p-1 dark:border-slate-700">
+          <button
+            type="button"
+            onClick={() => handleModeChange(MODE_QUIZ)}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold transition ${
+              mode === MODE_QUIZ
+                ? "bg-amber-500 text-slate-900"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            }`}
+          >
+            Quiz Mode
+          </button>
+          <button
+            type="button"
+            onClick={() => handleModeChange(MODE_STUDY)}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold transition ${
+              mode === MODE_STUDY
+                ? "bg-amber-500 text-slate-900"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            }`}
+          >
+            Study Mode
           </button>
         </div>
 
@@ -173,45 +222,88 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
           {question.question}
         </p>
 
-        <div className="min-w-0 space-y-2">
-          {question.options.map((option, index) => {
-            const showAnswer = selectedAnswer !== null;
-            const isCorrect = index === question.correctAnswer;
-            const isSelected = index === selectedAnswer;
-            const optionClass = !showAnswer
-              ? "border-slate-300 hover:border-amber-500 dark:border-slate-600"
-              : isCorrect
-                ? "border-emerald-500 bg-emerald-500/10"
-                : isSelected
-                  ? "border-rose-500 bg-rose-500/10"
-                  : "border-slate-300 opacity-60 dark:border-slate-700";
+        {mode === MODE_QUIZ ? (
+          <>
+            <div className="min-w-0 space-y-2">
+              {question.options.map((option, index) => {
+                const showAnswer = selectedAnswer !== null;
+                const isCorrect = index === question.correctAnswer;
+                const isSelected = index === selectedAnswer;
+                const optionClass = !showAnswer
+                  ? "border-slate-300 hover:border-amber-500 dark:border-slate-600"
+                  : isCorrect
+                    ? "border-emerald-500 bg-emerald-500/10"
+                    : isSelected
+                      ? "border-rose-500 bg-rose-500/10"
+                      : "border-slate-300 opacity-60 dark:border-slate-700";
 
-            return (
-              <button
-                key={option}
-                type="button"
-                disabled={showAnswer}
-                onClick={() => handleAnswer(index)}
-                className={`w-full break-words rounded-lg border px-4 py-3 text-left text-sm text-slate-900 transition dark:text-slate-100 ${optionClass}`}
-              >
-                {option}
-              </button>
-            );
-          })}
-        </div>
+                return (
+                  <button
+                    key={`${question.question}-${index}`}
+                    type="button"
+                    disabled={showAnswer}
+                    onClick={() => handleAnswer(index)}
+                    className={`w-full break-words rounded-lg border px-4 py-3 text-left text-sm text-slate-900 transition dark:text-slate-100 ${optionClass}`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
 
-        {selectedAnswer !== null && (
-          <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/70">
-            <p className="text-sm text-slate-700 dark:text-slate-300">
-              {question.explanation}
-            </p>
+            {selectedAnswer !== null && (
+              <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/70">
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  {question.explanation}
+                </p>
+                <button
+                  type="button"
+                  onClick={nextQuestion}
+                  className="mt-4 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
+                >
+                  {currentQuestion === shuffledQuiz.length - 1
+                    ? "See Result"
+                    : "Next Question"}
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="space-y-4">
+            <div className="min-w-0 space-y-2">
+              {question.options.map((option, index) => {
+                const isCorrect = index === question.correctAnswer;
+                const optionClass = isCorrect
+                  ? "border-emerald-500 bg-emerald-500/10"
+                  : "border-slate-300 dark:border-slate-700";
+
+                return (
+                  <div
+                    key={`${question.question}-study-${index}`}
+                    className={`w-full break-words rounded-lg border px-4 py-3 text-left text-sm text-slate-900 dark:text-slate-100 ${optionClass}`}
+                  >
+                    {option}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-700/40 dark:bg-emerald-900/20">
+              <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                Answer: {correctAnswerText}
+              </p>
+              <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                {question.explanation}
+              </p>
+            </div>
+
             <button
               type="button"
               onClick={nextQuestion}
-              className="mt-4 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
+              className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
             >
               {currentQuestion === shuffledQuiz.length - 1
-                ? "See Result"
+                ? "Finish Study"
                 : "Next Question"}
             </button>
           </div>

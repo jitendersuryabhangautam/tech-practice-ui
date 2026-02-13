@@ -1,0 +1,167 @@
+{
+  "id": "probes",
+  "title": "Probes & Health Checks",
+  "category": "Kubernetes Workloads",
+  "description": "Liveness, readiness, and startup probes for container health management and traffic control.",
+  "explanation": "Kubernetes probes check container health and control pod lifecycle and traffic routing.\n\nThree probe types:\n\n1. Liveness Probe: Is the container alive?\n- If fails: kubelet kills the container and restarts it (based on restartPolicy).\n- Use case: Detect deadlocks, infinite loops, stuck processes.\n- Don't check dependencies (DB, external API) — those failures shouldn't trigger restarts.\n\n2. Readiness Probe: Is the container ready to serve traffic?\n- If fails: Pod removed from Service endpoints (no traffic routed to it).\n- Container is NOT restarted — just removed from load balancing.\n- Use case: Warming caches, loading data, waiting for dependencies.\n- Pod stays Running but not Ready until probe passes again.\n\n3. Startup Probe: Has the container finished starting?\n- Disables liveness and readiness probes until it succeeds.\n- If fails: kubelet kills the container (like liveness).\n- Use case: Slow-starting applications (Java apps, large ML models).\n- Prevents liveness probe from killing the container during long startup.\n\nProbe mechanisms:\n- httpGet: HTTP GET to a path/port. 200-399 = success.\n- tcpSocket: TCP connection to a port. Connection established = success.\n- exec: Run a command in the container. Exit code 0 = success.\n- grpc: gRPC health check (K8s 1.27+ stable). Checks gRPC health protocol.\n\nKey parameters:\n- initialDelaySeconds: Wait before first probe (default: 0).\n- periodSeconds: How often to probe (default: 10).\n- timeoutSeconds: Probe timeout (default: 1).\n- successThreshold: Consecutive successes to be considered up (default: 1). For readiness, can be >1.\n- failureThreshold: Consecutive failures before action (default: 3).\n\nBest practices:\n- Always configure readiness probes for services receiving traffic.\n- Use startup probes instead of large initialDelaySeconds for slow apps.\n- Liveness probes should be simple and fast — don't check external dependencies.\n- Readiness probes can check dependencies (DB connection, cache availability).\n- Set timeoutSeconds < periodSeconds to avoid overlapping probes.\n- Use different endpoints for liveness (/healthz) and readiness (/ready).\n- Don't make liveness and readiness probes identical — they serve different purposes.\n\nCommon anti-patterns:\n- Checking external dependencies in liveness probe → cascading restarts when DB goes down.\n- No readiness probe → traffic sent to unready pods during startup.\n- Too aggressive liveness probe → container restart loops under load.\n- Same probe for liveness and readiness → container restarts when it should just stop receiving traffic.",
+  "code": "# Pod with all three probe types\napiVersion: v1\nkind: Pod\nmetadata:\n  name: app\nspec:\n  containers:\n  - name: app\n    image: myapp:1.0\n    ports:\n    - containerPort: 8080\n    startupProbe:\n      httpGet:\n        path: /healthz\n        port: 8080\n      failureThreshold: 30\n      periodSeconds: 10\n    livenessProbe:\n      httpGet:\n        path: /healthz\n        port: 8080\n      periodSeconds: 10\n      timeoutSeconds: 3\n      failureThreshold: 3\n    readinessProbe:\n      httpGet:\n        path: /ready\n        port: 8080\n      periodSeconds: 5\n      timeoutSeconds: 2\n      failureThreshold: 3\n      successThreshold: 1",
+  "command": "# Check pod probe status\nkubectl describe pod app | grep -A5 'Liveness\\|Readiness\\|Startup'\n\n# Check pod conditions (Ready status)\nkubectl get pod app -o jsonpath='{.status.conditions}' | python3 -m json.tool\n\n# Watch pod ready status\nkubectl get pods -w\n\n# Check endpoints (readiness affects this)\nkubectl get endpoints my-service\n\n# Check container restart count (liveness failures)\nkubectl get pod app -o jsonpath='{.status.containerStatuses[0].restartCount}'\n\n# View events for probe failures\nkubectl get events --field-selector involvedObject.name=app",
+  "example": "# Deployment with comprehensive health checks\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web-app\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web\n    spec:\n      containers:\n      - name: web\n        image: myapp:2.0\n        ports:\n        - containerPort: 8080\n        # Startup: Allow up to 5 minutes for slow Java app\n        startupProbe:\n          httpGet:\n            path: /healthz\n            port: 8080\n          failureThreshold: 30\n          periodSeconds: 10\n        # Liveness: Simple check, don't verify dependencies\n        livenessProbe:\n          httpGet:\n            path: /healthz\n            port: 8080\n          periodSeconds: 15\n          timeoutSeconds: 3\n          failureThreshold: 3\n        # Readiness: Check app + dependencies\n        readinessProbe:\n          httpGet:\n            path: /ready\n            port: 8080\n            httpHeaders:\n            - name: Accept\n              value: application/json\n          periodSeconds: 5\n          timeoutSeconds: 2\n          successThreshold: 2\n          failureThreshold: 3\n        resources:\n          requests:\n            cpu: 200m\n            memory: 256Mi\n---\n# TCP and exec probe examples\napiVersion: v1\nkind: Pod\nmetadata:\n  name: db\nspec:\n  containers:\n  - name: postgres\n    image: postgres:15\n    ports:\n    - containerPort: 5432\n    livenessProbe:\n      tcpSocket:\n        port: 5432\n      periodSeconds: 10\n    readinessProbe:\n      exec:\n        command: ['pg_isready', '-U', 'postgres']\n      periodSeconds: 5",
+  "useCase": "Zero-downtime deployments, self-healing containers, traffic management, graceful startup for slow apps, dependency readiness",
+  "interviewQuestions": [
+    {
+      "question": "What are the three types of Kubernetes probes and their purposes?",
+      "answer": "Liveness: checks if container is alive. Fails → container restarted. Detects deadlocks/hangs. Readiness: checks if container can serve traffic. Fails → removed from Service endpoints (no traffic). Not restarted. Startup: one-time check for slow-starting apps. Disables liveness/readiness until it passes. Fails → kills container."
+    },
+    {
+      "question": "What happens when a liveness probe fails?",
+      "answer": "After failureThreshold consecutive failures, kubelet kills the container and restarts it (based on restartPolicy). restartCount increments. If restarts keep failing, enters CrashLoopBackOff with exponential backoff (10s, 20s, 40s... up to 5 min). Events show 'Liveness probe failed' messages."
+    },
+    {
+      "question": "What happens when a readiness probe fails?",
+      "answer": "Pod is removed from Service endpoints — no new traffic routed to it. Existing connections may continue (depends on implementation). Container is NOT restarted. Pod stays Running but READY becomes 0/1. When probe passes again, pod is re-added to endpoints. Useful for temporary issues."
+    },
+    {
+      "question": "Why shouldn't liveness probes check external dependencies?",
+      "answer": "If liveness checks DB and DB goes down, ALL pods get killed and restart simultaneously → cascading failure. App isn't broken, DB is. Restarting app won't fix DB. Use readiness probe for dependency checks (stops traffic but doesn't restart). Liveness should only check if the app process itself is healthy."
+    },
+    {
+      "question": "When should you use a startup probe instead of initialDelaySeconds?",
+      "answer": "Startup probe is better for apps with variable startup time. initialDelaySeconds is fixed — too short and liveness kills the container, too long and failures are detected late. Startup probe allows failureThreshold * periodSeconds window (e.g., 30*10=300s) while checking actively. Also enables faster failure detection."
+    },
+    {
+      "question": "What are the four probe mechanisms available?",
+      "answer": "httpGet: HTTP GET request, 2xx-3xx = success. Most common for web apps. tcpSocket: TCP connection attempt, connection = success. Good for databases. exec: Run command, exit 0 = success. Flexible but adds overhead. grpc: Native gRPC health check protocol (1.27+ stable). For gRPC services."
+    },
+    {
+      "question": "Explain the probe configuration parameters.",
+      "answer": "initialDelaySeconds: Wait before first probe. periodSeconds: Interval between probes (default: 10). timeoutSeconds: Max time for probe response (default: 1). failureThreshold: Consecutive failures to trigger action (default: 3). successThreshold: Consecutive successes to be considered healthy (default: 1, for readiness can be >1)."
+    },
+    {
+      "question": "How do probes interact with rolling deployments?",
+      "answer": "During rolling update, new pods must pass readiness probe before old pods are terminated. If new pod never becomes ready, rollout stalls (maxUnavailable/maxSurge control behavior). minReadySeconds adds additional wait after readiness. Without readiness probe, pod is considered ready immediately → users may hit unready pods."
+    },
+    {
+      "question": "What is a common anti-pattern with liveness and readiness probes?",
+      "answer": "Using the same endpoint for both. They serve different purposes: liveness detects if app is broken (restart it), readiness detects if app is temporarily unable to serve (stop traffic). If identical, any readiness issue triggers a restart, which may be unnecessary. Use /healthz for liveness, /ready for readiness."
+    },
+    {
+      "question": "How do probes affect pod scheduling and eviction?",
+      "answer": "Probes don't affect scheduling (that's resource-based). But readiness affects endpoint inclusion — pod failing readiness won't receive traffic. Liveness failures cause restarts, increasing restartCount. Pods in CrashLoopBackOff may eventually be evicted. PodDisruptionBudget considers Ready pods for voluntary disruption decisions."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "write",
+      "question": "Write a pod spec with an HTTP liveness probe on /healthz port 8080, checking every 15 seconds.",
+      "answer": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: health-check\nspec:\n  containers:\n  - name: app\n    image: myapp:1.0\n    ports:\n    - containerPort: 8080\n    livenessProbe:\n      httpGet:\n        path: /healthz\n        port: 8080\n      periodSeconds: 15\n      timeoutSeconds: 3\n      failureThreshold: 3"
+    },
+    {
+      "type": "explain",
+      "question": "Why use a startup probe for a Java application?",
+      "answer": "Java apps (especially Spring Boot) can take 30-120+ seconds to start (JVM warmup, classpath scanning, bean initialization). Without startup probe, a liveness probe would kill the container before it finishes starting. Startup probe allows failureThreshold*periodSeconds (e.g., 30*10=300s) for startup, then liveness takes over."
+    },
+    {
+      "type": "write",
+      "question": "Write a readiness probe using exec that runs 'pg_isready' for a PostgreSQL container.",
+      "answer": "readinessProbe:\n  exec:\n    command: ['pg_isready', '-U', 'postgres', '-d', 'mydb']\n  periodSeconds: 5\n  timeoutSeconds: 2\n  failureThreshold: 3\n  successThreshold: 1"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "A pod shows Running but 0/1 Ready. What could cause this?",
+      "answer": "Readiness probe is failing. Check: (1) kubectl describe pod <name> — look for 'Readiness probe failed' events, (2) Probe endpoint not responding (app not ready), (3) Wrong port or path in probe config, (4) timeoutSeconds too low, (5) App dependency not available (DB down), (6) Container still starting (no startup probe)."
+    },
+    {
+      "type": "scenario",
+      "question": "Your app takes 2 minutes to warm its cache on startup. How to configure probes?",
+      "answer": "Use startup probe: failureThreshold=24, periodSeconds=5 (allows 120s). After startup succeeds, liveness and readiness probes activate. Liveness: check /healthz (simple, every 10s). Readiness: check /ready which verifies cache is warm. Don't use initialDelaySeconds=120 — it's a fixed delay with no active checking."
+    },
+    {
+      "type": "command",
+      "question": "Check why a container keeps restarting using events and probe status.",
+      "answer": "kubectl describe pod <name> | grep -A10 'Events'\nkubectl get events --field-selector involvedObject.name=<name> --sort-by=.lastTimestamp\nkubectl get pod <name> -o jsonpath='{.status.containerStatuses[0].restartCount}'"
+    },
+    {
+      "type": "write",
+      "question": "Write a TCP liveness probe for a Redis container on port 6379.",
+      "answer": "livenessProbe:\n  tcpSocket:\n    port: 6379\n  initialDelaySeconds: 5\n  periodSeconds: 10\n  timeoutSeconds: 2\n  failureThreshold: 3"
+    },
+    {
+      "type": "scenario",
+      "question": "During a rolling deployment, new pods pass liveness but not readiness. What happens?",
+      "answer": "Rollout stalls. New pods are Running but not Ready. Old pods remain. No traffic goes to new pods (not in endpoints). Deployment controller waits for new pods to be Ready before terminating old pods (respecting maxUnavailable). progressDeadlineSeconds (default: 600s) defines timeout before rollout is marked failed."
+    },
+    {
+      "type": "explain",
+      "question": "When should you use tcpSocket vs httpGet vs exec probes?",
+      "answer": "httpGet: Best for web apps with health endpoints. Most informative (can check app logic). tcpSocket: Good for databases, caches, services without HTTP (Redis, MySQL). Checks if port accepts connections. exec: Most flexible, runs any command. Good for custom checks (pg_isready, redis-cli ping). Higher overhead than others."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Liveness probe succeeds but app returns 500 errors to users. What's wrong?",
+      "answer": "Liveness probe endpoint (/healthz) only checks if process is alive, not functional correctness. Add a readiness probe that checks actual functionality (/ready) — verify DB connection, dependency availability. Readiness failure removes pod from endpoints, preventing 500 errors reaching users."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Pod with HTTP liveness probe",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: liveness-http\nspec:\n  containers:\n  - name: web\n    image: nginx:alpine\n    ports:\n    - containerPort: 80\n    livenessProbe:\n      httpGet:\n        path: /\n        port: 80\n      periodSeconds: 5\n      failureThreshold: 3\nEOF\nsleep 10\nkubectl describe pod liveness-http | grep -A3 'Liveness'",
+      "output": "Liveness: http-get http://:80/ delay=0s timeout=1s period=5s #success=1 #failure=3"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Liveness probe failure causing restart",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: liveness-fail\nspec:\n  containers:\n  - name: app\n    image: busybox\n    command: ['sh', '-c', 'touch /tmp/healthy; sleep 20; rm /tmp/healthy; sleep 600']\n    livenessProbe:\n      exec:\n        command: ['cat', '/tmp/healthy']\n      periodSeconds: 5\n      failureThreshold: 3\nEOF\necho 'Waiting 40s for failure...'\nsleep 40\nkubectl get pod liveness-fail\nkubectl describe pod liveness-fail | grep -A3 'Events' | tail -5",
+      "output": "RESTARTS: 1+ (healthy for 20s, then /tmp/healthy removed, probe fails, container restarted)"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Readiness probe affecting Service endpoints",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: ready-test\n  labels:\n    app: ready-test\nspec:\n  containers:\n  - name: web\n    image: nginx:alpine\n    ports:\n    - containerPort: 80\n    readinessProbe:\n      httpGet:\n        path: /ready\n        port: 80\n      periodSeconds: 5\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: ready-svc\nspec:\n  selector:\n    app: ready-test\n  ports:\n  - port: 80\nEOF\nsleep 10\nkubectl get endpoints ready-svc\nkubectl get pod ready-test",
+      "output": "Endpoints: <none> (pod Running but 0/1 Ready — /ready returns 404, not in endpoints)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Startup probe for slow-starting app",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: slow-start\nspec:\n  containers:\n  - name: app\n    image: busybox\n    command: ['sh', '-c', 'sleep 30 && echo ready > /tmp/started && sleep 3600']\n    startupProbe:\n      exec:\n        command: ['cat', '/tmp/started']\n      failureThreshold: 10\n      periodSeconds: 5\n    livenessProbe:\n      exec:\n        command: ['cat', '/tmp/started']\n      periodSeconds: 10\nEOF\necho 'Waiting 40s for startup...'\nsleep 40\nkubectl get pod slow-start\nkubectl describe pod slow-start | grep -E 'Started|Ready'",
+      "output": "Pod Ready after ~30s. Startup probe succeeded, liveness probe now active. No premature restart."
+    },
+    {
+      "type": "program",
+      "question": "Program 5: TCP socket probe for database",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: db-probe\nspec:\n  containers:\n  - name: redis\n    image: redis:7-alpine\n    ports:\n    - containerPort: 6379\n    livenessProbe:\n      tcpSocket:\n        port: 6379\n      periodSeconds: 10\n    readinessProbe:\n      tcpSocket:\n        port: 6379\n      periodSeconds: 5\nEOF\nsleep 15\nkubectl describe pod db-probe | grep -A3 'Liveness\\|Readiness'",
+      "output": "Liveness: tcp-socket :6379  Readiness: tcp-socket :6379 — both passing"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: All three probes on one container",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: triple-probe\nspec:\n  containers:\n  - name: nginx\n    image: nginx:alpine\n    ports:\n    - containerPort: 80\n    startupProbe:\n      httpGet:\n        path: /\n        port: 80\n      failureThreshold: 10\n      periodSeconds: 3\n    livenessProbe:\n      httpGet:\n        path: /\n        port: 80\n      periodSeconds: 10\n      failureThreshold: 3\n    readinessProbe:\n      httpGet:\n        path: /\n        port: 80\n      periodSeconds: 5\n      failureThreshold: 2\nEOF\nsleep 15\nkubectl describe pod triple-probe | grep -E 'Startup|Liveness|Readiness'",
+      "output": "All three probes shown: Startup (http :80), Liveness (http :80 period=10s), Readiness (http :80 period=5s)"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Monitor probe events in real-time",
+      "code": "kubectl get events --watch --field-selector reason=Unhealthy &\ncat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: unhealthy-pod\nspec:\n  containers:\n  - name: fail\n    image: busybox\n    command: ['sleep', '3600']\n    livenessProbe:\n      httpGet:\n        path: /\n        port: 8080\n      periodSeconds: 3\n      failureThreshold: 2\nEOF\nsleep 15\nkubectl get pod unhealthy-pod",
+      "output": "Events show: Liveness probe failed: connection refused. Container restarted after 2 failures."
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Readiness probe with custom HTTP headers",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: v1\nkind: Pod\nmetadata:\n  name: header-probe\nspec:\n  containers:\n  - name: web\n    image: nginx:alpine\n    readinessProbe:\n      httpGet:\n        path: /\n        port: 80\n        httpHeaders:\n        - name: Accept\n          value: application/json\n        - name: X-Health-Check\n          value: \"true\"\n      periodSeconds: 5\nEOF\nsleep 10\nkubectl describe pod header-probe | grep -A5 Readiness",
+      "output": "Readiness probe with custom headers Accept and X-Health-Check configured"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Check restart count and last state after probe failure",
+      "code": "kubectl get pod liveness-fail -o jsonpath='Restart Count: {.status.containerStatuses[0].restartCount}\nLast State: {.status.containerStatuses[0].lastState.terminated.reason}\nExit Code: {.status.containerStatuses[0].lastState.terminated.exitCode}'",
+      "output": "Restart Count: 2+  Last State: Error  Exit Code: 137 (SIGKILL from liveness failure)"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Deployment with probes controlling rolling update",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: probe-deploy\nspec:\n  replicas: 3\n  strategy:\n    rollingUpdate:\n      maxUnavailable: 1\n      maxSurge: 1\n  selector:\n    matchLabels:\n      app: probe-deploy\n  template:\n    metadata:\n      labels:\n        app: probe-deploy\n    spec:\n      containers:\n      - name: web\n        image: nginx:alpine\n        readinessProbe:\n          httpGet:\n            path: /\n            port: 80\n          periodSeconds: 5\n          failureThreshold: 2\nEOF\nkubectl rollout status deployment/probe-deploy\nkubectl get pods -l app=probe-deploy",
+      "output": "3/3 pods Ready. During updates, new pods must pass readiness before old pods terminate."
+    }
+  ]
+}

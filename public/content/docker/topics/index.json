@@ -40,5 +40,23 @@
     "file": "topics/docker-swarm.json",
     "title": "Docker Commands Reference",
     "category": "Docker Basics"
+  },
+  {
+    "id": "docker-security",
+    "file": "topics/docker-security.json",
+    "title": "Docker Security",
+    "category": "Docker Security"
+  },
+  {
+    "id": "docker-best-practices",
+    "file": "topics/docker-best-practices.json",
+    "title": "Docker Best Practices",
+    "category": "Docker Security"
+  },
+  {
+    "id": "docker-registry",
+    "file": "topics/docker-registry.json",
+    "title": "Docker Registry & Image Management",
+    "category": "Docker Registry"
   }
 ]

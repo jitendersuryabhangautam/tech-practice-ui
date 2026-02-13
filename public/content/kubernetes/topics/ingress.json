@@ -1,0 +1,167 @@
+{
+  "id": "ingress",
+  "title": "Ingress & Ingress Controllers",
+  "category": "Kubernetes Networking",
+  "description": "HTTP/HTTPS routing, TLS termination, and external access management with Ingress resources.",
+  "explanation": "Ingress exposes HTTP/HTTPS routes from outside the cluster to services within. It provides URL-based routing, TLS termination, virtual hosting, and load balancing — capabilities that plain Services (NodePort, LoadBalancer) lack.\n\nComponents:\n- Ingress resource: Declarative routing rules (YAML). Defines which hostname/path maps to which Service.\n- Ingress Controller: The actual proxy that implements the rules. NOT included by default — must be installed. Popular controllers: NGINX Ingress, Traefik, HAProxy, AWS ALB, Istio Gateway.\n\nRouting types:\n- Host-based: Route by domain name. api.example.com → api-service, web.example.com → web-service.\n- Path-based: Route by URL path. example.com/api → api-service, example.com/web → web-service.\n- Combined: Both host and path rules in one Ingress.\n\nPath types (pathType field):\n- Prefix: Matches URL path prefix. /api matches /api, /api/, /api/v1.\n- Exact: Exact match only. /api matches only /api, NOT /api/.\n- ImplementationSpecific: Behavior depends on IngressClass.\n\nTLS termination:\n- Ingress handles SSL/TLS at the edge. Backend services communicate over HTTP.\n- Store TLS certificate in a Kubernetes Secret (type: kubernetes.io/tls).\n- Reference the Secret in the Ingress spec.tls section.\n- Use cert-manager for automatic certificate provisioning from Let's Encrypt.\n\nIngressClass:\n- Specifies which Ingress Controller handles this Ingress.\n- Multiple controllers can coexist (e.g., NGINX for public, Traefik for internal).\n- spec.ingressClassName: 'nginx' or annotation kubernetes.io/ingress.class.\n\nIngress vs Gateway API:\n- Ingress: Simple, HTTP-only routing. Widely supported. Limited features.\n- Gateway API (newer): Richer model — supports TCP/UDP, traffic splitting, header modification. Replaces Ingress long-term.\n- Gateway API has separate resources: GatewayClass, Gateway, HTTPRoute.\n\nBest practices:\n- Always configure TLS for production Ingress.\n- Use cert-manager for automatic certificate management.\n- Set rate limiting and WAF rules via annotations.\n- Configure health checks for backends.\n- Use defaultBackend for catch-all 404 handling.",
+  "code": "# Simple Ingress with path-based routing\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: app-ingress\n  annotations:\n    nginx.ingress.kubernetes.io/rewrite-target: /\nspec:\n  ingressClassName: nginx\n  rules:\n  - host: myapp.example.com\n    http:\n      paths:\n      - path: /api\n        pathType: Prefix\n        backend:\n          service:\n            name: api-service\n            port:\n              number: 80\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: web-service\n            port:\n              number: 80",
+  "command": "# Install NGINX Ingress Controller\nkubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml\n\n# Create Ingress\nkubectl apply -f ingress.yaml\n\n# List Ingresses\nkubectl get ingress\n\n# Describe Ingress (shows rules, backends, events)\nkubectl describe ingress app-ingress\n\n# Check Ingress Controller pods\nkubectl get pods -n ingress-nginx\n\n# Get external IP of Ingress Controller\nkubectl get svc -n ingress-nginx\n\n# Create TLS secret for Ingress\nkubectl create secret tls myapp-tls --cert=tls.crt --key=tls.key",
+  "example": "# Ingress with TLS and multiple hosts\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: multi-host-ingress\n  annotations:\n    nginx.ingress.kubernetes.io/ssl-redirect: \"true\"\n    nginx.ingress.kubernetes.io/proxy-body-size: \"10m\"\n    cert-manager.io/cluster-issuer: letsencrypt-prod\nspec:\n  ingressClassName: nginx\n  tls:\n  - hosts:\n    - api.example.com\n    - web.example.com\n    secretName: example-tls\n  rules:\n  - host: api.example.com\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: api-service\n            port:\n              number: 8080\n  - host: web.example.com\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: web-service\n            port:\n              number: 3000\n  defaultBackend:\n    service:\n      name: default-backend\n      port:\n        number: 80",
+  "useCase": "HTTP routing, TLS termination, virtual hosting, URL-based routing, API gateway, SSL offloading",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between Ingress and a LoadBalancer Service?",
+      "answer": "LoadBalancer Service: One external IP per service, L4 (TCP/UDP), no path/host routing. Ingress: Single entry point for multiple services, L7 (HTTP/HTTPS), path-based and host-based routing, TLS termination. Ingress is more cost-effective (one LB for many services) and feature-rich."
+    },
+    {
+      "question": "What is an Ingress Controller and why is it needed?",
+      "answer": "Ingress resource is just configuration — it doesn't do anything alone. The Ingress Controller is a pod running a reverse proxy (NGINX, Traefik, HAProxy) that reads Ingress resources and configures routing rules. K8s doesn't include one by default — you must install it."
+    },
+    {
+      "question": "How does Ingress handle TLS/SSL?",
+      "answer": "TLS certificate and key stored in a Kubernetes Secret (type: kubernetes.io/tls). Ingress references the Secret in spec.tls. The Ingress Controller terminates TLS at the edge — traffic to backend services is HTTP. Use cert-manager for automatic certificate provisioning from Let's Encrypt."
+    },
+    {
+      "question": "Explain path-based vs host-based routing in Ingress.",
+      "answer": "Path-based: Single domain, route by URL path. example.com/api → api-service, example.com/web → web-service. Host-based: Route by hostname. api.example.com → api-service, web.example.com → web-service. Can combine both: api.example.com/v1 → api-v1-service."
+    },
+    {
+      "question": "What are Ingress pathType options?",
+      "answer": "Prefix: Matches URL path prefix. /api matches /api, /api/, /api/users. Exact: Exact match only. /api matches only /api. ImplementationSpecific: Controller-dependent behavior. Always specify pathType — it's required since networking.k8s.io/v1."
+    },
+    {
+      "question": "How do you handle multiple Ingress Controllers in one cluster?",
+      "answer": "Use IngressClass. Each controller registers an IngressClass (e.g., nginx, traefik). Ingress resources specify which controller via spec.ingressClassName. One can be set as default (isDefaultClass annotation). Enables separation: public Ingress via NGINX, internal via Traefik."
+    },
+    {
+      "question": "What is the default backend in Ingress?",
+      "answer": "defaultBackend handles requests that don't match any rule (host/path). Returns a custom 404 page or catch-all response. Can be specified per Ingress or at the controller level. Without it, unmatched requests get the controller's default 404 page."
+    },
+    {
+      "question": "How does cert-manager work with Ingress?",
+      "answer": "cert-manager watches Ingress resources with annotation cert-manager.io/cluster-issuer. Automatically creates Certificate resource, solves ACME challenge (HTTP01 or DNS01), obtains certificate from Let's Encrypt, stores in specified Secret, and renews before expiration."
+    },
+    {
+      "question": "What is the Gateway API and how does it compare to Ingress?",
+      "answer": "Gateway API: Next-generation replacement for Ingress. Supports TCP/UDP (not just HTTP), traffic splitting, header manipulation, role-based resource model (GatewayClass→Gateway→HTTPRoute). More expressive and extensible. Ingress remains simpler for basic HTTP routing."
+    },
+    {
+      "question": "How do you implement rate limiting with Ingress?",
+      "answer": "NGINX Ingress: annotations like nginx.ingress.kubernetes.io/limit-rps: '10' (10 requests/second), limit-connections, limit-rpm. Can set custom response code. For more advanced: use external auth (oauth2-proxy), WAF integration, or service mesh (Istio) rate limiting."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "write",
+      "question": "Write an Ingress that routes /api to api-service:8080 and / to frontend-service:3000.",
+      "answer": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: app-routing\nspec:\n  ingressClassName: nginx\n  rules:\n  - http:\n      paths:\n      - path: /api\n        pathType: Prefix\n        backend:\n          service:\n            name: api-service\n            port:\n              number: 8080\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: frontend-service\n            port:\n              number: 3000"
+    },
+    {
+      "type": "write",
+      "question": "Write an Ingress with TLS termination for myapp.example.com.",
+      "answer": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: tls-ingress\nspec:\n  ingressClassName: nginx\n  tls:\n  - hosts:\n    - myapp.example.com\n    secretName: myapp-tls\n  rules:\n  - host: myapp.example.com\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: myapp\n            port:\n              number: 80"
+    },
+    {
+      "type": "command",
+      "question": "Install NGINX Ingress Controller and verify it's running.",
+      "answer": "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml\nkubectl get pods -n ingress-nginx\nkubectl get svc -n ingress-nginx"
+    },
+    {
+      "type": "troubleshoot",
+      "question": "Ingress returns 503. Backend service exists. What to check?",
+      "answer": "Check: (1) Service selector matches pod labels, (2) kubectl get endpoints <service> — should list pod IPs, (3) Pod is Running and passing readiness probe, (4) Port numbers match (Ingress→Service→Pod), (5) kubectl describe ingress for events/errors, (6) Ingress Controller logs."
+    },
+    {
+      "type": "explain",
+      "question": "Why do you need an Ingress Controller? What happens without one?",
+      "answer": "Ingress resource is just a spec — routing rules stored in etcd. Without a controller, nothing reads or implements those rules. Creating Ingress resources without a controller has no effect. The controller (NGINX, Traefik) is the actual reverse proxy that configures itself from Ingress resources."
+    },
+    {
+      "type": "scenario",
+      "question": "You have 20 microservices. Should you use 20 LoadBalancer Services or Ingress?",
+      "answer": "Ingress. 20 LoadBalancers = 20 external IPs, 20 cloud LB costs (~$15-18/month each). One Ingress Controller with one LoadBalancer: single entry point, path/host routing to all 20 services, centralized TLS, much cheaper and manageable."
+    },
+    {
+      "type": "command",
+      "question": "Create a TLS secret from certificate files for use in Ingress.",
+      "answer": "kubectl create secret tls myapp-tls --cert=./tls.crt --key=./tls.key\nkubectl get secret myapp-tls -o yaml"
+    },
+    {
+      "type": "write",
+      "question": "Write an Ingress with host-based routing: api.example.com and web.example.com.",
+      "answer": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: multi-host\nspec:\n  ingressClassName: nginx\n  rules:\n  - host: api.example.com\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: api-svc\n            port:\n              number: 8080\n  - host: web.example.com\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: web-svc\n            port:\n              number: 3000"
+    },
+    {
+      "type": "explain",
+      "question": "What is the rewrite-target annotation and when is it needed?",
+      "answer": "When Ingress path is /api but backend expects /. Without rewrite: request to /api/users → backend receives /api/users (404 if backend doesn't know /api prefix). With nginx.ingress.kubernetes.io/rewrite-target: /: /api/users → backend receives /users. Essential for prefix-stripped routing."
+    },
+    {
+      "type": "scenario",
+      "question": "How do you handle WebSocket connections through Ingress?",
+      "answer": "NGINX Ingress supports WebSocket by default (Connection upgrade headers). For long-lived connections, increase timeouts: nginx.ingress.kubernetes.io/proxy-read-timeout: '3600', proxy-send-timeout: '3600'. For sticky sessions: nginx.ingress.kubernetes.io/affinity: cookie."
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Deploy two services and route with path-based Ingress",
+      "code": "kubectl create deployment api --image=hashicorp/http-echo -- -text='API response'\nkubectl expose deployment api --port=80 --target-port=5678\nkubectl create deployment web --image=hashicorp/http-echo -- -text='Web response'\nkubectl expose deployment web --port=80 --target-port=5678\ncat <<EOF | kubectl apply -f -\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: path-routing\nspec:\n  ingressClassName: nginx\n  rules:\n  - http:\n      paths:\n      - path: /api\n        pathType: Prefix\n        backend:\n          service:\n            name: api\n            port:\n              number: 80\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: web\n            port:\n              number: 80\nEOF\nkubectl get ingress path-routing",
+      "output": "Ingress created. /api → 'API response', / → 'Web response'"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Create TLS secret and Ingress with HTTPS",
+      "code": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj '/CN=myapp.local'\nkubectl create secret tls myapp-tls --cert=tls.crt --key=tls.key\ncat <<EOF | kubectl apply -f -\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: tls-ingress\nspec:\n  ingressClassName: nginx\n  tls:\n  - hosts:\n    - myapp.local\n    secretName: myapp-tls\n  rules:\n  - host: myapp.local\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: web\n            port:\n              number: 80\nEOF\nkubectl describe ingress tls-ingress | grep -A3 TLS",
+      "output": "TLS: myapp-tls terminates myapp.local. HTTPS enabled."
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Host-based routing with multiple domains",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: host-routing\nspec:\n  ingressClassName: nginx\n  rules:\n  - host: api.local\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: api\n            port:\n              number: 80\n  - host: web.local\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: web\n            port:\n              number: 80\nEOF\nkubectl get ingress host-routing",
+      "output": "Two hosts configured. api.local → api service, web.local → web service"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Ingress with rate limiting annotations",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: rate-limited\n  annotations:\n    nginx.ingress.kubernetes.io/limit-rps: \"5\"\n    nginx.ingress.kubernetes.io/limit-burst-multiplier: \"3\"\nspec:\n  ingressClassName: nginx\n  rules:\n  - http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: web\n            port:\n              number: 80\nEOF\nkubectl describe ingress rate-limited | grep -i limit",
+      "output": "Rate limiting annotations applied: 5 requests/sec with burst multiplier 3"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Check Ingress Controller logs for debugging",
+      "code": "kubectl logs -n ingress-nginx -l app.kubernetes.io/component=controller --tail=20",
+      "output": "NGINX Ingress Controller access/error logs showing routing decisions and configuration reloads"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Ingress with default backend for 404 handling",
+      "code": "kubectl create deployment default-backend --image=hashicorp/http-echo -- -text='404 Not Found'\nkubectl expose deployment default-backend --port=80 --target-port=5678\ncat <<EOF | kubectl apply -f -\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: with-default\nspec:\n  ingressClassName: nginx\n  defaultBackend:\n    service:\n      name: default-backend\n      port:\n        number: 80\n  rules:\n  - host: myapp.local\n    http:\n      paths:\n      - path: /app\n        pathType: Prefix\n        backend:\n          service:\n            name: web\n            port:\n              number: 80\nEOF\nkubectl describe ingress with-default | grep -i default",
+      "output": "Default backend: default-backend:80. Any unmatched request → '404 Not Found'"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Verify Ingress endpoints are healthy",
+      "code": "kubectl get ingress -o wide\nkubectl describe ingress path-routing | grep -A5 Rules\nkubectl get endpoints api web",
+      "output": "Shows Ingress ADDRESS, routing rules, and backend endpoint IPs confirming healthy backends"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Ingress with rewrite-target annotation",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: rewrite-ingress\n  annotations:\n    nginx.ingress.kubernetes.io/rewrite-target: /$2\nspec:\n  ingressClassName: nginx\n  rules:\n  - http:\n      paths:\n      - path: /api(/|$)(.*)\n        pathType: ImplementationSpecific\n        backend:\n          service:\n            name: api\n            port:\n              number: 80\nEOF\nkubectl describe ingress rewrite-ingress",
+      "output": "Rewrite target configured: /api/users → backend receives /users (prefix stripped)"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: List all IngressClasses in cluster",
+      "code": "kubectl get ingressclass\nkubectl describe ingressclass nginx",
+      "output": "Shows available IngressClasses (nginx, etc.) and which is default"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Test Ingress routing with curl",
+      "code": "INGRESS_IP=$(kubectl get ingress path-routing -o jsonpath='{.status.loadBalancer.ingress[0].ip}')\ncurl -H 'Host: myapp.local' http://$INGRESS_IP/\ncurl -H 'Host: myapp.local' http://$INGRESS_IP/api",
+      "output": "/ returns 'Web response', /api returns 'API response' — routing works correctly"
+    }
+  ]
+}

@@ -52,5 +52,41 @@
     "file": "topics/kubectl-advanced.json",
     "title": "Advanced kubectl Commands",
     "category": "kubectl Commands"
+  },
+  {
+    "id": "statefulsets",
+    "file": "topics/statefulsets.json",
+    "title": "StatefulSets",
+    "category": "Kubernetes Workloads"
+  },
+  {
+    "id": "daemonsets",
+    "file": "topics/daemonsets.json",
+    "title": "DaemonSets",
+    "category": "Kubernetes Workloads"
+  },
+  {
+    "id": "jobs-cronjobs",
+    "file": "topics/jobs-cronjobs.json",
+    "title": "Jobs & CronJobs",
+    "category": "Kubernetes Workloads"
+  },
+  {
+    "id": "ingress",
+    "file": "topics/ingress.json",
+    "title": "Ingress",
+    "category": "Kubernetes Networking"
+  },
+  {
+    "id": "rbac",
+    "file": "topics/rbac.json",
+    "title": "RBAC (Role-Based Access Control)",
+    "category": "Kubernetes Security"
+  },
+  {
+    "id": "probes",
+    "file": "topics/probes.json",
+    "title": "Probes & Health Checks",
+    "category": "Kubernetes Workloads"
   }
 ]
