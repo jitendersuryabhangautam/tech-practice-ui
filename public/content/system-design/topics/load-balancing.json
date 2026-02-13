@@ -1,0 +1,156 @@
+{
+  "id": "load-balancing",
+  "title": "Load Balancing & Reverse Proxy",
+  "category": "Foundations",
+  "description": "Distribute traffic across servers using load balancers and reverse proxies for high availability and scalability.",
+  "explanation": "A load balancer distributes incoming requests across multiple backend servers to prevent any single server from becoming a bottleneck. This improves throughput, reduces latency, and provides fault tolerance.\n\nLayer 4 (Transport) vs Layer 7 (Application):\n- L4 LB operates on TCP/UDP — fast, simple, no payload inspection. Routes by IP+port. Examples: AWS NLB, HAProxy TCP mode.\n- L7 LB operates on HTTP — can inspect headers, URLs, cookies. Enables content-based routing, SSL termination, compression. Examples: Nginx, AWS ALB, Envoy.\n\nCommon algorithms:\n- Round Robin: Requests distributed sequentially. Simple but ignores server load.\n- Weighted Round Robin: Assigns proportional traffic by server capacity.\n- Least Connections: Routes to server with fewest active connections. Best for variable request durations.\n- IP Hash: Same client always goes to same server (sticky sessions without cookies).\n- Consistent Hashing: Minimizes redistribution when servers are added/removed.\n\nReverse proxy sits in front of backends, hiding their identity. Provides SSL termination, compression, caching, rate limiting, and security filtering. All modern load balancers are also reverse proxies.\n\nHealth checks: Active (periodic HTTP/TCP probes) and passive (monitor response errors). Unhealthy servers are removed from the pool automatically.\n\nGlobal Server Load Balancing (GSLB): DNS-based routing to the nearest data center using GeoDNS or anycast. Enables multi-region deployments.",
+  "code": "# Nginx reverse proxy + load balancer configuration\n\nupstream backend {\n    # Least connections algorithm\n    least_conn;\n    \n    server backend1:8080 weight=3;   # 3x traffic\n    server backend2:8080 weight=1;\n    server backend3:8080 weight=1;\n    server backend4:8080 backup;      # Only when others are down\n}\n\nserver {\n    listen 443 ssl;\n    server_name api.example.com;\n    \n    # SSL termination at LB\n    ssl_certificate /etc/ssl/cert.pem;\n    ssl_certificate_key /etc/ssl/key.pem;\n    \n    # Health check\n    location /health {\n        proxy_pass http://backend;\n        proxy_connect_timeout 2s;\n        proxy_read_timeout 5s;\n    }\n    \n    # Proxy with headers\n    location / {\n        proxy_pass http://backend;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        \n        # Timeouts\n        proxy_connect_timeout 5s;\n        proxy_read_timeout 30s;\n        proxy_send_timeout 30s;\n    }\n}",
+  "example": "# HAProxy configuration with health checks\n\nfrontend http_front\n    bind *:80\n    bind *:443 ssl crt /etc/ssl/certs/\n    redirect scheme https if !{ ssl_fc }\n    default_backend app_servers\n\nbackend app_servers\n    balance roundrobin\n    option httpchk GET /health\n    http-check expect status 200\n    \n    server app1 10.0.1.1:8080 check inter 5s fall 3 rise 2\n    server app2 10.0.1.2:8080 check inter 5s fall 3 rise 2\n    server app3 10.0.1.3:8080 check inter 5s fall 3 rise 2\n\n# inter 5s = check every 5 seconds\n# fall 3   = mark unhealthy after 3 failures\n# rise 2   = mark healthy after 2 successes",
+  "useCase": "Every production web application — API servers, microservices, static assets, WebSocket connections, database connection pooling.",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between L4 and L7 load balancing?",
+      "answer": "L4 operates at the transport layer (TCP/UDP) — fast, no payload inspection, routes by IP and port. L7 operates at the application layer (HTTP) — can inspect headers, URLs, cookies, enabling content-based routing, SSL termination, and caching."
+    },
+    {
+      "question": "How does a load balancer detect unhealthy servers?",
+      "answer": "Active health checks: periodic HTTP/TCP probes (e.g., GET /health every 5s). Passive health checks: monitor actual response errors. After N consecutive failures (fall threshold), the server is removed from the pool."
+    },
+    {
+      "question": "When would you use sticky sessions?",
+      "answer": "When server-side session state exists (shopping carts, WebSocket connections). Implemented via cookies or IP hash. Downside: uneven load distribution and failover complexity. Better approach: externalize state to Redis."
+    },
+    {
+      "question": "What happens when a load balancer itself fails?",
+      "answer": "Use active-passive or active-active LB pairs with floating IP (VRRP). Cloud-managed LBs (ALB, NLB) are inherently redundant across AZs. DNS failover provides another layer of redundancy."
+    },
+    {
+      "question": "Explain consistent hashing in load balancing.",
+      "answer": "Servers are placed on a hash ring. Requests are hashed to a position on the ring and routed to the nearest server clockwise. When a server is added/removed, only ~1/N of keys are redistributed. Virtual nodes improve uniformity."
+    },
+    {
+      "question": "What is SSL termination and why do it at the load balancer?",
+      "answer": "Decrypting SSL/TLS at the LB instead of backend servers. Benefits: centralizes certificate management, offloads CPU-intensive encryption from app servers, enables L7 inspection of decrypted traffic."
+    },
+    {
+      "question": "How do you handle WebSocket connections with load balancers?",
+      "answer": "Use L7 LB with connection upgrade support. Enable sticky sessions so the persistent connection stays with the same backend. Alternatively, use L4 LB which naturally maintains TCP connections."
+    },
+    {
+      "question": "Compare round robin vs least connections algorithms.",
+      "answer": "Round robin is simple and works well when requests have similar processing times. Least connections is better when request durations vary — it routes to the least loaded server, preventing slow requests from backing up one server."
+    },
+    {
+      "question": "What is a reverse proxy and how does it differ from a load balancer?",
+      "answer": "A reverse proxy sits between clients and servers, forwarding requests on behalf of clients. All load balancers are reverse proxies, but reverse proxies also provide caching, compression, SSL termination, and security filtering without load distribution."
+    },
+    {
+      "question": "How does Global Server Load Balancing (GSLB) work?",
+      "answer": "Uses DNS to route users to the nearest data center. GeoDNS resolves the domain to different IPs based on client location. Health-aware GSLB removes unhealthy regions from DNS. Anycast is another approach where the same IP is advertised from multiple locations."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "design",
+      "question": "Design a load balancing strategy for a service with 10 servers where 3 are 2x more powerful than the others.",
+      "answer": "Use weighted round robin or weighted least connections. Assign weight=2 to powerful servers. This gives them 2x traffic: powerful servers get ~22% each (66% total), regular servers get ~5% each (34% total)."
+    },
+    {
+      "type": "scenario",
+      "question": "Your LB health check interval is 30s and a server crashes. What's the worst-case impact and how to improve?",
+      "answer": "Worst case: 30s of requests to a dead server. Reduce interval to 3-5s with fall=2. Use passive checks on actual traffic errors. Result: detection in 6-10s instead of 30s."
+    },
+    {
+      "type": "debug",
+      "question": "Users report intermittent 502 errors. LB logs show backend servers returning errors. What do you investigate?",
+      "answer": "1) Check backend health: are servers overloaded or crashing? 2) Check connection limits: LB may be hitting max connections to backends. 3) Check timeouts: backend may be too slow. 4) Check if health checks are passing but actual requests fail."
+    },
+    {
+      "type": "estimation",
+      "question": "100K concurrent users, each makes 1 request every 10 seconds. How many app servers (8K QPS each) behind a load balancer?",
+      "answer": "QPS = 100K / 10 = 10K QPS. Servers needed: 10K / 8K = 1.25 → 2 servers minimum. With headroom (2x): 4 servers."
+    },
+    {
+      "type": "tricky",
+      "question": "You deploy a new version behind the LB but some users see the old version. Why?",
+      "answer": "Sticky sessions routing users to old servers, or CDN/browser caching. Fix: use rolling deployment (drain old servers), bust cache with versioned URLs, or use blue-green deployment with DNS switch."
+    },
+    {
+      "type": "design",
+      "question": "Design a multi-tier load balancing architecture for a global application.",
+      "answer": "Tier 1: GSLB via GeoDNS routes to nearest region. Tier 2: L4 NLB distributes to availability zones. Tier 3: L7 ALB routes by URL path to different services. Each tier adds resilience."
+    },
+    {
+      "type": "output",
+      "question": "If you have 3 servers with weights 5, 3, 2 and 100 requests, how many go to each?",
+      "answer": "Total weight = 10. Server 1: 100 × 5/10 = 50 requests. Server 2: 100 × 3/10 = 30 requests. Server 3: 100 × 2/10 = 20 requests."
+    },
+    {
+      "type": "scenario",
+      "question": "During deployment, you need zero-downtime. How does the LB help?",
+      "answer": "Rolling update: remove one server from pool, update it, health check passes, add it back, repeat. Or blue-green: deploy new version on separate servers, switch LB target group atomically."
+    },
+    {
+      "type": "explain",
+      "question": "Why is the X-Forwarded-For header important in load-balanced setups?",
+      "answer": "Without it, backend sees the LB's IP as the client IP. X-Forwarded-For preserves the original client IP through the proxy chain. Critical for rate limiting, geo-targeting, logging, and security."
+    },
+    {
+      "type": "debug",
+      "question": "One backend server receives 80% of traffic while others are idle. LB algorithm is round-robin. What's wrong?",
+      "answer": "Possible causes: Sticky sessions enabled, persistent connections (one long connection gets all requests), health checks failing on other servers, or incorrect weight configuration."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Round-robin load balancer",
+      "code": "class RoundRobinLB {\n  constructor(servers) {\n    this.servers = servers;\n    this.index = 0;\n  }\n  getServer() {\n    const server = this.servers[this.index];\n    this.index = (this.index + 1) % this.servers.length;\n    return server;\n  }\n}\n\nconst lb = new RoundRobinLB(['s1:8080', 's2:8080', 's3:8080']);\nfor (let i = 0; i < 7; i++) console.log(`Request ${i + 1} → ${lb.getServer()}`);",
+      "output": "Request 1 → s1:8080\nRequest 2 → s2:8080\nRequest 3 → s3:8080\nRequest 4 → s1:8080\nRequest 5 → s2:8080\nRequest 6 → s3:8080\nRequest 7 → s1:8080"
+    },
+    {
+      "question": "Program 2: Weighted round-robin load balancer",
+      "code": "class WeightedRRLB {\n  constructor(servers) {\n    this.servers = [];\n    servers.forEach(s => {\n      for (let i = 0; i < s.weight; i++) this.servers.push(s.address);\n    });\n    this.index = 0;\n  }\n  getServer() {\n    const server = this.servers[this.index];\n    this.index = (this.index + 1) % this.servers.length;\n    return server;\n  }\n}\n\nconst lb = new WeightedRRLB([\n  { address: 's1', weight: 3 },\n  { address: 's2', weight: 1 },\n  { address: 's3', weight: 1 },\n]);\nconst counts = {};\nfor (let i = 0; i < 50; i++) {\n  const s = lb.getServer();\n  counts[s] = (counts[s] || 0) + 1;\n}\nconsole.log(counts);",
+      "output": "{ s1: 30, s2: 10, s3: 10 }"
+    },
+    {
+      "question": "Program 3: Least connections load balancer",
+      "code": "class LeastConnectionsLB {\n  constructor(servers) {\n    this.servers = servers.map(s => ({ address: s, connections: 0 }));\n  }\n  getServer() {\n    const server = this.servers.reduce((min, s) => s.connections < min.connections ? s : min);\n    server.connections++;\n    return server.address;\n  }\n  release(address) {\n    const server = this.servers.find(s => s.address === address);\n    if (server) server.connections = Math.max(0, server.connections - 1);\n  }\n  status() {\n    return this.servers.map(s => `${s.address}: ${s.connections} conn`);\n  }\n}\n\nconst lb = new LeastConnectionsLB(['s1', 's2', 's3']);\nconsole.log(lb.getServer()); // s1 (all 0, picks first)\nconsole.log(lb.getServer()); // s2\nconsole.log(lb.getServer()); // s3\nconsole.log(lb.getServer()); // s1 (all have 1, picks first again)\nlb.release('s2');\nconsole.log(lb.getServer()); // s2 (now has 0)\nconsole.log(lb.status());",
+      "output": "s1\ns2\ns3\ns1\ns2\n['s1: 2 conn', 's2: 1 conn', 's3: 1 conn']"
+    },
+    {
+      "question": "Program 4: Health check simulator",
+      "code": "class HealthChecker {\n  constructor(servers, { fall = 3, rise = 2 } = {}) {\n    this.servers = servers.map(s => ({ address: s, healthy: true, failCount: 0, passCount: 0 }));\n    this.fall = fall;\n    this.rise = rise;\n  }\n  check(address, success) {\n    const server = this.servers.find(s => s.address === address);\n    if (success) {\n      server.failCount = 0;\n      server.passCount++;\n      if (!server.healthy && server.passCount >= this.rise) {\n        server.healthy = true;\n        console.log(`[RECOVERED] ${address}`);\n      }\n    } else {\n      server.passCount = 0;\n      server.failCount++;\n      if (server.healthy && server.failCount >= this.fall) {\n        server.healthy = false;\n        console.log(`[DOWN] ${address}`);\n      }\n    }\n  }\n  getHealthy() { return this.servers.filter(s => s.healthy).map(s => s.address); }\n}\n\nconst hc = new HealthChecker(['s1', 's2', 's3']);\nhc.check('s2', false); hc.check('s2', false); hc.check('s2', false); // 3 fails\nconsole.log('Healthy:', hc.getHealthy());\nhc.check('s2', true); hc.check('s2', true); // 2 passes\nconsole.log('Healthy:', hc.getHealthy());",
+      "output": "[DOWN] s2\nHealthy: ['s1', 's3']\n[RECOVERED] s2\nHealthy: ['s1', 's2', 's3']"
+    },
+    {
+      "question": "Program 5: IP hash load balancer",
+      "code": "function simpleHash(str) {\n  let hash = 0;\n  for (let i = 0; i < str.length; i++) {\n    hash = ((hash << 5) - hash) + str.charCodeAt(i);\n    hash |= 0;\n  }\n  return Math.abs(hash);\n}\n\nclass IPHashLB {\n  constructor(servers) { this.servers = servers; }\n  getServer(clientIP) {\n    const index = simpleHash(clientIP) % this.servers.length;\n    return this.servers[index];\n  }\n}\n\nconst lb = new IPHashLB(['s1', 's2', 's3']);\nconst ips = ['192.168.1.1', '10.0.0.5', '172.16.0.1', '192.168.1.1'];\nips.forEach(ip => console.log(`${ip} → ${lb.getServer(ip)}`));",
+      "output": "192.168.1.1 → s2\n10.0.0.5 → s1\n172.16.0.1 → s3\n192.168.1.1 → s2  // Same IP always goes to same server"
+    },
+    {
+      "question": "Program 6: Connection draining simulator",
+      "code": "class DrainingLB {\n  constructor(servers) {\n    this.servers = servers.map(s => ({ addr: s, draining: false, active: 0 }));\n  }\n  drain(addr) {\n    const s = this.servers.find(s => s.addr === addr);\n    s.draining = true;\n    console.log(`[DRAINING] ${addr} (${s.active} active connections)`);\n  }\n  route() {\n    const available = this.servers.filter(s => !s.draining);\n    if (!available.length) return null;\n    const s = available.reduce((min, s) => s.active < min.active ? s : min);\n    s.active++;\n    return s.addr;\n  }\n  complete(addr) {\n    const s = this.servers.find(s => s.addr === addr);\n    s.active = Math.max(0, s.active - 1);\n    if (s.draining && s.active === 0) console.log(`[DRAINED] ${addr} — safe to remove`);\n  }\n}\n\nconst lb = new DrainingLB(['s1', 's2', 's3']);\nlb.route(); lb.route(); lb.route(); // 1 each\nlb.servers.find(s => s.addr === 's2').active = 2;\nlb.drain('s2');\nconsole.log('New routes go to:', lb.route(), lb.route());\nlb.complete('s2'); lb.complete('s2');",
+      "output": "[DRAINING] s2 (2 active connections)\nNew routes go to: s1 s3\n[DRAINED] s2 — safe to remove"
+    },
+    {
+      "question": "Program 7: Rate-limited load balancer",
+      "code": "class RateLimitedLB {\n  constructor(servers, maxRPS) {\n    this.servers = servers;\n    this.maxRPS = maxRPS;\n    this.counts = new Map();\n    this.index = 0;\n  }\n  route(clientIP) {\n    const count = this.counts.get(clientIP) || 0;\n    if (count >= this.maxRPS) return { status: 429, message: 'Rate limited' };\n    this.counts.set(clientIP, count + 1);\n    const server = this.servers[this.index % this.servers.length];\n    this.index++;\n    return { status: 200, server };\n  }\n  resetWindow() { this.counts.clear(); }\n}\n\nconst lb = new RateLimitedLB(['s1', 's2'], 3);\nfor (let i = 0; i < 5; i++) {\n  console.log(`Req ${i + 1}:`, lb.route('client-1'));\n}",
+      "output": "Req 1: { status: 200, server: 's1' }\nReq 2: { status: 200, server: 's2' }\nReq 3: { status: 200, server: 's1' }\nReq 4: { status: 429, message: 'Rate limited' }\nReq 5: { status: 429, message: 'Rate limited' }"
+    },
+    {
+      "question": "Program 8: Multi-tier LB router",
+      "code": "class MultiTierLB {\n  constructor(regions) { this.regions = regions; }\n  route(userRegion, path) {\n    const region = this.regions[userRegion] || this.regions['default'];\n    const service = path.startsWith('/api') ? 'api' : path.startsWith('/static') ? 'cdn' : 'web';\n    const servers = region[service] || region['web'];\n    const server = servers[Math.floor(Math.random() * servers.length)];\n    return { region: userRegion, service, server };\n  }\n}\n\nconst lb = new MultiTierLB({\n  'us-east': { api: ['api-us-1', 'api-us-2'], web: ['web-us-1'], cdn: ['cdn-us-1'] },\n  'eu-west': { api: ['api-eu-1'], web: ['web-eu-1'], cdn: ['cdn-eu-1'] },\n  'default': { api: ['api-us-1'], web: ['web-us-1'], cdn: ['cdn-us-1'] },\n});\nconsole.log(lb.route('us-east', '/api/users'));\nconsole.log(lb.route('eu-west', '/static/logo.png'));\nconsole.log(lb.route('ap-south', '/home'));",
+      "output": "{ region: 'us-east', service: 'api', server: 'api-us-1' }\n{ region: 'eu-west', service: 'cdn', server: 'cdn-eu-1' }\n{ region: 'ap-south', service: 'web', server: 'web-us-1' }"
+    },
+    {
+      "question": "Program 9: Server weight auto-adjuster based on response times",
+      "code": "function adjustWeights(servers) {\n  const maxLatency = Math.max(...servers.map(s => s.avgLatencyMs));\n  return servers.map(s => {\n    const weight = Math.max(1, Math.round((maxLatency / s.avgLatencyMs) * 5));\n    return { ...s, weight, note: s.avgLatencyMs > 200 ? 'slow' : 'ok' };\n  });\n}\n\nconst servers = [\n  { name: 's1', avgLatencyMs: 50 },\n  { name: 's2', avgLatencyMs: 120 },\n  { name: 's3', avgLatencyMs: 300 },\n];\nconsole.log(adjustWeights(servers));",
+      "output": "[\n  { name: 's1', avgLatencyMs: 50, weight: 30, note: 'ok' },\n  { name: 's2', avgLatencyMs: 120, weight: 13, note: 'ok' },\n  { name: 's3', avgLatencyMs: 300, weight: 5, note: 'slow' }\n]"
+    },
+    {
+      "question": "Program 10: Load balancer stats dashboard",
+      "code": "function lbStats(accessLog) {\n  const stats = {};\n  accessLog.forEach(({ server, latencyMs, status }) => {\n    if (!stats[server]) stats[server] = { requests: 0, errors: 0, totalLatency: 0 };\n    stats[server].requests++;\n    stats[server].totalLatency += latencyMs;\n    if (status >= 500) stats[server].errors++;\n  });\n  return Object.entries(stats).map(([server, s]) => ({\n    server,\n    requests: s.requests,\n    avgLatencyMs: Math.round(s.totalLatency / s.requests),\n    errorRate: (s.errors / s.requests * 100).toFixed(1) + '%',\n  }));\n}\n\nconst log = [\n  { server: 's1', latencyMs: 45, status: 200 },\n  { server: 's2', latencyMs: 120, status: 200 },\n  { server: 's1', latencyMs: 55, status: 200 },\n  { server: 's2', latencyMs: 500, status: 503 },\n  { server: 's3', latencyMs: 30, status: 200 },\n];\nconsole.log(lbStats(log));",
+      "output": "[\n  { server: 's1', requests: 2, avgLatencyMs: 50, errorRate: '0.0%' },\n  { server: 's2', requests: 2, avgLatencyMs: 310, errorRate: '50.0%' },\n  { server: 's3', requests: 1, avgLatencyMs: 30, errorRate: '0.0%' }\n]"
+    }
+  ]
+}

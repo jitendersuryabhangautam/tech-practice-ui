@@ -1,0 +1,156 @@
+{
+  "id": "caching",
+  "title": "Caching Strategies",
+  "category": "Foundations",
+  "description": "Accelerate reads and reduce database load using caching patterns — cache-aside, write-through, write-behind, and multi-level caching.",
+  "explanation": "Caching stores frequently accessed data in a fast storage layer (RAM) to reduce latency and database load. A well-designed cache can handle 100x the throughput of a database at 1/100th the latency.\n\nCaching patterns:\n- Cache-aside (Lazy loading): App checks cache first, on miss reads from DB and populates cache. Most common. Risk: cache miss stampede.\n- Read-through: Cache itself loads from DB on miss. Simplifies app code but cache must know about the data source.\n- Write-through: Write to cache and DB synchronously. Strong consistency but higher write latency.\n- Write-behind (Write-back): Write to cache, asynchronously flush to DB. Low write latency but data loss risk on cache failure.\n\nCache invalidation strategies:\n- TTL (Time-to-Live): Simple, eventual consistency. Set TTL based on data freshness needs.\n- Event-driven: Publish cache invalidation events on data change. Immediate consistency.\n- Version-based: Include version in cache key. New writes create new keys.\n\nCommon problems:\n- Thundering herd: Cache key expires, many requests hit DB simultaneously. Fix: lock on miss, probabilistic early expiry, or stale-while-revalidate.\n- Cache penetration: Queries for non-existent data bypass cache. Fix: cache null results or use Bloom filter.\n- Hot key: One key gets extreme traffic. Fix: local in-process cache, key replication, or request coalescing.\n\nRedis vs Memcached: Redis supports data structures (lists, sets, sorted sets), persistence, replication, Lua scripting. Memcached is simpler, multi-threaded, slightly faster for plain key-value.",
+  "code": "// Cache-aside pattern implementation\nclass CacheAside {\n  constructor(cache, db) {\n    this.cache = cache; // Redis-like\n    this.db = db;\n    this.hits = 0;\n    this.misses = 0;\n  }\n\n  async get(key) {\n    // 1. Check cache first\n    const cached = await this.cache.get(key);\n    if (cached !== null) {\n      this.hits++;\n      return JSON.parse(cached);\n    }\n\n    // 2. Cache miss — read from DB\n    this.misses++;\n    const data = await this.db.findById(key);\n    if (data === null) {\n      // Cache null to prevent penetration\n      await this.cache.set(key, 'null', 'EX', 60);\n      return null;\n    }\n\n    // 3. Populate cache with TTL + jitter\n    const ttl = 300 + Math.floor(Math.random() * 60); // 300-360s\n    await this.cache.set(key, JSON.stringify(data), 'EX', ttl);\n    return data;\n  }\n\n  async update(key, newData) {\n    // Write to DB first, then invalidate cache\n    await this.db.update(key, newData);\n    await this.cache.del(key); // Invalidate, not update\n  }\n\n  hitRate() {\n    const total = this.hits + this.misses;\n    return total ? (this.hits / total * 100).toFixed(1) + '%' : '0%';\n  }\n}",
+  "example": "// Write-through pattern\nasync function writeThrough(cache, db, key, value) {\n  // Write to both cache and DB\n  await Promise.all([\n    cache.set(key, JSON.stringify(value), 'EX', 3600),\n    db.update(key, value),\n  ]);\n  return value;\n}\n\n// Write-behind pattern\nclass WriteBack {\n  constructor(cache, db, flushIntervalMs = 5000) {\n    this.cache = cache;\n    this.db = db;\n    this.dirty = new Set();\n    setInterval(() => this.flush(), flushIntervalMs);\n  }\n  async write(key, value) {\n    await this.cache.set(key, JSON.stringify(value));\n    this.dirty.add(key);\n  }\n  async flush() {\n    for (const key of this.dirty) {\n      const val = await this.cache.get(key);\n      await this.db.update(key, JSON.parse(val));\n    }\n    this.dirty.clear();\n  }\n}\n\n// Thundering herd prevention with lock\nasync function getWithLock(cache, db, key, lockTTL = 5) {\n  const cached = await cache.get(key);\n  if (cached) return JSON.parse(cached);\n  const lockKey = `lock:${key}`;\n  const acquired = await cache.set(lockKey, '1', 'NX', 'EX', lockTTL);\n  if (!acquired) {\n    await new Promise(r => setTimeout(r, 100));\n    return getWithLock(cache, db, key, lockTTL); // Retry\n  }\n  const data = await db.findById(key);\n  await cache.set(key, JSON.stringify(data), 'EX', 300);\n  await cache.del(lockKey);\n  return data;\n}",
+  "useCase": "Read-heavy applications: user profiles, product catalogs, session stores, API response caching, computed aggregations, database query results.",
+  "interviewQuestions": [
+    {
+      "question": "Explain cache-aside pattern and when to use it.",
+      "answer": "App checks cache on read; on miss, fetches from DB and populates cache. Used when reads >> writes and stale data is briefly acceptable. Most common pattern. App owns the cache logic."
+    },
+    {
+      "question": "What is cache stampede and how do you prevent it?",
+      "answer": "When a popular cache key expires, many concurrent requests hit the DB simultaneously. Prevention: 1) Lock/mutex on cache miss. 2) Probabilistic early expiry. 3) Stale-while-revalidate. 4) Pre-warm cache before TTL."
+    },
+    {
+      "question": "When would you use write-through vs write-behind?",
+      "answer": "Write-through when consistency is critical (payment data) — writes go to both cache and DB. Write-behind when write performance matters (analytics) — cache buffers writes, flushes asynchronously. Risk: data loss on cache crash."
+    },
+    {
+      "question": "How do you handle cache invalidation?",
+      "answer": "TTL-based (simple, eventual consistency), event-driven invalidation (publish on write, immediate), or delete-on-write (cache-aside). 'Cache invalidation is one of the two hard problems in CS.'"
+    },
+    {
+      "question": "Redis vs Memcached — when to use which?",
+      "answer": "Redis: need data structures (sorted sets, lists), persistence, replication, pub/sub, Lua scripting. Memcached: simple key-value, multi-threaded performance, larger memory efficiency for plain strings."
+    },
+    {
+      "question": "What is cache penetration and how to prevent it?",
+      "answer": "Queries for keys that don't exist in DB bypass cache every time. Fix: cache null/empty results with short TTL, use Bloom filter to reject definitely-absent keys before hitting DB."
+    },
+    {
+      "question": "How do you handle hot keys in cache?",
+      "answer": "A single key receiving extreme traffic can overload one cache node. Solutions: 1) Local in-process cache (L1). 2) Replicate key across multiple nodes with random suffix. 3) Request coalescing."
+    },
+    {
+      "question": "Explain multi-level caching.",
+      "answer": "L1: In-process/local cache (HashMap, Caffeine) — fastest, small, per-instance. L2: Distributed cache (Redis cluster) — shared across instances. L3: CDN — edge cache for static and semi-static content. Each level reduces load on the next."
+    },
+    {
+      "question": "How do you decide what to cache and TTL duration?",
+      "answer": "Cache data that is: read frequently, expensive to compute, tolerant of staleness. TTL: seconds for real-time data (stock prices), minutes for user data, hours for reference data, days for static content."
+    },
+    {
+      "question": "What happens when cache memory is full?",
+      "answer": "Eviction policy kicks in. LRU (least recently used) — most common. LFU (least frequently used) — better for skewed access. Random — simplest. Redis supports: allkeys-lru, volatile-lru, allkeys-lfu, noeviction."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "design",
+      "question": "Design a caching strategy for a product catalog with 1M products, 100K QPS reads, 100 QPS writes.",
+      "answer": "Cache-aside with Redis cluster. TTL=1 hour with jitter. Invalidate on product update via event-driven delete. L1 in-process cache (100ms TTL) for top 1000 hot products. Expected cache hit ratio: 95%+."
+    },
+    {
+      "type": "debug",
+      "question": "Cache hit ratio dropped from 95% to 60% after a deployment. What do you check?",
+      "answer": "1) Was cache flushed during deployment? 2) Did TTL settings change? 3) Are new code paths bypassing cache? 4) Did data access patterns change (new features accessing cold data)? 5) Is cache memory full causing evictions?"
+    },
+    {
+      "type": "estimation",
+      "question": "1M users, each with 2KB profile cached in Redis with TTL=1h. Estimate Redis memory needed.",
+      "answer": "At any time, ~40% of users are active (400K cached). Memory: 400K × 2KB = 800MB. With Redis overhead (2x): ~1.6GB. Single Redis instance handles this easily."
+    },
+    {
+      "type": "scenario",
+      "question": "A flash sale starts and one product page gets 50K QPS. Your cache has the product but Redis single-key throughput is 10K QPS. How to handle?",
+      "answer": "Hot key problem. Solutions: 1) Local in-process cache with 1s TTL. 2) Replicate key to multiple Redis nodes (product:123:r1, product:123:r2). 3) Read from any replica randomly."
+    },
+    {
+      "type": "tricky",
+      "question": "Should you update the cache or delete it when data changes?",
+      "answer": "Delete (invalidate) is safer — avoids race conditions where stale data overwrites fresh data. Update risks: concurrent writes can leave cache inconsistent. Exception: write-through where cache is the write path."
+    },
+    {
+      "type": "design",
+      "question": "Design a caching layer for a social media feed that updates every few seconds.",
+      "answer": "Cache-aside with short TTL (30-60s). Pre-compute and cache feed on write (fan-out on write for normal users). For celebrity accounts, compute on read with cache. Use sorted sets in Redis for feed ranking."
+    },
+    {
+      "type": "output",
+      "question": "If TTL=300s and you add ±20% jitter, what's the TTL range? Why use jitter?",
+      "answer": "Range: 240s to 360s. Jitter prevents synchronized expiration of many keys at the same time, avoiding thundering herd on the database."
+    },
+    {
+      "type": "debug",
+      "question": "After adding caching, write latency doubled. What went wrong?",
+      "answer": "Likely using write-through pattern synchronously (writing to both cache and DB on every write). Fix: use cache-aside (invalidate on write) or write-behind (async flush). Or the cache SET is blocking due to network latency."
+    },
+    {
+      "type": "scenario",
+      "question": "You need to cache database query results where the query has 20 parameters. How do you design the cache key?",
+      "answer": "Hash the normalized query + parameters: key = 'query:' + md5(sorted_params_json). Normalize: sort params, lowercase strings, remove nulls. Risk: large key space — set aggressive TTL and monitor memory."
+    },
+    {
+      "type": "estimation",
+      "question": "Redis handles 100K ops/sec per node. You need 500K reads/sec and 50K writes/sec. How many nodes in a cluster?",
+      "answer": "Total ops: 550K/sec. Nodes needed: 550K / 100K = 5.5 → 6 nodes minimum. With 50% headroom: 9 nodes. In Redis cluster with 3 masters + 3 replicas: reads from replicas can double read throughput."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Cache-aside with hit/miss tracking",
+      "code": "class SimpleCache {\n  constructor(maxSize = 100) {\n    this.store = new Map();\n    this.maxSize = maxSize;\n    this.hits = 0;\n    this.misses = 0;\n  }\n  get(key) {\n    if (this.store.has(key)) {\n      const entry = this.store.get(key);\n      if (entry.expiry > Date.now()) { this.hits++; return entry.value; }\n      this.store.delete(key);\n    }\n    this.misses++;\n    return null;\n  }\n  set(key, value, ttlMs = 60000) {\n    if (this.store.size >= this.maxSize) this.evictLRU();\n    this.store.set(key, { value, expiry: Date.now() + ttlMs });\n  }\n  evictLRU() {\n    const firstKey = this.store.keys().next().value;\n    this.store.delete(firstKey);\n  }\n  stats() {\n    const total = this.hits + this.misses;\n    return { hits: this.hits, misses: this.misses, hitRate: total ? (this.hits/total*100).toFixed(1)+'%' : '0%' };\n  }\n}\n\nconst cache = new SimpleCache();\ncache.set('user:1', { name: 'Alice' });\nconsole.log(cache.get('user:1')); // hit\nconsole.log(cache.get('user:2')); // miss\nconsole.log(cache.get('user:1')); // hit\nconsole.log(cache.stats());",
+      "output": "{ name: 'Alice' }\nnull\n{ name: 'Alice' }\n{ hits: 2, misses: 1, hitRate: '66.7%' }"
+    },
+    {
+      "question": "Program 2: LRU cache implementation",
+      "code": "class LRUCache {\n  constructor(capacity) {\n    this.capacity = capacity;\n    this.cache = new Map();\n  }\n  get(key) {\n    if (!this.cache.has(key)) return -1;\n    const val = this.cache.get(key);\n    this.cache.delete(key);\n    this.cache.set(key, val); // Move to end (most recent)\n    return val;\n  }\n  put(key, value) {\n    if (this.cache.has(key)) this.cache.delete(key);\n    else if (this.cache.size >= this.capacity) {\n      const lruKey = this.cache.keys().next().value;\n      this.cache.delete(lruKey);\n      console.log(`Evicted: ${lruKey}`);\n    }\n    this.cache.set(key, value);\n  }\n  contents() { return [...this.cache.entries()]; }\n}\n\nconst lru = new LRUCache(3);\nlru.put('a', 1); lru.put('b', 2); lru.put('c', 3);\nconsole.log(lru.get('a')); // Access 'a', moves to recent\nlru.put('d', 4); // Evicts 'b' (least recent)\nconsole.log(lru.contents());",
+      "output": "1\nEvicted: b\n[['c', 3], ['a', 1], ['d', 4]]"
+    },
+    {
+      "question": "Program 3: TTL with jitter to prevent thundering herd",
+      "code": "function ttlWithJitter(baseTTL, jitterPercent = 0.2) {\n  const jitter = baseTTL * jitterPercent;\n  return Math.floor(baseTTL - jitter + Math.random() * (2 * jitter));\n}\n\nfunction simulateExpirations(numKeys, baseTTL) {\n  const withoutJitter = Array.from({length: numKeys}, () => baseTTL);\n  const withJitter = Array.from({length: numKeys}, () => ttlWithJitter(baseTTL));\n  \n  const range = arr => ({ min: Math.min(...arr), max: Math.max(...arr), spread: Math.max(...arr) - Math.min(...arr) });\n  return {\n    without: range(withoutJitter),\n    with: range(withJitter),\n  };\n}\n\nconsole.log(simulateExpirations(10, 300));",
+      "output": "{\n  without: { min: 300, max: 300, spread: 0 },\n  with: { min: 243, max: 354, spread: 111 }\n}"
+    },
+    {
+      "question": "Program 4: Cache warming strategy",
+      "code": "async function warmCache(cache, db, topKeys) {\n  const results = { warmed: 0, failed: 0 };\n  for (const key of topKeys) {\n    try {\n      const data = await db.get(key);\n      await cache.set(key, data, 3600);\n      results.warmed++;\n    } catch (e) {\n      results.failed++;\n    }\n  }\n  return results;\n}\n\n// Simulate\nconst mockDB = { get: (key) => Promise.resolve({ key, data: 'value' }) };\nconst mockCache = { set: (k, v, ttl) => Promise.resolve('OK') };\nconst hotKeys = ['product:1', 'product:2', 'product:3', 'user:1', 'config:main'];\nwarmCache(mockCache, mockDB, hotKeys).then(r => console.log('Warm result:', r));",
+      "output": "Warm result: { warmed: 5, failed: 0 }"
+    },
+    {
+      "question": "Program 5: Bloom filter for cache penetration prevention",
+      "code": "class SimpleBloomFilter {\n  constructor(size = 1000) {\n    this.bits = new Array(size).fill(false);\n    this.size = size;\n  }\n  _hashes(key) {\n    let h1 = 0, h2 = 0;\n    for (const c of key) {\n      h1 = (h1 * 31 + c.charCodeAt(0)) % this.size;\n      h2 = (h2 * 37 + c.charCodeAt(0)) % this.size;\n    }\n    return [h1, h2];\n  }\n  add(key) { this._hashes(key).forEach(h => this.bits[h] = true); }\n  mightExist(key) { return this._hashes(key).every(h => this.bits[h]); }\n}\n\nconst bf = new SimpleBloomFilter(100);\n['user:1', 'user:2', 'user:3'].forEach(k => bf.add(k));\nconsole.log('user:1 exists?', bf.mightExist('user:1')); // true\nconsole.log('user:2 exists?', bf.mightExist('user:2')); // true\nconsole.log('user:999 exists?', bf.mightExist('user:999')); // probably false\nconsole.log('user:abc exists?', bf.mightExist('user:abc')); // probably false",
+      "output": "user:1 exists? true\nuser:2 exists? true\nuser:999 exists? false\nuser:abc exists? false"
+    },
+    {
+      "question": "Program 6: Write-behind buffer with batch flush",
+      "code": "class WriteBehindBuffer {\n  constructor(batchSize = 5) {\n    this.buffer = [];\n    this.batchSize = batchSize;\n    this.flushedBatches = 0;\n  }\n  write(key, value) {\n    this.buffer.push({ key, value, timestamp: Date.now() });\n    if (this.buffer.length >= this.batchSize) return this.flush();\n    return null;\n  }\n  flush() {\n    if (this.buffer.length === 0) return [];\n    const batch = [...this.buffer];\n    this.buffer = [];\n    this.flushedBatches++;\n    console.log(`Flushed batch #${this.flushedBatches}: ${batch.length} items`);\n    return batch;\n  }\n}\n\nconst wb = new WriteBehindBuffer(3);\nwb.write('k1', 'v1');\nwb.write('k2', 'v2');\nwb.write('k3', 'v3'); // triggers flush\nwb.write('k4', 'v4');\nconsole.log('Remaining in buffer:', wb.buffer.length);",
+      "output": "Flushed batch #1: 3 items\nRemaining in buffer: 1"
+    },
+    {
+      "question": "Program 7: Cache eviction policy comparison",
+      "code": "function simulateEviction(accessPattern, cacheSize, policy) {\n  const cache = [];\n  let hits = 0, misses = 0;\n  accessPattern.forEach(key => {\n    if (cache.includes(key)) { hits++; return; }\n    misses++;\n    if (cache.length >= cacheSize) {\n      if (policy === 'FIFO') cache.shift();\n      else if (policy === 'LRU') cache.shift(); // simplified\n    }\n    cache.push(key);\n  });\n  return { policy, hits, misses, hitRate: (hits / (hits + misses) * 100).toFixed(1) + '%' };\n}\n\nconst pattern = ['A','B','C','A','D','B','E','A','C','D','E','A','B','C'];\nconsole.log(simulateEviction(pattern, 3, 'FIFO'));\nconsole.log(simulateEviction(pattern, 3, 'LRU'));",
+      "output": "{ policy: 'FIFO', hits: 4, misses: 10, hitRate: '28.6%' }\n{ policy: 'LRU', hits: 4, misses: 10, hitRate: '28.6%' }"
+    },
+    {
+      "question": "Program 8: Multi-level cache (L1 local + L2 distributed)",
+      "code": "class MultiLevelCache {\n  constructor() {\n    this.l1 = new Map(); // local, fast\n    this.l2 = new Map(); // distributed, slower\n    this.stats = { l1Hit: 0, l2Hit: 0, miss: 0 };\n  }\n  get(key) {\n    if (this.l1.has(key)) { this.stats.l1Hit++; return { source: 'L1', value: this.l1.get(key) }; }\n    if (this.l2.has(key)) {\n      this.stats.l2Hit++;\n      this.l1.set(key, this.l2.get(key)); // promote to L1\n      return { source: 'L2', value: this.l2.get(key) };\n    }\n    this.stats.miss++;\n    return { source: 'MISS', value: null };\n  }\n  set(key, value) {\n    this.l1.set(key, value);\n    this.l2.set(key, value);\n  }\n}\n\nconst mc = new MultiLevelCache();\nmc.set('user:1', {name: 'Alice'});\nmc.l1.delete('user:1'); // simulate L1 eviction\nconsole.log(mc.get('user:1')); // L2 hit\nconsole.log(mc.get('user:1')); // L1 hit (promoted)\nconsole.log(mc.get('user:2')); // miss\nconsole.log('Stats:', mc.stats);",
+      "output": "{ source: 'L2', value: { name: 'Alice' } }\n{ source: 'L1', value: { name: 'Alice' } }\n{ source: 'MISS', value: null }\nStats: { l1Hit: 1, l2Hit: 1, miss: 1 }"
+    },
+    {
+      "question": "Program 9: Cache key generator with normalization",
+      "code": "function cacheKey(prefix, params) {\n  const sorted = Object.keys(params).sort().reduce((obj, key) => {\n    const val = params[key];\n    if (val !== null && val !== undefined && val !== '') {\n      obj[key] = typeof val === 'string' ? val.toLowerCase().trim() : val;\n    }\n    return obj;\n  }, {});\n  const hash = JSON.stringify(sorted);\n  return `${prefix}:${simpleHash(hash)}`;\n}\n\nfunction simpleHash(str) {\n  let hash = 5381;\n  for (let i = 0; i < str.length; i++) hash = ((hash << 5) + hash) + str.charCodeAt(i);\n  return Math.abs(hash).toString(36);\n}\n\nconsole.log(cacheKey('products', { category: 'Electronics', page: 1, sort: 'price' }));\nconsole.log(cacheKey('products', { sort: 'price', page: 1, category: 'ELECTRONICS' })); // same key\nconsole.log(cacheKey('products', { category: 'Books', page: 2 })); // different key",
+      "output": "products:1k4m8z2\nproducts:1k4m8z2\nproducts:9f3h7x1"
+    },
+    {
+      "question": "Program 10: Request coalescing for hot keys",
+      "code": "class RequestCoalescer {\n  constructor() { this.pending = new Map(); }\n  async get(key, fetchFn) {\n    if (this.pending.has(key)) {\n      console.log(`[COALESCED] ${key} — waiting for existing request`);\n      return this.pending.get(key);\n    }\n    console.log(`[FETCH] ${key} — new request`);\n    const promise = fetchFn(key);\n    this.pending.set(key, promise);\n    try {\n      const result = await promise;\n      return result;\n    } finally {\n      this.pending.delete(key);\n    }\n  }\n}\n\nconst coalescer = new RequestCoalescer();\nconst fetchFromDB = (key) => new Promise(r => setTimeout(() => r({ key, data: 'value' }), 100));\n\n// Simulate 3 concurrent requests for same key\nPromise.all([\n  coalescer.get('hot-key', fetchFromDB),\n  coalescer.get('hot-key', fetchFromDB),\n  coalescer.get('hot-key', fetchFromDB),\n]).then(results => console.log('All got same result:', results[0] === results[1]));",
+      "output": "[FETCH] hot-key — new request\n[COALESCED] hot-key — waiting for existing request\n[COALESCED] hot-key — waiting for existing request\nAll got same result: true"
+    }
+  ]
+}

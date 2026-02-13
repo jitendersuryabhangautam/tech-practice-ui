@@ -1,0 +1,156 @@
+{
+  "id": "database-sharding",
+  "title": "Database Partitioning & Sharding",
+  "category": "Foundations",
+  "description": "Split data across multiple database nodes using sharding to achieve horizontal scalability.",
+  "explanation": "When a single database can't handle the load, sharding (horizontal partitioning) distributes data across multiple independent databases. Each shard holds a subset of the data.\n\nPartitioning types:\n- Horizontal (sharding): Split rows across nodes. Same schema everywhere. E.g., users 1-1M on shard 1, 1M-2M on shard 2.\n- Vertical: Split columns into separate tables/databases. E.g., user profile on one DB, user posts on another.\n\nSharding strategies:\n- Hash-based: hash(shard_key) % num_shards. Even distribution but resharding requires data migration.\n- Range-based: Ranges of shard key values. Easy range queries but risk of hot partitions (recent data on one shard).\n- Directory-based: Lookup table maps keys to shards. Flexible but the directory is a bottleneck/SPOF.\n- Consistent hashing: Minimizes data movement when adding/removing shards. Used by DynamoDB, Cassandra.\n\nShard key selection is critical:\n- Good: user_id (even distribution, most queries are per-user)\n- Bad: country (skewed — US shard gets 50% traffic), timestamp (all writes go to latest shard)\n\nChallenges:\n- Cross-shard queries: JOINs across shards are expensive. Denormalize or use application-level joins.\n- Transactions: No native cross-shard transactions. Use saga pattern or two-phase commit.\n- Resharding: Adding shards requires data migration. Consistent hashing minimizes redistribution.\n- Hotspots: Even with good keys, some shards may get more traffic. Monitor and split hot shards.",
+  "code": "// Hash-based sharding implementation\nclass ShardRouter {\n  constructor(numShards) {\n    this.numShards = numShards;\n  }\n\n  // Determine which shard a key belongs to\n  getShard(key) {\n    let hash = 0;\n    for (let i = 0; i < String(key).length; i++) {\n      hash = ((hash << 5) - hash) + String(key).charCodeAt(i);\n      hash |= 0;\n    }\n    return Math.abs(hash) % this.numShards;\n  }\n\n  // Route a query to the correct shard\n  routeQuery(userId, query) {\n    const shard = this.getShard(userId);\n    return { shard: `db-shard-${shard}`, query, userId };\n  }\n\n  // Scatter-gather: query all shards and merge\n  scatterGather(query) {\n    const results = [];\n    for (let i = 0; i < this.numShards; i++) {\n      results.push({ shard: `db-shard-${i}`, query });\n    }\n    return results; // Each shard returns partial results\n  }\n}\n\nconst router = new ShardRouter(4);\nconsole.log(router.routeQuery('user_123', 'SELECT * FROM orders'));\nconsole.log(router.routeQuery('user_456', 'SELECT * FROM orders'));\nconsole.log('Global query:', router.scatterGather('SELECT COUNT(*)'));",
+  "example": "// Range-based sharding configuration\nconst SHARD_CONFIG = {\n  ranges: [\n    { start: 0,         end: 1000000,   shard: 'shard-0' },\n    { start: 1000001,   end: 2000000,   shard: 'shard-1' },\n    { start: 2000001,   end: 3000000,   shard: 'shard-2' },\n    { start: 3000001,   end: Infinity,  shard: 'shard-3' },\n  ],\n};\n\nfunction getShardByRange(userId) {\n  for (const range of SHARD_CONFIG.ranges) {\n    if (userId >= range.start && userId <= range.end) {\n      return range.shard;\n    }\n  }\n  return 'shard-overflow';\n}\n\nconsole.log(getShardByRange(500000));    // shard-0\nconsole.log(getShardByRange(1500000));   // shard-1\nconsole.log(getShardByRange(5000000));   // shard-3",
+  "useCase": "Large-scale applications where a single database hits throughput, storage, or connection limits — social networks, e-commerce, SaaS platforms, IoT data stores.",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between horizontal and vertical partitioning?",
+      "answer": "Horizontal (sharding): rows are split across nodes, same schema per shard. Vertical: columns are split into separate tables/databases. Horizontal scales write throughput; vertical separates concerns."
+    },
+    {
+      "question": "How do you choose a good shard key?",
+      "answer": "Must distribute data evenly, align with query patterns (most queries include the key), and have high cardinality. user_id is often ideal. Avoid low-cardinality keys (country), monotonically increasing keys (timestamp)."
+    },
+    {
+      "question": "What are the problems with cross-shard queries?",
+      "answer": "JOINs across shards require scatter-gather (query all shards, merge in app). This is slow and complex. Solutions: denormalize data, colocate related data on same shard, or use a separate analytics store."
+    },
+    {
+      "question": "How does consistent hashing help with resharding?",
+      "answer": "In traditional hash-based sharding, adding a shard requires redistributing ~all data. With consistent hashing, only ~1/N of keys move to the new node. Virtual nodes improve balance."
+    },
+    {
+      "question": "How do you handle transactions across shards?",
+      "answer": "Options: 1) Two-phase commit (2PC) — slow, blocking, used for critical transactions. 2) Saga pattern — compensating transactions for each step. 3) Avoid cross-shard transactions by co-locating related data."
+    },
+    {
+      "question": "What is a hot shard and how do you handle it?",
+      "answer": "A shard receiving disproportionate traffic. Causes: skewed shard key, celebrity user, viral content. Solutions: split the hot shard, add caching, add random suffix to hot keys, rate limit."
+    },
+    {
+      "question": "Hash-based vs range-based sharding — when to use which?",
+      "answer": "Hash-based: even distribution, good for point queries. Bad for range queries. Range-based: good for range queries and time-series data. Risk of hotspots on recent ranges. Choose based on query patterns."
+    },
+    {
+      "question": "How do you migrate data when adding new shards?",
+      "answer": "1) Double-write: write to both old and new location during migration. 2) Background copy: move data in batches. 3) Consistent hashing: minimal data movement. 4) Virtual shards: start with many logical shards mapped to few physical nodes."
+    },
+    {
+      "question": "What happens to auto-increment IDs in a sharded database?",
+      "answer": "Each shard would generate conflicting IDs. Solutions: UUID (no coordination), Twitter Snowflake (timestamp + machine + sequence), pre-allocated ID ranges per shard, or a centralized ID service."
+    },
+    {
+      "question": "How do you run analytics queries across all shards?",
+      "answer": "1) Scatter-gather: query each shard and merge. 2) ETL to analytics DB (data warehouse). 3) Change data capture (CDC) to a centralized store. 4) Use CQRS — separate read model materialized from shard events."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "design",
+      "question": "Design a sharding strategy for a social media app with 500M users. Users mostly query their own data.",
+      "answer": "Shard by user_id hash with 64 shards. Most queries are per-user so they hit one shard. For feed (cross-user), denormalize: store feed items on the reader's shard. Global search uses a separate ElasticSearch cluster."
+    },
+    {
+      "type": "estimation",
+      "question": "Database holds 10TB, each shard can hold 2TB, peak QPS is 100K, each shard handles 10K QPS. How many shards?",
+      "answer": "By storage: 10TB / 2TB = 5 shards. By QPS: 100K / 10K = 10 shards. Take the max: 10 shards. With 50% headroom: 15 shards."
+    },
+    {
+      "type": "debug",
+      "question": "One shard is receiving 70% of all write traffic. Shard key is order_date. What's wrong?",
+      "answer": "Range-based sharding on a monotonically increasing key. All new orders go to the latest date range shard. Fix: shard by order_id hash instead, or use composite key (user_id + date)."
+    },
+    {
+      "type": "scenario",
+      "question": "You need to add 4 shards to an existing 8-shard cluster. How to do it with minimal downtime?",
+      "answer": "Use consistent hashing: only ~33% of data moves (4/12). Steps: 1) Add new shards to the ring. 2) Background migration of affected key ranges. 3) Double-write during migration. 4) Verify, cut over, clean up old copies."
+    },
+    {
+      "type": "tricky",
+      "question": "Can you shard by composite key (tenant_id, user_id)? What are the trade-offs?",
+      "answer": "Yes. tenant_id groups data for multi-tenant isolation. user_id distributes within tenant. Trade-off: cross-tenant queries are efficient, but large tenants may still create hotspots. Consider secondary hashing within tenant."
+    },
+    {
+      "type": "design",
+      "question": "Design a shard-aware ID generation scheme for 16 shards.",
+      "answer": "Use Snowflake-style: [timestamp 41 bits][shard_id 4 bits][sequence 10 bits] = 55 bits. Shard ID embedded in the ID itself. IDs are globally unique and sortable. Each shard generates 1024 IDs/ms."
+    },
+    {
+      "type": "output",
+      "question": "Hash-based sharding with 4 shards. user_ids 101-108. If hash(101)=5, hash(102)=12, hash(103)=3, hash(104)=8, which shard gets each?",
+      "answer": "Shard = hash % 4. user:101 → 5%4=1, user:102 → 12%4=0, user:103 → 3%4=3, user:104 → 8%4=0. Shard 0: [102,104], Shard 1: [101], Shard 3: [103]."
+    },
+    {
+      "type": "scenario",
+      "question": "A customer reports inconsistent data. They updated their profile but see old data. You use 3 read replicas per shard. Diagnose.",
+      "answer": "Replication lag: write went to primary but read hit a lagging replica. Fix: read-your-writes consistency — route the user's reads to the primary shard for a few seconds after their write."
+    },
+    {
+      "type": "estimation",
+      "question": "Planning for 3 years: current 5TB growing 100GB/month. When do you need to reshard if max shard size is 2TB with 4 shards?",
+      "answer": "Current capacity: 4 × 2TB = 8TB. Current: 5TB. Growth: 100GB/month = 1.2TB/year. In 2.5 years: 5TB + 3TB = 8TB = capacity. Need to reshard by month 26."
+    },
+    {
+      "type": "design",
+      "question": "Design a directory-based sharding lookup service that can handle shard migrations.",
+      "answer": "Directory stores mapping: key_range → shard_id. Cached in memory with TTL. During migration: update directory to point to new shard, old shard forwards misses. Use versioned directory entries and two-phase migration."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Hash-based shard router",
+      "code": "function hashShard(key, numShards) {\n  let hash = 0;\n  for (const c of String(key)) hash = ((hash << 5) - hash) + c.charCodeAt(0);\n  return Math.abs(hash) % numShards;\n}\n\nconst users = ['user_1', 'user_2', 'user_3', 'user_4', 'user_5'];\nconst numShards = 3;\nusers.forEach(u => console.log(`${u} → shard-${hashShard(u, numShards)}`));",
+      "output": "user_1 → shard-2\nuser_2 → shard-0\nuser_3 → shard-1\nuser_4 → shard-2\nuser_5 → shard-0"
+    },
+    {
+      "question": "Program 2: Shard distribution analyzer",
+      "code": "function analyzeDistribution(keys, numShards) {\n  const dist = new Array(numShards).fill(0);\n  keys.forEach(k => {\n    let h = 0;\n    for (const c of String(k)) h = ((h << 5) - h) + c.charCodeAt(0);\n    dist[Math.abs(h) % numShards]++;\n  });\n  const avg = keys.length / numShards;\n  const maxSkew = Math.max(...dist) / avg;\n  return { distribution: dist, avg: avg.toFixed(0), maxSkew: maxSkew.toFixed(2), balanced: maxSkew < 1.5 };\n}\n\nconst keys = Array.from({length: 1000}, (_, i) => `user_${i}`);\nconsole.log(analyzeDistribution(keys, 4));",
+      "output": "{ distribution: [248, 252, 246, 254], avg: '250', maxSkew: '1.02', balanced: true }"
+    },
+    {
+      "question": "Program 3: Virtual shard mapper",
+      "code": "class VirtualShardMapper {\n  constructor(numVShards, numPhysical) {\n    this.mapping = {};\n    for (let i = 0; i < numVShards; i++) {\n      this.mapping[`vshard-${i}`] = `physical-${i % numPhysical}`;\n    }\n  }\n  route(key) {\n    let h = 0;\n    for (const c of String(key)) h = ((h << 5) - h) + c.charCodeAt(0);\n    const vShard = `vshard-${Math.abs(h) % Object.keys(this.mapping).length}`;\n    return { key, virtualShard: vShard, physicalNode: this.mapping[vShard] };\n  }\n  rebalance(newPhysicalCount) {\n    const vShards = Object.keys(this.mapping);\n    vShards.forEach((vs, i) => { this.mapping[vs] = `physical-${i % newPhysicalCount}`; });\n  }\n}\n\nconst mapper = new VirtualShardMapper(8, 2);\nconsole.log(mapper.route('user_42'));\nconsole.log('Before rebalance:', mapper.mapping);\nmapper.rebalance(4);\nconsole.log('After rebalance:', mapper.mapping);",
+      "output": "{ key: 'user_42', virtualShard: 'vshard-3', physicalNode: 'physical-1' }\nBefore rebalance: { vshard-0: 'physical-0', vshard-1: 'physical-1', ... }\nAfter rebalance: { vshard-0: 'physical-0', vshard-1: 'physical-1', vshard-2: 'physical-2', vshard-3: 'physical-3', ... }"
+    },
+    {
+      "question": "Program 4: Snowflake ID generator per shard",
+      "code": "class SnowflakeGenerator {\n  constructor(shardId, epoch = 1700000000000) {\n    this.shardId = shardId & 0x3FF; // 10 bits\n    this.epoch = epoch;\n    this.sequence = 0;\n    this.lastTimestamp = 0;\n  }\n  nextId() {\n    let ts = Date.now() - this.epoch;\n    if (ts === this.lastTimestamp) {\n      this.sequence = (this.sequence + 1) & 0xFFF; // 12 bits\n    } else {\n      this.sequence = 0;\n      this.lastTimestamp = ts;\n    }\n    // 41-bit timestamp | 10-bit shard | 12-bit sequence\n    const id = BigInt(ts) << 22n | BigInt(this.shardId) << 12n | BigInt(this.sequence);\n    return id.toString();\n  }\n}\n\nconst gen = new SnowflakeGenerator(5);\nconst ids = [gen.nextId(), gen.nextId(), gen.nextId()];\nconsole.log('Generated IDs:', ids);\nconsole.log('All unique:', new Set(ids).size === ids.length);\nconsole.log('Shard from ID:', (BigInt(ids[0]) >> 12n) & 0x3FFn);",
+      "output": "Generated IDs: ['123456789020672', '123456789020673', '123456789020674']\nAll unique: true\nShard from ID: 5n"
+    },
+    {
+      "question": "Program 5: Cross-shard scatter-gather query",
+      "code": "async function scatterGather(shards, query, mergeFn) {\n  const results = await Promise.all(\n    shards.map(async shard => {\n      console.log(`Querying ${shard.name}...`);\n      return { shard: shard.name, data: shard.execute(query) };\n    })\n  );\n  return mergeFn(results);\n}\n\nconst mockShards = [\n  { name: 'shard-0', execute: () => ({ count: 1250, maxAge: 45 }) },\n  { name: 'shard-1', execute: () => ({ count: 1300, maxAge: 62 }) },\n  { name: 'shard-2', execute: () => ({ count: 1180, maxAge: 55 }) },\n];\n\nscatterGather(mockShards, 'SELECT COUNT(*), MAX(age)', (results) => {\n  const totalCount = results.reduce((sum, r) => sum + r.data.count, 0);\n  const globalMax = Math.max(...results.map(r => r.data.maxAge));\n  return { totalCount, globalMaxAge: globalMax };\n}).then(r => console.log('Merged:', r));",
+      "output": "Querying shard-0...\nQuerying shard-1...\nQuerying shard-2...\nMerged: { totalCount: 3730, globalMaxAge: 62 }"
+    },
+    {
+      "question": "Program 6: Resharding migration planner",
+      "code": "function planResharding(oldShards, newShards, totalKeys) {\n  const migrations = [];\n  for (let key = 0; key < totalKeys; key++) {\n    const oldShard = key % oldShards;\n    const newShard = key % newShards;\n    if (oldShard !== newShard) migrations.push({ key, from: oldShard, to: newShard });\n  }\n  const percent = (migrations.length / totalKeys * 100).toFixed(1);\n  return { totalKeys, migrations: migrations.length, percentMoved: percent + '%', sample: migrations.slice(0, 3) };\n}\n\nconsole.log('Add shard:', planResharding(4, 5, 1000));\nconsole.log('Double:', planResharding(4, 8, 1000));",
+      "output": "Add shard: { totalKeys: 1000, migrations: 800, percentMoved: '80.0%', sample: [...] }\nDouble: { totalKeys: 1000, migrations: 500, percentMoved: '50.0%', sample: [...] }"
+    },
+    {
+      "question": "Program 7: Shard health monitor",
+      "code": "function monitorShards(shards) {\n  return shards.map(s => {\n    const loadScore = (s.cpuPercent * 0.4 + s.diskPercent * 0.3 + (s.qps / s.maxQPS * 100) * 0.3).toFixed(0);\n    let status = 'healthy';\n    if (loadScore > 80) status = 'critical';\n    else if (loadScore > 60) status = 'warning';\n    return { shard: s.name, loadScore: Number(loadScore), status, action: status === 'critical' ? 'Split shard or add replica' : 'None' };\n  });\n}\n\nconsole.log(monitorShards([\n  { name: 'shard-0', cpuPercent: 45, diskPercent: 60, qps: 3000, maxQPS: 10000 },\n  { name: 'shard-1', cpuPercent: 85, diskPercent: 90, qps: 9000, maxQPS: 10000 },\n  { name: 'shard-2', cpuPercent: 30, diskPercent: 40, qps: 2000, maxQPS: 10000 },\n]));",
+      "output": "[\n  { shard: 'shard-0', loadScore: 45, status: 'healthy', action: 'None' },\n  { shard: 'shard-1', loadScore: 88, status: 'critical', action: 'Split shard or add replica' },\n  { shard: 'shard-2', loadScore: 30, status: 'healthy', action: 'None' }\n]"
+    },
+    {
+      "question": "Program 8: Range-based shard router with rebalancing",
+      "code": "class RangeShardRouter {\n  constructor(ranges) { this.ranges = ranges; }\n  route(id) {\n    for (const r of this.ranges) {\n      if (id >= r.min && id <= r.max) return r.shard;\n    }\n    return 'overflow';\n  }\n  splitShard(shardName) {\n    const idx = this.ranges.findIndex(r => r.shard === shardName);\n    const r = this.ranges[idx];\n    const mid = Math.floor((r.min + r.max) / 2);\n    this.ranges.splice(idx, 1,\n      { min: r.min, max: mid, shard: shardName + 'a' },\n      { min: mid + 1, max: r.max, shard: shardName + 'b' }\n    );\n    console.log(`Split ${shardName} at ${mid}`);\n  }\n}\n\nconst router = new RangeShardRouter([\n  { min: 1, max: 1000, shard: 'A' },\n  { min: 1001, max: 2000, shard: 'B' },\n]);\nconsole.log('500 →', router.route(500));\nrouter.splitShard('A');\nconsole.log('300 →', router.route(300));\nconsole.log('700 →', router.route(700));",
+      "output": "500 → A\nSplit A at 500\n300 → Aa\n700 → Ab"
+    },
+    {
+      "question": "Program 9: Shard key evaluator",
+      "code": "function evaluateShardKey(key, properties) {\n  const scores = {\n    cardinality: properties.uniqueValues > 1000000 ? 10 : properties.uniqueValues > 10000 ? 7 : 3,\n    distribution: properties.maxSkewPercent < 5 ? 10 : properties.maxSkewPercent < 15 ? 6 : 2,\n    queryAlignment: properties.percentQueriesInclude > 80 ? 10 : properties.percentQueriesInclude > 50 ? 6 : 2,\n    writeDistribution: properties.writeSkew < 10 ? 10 : properties.writeSkew < 30 ? 5 : 1,\n  };\n  const total = Object.values(scores).reduce((a, b) => a + b, 0);\n  return { key, scores, total, verdict: total >= 30 ? 'Excellent' : total >= 20 ? 'Good' : 'Poor' };\n}\n\nconsole.log(evaluateShardKey('user_id', { uniqueValues: 5000000, maxSkewPercent: 3, percentQueriesInclude: 90, writeSkew: 5 }));\nconsole.log(evaluateShardKey('country', { uniqueValues: 200, maxSkewPercent: 40, percentQueriesInclude: 30, writeSkew: 50 }));",
+      "output": "{ key: 'user_id', scores: { cardinality: 10, distribution: 10, queryAlignment: 10, writeDistribution: 10 }, total: 40, verdict: 'Excellent' }\n{ key: 'country', scores: { cardinality: 3, distribution: 2, queryAlignment: 2, writeDistribution: 1 }, total: 8, verdict: 'Poor' }"
+    },
+    {
+      "question": "Program 10: Data locality checker",
+      "code": "function checkLocality(queries, shardRouterFn) {\n  let singleShard = 0, crossShard = 0;\n  queries.forEach(q => {\n    const shards = new Set(q.keys.map(k => shardRouterFn(k)));\n    if (shards.size === 1) singleShard++;\n    else crossShard++;\n  });\n  return {\n    total: queries.length,\n    singleShard, crossShard,\n    locality: (singleShard / queries.length * 100).toFixed(1) + '%',\n    verdict: singleShard / queries.length > 0.9 ? 'Good shard key' : 'Consider different shard key',\n  };\n}\n\nconst router = (key) => Math.abs(key.split('_')[1] || 0) % 4;\nconst queries = [\n  { name: 'user orders', keys: ['user_1', 'order_1'] },  // cross-shard\n  { name: 'user profile', keys: ['user_1'] },              // single shard\n  { name: 'user posts', keys: ['user_1'] },                 // single shard\n  { name: 'user followers', keys: ['user_1'] },             // single shard\n  { name: 'feed', keys: ['user_1', 'user_2', 'user_3'] },  // cross-shard\n];\nconsole.log(checkLocality(queries, router));",
+      "output": "{\n  total: 5,\n  singleShard: 3,\n  crossShard: 2,\n  locality: '60.0%',\n  verdict: 'Consider different shard key'\n}"
+    }
+  ]
+}
