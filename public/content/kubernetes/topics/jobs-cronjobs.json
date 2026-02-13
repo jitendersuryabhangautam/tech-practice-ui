@@ -1,0 +1,167 @@
+{
+  "id": "jobs-cronjobs",
+  "title": "Jobs & CronJobs",
+  "category": "Kubernetes Workloads",
+  "description": "Running batch tasks, one-time operations, and scheduled workloads in Kubernetes.",
+  "explanation": "Jobs create one or more pods that run to completion. CronJobs create Jobs on a schedule.\n\nJob types:\n- Non-parallel (default): Single pod, runs once. Good for one-time tasks (database migration).\n- Parallel with fixed completion count: spec.completions=N, runs N pods total. spec.parallelism controls concurrent pods.\n- Parallel work queue: spec.completions unset, spec.parallelism=N. Pods process items from a queue until all done.\n\nJob behavior:\n- Pods run until exit code 0 (success). Non-zero exit = failure.\n- spec.backoffLimit (default: 6): Max retries before marking Job as failed. Exponential backoff (10s, 20s, 40s...).\n- spec.activeDeadlineSeconds: Maximum time for the Job to run. Overrides backoffLimit.\n- restartPolicy must be Never or OnFailure (not Always — Jobs must terminate).\n- ttlSecondsAfterFinished: Auto-delete completed Job after N seconds (cleanup).\n\nJob completion modes (1.24+):\n- NonIndexed (default): Pods are interchangeable.\n- Indexed: Each pod gets a unique index (0 to completions-1) via JOB_COMPLETION_INDEX env var. Useful for parallel processing where each pod handles a different data shard.\n\nCronJob:\n- Uses standard cron syntax: minute hour day-of-month month day-of-week.\n- spec.schedule: '*/5 * * * *' (every 5 minutes).\n- spec.concurrencyPolicy: Allow (default, concurrent runs OK), Forbid (skip if previous still running), Replace (kill previous, start new).\n- spec.startingDeadlineSeconds: Window to start missed runs.\n- spec.successfulJobsHistoryLimit (default: 3): Keep N successful Jobs.\n- spec.failedJobsHistoryLimit (default: 1): Keep N failed Jobs.\n- spec.suspend: true pauses future runs without deleting the CronJob.\n\nBest practices:\n- Always set activeDeadlineSeconds to prevent runaway Jobs.\n- Use ttlSecondsAfterFinished for automatic cleanup.\n- Set resource requests/limits — batch Jobs can consume excessive resources.\n- Use Forbid concurrencyPolicy for Jobs that shouldn't overlap (e.g., DB backups).\n- Log Job output to persistent storage — pod logs disappear when pods are garbage collected.",
+  "code": "# Job\napiVersion: batch/v1\nkind: Job\nmetadata:\n  name: db-migrate\nspec:\n  ttlSecondsAfterFinished: 300\n  backoffLimit: 3\n  activeDeadlineSeconds: 600\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: migrate\n        image: myapp:latest\n        command: [\"python\", \"manage.py\", \"migrate\"]\n---\n# CronJob\napiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: daily-backup\nspec:\n  schedule: \"0 2 * * *\"\n  concurrencyPolicy: Forbid\n  successfulJobsHistoryLimit: 7\n  failedJobsHistoryLimit: 3\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          restartPolicy: OnFailure\n          containers:\n          - name: backup\n            image: postgres:15\n            command: [\"pg_dump\", \"-h\", \"db-service\", \"-U\", \"admin\", \"mydb\"]",
+  "command": "# Create a Job\nkubectl apply -f job.yaml\n\n# Watch Job progress\nkubectl get jobs -w\n\n# View Job pod logs\nkubectl logs job/db-migrate\n\n# Create Job imperatively\nkubectl create job test --image=busybox -- echo 'Hello Job'\n\n# Create CronJob\nkubectl create cronjob hourly-task --image=busybox --schedule='0 * * * *' -- echo 'Hourly'\n\n# List CronJobs\nkubectl get cronjobs\n\n# Trigger CronJob manually\nkubectl create job manual-run --from=cronjob/daily-backup\n\n# Suspend CronJob\nkubectl patch cronjob daily-backup -p '{\"spec\":{\"suspend\":true}}'",
+  "example": "# Parallel Job with indexed completions\napiVersion: batch/v1\nkind: Job\nmetadata:\n  name: parallel-process\nspec:\n  completions: 5\n  parallelism: 3\n  completionMode: Indexed\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: worker\n        image: busybox\n        command: ['sh', '-c', 'echo Processing shard $JOB_COMPLETION_INDEX && sleep 10']\n---\n# CronJob with volume for persistent output\napiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: report-gen\nspec:\n  schedule: \"0 6 * * 1\"\n  concurrencyPolicy: Forbid\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          restartPolicy: OnFailure\n          containers:\n          - name: reporter\n            image: python:3.11-alpine\n            command: ['python', '-c', 'import datetime; print(f\"Report generated at {datetime.datetime.now()}\")']\n            volumeMounts:\n            - name: reports\n              mountPath: /reports\n          volumes:\n          - name: reports\n            persistentVolumeClaim:\n              claimName: reports-pvc",
+  "useCase": "Database migrations, ETL pipelines, batch processing, scheduled backups, report generation, cleanup tasks, data exports",
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between a Job and a CronJob?",
+      "answer": "Job: Runs once (or N times) to completion. Creates pods that exit after task is done. CronJob: Creates Jobs on a schedule (cron syntax). Like a recurring Job. CronJob is to Job what crontab is to a shell command. A CronJob never runs pods directly — it creates a Job which creates a pod."
+    },
+    {
+      "question": "What restartPolicy values are valid for Jobs?",
+      "answer": "Only Never or OnFailure. Never: pod is never restarted, new pod is created on failure (useful for debugging — failed pods remain for log inspection). OnFailure: container is restarted in same pod. Always is NOT valid — Jobs must terminate. The backoffLimit controls total retry attempts."
+    },
+    {
+      "question": "How does Job parallelism work?",
+      "answer": "spec.completions: total successful pods needed. spec.parallelism: max concurrent pods. Example: completions=10, parallelism=3 means 10 pods must succeed, at most 3 running simultaneously. With Indexed completionMode, each pod gets a unique index (JOB_COMPLETION_INDEX env var)."
+    },
+    {
+      "question": "Explain CronJob concurrencyPolicy options.",
+      "answer": "Allow (default): Multiple Jobs can run simultaneously from the same CronJob. Forbid: If previous Job still running, skip this schedule. Replace: Kill the running Job and start a new one. Use Forbid for tasks that shouldn't overlap (DB backup). Use Replace when only latest matters."
+    },
+    {
+      "question": "How do you handle Job failures?",
+      "answer": "backoffLimit (default: 6): Max retries before Job marked Failed. Exponential backoff between retries. activeDeadlineSeconds: Overall time limit. restartPolicy: Never (new pod per retry, keeps failed pods for debugging) vs OnFailure (restart in same pod). Monitor with: kubectl describe job."
+    },
+    {
+      "question": "How do you clean up completed Jobs?",
+      "answer": "Options: (1) ttlSecondsAfterFinished in Job spec — auto-deletes after N seconds, (2) CronJob's successfulJobsHistoryLimit/failedJobsHistoryLimit (defaults: 3/1), (3) Manual: kubectl delete jobs --field-selector status.successful=1. Without cleanup, completed Job pods accumulate."
+    },
+    {
+      "question": "How would you trigger a CronJob run manually?",
+      "answer": "kubectl create job manual-run --from=cronjob/my-cronjob. Creates a one-time Job from the CronJob template. Useful for testing or running an ad-hoc execution without waiting for the schedule. The Job is independent of the CronJob's schedule."
+    },
+    {
+      "question": "What is Indexed completion mode?",
+      "answer": "Each pod gets a unique index (0 to completions-1) via JOB_COMPLETION_INDEX environment variable. Useful for parallel processing where each pod handles a different data shard, file batch, or partition. Example: 5 completions → pods get indices 0,1,2,3,4, each processes its partition."
+    },
+    {
+      "question": "How do you prevent a CronJob from running during maintenance?",
+      "answer": "Set spec.suspend: true — kubectl patch cronjob myJob -p '{\"spec\":{\"suspend\":true}}'. Pauses future scheduled runs without deleting the CronJob. Set back to false to resume. startingDeadlineSeconds controls how long missed runs can be caught up."
+    },
+    {
+      "question": "What happens if a CronJob misses many scheduled runs?",
+      "answer": "If more than 100 schedules are missed (e.g., CronJob suspended too long), K8s logs error and doesn't start. startingDeadlineSeconds defines the window: if >100 schedules would fire in that window, CronJob fails. Set an appropriate deadline to handle short outages without cascading."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "command",
+      "question": "Create a Job that runs a one-time database migration using a Python image.",
+      "answer": "kubectl create job db-migrate --image=python:3.11 -- python -c \"print('Migration complete')\"\nkubectl get job db-migrate\nkubectl logs job/db-migrate"
+    },
+    {
+      "type": "write",
+      "question": "Write a CronJob that runs every day at midnight to clean up temporary files.",
+      "answer": "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: cleanup\nspec:\n  schedule: \"0 0 * * *\"\n  concurrencyPolicy: Forbid\n  jobTemplate:\n    spec:\n      ttlSecondsAfterFinished: 3600\n      template:\n        spec:\n          restartPolicy: OnFailure\n          containers:\n          - name: cleanup\n            image: busybox\n            command: ['sh', '-c', 'find /tmp -mtime +7 -delete && echo Done']"
+    },
+    {
+      "type": "explain",
+      "question": "What is the difference between restartPolicy: Never and OnFailure in a Job?",
+      "answer": "Never: On failure, pod status becomes Failed, Job creates a NEW pod for retry. Failed pods remain (useful for debugging logs). OnFailure: Container is restarted within the SAME pod. Pod is not replaced. Use Never for debugging; OnFailure for simpler cleanup and less pod sprawl."
+    },
+    {
+      "type": "scenario",
+      "question": "A CronJob runs every 5 minutes but sometimes takes 7 minutes. What happens?",
+      "answer": "With concurrencyPolicy: Allow (default), a new Job starts while previous still running — two Jobs overlap. With Forbid: next run is skipped until current finishes. With Replace: running Job is killed and new one starts. Fix: use Forbid or increase interval to avoid overlap."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "A Job keeps restarting pods and never completes. How to debug?",
+      "answer": "Check: (1) kubectl describe job <name> for events, (2) kubectl logs <pod> for error output, (3) Exit code (non-zero = failure), (4) Check backoffLimit (default: 6), (5) Check activeDeadlineSeconds, (6) Container might OOM — check resource limits, (7) Image pull issues."
+    },
+    {
+      "type": "command",
+      "question": "Trigger a CronJob to run immediately without waiting for its schedule.",
+      "answer": "kubectl create job manual-test --from=cronjob/daily-backup\nkubectl get jobs\nkubectl logs job/manual-test"
+    },
+    {
+      "type": "write",
+      "question": "Write a parallel Job that processes 10 items with 3 concurrent workers.",
+      "answer": "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: parallel-job\nspec:\n  completions: 10\n  parallelism: 3\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: worker\n        image: busybox\n        command: ['sh', '-c', 'echo Processing item && sleep 5']"
+    },
+    {
+      "type": "command",
+      "question": "Suspend a running CronJob and then resume it.",
+      "answer": "kubectl patch cronjob daily-backup -p '{\"spec\":{\"suspend\":true}}'\nkubectl get cronjob daily-backup  # Shows SUSPEND=True\nkubectl patch cronjob daily-backup -p '{\"spec\":{\"suspend\":false}}'"
+    },
+    {
+      "type": "scenario",
+      "question": "You need a Job that must finish within 10 minutes or fail, with max 2 retries.",
+      "answer": "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: time-limited\nspec:\n  activeDeadlineSeconds: 600\n  backoffLimit: 2\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: task\n        image: myapp\n        command: ['./process.sh']"
+    },
+    {
+      "type": "command",
+      "question": "Clean up all completed Jobs older than 1 hour using TTL.",
+      "answer": "# Add ttlSecondsAfterFinished: 3600 to Job spec\n# Or manually:\nkubectl delete jobs --field-selector status.successful=1"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create a simple one-time Job",
+      "code": "kubectl create job hello --image=busybox -- echo 'Hello from Job'\nkubectl wait --for=condition=complete job/hello --timeout=30s\nkubectl logs job/hello\nkubectl get job hello",
+      "output": "Hello from Job / job.batch/hello condition met / COMPLETIONS 1/1"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: Job with multiple completions",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: batch/v1\nkind: Job\nmetadata:\n  name: multi-job\nspec:\n  completions: 4\n  parallelism: 2\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: worker\n        image: busybox\n        command: ['sh', '-c', 'echo Pod $(hostname) done && sleep 3']\nEOF\nkubectl get pods -l job-name=multi-job -w",
+      "output": "2 pods run at a time, then next 2. Total 4 pods complete. COMPLETIONS: 4/4"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: Indexed Job with JOB_COMPLETION_INDEX",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: batch/v1\nkind: Job\nmetadata:\n  name: indexed-job\nspec:\n  completions: 5\n  parallelism: 5\n  completionMode: Indexed\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: worker\n        image: busybox\n        command: ['sh', '-c', 'echo \"I am shard $JOB_COMPLETION_INDEX\"']\nEOF\nkubectl wait --for=condition=complete job/indexed-job --timeout=60s\nfor i in 0 1 2 3 4; do kubectl logs indexed-job-$i; done",
+      "output": "I am shard 0 / I am shard 1 / I am shard 2 / I am shard 3 / I am shard 4"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: Job with backoff limit and failure",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: batch/v1\nkind: Job\nmetadata:\n  name: fail-job\nspec:\n  backoffLimit: 2\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: fail\n        image: busybox\n        command: ['sh', '-c', 'exit 1']\nEOF\nsleep 30\nkubectl get job fail-job\nkubectl get pods -l job-name=fail-job",
+      "output": "COMPLETIONS: 0/1, 3 failed pods (original + 2 retries). Job status: Failed"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: Create a CronJob that runs every minute",
+      "code": "kubectl create cronjob minute-task --image=busybox --schedule='* * * * *' -- date\necho 'Waiting 70 seconds for first run...'\nsleep 70\nkubectl get cronjobs\nkubectl get jobs --sort-by=.metadata.creationTimestamp\nkubectl logs $(kubectl get pods --sort-by=.metadata.creationTimestamp -l job-name -o name | tail -1)",
+      "output": "CronJob created. After 1 minute: Job appears. Pod log shows current date/time."
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Trigger CronJob manually",
+      "code": "kubectl create cronjob backup --image=busybox --schedule='0 0 * * *' -- echo 'backup done'\nkubectl create job manual-backup --from=cronjob/backup\nkubectl wait --for=condition=complete job/manual-backup --timeout=30s\nkubectl logs job/manual-backup",
+      "output": "backup done (Job created from CronJob template, ran immediately)"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: Job with activeDeadlineSeconds timeout",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: batch/v1\nkind: Job\nmetadata:\n  name: timeout-job\nspec:\n  activeDeadlineSeconds: 10\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: slow\n        image: busybox\n        command: ['sleep', '300']\nEOF\nsleep 15\nkubectl describe job timeout-job | grep -A2 'Conditions'",
+      "output": "Type: Failed, Reason: DeadlineExceeded — Job killed after 10 seconds"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: CronJob with Forbid concurrency policy",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: no-overlap\nspec:\n  schedule: '* * * * *'\n  concurrencyPolicy: Forbid\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          restartPolicy: OnFailure\n          containers:\n          - name: slow\n            image: busybox\n            command: ['sleep', '90']\nEOF\nsleep 130\nkubectl get jobs -l job-name | wc -l",
+      "output": "Only 1 Job exists — second schedule was skipped because first still running"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: Job with ttlSecondsAfterFinished auto-cleanup",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: batch/v1\nkind: Job\nmetadata:\n  name: auto-cleanup\nspec:\n  ttlSecondsAfterFinished: 30\n  template:\n    spec:\n      restartPolicy: Never\n      containers:\n      - name: quick\n        image: busybox\n        command: ['echo', 'done']\nEOF\nkubectl wait --for=condition=complete job/auto-cleanup --timeout=30s\necho 'Job completed. Waiting 35s for TTL cleanup...'\nsleep 35\nkubectl get job auto-cleanup 2>&1",
+      "output": "Error: jobs.batch \"auto-cleanup\" not found (auto-deleted after 30s)"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: Suspend and resume a CronJob",
+      "code": "kubectl create cronjob suspend-test --image=busybox --schedule='* * * * *' -- echo 'tick'\nsleep 65\nkubectl get jobs | grep suspend-test | wc -l\nkubectl patch cronjob suspend-test -p '{\"spec\":{\"suspend\":true}}'\necho 'Suspended. Waiting 65s...'\nsleep 65\nkubectl get jobs | grep suspend-test | wc -l\nkubectl patch cronjob suspend-test -p '{\"spec\":{\"suspend\":false}}'",
+      "output": "1 Job ran before suspend. No new Jobs during suspension. Resumes after unsuspend."
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "id": "daemonsets",
+  "title": "DaemonSets",
+  "category": "Kubernetes Workloads",
+  "description": "Running a pod on every node for cluster-wide services like logging, monitoring, and networking.",
+  "explanation": "A DaemonSet ensures that a copy of a pod runs on every (or selected) node in the cluster. When nodes are added, the DaemonSet automatically schedules pods on them. When nodes are removed, the pods are garbage collected.\n\nCommon use cases:\n- Log collection: Fluentd, Filebeat, Logstash on every node to ship logs.\n- Monitoring: Prometheus Node Exporter, Datadog agent, New Relic.\n- Networking: Calico, Cilium, kube-proxy (cluster networking CNI plugins).\n- Storage: Ceph, GlusterFS daemons for distributed storage.\n- Security: Falco, Sysdig for runtime security monitoring.\n\nScheduling behavior:\n- By default, runs on ALL nodes (including control plane if tolerations allow).\n- Use nodeSelector or nodeAffinity to target specific nodes.\n- Use tolerations to run on tainted nodes (e.g., control plane nodes have NoSchedule taint).\n- DaemonSet pods are scheduled by the default scheduler (since K8s 1.12), not the DaemonSet controller directly.\n\nUpdate strategies:\n- RollingUpdate (default): Pods are updated one at a time. maxUnavailable controls how many can be down simultaneously (default: 1). maxSurge (1.22+) allows creating new pod before terminating old.\n- OnDelete: Pods only updated when manually deleted. Useful for careful, node-by-node upgrades.\n\nDaemonSet vs Deployment:\n- DaemonSet: One pod per node, no replicas field, auto-schedules on new nodes.\n- Deployment: N replicas scheduled anywhere, scheduler decides placement.\n- Don't use DaemonSet for web apps — use Deployment.\n\nResource considerations:\n- DaemonSet pods consume resources on EVERY node. Set resource requests/limits carefully.\n- Large DaemonSet pods reduce available resources for application workloads.\n- Consider Priority Classes to ensure DaemonSet pods are not evicted.\n\nDaemonSet pods and node draining:\n- kubectl drain ignores DaemonSet pods by default (--ignore-daemonsets flag).\n- DaemonSet pods are expected to run on every node, so drain doesn't evict them.\n- They are recreated immediately if forced deleted.",
+  "code": "apiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: fluentd\n  namespace: kube-system\nspec:\n  selector:\n    matchLabels:\n      app: fluentd\n  template:\n    metadata:\n      labels:\n        app: fluentd\n    spec:\n      tolerations:\n      - key: node-role.kubernetes.io/control-plane\n        effect: NoSchedule\n      containers:\n      - name: fluentd\n        image: fluentd:v1.16\n        resources:\n          requests:\n            cpu: 100m\n            memory: 200Mi\n          limits:\n            cpu: 200m\n            memory: 400Mi\n        volumeMounts:\n        - name: varlog\n          mountPath: /var/log\n        - name: containers\n          mountPath: /var/lib/docker/containers\n          readOnly: true\n      volumes:\n      - name: varlog\n        hostPath:\n          path: /var/log\n      - name: containers\n        hostPath:\n          path: /var/lib/docker/containers",
+  "command": "# Create DaemonSet\nkubectl apply -f daemonset.yaml\n\n# Check DaemonSet status\nkubectl get daemonset -n kube-system\n\n# See which nodes have DaemonSet pods\nkubectl get pods -l app=fluentd -o wide\n\n# Check desired vs current vs ready\nkubectl describe daemonset fluentd -n kube-system\n\n# Rolling update\nkubectl set image daemonset/fluentd fluentd=fluentd:v1.17 -n kube-system\n\n# Check rollout status\nkubectl rollout status daemonset/fluentd -n kube-system\n\n# Rollback\nkubectl rollout undo daemonset/fluentd -n kube-system",
+  "example": "# Node Exporter DaemonSet for Prometheus monitoring\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: node-exporter\n  namespace: monitoring\nspec:\n  selector:\n    matchLabels:\n      app: node-exporter\n  updateStrategy:\n    type: RollingUpdate\n    rollingUpdate:\n      maxUnavailable: 1\n  template:\n    metadata:\n      labels:\n        app: node-exporter\n    spec:\n      hostNetwork: true\n      hostPID: true\n      nodeSelector:\n        kubernetes.io/os: linux\n      tolerations:\n      - operator: Exists\n      containers:\n      - name: node-exporter\n        image: prom/node-exporter:v1.7.0\n        args:\n        - --path.procfs=/host/proc\n        - --path.sysfs=/host/sys\n        ports:\n        - containerPort: 9100\n          hostPort: 9100\n        resources:\n          requests:\n            cpu: 50m\n            memory: 64Mi\n          limits:\n            cpu: 100m\n            memory: 128Mi\n        volumeMounts:\n        - name: proc\n          mountPath: /host/proc\n          readOnly: true\n        - name: sys\n          mountPath: /host/sys\n          readOnly: true\n      volumes:\n      - name: proc\n        hostPath:\n          path: /proc\n      - name: sys\n        hostPath:\n          path: /sys",
+  "useCase": "Log collection (Fluentd/Filebeat), monitoring agents (Node Exporter/Datadog), CNI plugins, storage daemons, security agents",
+  "interviewQuestions": [
+    {
+      "question": "What is a DaemonSet and when would you use it?",
+      "answer": "DaemonSet ensures one pod runs on every (or selected) node. Use for cluster-wide services: log collection (Fluentd), monitoring (Node Exporter), networking (CNI plugins like Calico), storage daemons. Automatically deploys to new nodes and cleans up on removed nodes."
+    },
+    {
+      "question": "How does a DaemonSet differ from a Deployment with node affinity?",
+      "answer": "DaemonSet: guarantees exactly one pod per matched node, auto-schedules on new nodes, no replicas field. Deployment with affinity: sets desired replicas, scheduler may place multiple on one node, doesn't auto-adapt to cluster changes. DaemonSet is declaratively 'one per node'."
+    },
+    {
+      "question": "How do you run a DaemonSet only on specific nodes?",
+      "answer": "Use nodeSelector for simple label matching: nodeSelector: {disk: ssd}. Use nodeAffinity for complex expressions (In, NotIn, Exists). Label target nodes: kubectl label node worker-1 disk=ssd. DaemonSet only runs on nodes matching the selector."
+    },
+    {
+      "question": "How do you run a DaemonSet on control plane nodes?",
+      "answer": "Control plane nodes have taint: node-role.kubernetes.io/control-plane:NoSchedule. Add toleration to DaemonSet pod spec: tolerations: [{key: node-role.kubernetes.io/control-plane, effect: NoSchedule}]. Or tolerate everything: [{operator: Exists}] (runs on ALL nodes regardless of taints)."
+    },
+    {
+      "question": "What happens to DaemonSet pods during kubectl drain?",
+      "answer": "By default, drain ignores DaemonSet pods (requires --ignore-daemonsets flag). This is intentional — DaemonSet pods should always run. Without the flag, drain fails with error. DaemonSet pods are NOT evicted during drain but other pods are safely relocated."
+    },
+    {
+      "question": "How does the DaemonSet rolling update work?",
+      "answer": "RollingUpdate (default): terminates old pod, creates new pod on same node. maxUnavailable (default: 1) controls parallelism. Pods updated one node at a time. maxSurge (1.22+): creates new pod before terminating old (zero-downtime on each node). OnDelete: manual — pod only updated when you delete it."
+    },
+    {
+      "question": "What hostPath volumes are commonly used with DaemonSets?",
+      "answer": "/var/log for collecting node logs, /var/lib/docker/containers for container logs, /proc and /sys for system metrics, /etc for reading node configuration, /run for socket access (e.g., Docker socket). Always mount with readOnly: true when possible."
+    },
+    {
+      "question": "How does a DaemonSet affect cluster resource planning?",
+      "answer": "DaemonSet pods run on EVERY node, consuming CPU/memory on each. With 100 nodes and 200Mi per DaemonSet pod, that's 20Gi total. Multiple DaemonSets compound this. Plan node sizing: total node resources = DaemonSet overhead + application workloads + system reserved. Use resource requests/limits."
+    },
+    {
+      "question": "Can you have more than one DaemonSet pod per node?",
+      "answer": "No — DaemonSet guarantees exactly one pod per matching node. If you need multiple instances, put them in one pod as separate containers (sidecar pattern). Or use a Deployment with pod anti-affinity (soft) for approximate distribution."
+    },
+    {
+      "question": "How do DaemonSets interact with Pod Priority and Preemption?",
+      "answer": "DaemonSet pods can use PriorityClass. High-priority DaemonSet pods can preempt lower-priority pods on a node. Critical system DaemonSets (logging, monitoring) should have high priority (system-cluster-critical or system-node-critical) to avoid eviction during resource pressure."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "write",
+      "question": "Write a DaemonSet for a Filebeat log shipper that mounts /var/log from the host.",
+      "answer": "apiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: filebeat\nspec:\n  selector:\n    matchLabels:\n      app: filebeat\n  template:\n    metadata:\n      labels:\n        app: filebeat\n    spec:\n      containers:\n      - name: filebeat\n        image: elastic/filebeat:8.11.0\n        volumeMounts:\n        - name: varlog\n          mountPath: /var/log\n          readOnly: true\n      volumes:\n      - name: varlog\n        hostPath:\n          path: /var/log"
+    },
+    {
+      "type": "command",
+      "question": "Check how many nodes have DaemonSet pods running and how many are ready.",
+      "answer": "kubectl get daemonset -A\n# Shows DESIRED, CURRENT, READY, UP-TO-DATE, AVAILABLE for each DaemonSet"
+    },
+    {
+      "type": "explain",
+      "question": "Why do DaemonSets commonly use hostNetwork: true?",
+      "answer": "hostNetwork lets the pod use the node's network namespace directly. Monitoring agents (Node Exporter on port 9100) need to be accessible on the node IP. CNI plugins need host networking to configure networking for other pods. Avoids NAT and port mapping overhead."
+    },
+    {
+      "type": "troubleshoot",
+      "question": "A DaemonSet shows DESIRED=5 but CURRENT=3. What could be wrong?",
+      "answer": "Check: (1) Node taints preventing scheduling (kubectl describe node), (2) nodeSelector doesn't match all nodes, (3) Resource constraints (insufficient CPU/memory on 2 nodes), (4) PodSecurityPolicy/PSA blocking the pod, (5) kubectl describe daemonset for events."
+    },
+    {
+      "type": "scenario",
+      "question": "You need to update a DaemonSet but want to control the rollout node by node.",
+      "answer": "Use OnDelete update strategy. Change the DaemonSet spec. Then manually delete pods one node at a time: kubectl delete pod fluentd-xxxxx. New pod is created with updated spec. Verify each node before proceeding. This gives maximum control over rollout."
+    },
+    {
+      "type": "write",
+      "question": "Write a DaemonSet that runs only on nodes labeled gpu=true.",
+      "answer": "apiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: gpu-monitor\nspec:\n  selector:\n    matchLabels:\n      app: gpu-monitor\n  template:\n    metadata:\n      labels:\n        app: gpu-monitor\n    spec:\n      nodeSelector:\n        gpu: \"true\"\n      containers:\n      - name: monitor\n        image: nvidia/dcgm-exporter\n        resources:\n          limits:\n            nvidia.com/gpu: 1"
+    },
+    {
+      "type": "command",
+      "question": "Perform a rolling update of a DaemonSet changing the image.",
+      "answer": "kubectl set image daemonset/fluentd fluentd=fluentd:v1.17\nkubectl rollout status daemonset/fluentd\nkubectl get pods -l app=fluentd -o custom-columns=NODE:.spec.nodeName,IMAGE:.spec.containers[0].image"
+    },
+    {
+      "type": "explain",
+      "question": "What is the difference between DaemonSet tolerations operator: Exists and operator: Equal?",
+      "answer": "operator: Exists matches any taint with the specified key (regardless of value). operator: Equal matches taint with specific key AND value. tolerations: [{operator: Exists}] (no key) tolerates ALL taints — pod runs on every node including tainted control plane nodes."
+    },
+    {
+      "type": "scenario",
+      "question": "Adding a new node to cluster. How does the DaemonSet react?",
+      "answer": "When new node joins and becomes Ready, the DaemonSet controller detects it and creates a pod on the new node (if node matches nodeSelector/affinity). Fully automatic — no manual intervention needed. Pod inherits the current DaemonSet spec."
+    },
+    {
+      "type": "command",
+      "question": "Check which nodes are NOT running a specific DaemonSet pod.",
+      "answer": "# Compare all nodes vs nodes with pods\nkubectl get nodes -o name | sort > /tmp/all\nkubectl get pods -l app=fluentd -o jsonpath='{range .items[*]}{.spec.nodeName}{\"\\n\"}{end}' | sort > /tmp/have\ndiff /tmp/all /tmp/have"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "question": "Program 1: Create a DaemonSet and verify one pod per node",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: logger\nspec:\n  selector:\n    matchLabels:\n      app: logger\n  template:\n    metadata:\n      labels:\n        app: logger\n    spec:\n      containers:\n      - name: logger\n        image: busybox\n        command: ['sh', '-c', 'while true; do echo $(hostname) logging; sleep 60; done']\nEOF\nkubectl get daemonset logger\nkubectl get pods -l app=logger -o wide",
+      "output": "DESIRED=N CURRENT=N READY=N (one pod per node, each on different node)"
+    },
+    {
+      "type": "program",
+      "question": "Program 2: DaemonSet with nodeSelector targeting specific nodes",
+      "code": "kubectl label node $(kubectl get nodes -o name | head -1 | cut -d/ -f2) tier=edge\ncat <<EOF | kubectl apply -f -\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: edge-agent\nspec:\n  selector:\n    matchLabels:\n      app: edge-agent\n  template:\n    metadata:\n      labels:\n        app: edge-agent\n    spec:\n      nodeSelector:\n        tier: edge\n      containers:\n      - name: agent\n        image: busybox\n        command: ['sleep', '3600']\nEOF\nkubectl get daemonset edge-agent",
+      "output": "DESIRED=1 (only runs on node labeled tier=edge)"
+    },
+    {
+      "type": "program",
+      "question": "Program 3: DaemonSet with toleration for control plane",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: all-nodes\nspec:\n  selector:\n    matchLabels:\n      app: all-nodes\n  template:\n    metadata:\n      labels:\n        app: all-nodes\n    spec:\n      tolerations:\n      - operator: Exists\n      containers:\n      - name: agent\n        image: busybox\n        command: ['sleep', '3600']\nEOF\nkubectl get pods -l app=all-nodes -o wide",
+      "output": "Pod running on EVERY node including control plane (tolerates all taints)"
+    },
+    {
+      "type": "program",
+      "question": "Program 4: DaemonSet rolling update",
+      "code": "kubectl set image daemonset/logger logger=alpine\nkubectl rollout status daemonset/logger\nkubectl get pods -l app=logger -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image,NODE:.spec.nodeName",
+      "output": "All pods updated to alpine image, one at a time (rolling)"
+    },
+    {
+      "type": "program",
+      "question": "Program 5: DaemonSet with OnDelete strategy",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: manual-update\nspec:\n  updateStrategy:\n    type: OnDelete\n  selector:\n    matchLabels:\n      app: manual\n  template:\n    metadata:\n      labels:\n        app: manual\n    spec:\n      containers:\n      - name: app\n        image: nginx:1.25\nEOF\nkubectl set image daemonset/manual-update app=nginx:1.26\nkubectl get pods -l app=manual -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image",
+      "output": "Still shows nginx:1.25 — pods not updated until manually deleted"
+    },
+    {
+      "type": "program",
+      "question": "Program 6: Check DaemonSet status details",
+      "code": "kubectl get daemonset logger -o jsonpath='{\"Desired: \"}{.status.desiredNumberScheduled}{\"\\nCurrent: \"}{.status.currentNumberScheduled}{\"\\nReady: \"}{.status.numberReady}{\"\\nUpdated: \"}{.status.updatedNumberScheduled}{\"\\n\"}'",
+      "output": "Desired: 3  Current: 3  Ready: 3  Updated: 3"
+    },
+    {
+      "type": "program",
+      "question": "Program 7: DaemonSet with hostPath volume for log collection",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: log-collector\nspec:\n  selector:\n    matchLabels:\n      app: log-collector\n  template:\n    metadata:\n      labels:\n        app: log-collector\n    spec:\n      containers:\n      - name: collector\n        image: busybox\n        command: ['sh', '-c', 'tail -f /var/log/syslog || tail -f /var/log/messages || sleep 3600']\n        volumeMounts:\n        - name: hostlog\n          mountPath: /var/log\n          readOnly: true\n      volumes:\n      - name: hostlog\n        hostPath:\n          path: /var/log\nEOF\nkubectl logs $(kubectl get pods -l app=log-collector -o name | head -1) | head -5",
+      "output": "Shows host system logs from /var/log mounted into the container"
+    },
+    {
+      "type": "program",
+      "question": "Program 8: Rollback a DaemonSet update",
+      "code": "kubectl rollout history daemonset/logger\nkubectl rollout undo daemonset/logger\nkubectl rollout status daemonset/logger\nkubectl get pods -l app=logger -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image",
+      "output": "DaemonSet rolled back to previous image version"
+    },
+    {
+      "type": "program",
+      "question": "Program 9: DaemonSet with resource limits",
+      "code": "cat <<EOF | kubectl apply -f -\napiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: resource-ds\nspec:\n  selector:\n    matchLabels:\n      app: resource-ds\n  template:\n    metadata:\n      labels:\n        app: resource-ds\n    spec:\n      containers:\n      - name: agent\n        image: busybox\n        command: ['sleep', '3600']\n        resources:\n          requests:\n            cpu: 50m\n            memory: 64Mi\n          limits:\n            cpu: 100m\n            memory: 128Mi\nEOF\nkubectl describe pod $(kubectl get pods -l app=resource-ds -o name | head -1) | grep -A4 'Limits\\|Requests'",
+      "output": "Limits: cpu=100m, memory=128Mi  Requests: cpu=50m, memory=64Mi"
+    },
+    {
+      "type": "program",
+      "question": "Program 10: List all DaemonSets in cluster including system ones",
+      "code": "kubectl get daemonsets --all-namespaces -o custom-columns='NAMESPACE:.metadata.namespace,NAME:.metadata.name,DESIRED:.status.desiredNumberScheduled,READY:.status.numberReady,IMAGE:.spec.template.spec.containers[0].image'",
+      "output": "Shows all DaemonSets across namespaces (kube-proxy, CNI plugin, custom DaemonSets) with status"
+    }
+  ]
+}
