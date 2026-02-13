@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
 import Sidebar from "@/components/Sidebar";
@@ -53,9 +53,21 @@ export default function InterviewTopicPage({
   const normalizedTopics = useMemo(() => normalizeTopics(topics), [topics]);
   const [activeTopicId, setActiveTopicId] = useState(normalizedTopics[0]?.id);
   const [showMCQ, setShowMCQ] = useState(false);
+  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
   const activeTopic =
     normalizedTopics.find((topic) => topic.id === activeTopicId) ?? null;
+
+  useEffect(() => {
+    const onScroll = () => {
+      // Keep the header collapsed throughout content scrolling to avoid layout
+      // jumps; only expand again when the page is back at the top.
+      setIsHeaderCollapsed(window.scrollY > 2);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleTopicClick = (topicId) => {
     setActiveTopicId(topicId);
@@ -67,8 +79,15 @@ export default function InterviewTopicPage({
       <Navbar />
       <div className="page-shell">
         <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
-          <BackButton />
-          <section className="hero-panel mb-5 sm:mb-8">
+          {!isHeaderCollapsed && <BackButton />}
+          <section
+            className={`hero-panel motion-card transition-all duration-300 ${
+              isHeaderCollapsed
+                ? "mb-0 max-h-0 overflow-hidden border-0 p-0 opacity-0"
+                : "mb-5 max-h-[420px] opacity-100 sm:mb-8"
+            }`}
+            aria-hidden={isHeaderCollapsed}
+          >
             <p className="eyebrow">Interview Track</p>
             <div className="mb-2 flex items-center gap-2">
               <IconTrack />
@@ -98,13 +117,13 @@ export default function InterviewTopicPage({
             </div>
           </section>
 
-          <div className="grid items-start gap-4 lg:grid-cols-[290px_minmax(0,1fr)] lg:gap-6">
+          <div className="motion-stagger grid items-start gap-4 lg:grid-cols-[290px_minmax(0,1fr)] lg:gap-6">
             <Sidebar
               topics={normalizedTopics}
               activeId={activeTopic?.id}
               onTopicClick={handleTopicClick}
             />
-            <main className="content-card min-w-0 p-4 sm:p-6 lg:p-8">
+            <main className="content-card motion-card min-w-0 p-4 sm:p-6 lg:p-8">
               <TopicDetail topic={activeTopic} />
             </main>
           </div>

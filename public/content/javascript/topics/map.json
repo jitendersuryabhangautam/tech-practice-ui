@@ -3,7 +3,7 @@
   "title": "Array.map()",
   "category": "Array Methods",
   "description": "Creates a new array with the results of calling a function on every element.",
-  "explanation": "Creates a new array with the results of calling a function on every element.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "explanation": "Array.map() creates a new array by calling a callback function on every element of the original array. It does NOT mutate the original array.\n\nSyntax: array.map(callback(element, index, array), thisArg)\n\nKey characteristics:\n- Always returns a new array of the SAME length\n- Callback is called for each element (skips empty slots in sparse arrays)\n- Returns undefined for elements where callback returns nothing\n- Cannot break/stop early — use find/some/every/for...of for that\n\nCommon use cases:\n- Transforming data: numbers.map(n => n * 2)\n- Extracting properties: users.map(u => u.name)\n- Formatting: prices.map(p => `$${p.toFixed(2)}`)\n- React rendering: items.map(item => <Card key={item.id} {...item} />)\n\nmap vs forEach:\n- map returns a new array — use when you NEED the result\n- forEach returns undefined — use for side effects only\n- Never use map and ignore its return value\n\nPerformance: O(n) time, O(n) space for the new array. For large datasets where you don't need all results, consider lazy evaluation or generators.",
   "implementation": "const numbers = [1, 2, 3, 4];\nconst doubled = numbers.map(num => num * 2);\n// [2, 4, 6, 8]",
   "example": "const users = [{name: 'John', age: 25}, {name: 'Jane', age: 30}];\nconst names = users.map(user => user.name);\n// ['John', 'Jane']",
   "useCase": "Transforming data, extracting properties from objects",
@@ -27,6 +27,26 @@
     {
       "question": "When not to use map?",
       "answer": "Do not use map when you ignore the returned array. Use forEach or for...of for side effects only."
+    },
+    {
+      "question": "What are the arguments passed to the map callback?",
+      "answer": "Three arguments: (element, index, array). The second arg thisArg sets 'this' inside callback. Arrow functions ignore thisArg."
+    },
+    {
+      "question": "How does map handle sparse arrays?",
+      "answer": "map skips empty slots in sparse arrays (does not call callback for them) but preserves the holes in the output array."
+    },
+    {
+      "question": "Can you break or stop early in map?",
+      "answer": "No. map always iterates the entire array. For early termination, use for...of, find, some, or every instead."
+    },
+    {
+      "question": "What happens if you forget return in map callback with braces?",
+      "answer": "The callback implicitly returns undefined for that element. Common bug: .map(x => { x * 2 }) gives [undefined, ...]. Fix: add return or remove braces."
+    },
+    {
+      "question": "How do you chain map with other array methods?",
+      "answer": "map returns an array, so you can chain: arr.filter(predicate).map(transform).sort(compare). Each creates an intermediate array. For performance, use reduce for single-pass."
     }
   ],
   "exercises": [
@@ -73,8 +93,8 @@
     },
     {
       "type": "debug",
-      "question": "Fix map callback using braces without return causing undefined entries.",
-      "answer": "Add explicit return or use implicit return with parentheses."
+      "question": "['1','2','3'].map(parseInt) gives unexpected result. Why?",
+      "answer": "parseInt receives (element, index) as arguments: parseInt('1',0)=1, parseInt('2',1)=NaN, parseInt('3',2)=NaN. Use .map(Number) or .map(s => parseInt(s, 10)) instead."
     },
     {
       "type": "debug",

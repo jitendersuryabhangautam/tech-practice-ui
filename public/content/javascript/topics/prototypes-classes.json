@@ -1,0 +1,155 @@
+{
+  "id": "prototypes-classes",
+  "title": "Prototypes & Classes",
+  "description": "Understand JavaScript's prototype chain, prototypal inheritance, ES6 classes, and how 'new' keyword works under the hood.",
+  "explanation": "JavaScript uses prototypal inheritance — objects can inherit directly from other objects. Every object has an internal [[Prototype]] link to another object.\n\nPrototype chain:\n1. Every function has a `.prototype` property (an object)\n2. Objects created with `new Fn()` have their [[Prototype]] set to `Fn.prototype`\n3. Property lookup: check own properties → check [[Prototype]] → check [[Prototype]]'s [[Prototype]] → ... → null\n4. `Object.prototype` is at the top of most chains, its [[Prototype]] is null\n\n`__proto__` vs `.prototype`:\n- `__proto__` (or `Object.getPrototypeOf()`) — the actual prototype link on an instance\n- `.prototype` — a property on constructor functions, becomes the `__proto__` of instances\n\nES6 Classes:\n- Syntactic sugar over prototypal inheritance\n- `class` creates a constructor function + prototype\n- `extends` sets up the prototype chain for inheritance\n- `super()` calls the parent constructor\n- Class methods go on the prototype (shared)\n- Arrow function class fields are per-instance (not shared)\n\nKey concepts:\n- `instanceof` walks the prototype chain\n- `hasOwnProperty()` checks only own properties (not inherited)\n- `Object.create(proto)` creates an object with proto as its [[Prototype]]\n- Static methods belong to the class itself, not instances",
+  "code": "// Constructor function + prototype\nfunction Animal(name) {\n  this.name = name;\n}\nAnimal.prototype.speak = function() {\n  return `${this.name} makes a sound`;\n};\n\nconst dog = new Animal('Rex');\nconsole.log(dog.speak()); // 'Rex makes a sound'\nconsole.log(dog.hasOwnProperty('name'));    // true (own)\nconsole.log(dog.hasOwnProperty('speak'));   // false (inherited from prototype)\n\n// ES6 Class (same thing, cleaner syntax)\nclass Vehicle {\n  constructor(make, year) {\n    this.make = make;\n    this.year = year;\n  }\n  \n  describe() {\n    return `${this.year} ${this.make}`;\n  }\n  \n  static compare(a, b) {\n    return a.year - b.year;\n  }\n}\n\nclass Car extends Vehicle {\n  constructor(make, year, doors) {\n    super(make, year); // Must call super() before using 'this'\n    this.doors = doors;\n  }\n  \n  describe() {\n    return `${super.describe()} with ${this.doors} doors`;\n  }\n}\n\nconst car = new Car('Honda', 2024, 4);\nconsole.log(car.describe()); // '2024 Honda with 4 doors'\nconsole.log(car instanceof Car);     // true\nconsole.log(car instanceof Vehicle); // true",
+  "example": "// Object.create for direct prototypal inheritance\nconst personProto = {\n  greet() {\n    return `Hi, I'm ${this.name}`;\n  },\n  introduce() {\n    return `${this.greet()}, age ${this.age}`;\n  }\n};\n\nconst alice = Object.create(personProto);\nalice.name = 'Alice';\nalice.age = 30;\nconsole.log(alice.introduce()); // \"Hi, I'm Alice, age 30\"\n\n// How 'new' works internally\nfunction myNew(Constructor, ...args) {\n  const obj = Object.create(Constructor.prototype);\n  const result = Constructor.apply(obj, args);\n  return result instanceof Object ? result : obj;\n}\n\n// Private fields with # (ES2022)\nclass BankAccount {\n  #balance;\n  \n  constructor(initial) {\n    this.#balance = initial;\n  }\n  \n  deposit(amount) {\n    this.#balance += amount;\n  }\n  \n  get balance() {\n    return this.#balance;\n  }\n}\n// new BankAccount(100).#balance → SyntaxError!",
+  "useCase": "Object-oriented design, inheritance patterns, code reuse, framework internals (React components), design patterns, extending built-ins",
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction Foo() {}\nFoo.prototype.x = 10;\nconst a = new Foo();\nconst b = new Foo();\na.x = 20;\nconsole.log(a.x, b.x);",
+      "answer": "20, 10 — a.x=20 is set as own property (shadows prototype). b.x reads from prototype (10)"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nclass A {\n  constructor() { this.name = 'A'; }\n  greet() { return this.name; }\n}\nclass B extends A {\n  constructor() {\n    super();\n    this.name = 'B';\n  }\n}\nconsole.log(new B().greet());",
+      "answer": "B — super() sets name='A', then B's constructor overrides to name='B'. greet() reads this.name"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction Dog(name) { this.name = name; }\nDog.prototype.bark = function() { return this.name; };\nconst d = new Dog('Max');\nconsole.log(d.hasOwnProperty('name'));\nconsole.log(d.hasOwnProperty('bark'));",
+      "answer": "true, false — 'name' is an own property (set in constructor). 'bark' is on the prototype."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst proto = { greet() { return 'hello'; } };\nconst obj = Object.create(proto);\nconsole.log(obj.greet());\nconsole.log(Object.getPrototypeOf(obj) === proto);",
+      "answer": "hello, true — Object.create sets proto as obj's [[Prototype]]"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nclass Counter {\n  #count = 0;\n  inc() { return ++this.#count; }\n}\nconst c = new Counter();\nconsole.log(c.inc(), c.inc(), c.inc());",
+      "answer": "1 2 3 — Private field #count starts at 0, incremented each call"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nclass Shape {\n  static count = 0;\n  constructor() { Shape.count++; }\n}\nnew Shape(); new Shape(); new Shape();\nconsole.log(Shape.count);",
+      "answer": "3 — Static property is shared across all instances, incremented in constructor"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction A() {}\nfunction B() {}\nB.prototype = Object.create(A.prototype);\nconst b = new B();\nconsole.log(b instanceof B);\nconsole.log(b instanceof A);\nconsole.log(b instanceof Object);",
+      "answer": "true, true, true — prototype chain: b → B.prototype → A.prototype → Object.prototype → null"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nclass Animal {\n  eat() { return 'eating'; }\n}\nclass Dog extends Animal {\n  eat() { return `dog ${super.eat()}`; }\n}\nconsole.log(new Dog().eat());",
+      "answer": "dog eating — super.eat() calls the parent class method"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst arr = [1, 2, 3];\nconsole.log(arr.hasOwnProperty('length'));\nconsole.log(arr.hasOwnProperty('map'));\nconsole.log(typeof arr.map);",
+      "answer": "true, false, function — length is own property, map is inherited from Array.prototype"
+    },
+    {
+      "type": "concept",
+      "question": "What does Object.create(null) do and when is it useful?",
+      "answer": "Creates an object with NO prototype (no inherited properties at all — no toString, hasOwnProperty, etc.). Useful for creating pure dictionaries/maps where you don't want prototype pollution. If/in checks won't find inherited properties."
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "function Person(name) {\n  this.name = name;\n}\nPerson.prototype.greet = function() {\n  return `Hi, I'm ${this.name}`;\n};\n\nfunction Student(name, grade) {\n  Person.call(this, name);\n  this.grade = grade;\n}\nStudent.prototype = Object.create(Person.prototype);\nStudent.prototype.constructor = Student;\n\nconst s = new Student('Alice', 'A');\nconsole.log(s.greet());\nconsole.log(s instanceof Student);\nconsole.log(s instanceof Person);",
+      "expectedOutput": "Hi, I'm Alice\ntrue\ntrue",
+      "explanation": "Classical prototypal inheritance: Student inherits from Person via Object.create()"
+    },
+    {
+      "program": "class EventEmitter {\n  #handlers = {};\n  on(event, fn) {\n    (this.#handlers[event] ??= []).push(fn);\n  }\n  emit(event, ...args) {\n    (this.#handlers[event] || []).forEach(fn => fn(...args));\n  }\n}\nconst emitter = new EventEmitter();\nemitter.on('data', (x) => console.log('Got:', x));\nemitter.emit('data', 42);",
+      "expectedOutput": "Got: 42",
+      "explanation": "Class with private field #handlers. on() stores callbacks, emit() calls them."
+    },
+    {
+      "program": "class LinkedList {\n  #head = null;\n  push(val) {\n    this.#head = { val, next: this.#head };\n  }\n  toArray() {\n    const result = [];\n    let node = this.#head;\n    while (node) { result.push(node.val); node = node.next; }\n    return result;\n  }\n}\nconst list = new LinkedList();\nlist.push(1); list.push(2); list.push(3);\nconsole.log(list.toArray().join(', '));",
+      "expectedOutput": "3, 2, 1",
+      "explanation": "Stack-like linked list — push prepends, so toArray returns newest first"
+    },
+    {
+      "program": "class Builder {\n  constructor() { this.config = {}; }\n  set(key, val) { this.config[key] = val; return this; }\n  build() { return { ...this.config }; }\n}\nconst result = new Builder()\n  .set('host', 'localhost')\n  .set('port', 3000)\n  .build();\nconsole.log(JSON.stringify(result));",
+      "expectedOutput": "{\"host\":\"localhost\",\"port\":3000}",
+      "explanation": "Builder pattern using method chaining — each set() returns 'this'"
+    },
+    {
+      "program": "class Stack {\n  #items = [];\n  push(item) { this.#items.push(item); }\n  pop() { return this.#items.pop(); }\n  peek() { return this.#items.at(-1); }\n  get size() { return this.#items.length; }\n}\nconst s = new Stack();\ns.push(10); s.push(20); s.push(30);\ns.pop();\nconsole.log(s.peek(), s.size);",
+      "expectedOutput": "20 2",
+      "explanation": "Stack class with private #items. After push(10,20,30) and pop(), top is 20, size is 2."
+    },
+    {
+      "program": "const base = { type: 'vehicle' };\nconst car = Object.create(base);\ncar.wheels = 4;\nconst tesla = Object.create(car);\ntesla.brand = 'Tesla';\n\nconsole.log(tesla.brand);  \nconsole.log(tesla.wheels); \nconsole.log(tesla.type);",
+      "expectedOutput": "Tesla\n4\nvehicle",
+      "explanation": "Prototype chain: tesla → car → base. Property lookup walks up the chain."
+    },
+    {
+      "program": "class Animal {\n  constructor(name) { this.name = name; }\n  toString() { return `Animal: ${this.name}`; }\n}\nclass Cat extends Animal {\n  constructor(name, color) { super(name); this.color = color; }\n  toString() { return `${super.toString()} (${this.color})`; }\n}\nconsole.log(String(new Cat('Whiskers', 'orange')));",
+      "expectedOutput": "Animal: Whiskers (orange)",
+      "explanation": "Overriding toString() with super call for inheritance chain"
+    },
+    {
+      "program": "class Singleton {\n  static #instance;\n  constructor(value) {\n    if (Singleton.#instance) return Singleton.#instance;\n    this.value = value;\n    Singleton.#instance = this;\n  }\n}\nconst a = new Singleton('first');\nconst b = new Singleton('second');\nconsole.log(a === b);\nconsole.log(b.value);",
+      "expectedOutput": "true\nfirst",
+      "explanation": "Singleton pattern — constructor returns existing instance on subsequent calls"
+    },
+    {
+      "program": "class Observable {\n  #subs = [];\n  subscribe(fn) { this.#subs.push(fn); return () => this.#subs = this.#subs.filter(s => s !== fn); }\n  notify(data) { this.#subs.forEach(fn => fn(data)); }\n}\nconst obs = new Observable();\nconst unsub = obs.subscribe(v => console.log('A:', v));\nobs.subscribe(v => console.log('B:', v));\nobs.notify(1);\nunsub();\nobs.notify(2);",
+      "expectedOutput": "A: 1\nB: 1\nB: 2",
+      "explanation": "Observer pattern — subscribe returns unsubscribe function. After unsub(), only B remains."
+    },
+    {
+      "program": "function mixin(target, ...sources) {\n  Object.assign(target.prototype, ...sources);\n}\nclass Base {}\nconst Serializable = { toJSON() { return JSON.stringify(this); } };\nconst Printable = { print() { console.log(this.name); } };\nmixin(Base, Serializable, Printable);\nconst obj = new Base();\nobj.name = 'Test';\nobj.print();",
+      "expectedOutput": "Test",
+      "explanation": "Mixin pattern — copies methods from multiple objects onto a class prototype"
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "What is the prototype chain?",
+      "answer": "Every JS object has an internal [[Prototype]] link to another object. When accessing a property, JS first checks the object itself, then walks up the chain: instance → Constructor.prototype → parent.prototype → ... → Object.prototype → null. This is how inheritance works in JS."
+    },
+    {
+      "question": "What is the difference between __proto__ and .prototype?",
+      "answer": "__proto__ (or Object.getPrototypeOf()) is the actual prototype link on any object. .prototype is a property on constructor functions only — it becomes the __proto__ of objects created with 'new'. Example: new Foo().__proto__ === Foo.prototype."
+    },
+    {
+      "question": "How does the 'new' keyword work step by step?",
+      "answer": "1. Creates an empty object. 2. Sets its [[Prototype]] to Constructor.prototype. 3. Calls the constructor with 'this' set to the new object. 4. If constructor returns an object, that's used; otherwise the new object is returned."
+    },
+    {
+      "question": "How are ES6 classes different from constructor functions?",
+      "answer": "Classes are syntactic sugar but with differences: (1) Classes must be called with 'new' (constructor functions don't have to). (2) Class methods are non-enumerable. (3) Classes are always in strict mode. (4) Classes don't hoist like function declarations. (5) Classes support static methods, private fields (#), and extends/super."
+    },
+    {
+      "question": "What is Object.create() and how does it differ from 'new'?",
+      "answer": "Object.create(proto) creates a new object with proto as its [[Prototype]], without calling a constructor. 'new Constructor()' also creates an object and sets up the prototype, BUT it also calls the constructor function. Object.create(null) creates an object with no prototype at all."
+    },
+    {
+      "question": "Explain private fields (#) in ES6 classes.",
+      "answer": "Private fields (declared with #) are truly private — they can only be accessed inside the class body. They are NOT on the prototype, they're per-instance. Accessing #field outside the class throws a SyntaxError. They provide hard privacy, unlike the convention-based _ prefix."
+    },
+    {
+      "question": "What is the difference between instance methods and static methods?",
+      "answer": "Instance methods are defined on the prototype (shared by all instances, accessed via 'this'). Static methods are defined on the class constructor itself (accessed via ClassName.method()). Static methods cannot access 'this' as an instance. Use static for utility functions that don't need instance data."
+    },
+    {
+      "question": "How does instanceof work?",
+      "answer": "instanceof checks if Constructor.prototype exists anywhere in the object's prototype chain. `obj instanceof Foo` is equivalent to checking if `Foo.prototype` is found traversing `Object.getPrototypeOf(obj)` chain. Can be customized with `Symbol.hasInstance`."
+    },
+    {
+      "question": "What are mixins and how do you implement them in JavaScript?",
+      "answer": "Mixins allow combining behaviors from multiple sources (since JS has single inheritance). Implementation: use Object.assign(TargetClass.prototype, mixin1, mixin2) to copy methods. Or use a mixin factory: const Mixin = (superclass) => class extends superclass { ... }."
+    },
+    {
+      "question": "What is the difference between hasOwnProperty() and the 'in' operator?",
+      "answer": "hasOwnProperty() checks only the object's OWN properties (not inherited). The 'in' operator checks both own AND inherited properties (walks the prototype chain). For safe checking, use Object.hasOwn(obj, prop) (ES2022) to avoid issues when hasOwnProperty is overridden."
+    }
+  ]
+}

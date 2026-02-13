@@ -3,7 +3,7 @@
   "title": "Array.reduce()",
   "category": "Array Methods",
   "description": "Executes a reducer function on each element, resulting in a single output value.",
-  "explanation": "Executes a reducer function on each element, resulting in a single output value.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "explanation": "Array.reduce() executes a reducer callback on each element, accumulating a single result. It's the most versatile array method — can implement map, filter, flatMap, and more.\n\nSyntax: array.reduce(callback(accumulator, currentValue, index, array), initialValue)\n\nHow it works:\n1. If initialValue is provided, accumulator starts as initialValue, iteration begins at index 0\n2. If no initialValue, accumulator = first element, iteration begins at index 1\n3. Each iteration: accumulator = callback(accumulator, currentValue)\n4. Final accumulator value is returned\n\nCritical rule — ALWAYS provide initialValue:\n- Without it, reduce on empty array throws TypeError\n- Without it, accumulator type depends on first element (error-prone)\n- Makes your intent explicit: 0 for sums, [] for arrays, {} for objects\n\nCommon patterns:\n- Sum: arr.reduce((sum, n) => sum + n, 0)\n- Flatten: arr.reduce((flat, sub) => flat.concat(sub), [])\n- Group by: arr.reduce((groups, item) => { ... }, {})\n- Frequency map: arr.reduce((freq, item) => { freq[item] = (freq[item] || 0) + 1; return freq; }, {})\n- Pipe/compose: fns.reduce((result, fn) => fn(result), initialVal)\n\nWhen NOT to use reduce:\n- Simple transformations (use map/filter for readability)\n- When the reducer becomes hard to read\n- When you need to break early (use for...of instead)",
   "implementation": "const numbers = [1, 2, 3, 4];\nconst sum = numbers.reduce((acc, curr) => acc + curr, 0);\n// 10",
   "example": "const cart = [\n  {item: 'book', price: 10},\n  {item: 'pen', price: 2}\n];\nconst total = cart.reduce((sum, item) => sum + item.price, 0);\n// 12",
   "useCase": "Calculating totals, flattening arrays, grouping data",
@@ -27,6 +27,26 @@
     {
       "question": "When should reduce be avoided?",
       "answer": "When it harms readability for simple transformations where map/filter are clearer."
+    },
+    {
+      "question": "What happens if you call reduce on an empty array without initialValue?",
+      "answer": "Throws TypeError: 'Reduce of empty array with no initial value'. Always provide initialValue to avoid this — it's a common production bug."
+    },
+    {
+      "question": "How does reduce differ from reduceRight?",
+      "answer": "reduce iterates left-to-right (index 0 → end). reduceRight iterates right-to-left (end → index 0). Useful for right-to-left composition: fns.reduceRight((result, fn) => fn(result), initial)."
+    },
+    {
+      "question": "How would you implement map using reduce?",
+      "answer": "arr.reduce((result, element) => { result.push(transform(element)); return result; }, []). This shows reduce's versatility — it can implement any array method."
+    },
+    {
+      "question": "What is function composition with reduce?",
+      "answer": "const pipe = (...fns) => (x) => fns.reduce((result, fn) => fn(result), x). This creates a pipeline: pipe(add1, double, toString)(5) runs each function in sequence."
+    },
+    {
+      "question": "Why is it important to always return the accumulator?",
+      "answer": "If any branch of the callback doesn't return the accumulator, it becomes undefined in the next iteration, causing bugs. Always ensure every code path returns the accumulator value."
     }
   ],
   "exercises": [
@@ -53,9 +73,9 @@
     },
     {
       "type": "output",
-      "question": "Predict output: [1,2,3].reduce((a,b)=>a+b,0)",
-      "answer": "6",
-      "output": "6"
+      "question": "Predict output: ['a','b','c'].reduce((acc, val) => ({...acc, [val]: val.toUpperCase()}), {})",
+      "answer": "{ a: 'A', b: 'B', c: 'C' }",
+      "output": "{ a: 'A', b: 'B', c: 'C' }"
     },
     {
       "type": "output",
@@ -73,8 +93,8 @@
     },
     {
       "type": "debug",
-      "question": "Reduce on empty array throws error. How to fix?",
-      "answer": "Provide an initial accumulator value."
+      "question": "Reduce callback doesn't return accumulator in one branch of an if/else. What happens?",
+      "answer": "Accumulator becomes undefined in the next iteration, causing a runtime error or incorrect result. Always return accumulator from every branch."
     },
     {
       "type": "debug",
@@ -140,7 +160,7 @@
     {
       "type": "program",
       "question": "Program 10: Compose sentence from words array.",
-      "code": "const words=[\"JS\",\"is\",\"awesome\"];\nconst s=words.reduce((acc,w)=>acc?`${acc} ${w}`:w,\"\");\nconsole.log(s);",
+      "code": "const words=[\"JS\",\"is\",\"awesome\"];\nconst s=words.reduce((acc,w)=> acc ? `${acc} ${w}` : w, \"\");\nconsole.log(s);",
       "output": "JS is awesome"
     }
   ]

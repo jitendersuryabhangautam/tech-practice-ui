@@ -3,7 +3,7 @@
   "title": "Array.filter()",
   "category": "Array Methods",
   "description": "Creates a new array with elements that pass a test condition.",
-  "explanation": "Creates a new array with elements that pass a test condition.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "explanation": "Array.filter() creates a new array with all elements that pass a test implemented by the callback function. Returns an empty array if no elements match.\n\nSyntax: array.filter(callback(element, index, array), thisArg)\n\nKey characteristics:\n- Returns a NEW array (original is not mutated)\n- Result array length is ≤ original length\n- Callback should return a truthy/falsy value\n- Does NOT mutate elements — but filtered objects share references\n\nCommon patterns:\n- Remove falsy: arr.filter(Boolean) — removes 0, '', null, undefined, NaN, false\n- Remove duplicates: arr.filter((v, i, a) => a.indexOf(v) === i)\n- Search: items.filter(item => item.name.includes(query))\n- Type guard (TS): arr.filter((x): x is Type => predicate)\n\nImportant gotchas:\n- Filtered objects are NOT cloned — mutating them affects the original\n- filter(Boolean) removes 0 and '' which may be valid data\n- For finding ONE element, use find() instead (short-circuits)\n- Chaining map().filter() creates intermediate arrays — use reduce() for single-pass when performance matters\n\nPerformance: O(n) time. O(k) space where k is the number of matching elements.",
   "implementation": "const numbers = [1, 2, 3, 4, 5, 6];\nconst evens = numbers.filter(num => num % 2 === 0);\n// [2, 4, 6]",
   "example": "const products = [\n  {name: 'Laptop', price: 1000},\n  {name: 'Mouse', price: 25}\n];\nconst expensive = products.filter(p => p.price > 50);",
   "useCase": "Filtering lists, searching, removing unwanted items",
@@ -27,6 +27,26 @@
     {
       "question": "How to combine map and filter efficiently?",
       "answer": "Use reduce for single pass when performance matters, or keep map/filter for readability in normal cases."
+    },
+    {
+      "question": "What does filter(Boolean) actually do?",
+      "answer": "Boolean is called as the callback: Boolean(element). It returns false for 0, '', null, undefined, NaN, false. Removes all falsy values. Be careful: filter(Boolean) removes 0 and '' which might be valid data."
+    },
+    {
+      "question": "How do you filter unique values from an array?",
+      "answer": "arr.filter((v, i, a) => a.indexOf(v) === i). This keeps only the first occurrence. For objects, use a Set of keys. For better performance, use [...new Set(arr)]."
+    },
+    {
+      "question": "Does filter create a deep copy of elements?",
+      "answer": "No. filter returns a new array but the elements are NOT cloned. Objects in the filtered array share references with the original. Mutating them affects both arrays."
+    },
+    {
+      "question": "What is the difference between filter and find?",
+      "answer": "filter returns ALL matching elements (array). find returns only the FIRST match (single element or undefined). find short-circuits (stops early), filter always checks all elements."
+    },
+    {
+      "question": "How does filter work with TypeScript type narrowing?",
+      "answer": "Use type predicates: arr.filter((x): x is NonNullable<T> => x != null). This narrows the return type so TypeScript knows the result excludes null/undefined."
     }
   ],
   "exercises": [

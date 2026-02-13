@@ -185,7 +185,7 @@ export default function TopicDetail({ topic }) {
   }
 
   return (
-    <article className="w-full min-w-0 max-w-4xl">
+    <article className="motion-stagger w-full min-w-0 max-w-4xl">
       <header className="mb-6 sm:mb-8">
         <p className="eyebrow">{topic.category || "Core Concepts"}</p>
         <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">

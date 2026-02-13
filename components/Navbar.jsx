@@ -36,16 +36,33 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
+    <nav className="nav-motion-shell sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
+      <div aria-hidden="true" className="nav-cartoon-track pointer-events-none">
+        <span className="nav-cartoon-runner">
+          <svg viewBox="0 0 48 28" className="h-7 w-12" fill="none">
+            <rect x="4" y="8" width="30" height="12" rx="6" fill="#38bdf8" />
+            <circle cx="14" cy="22" r="4" fill="#0f172a" />
+            <circle cx="29" cy="22" r="4" fill="#0f172a" />
+            <circle cx="13" cy="14" r="2" fill="#f8fafc" />
+            <circle cx="20" cy="14" r="2" fill="#f8fafc" />
+            <path d="M37 16h7" stroke="#0ea5e9" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </span>
+      </div>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500 font-bold text-slate-900">
-            IP
+          <span className="nav-logo-badge nav-logo-mark flex h-10 w-10 items-center justify-center rounded-xl text-slate-900">
+            <svg viewBox="0 0 40 40" className="h-8 w-8" fill="none">
+              <rect x="4" y="4" width="32" height="32" rx="10" fill="#f59e0b" />
+              <path d="M13 24h14M15 18h10" stroke="#0f172a" strokeWidth="2.6" strokeLinecap="round" />
+              <circle cx="14.5" cy="14.5" r="2.1" fill="#0f172a" />
+              <circle cx="25.5" cy="14.5" r="2.1" fill="#0f172a" />
+            </svg>
           </span>
-          <span className="hidden text-sm font-semibold uppercase tracking-wide text-slate-900 sm:inline dark:text-slate-100">
+          <span className="nav-brand-text hidden text-sm font-semibold uppercase tracking-wide text-slate-900 sm:inline dark:text-slate-100">
             Interview Practice
           </span>
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-900 sm:hidden dark:text-slate-100">
+          <span className="nav-brand-text text-xs font-semibold uppercase tracking-wide text-slate-900 sm:hidden dark:text-slate-100">
             Practice
           </span>
         </Link>
@@ -55,7 +72,7 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              className={`nav-link-motion rounded-lg px-3 py-2 text-sm font-medium transition ${
                 pathname === link.href
                   ? "bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
                   : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -121,7 +138,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className={`rounded-lg px-3 py-2 text-sm ${
+                className={`nav-link-motion rounded-lg px-3 py-2 text-sm ${
                   pathname === link.href
                     ? "bg-amber-100 font-semibold text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
                     : "text-slate-700 dark:text-slate-300"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import InterviewTopicPage from "@/components/InterviewTopicPage";
 import { golangData, golangQuiz } from "@/data/golang";
 import { golangExtraData, golangExtraQuiz } from "@/data/golang_extra";
@@ -297,8 +298,14 @@ func main() {
 }
 
 export default function GolangPage() {
-  const fallbackTopics = [...golangData, ...golangExtraData];
-  const fallbackQuiz = [...golangQuiz, ...golangExtraQuiz];
+  const fallbackTopics = useMemo(
+    () => [...golangData, ...golangExtraData],
+    []
+  );
+  const fallbackQuiz = useMemo(
+    () => [...golangQuiz, ...golangExtraQuiz],
+    []
+  );
   const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "golang",
     fallbackTopics,

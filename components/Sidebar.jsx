@@ -119,7 +119,7 @@ export default function Sidebar({ topics, activeId, onTopicClick }) {
       )}
 
       <aside
-        className={`content-card overflow-hidden lg:sticky lg:top-24 lg:h-[calc(100vh-210px)] ${
+        className={`content-card motion-card overflow-hidden lg:sticky lg:top-20 lg:h-[calc(100vh-5.5rem)] lg:flex lg:flex-col ${
           isOpen
             ? "fixed inset-x-2 top-20 bottom-2 z-30 lg:static"
             : "hidden lg:block"
@@ -157,7 +157,7 @@ export default function Sidebar({ topics, activeId, onTopicClick }) {
           />
         </div>
 
-        <div className="h-[calc(100%-156px)] overflow-y-auto p-3">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3">
           {!groupedTopicEntries.length && (
             <p className="rounded-lg border border-dashed border-slate-300 p-3 text-sm text-slate-600 dark:border-slate-600 dark:text-slate-300">
               No topics found for this search.

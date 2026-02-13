@@ -1,0 +1,155 @@
+{
+  "id": "error-handling",
+  "title": "Error Handling",
+  "description": "Master JavaScript error handling — try/catch/finally, custom errors, error types, async error patterns, and best practices.",
+  "explanation": "JavaScript has a built-in error handling mechanism using try/catch/finally. Proper error handling prevents crashes and provides meaningful feedback.\n\nBuilt-in error types:\n- Error: base error class\n- TypeError: wrong type operation (e.g., calling a non-function)\n- ReferenceError: accessing undeclared variable\n- SyntaxError: invalid code syntax\n- RangeError: value out of range (e.g., invalid array length)\n- URIError: malformed URI\n- EvalError: related to eval() (rarely used)\n- AggregateError: wraps multiple errors (Promise.any())\n\ntry/catch/finally rules:\n- catch receives the error object\n- finally ALWAYS executes (even after return/throw)\n- catch is optional if finally is present\n- Errors not caught propagate up the call stack\n- Only runtime errors are caught (not syntax errors in the same script)\n\nAsync error handling:\n- Promise rejections: .catch() or try/catch with async/await\n- Unhandled rejections: 'unhandledrejection' event (browser) or 'unhandledRejection' (Node)\n- async functions: uncaught errors become rejected Promises\n\nBest practices:\n- Always catch specific error types when possible\n- Don't swallow errors silently (empty catch blocks)\n- Use custom error classes for domain-specific errors\n- Log/report errors for debugging\n- Provide user-friendly error messages\n- Use Error.cause (ES2022) for error chaining",
+  "code": "// Basic try/catch/finally\ntry {\n  const result = riskyOperation();\n  console.log(result);\n} catch (error) {\n  console.error('Something went wrong:', error.message);\n} finally {\n  console.log('Always runs — cleanup here');\n}\n\n// Custom error class\nclass ValidationError extends Error {\n  constructor(field, message) {\n    super(message);\n    this.name = 'ValidationError';\n    this.field = field;\n  }\n}\n\nfunction validateAge(age) {\n  if (typeof age !== 'number') {\n    throw new TypeError('Age must be a number');\n  }\n  if (age < 0 || age > 150) {\n    throw new ValidationError('age', `Invalid age: ${age}`);\n  }\n  return true;\n}\n\n// Catching specific error types\ntry {\n  validateAge('twenty');\n} catch (e) {\n  if (e instanceof ValidationError) {\n    console.log(`Field ${e.field}: ${e.message}`);\n  } else if (e instanceof TypeError) {\n    console.log(`Type error: ${e.message}`);\n  } else {\n    throw e; // Re-throw unknown errors\n  }\n}",
+  "example": "// Async error handling\nasync function fetchUser(id) {\n  try {\n    const response = await fetch(`/api/users/${id}`);\n    if (!response.ok) {\n      throw new Error(`HTTP ${response.status}: ${response.statusText}`);\n    }\n    return await response.json();\n  } catch (error) {\n    if (error instanceof TypeError) {\n      // Network error\n      throw new Error('Network error', { cause: error });\n    }\n    throw error;\n  }\n}\n\n// Error boundary pattern\nasync function safeFetch(url) {\n  try {\n    const res = await fetch(url);\n    return { data: await res.json(), error: null };\n  } catch (error) {\n    return { data: null, error: error.message };\n  }\n}\n\n// Global unhandled rejection handler\nwindow.addEventListener('unhandledrejection', (event) => {\n  console.error('Unhandled rejection:', event.reason);\n  event.preventDefault();\n});",
+  "useCase": "API error handling, form validation, graceful degradation, error logging/monitoring, building resilient applications",
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What is the output?\ntry {\n  console.log('try');\n  throw new Error('oops');\n  console.log('after throw');\n} catch (e) {\n  console.log('catch:', e.message);\n} finally {\n  console.log('finally');\n}",
+      "answer": "try, catch: oops, finally — 'after throw' never runs. throw jumps to catch. finally always runs."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction foo() {\n  try {\n    return 'try';\n  } finally {\n    return 'finally';\n  }\n}\nconsole.log(foo());",
+      "answer": "finally — finally's return overrides try's return. This is a known gotcha."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\ntry {\n  try {\n    throw new Error('inner');\n  } finally {\n    console.log('inner finally');\n  }\n} catch (e) {\n  console.log('outer catch:', e.message);\n}",
+      "answer": "inner finally, outer catch: inner — Inner try has no catch, error propagates. Inner finally runs first, then outer catch."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\ntry {\n  null.property;\n} catch (e) {\n  console.log(e.constructor.name);\n}",
+      "answer": "TypeError — Accessing a property of null throws TypeError"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nPromise.reject('error')\n  .catch(e => { console.log('caught:', e); return 'recovered'; })\n  .then(v => console.log('then:', v));",
+      "answer": "caught: error, then: recovered — catch handles the rejection and returns a value, so .then receives it"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nasync function test() {\n  try {\n    await Promise.reject('fail');\n  } catch (e) {\n    console.log('caught:', e);\n  }\n  console.log('continues');\n}\ntest();",
+      "answer": "caught: fail, continues — try/catch with await catches the rejection, execution continues normally"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst err = new Error('test');\nconsole.log(err.message);\nconsole.log(err.name);\nconsole.log(typeof err.stack);",
+      "answer": "test, Error, string — Error objects have message, name, and stack (stack trace) properties"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\ntry {\n  undeclaredVariable;\n} catch (e) {\n  console.log(e instanceof ReferenceError);\n  console.log(e.message.includes('not defined'));\n}",
+      "answer": "true, true — Accessing an undeclared variable throws ReferenceError with 'not defined' message"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction test() {\n  let result = 0;\n  try {\n    result = 1;\n    throw new Error();\n  } catch (e) {\n    result = 2;\n    return result;\n  } finally {\n    result = 3;\n  }\n}\nconsole.log(test());",
+      "answer": "2 — catch's return value (2) is captured before finally runs. finally changes result to 3 but doesn't override the return value (no return in finally)."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nPromise.resolve()\n  .then(() => { throw new Error('oops'); })\n  .then(() => console.log('skip'))\n  .catch(e => console.log(e.message))\n  .then(() => console.log('after catch'));",
+      "answer": "oops, after catch — Error skips the next .then(), caught by .catch(), chain continues after catch"
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "class AppError extends Error {\n  constructor(message, statusCode) {\n    super(message);\n    this.name = 'AppError';\n    this.statusCode = statusCode;\n  }\n}\ntry {\n  throw new AppError('Not Found', 404);\n} catch (e) {\n  console.log(`${e.name}: ${e.message} (${e.statusCode})`);\n}",
+      "expectedOutput": "AppError: Not Found (404)",
+      "explanation": "Custom error class with additional properties for structured error handling"
+    },
+    {
+      "program": "function divide(a, b) {\n  if (b === 0) throw new RangeError('Cannot divide by zero');\n  return a / b;\n}\n\n[10, 0, 5].forEach(b => {\n  try {\n    console.log(`10/${b} = ${divide(10, b)}`);\n  } catch (e) {\n    console.log(e.message);\n  }\n});",
+      "expectedOutput": "10/10 = 1\nCannot divide by zero\n10/5 = 2",
+      "explanation": "Error handling in a loop — each iteration handles errors independently"
+    },
+    {
+      "program": "async function fetchData(shouldFail) {\n  if (shouldFail) throw new Error('Network error');\n  return { data: 'success' };\n}\n\n(async () => {\n  const results = await Promise.allSettled([\n    fetchData(false),\n    fetchData(true),\n    fetchData(false)\n  ]);\n  results.forEach((r, i) => {\n    console.log(`${i}: ${r.status}${r.reason ? ' - ' + r.reason.message : ''}`);\n  });\n})();",
+      "expectedOutput": "0: fulfilled\n1: rejected - Network error\n2: fulfilled",
+      "explanation": "Promise.allSettled never rejects — it reports the status of each promise individually"
+    },
+    {
+      "program": "function retry(fn, attempts = 3) {\n  for (let i = 1; i <= attempts; i++) {\n    try {\n      return fn(i);\n    } catch (e) {\n      if (i === attempts) throw e;\n      console.log(`Attempt ${i} failed`);\n    }\n  }\n}\ntry {\n  const result = retry((attempt) => {\n    if (attempt < 3) throw new Error('fail');\n    return 'success';\n  });\n  console.log(result);\n} catch (e) {\n  console.log('All failed');\n}",
+      "expectedOutput": "Attempt 1 failed\nAttempt 2 failed\nsuccess",
+      "explanation": "Retry pattern — tries up to 3 times. First 2 fail, third succeeds."
+    },
+    {
+      "program": "function parseJSON(str) {\n  try {\n    return { value: JSON.parse(str), error: null };\n  } catch (e) {\n    return { value: null, error: e.message };\n  }\n}\nconsole.log(parseJSON('{\"a\":1}').value);\nconsole.log(parseJSON('invalid').error);",
+      "expectedOutput": "{ a: 1 }\nUnexpected token 'i', \"invalid\" is not valid JSON",
+      "explanation": "Safe JSON parsing — returns result object instead of throwing. Inspired by Go's error pattern."
+    },
+    {
+      "program": "class Queue {\n  #items = [];\n  enqueue(item) { this.#items.push(item); }\n  dequeue() {\n    if (this.#items.length === 0) throw new Error('Queue is empty');\n    return this.#items.shift();\n  }\n}\nconst q = new Queue();\nq.enqueue('a'); q.enqueue('b');\nconsole.log(q.dequeue());\nconsole.log(q.dequeue());\ntry { q.dequeue(); } catch (e) { console.log(e.message); }",
+      "expectedOutput": "a\nb\nQueue is empty",
+      "explanation": "Data structure with error handling — dequeue from empty queue throws descriptive error"
+    },
+    {
+      "program": "const errors = [];\nfor (const val of ['5', 'abc', '10', null]) {\n  try {\n    if (val === null) throw new TypeError('Value cannot be null');\n    const num = Number(val);\n    if (isNaN(num)) throw new RangeError(`'${val}' is not a number`);\n    console.log(num);\n  } catch (e) {\n    errors.push(e.message);\n  }\n}\nconsole.log('Errors:', errors.length);",
+      "expectedOutput": "5\n10\nErrors: 2",
+      "explanation": "Collecting errors while continuing processing. 'abc' and null cause errors, '5' and '10' succeed."
+    },
+    {
+      "program": "async function pipeline(...fns) {\n  let result = null;\n  for (const fn of fns) {\n    result = await fn(result);\n  }\n  return result;\n}\n\npipeline(\n  () => 5,\n  (x) => x * 2,\n  (x) => { if (x > 8) throw new Error('too big'); return x; },\n  (x) => x + 1\n).then(console.log).catch(e => console.log('Pipeline error:', e.message));",
+      "expectedOutput": "Pipeline error: too big",
+      "explanation": "Async pipeline with error propagation — step 3 rejects because 10 > 8"
+    },
+    {
+      "program": "function withTimeout(promise, ms) {\n  const timeout = new Promise((_, reject) =>\n    setTimeout(() => reject(new Error('Timeout')), ms)\n  );\n  return Promise.race([promise, timeout]);\n}\n\nconst slow = new Promise(r => setTimeout(() => r('done'), 200));\nwithTimeout(slow, 100).catch(e => console.log(e.message));\nwithTimeout(slow, 300).then(v => console.log(v));",
+      "expectedOutput": "Timeout\ndone",
+      "explanation": "Promise timeout pattern — first call times out (100<200), second succeeds (300>200)"
+    },
+    {
+      "program": "const err = new Error('outer', { cause: new Error('inner') });\nconsole.log(err.message);\nconsole.log(err.cause.message);",
+      "expectedOutput": "outer\ninner",
+      "explanation": "Error.cause (ES2022) — chains errors for better debugging context"
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between throw and return in error handling?",
+      "answer": "throw creates an error that unwinds the call stack until caught by a try/catch. return simply exits the function with a value. throw is for exceptional situations, return is for normal flow. Some patterns use return { error } instead of throwing for expected failure cases."
+    },
+    {
+      "question": "Can finally override a return value?",
+      "answer": "Yes. If finally has a return statement, it overrides the return value from try or catch. This is considered bad practice. However, if finally doesn't have a return, it cannot change the return value — even if it modifies the variable being returned (because the expression is already evaluated)."
+    },
+    {
+      "question": "How do you handle errors in Promise chains vs async/await?",
+      "answer": "Promise chains: use .catch() at the end of the chain (catches any error above it). async/await: use try/catch blocks around await calls. Both work, but async/await with try/catch is generally more readable for complex flows."
+    },
+    {
+      "question": "What happens to unhandled Promise rejections?",
+      "answer": "In Node.js, unhandled rejections trigger an 'unhandledRejection' event and may terminate the process (Node 15+). In browsers, they trigger 'unhandledrejection' on window. Always add .catch() to promises or use try/catch with async/await."
+    },
+    {
+      "question": "When should you create custom error classes?",
+      "answer": "When you need to distinguish between error types (instanceof checks), add extra context (status codes, field names), or create domain-specific errors (ValidationError, AuthError). Custom errors should extend Error and set this.name. Use Error.cause for wrapping lower-level errors."
+    },
+    {
+      "question": "What is error chaining with Error.cause?",
+      "answer": "ES2022 introduced the 'cause' option: new Error('message', { cause: originalError }). This links errors together for better debugging — you can see the original error that triggered a higher-level error. Like Java's exception chaining."
+    },
+    {
+      "question": "Why should you avoid empty catch blocks?",
+      "answer": "Empty catch blocks silently swallow errors, making bugs invisible. At minimum, log the error. Better: handle specific error types and re-throw unknown ones. If you intentionally ignore an error, add a comment explaining why."
+    },
+    {
+      "question": "What is the difference between Error and exception?",
+      "answer": "In JavaScript, Error is a built-in object type with message, name, and stack properties. An exception is the act of throwing — you can throw ANY value (strings, numbers, objects), but it's best practice to throw Error objects because they provide stack traces."
+    },
+    {
+      "question": "How does error handling work with generators?",
+      "answer": "Generators have a .throw() method that throws an error inside the generator at the yield point. The generator can catch it with try/catch internally. If uncaught, the error propagates to the caller. This is used by async/await (which uses generators internally)."
+    },
+    {
+      "question": "What is the optional catch binding?",
+      "answer": "ES2019 allows omitting the catch parameter when you don't need the error object: try { ... } catch { ... }. This is useful when you only care about whether an operation succeeded, not the specific error."
+    }
+  ]
+}

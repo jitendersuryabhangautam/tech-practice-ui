@@ -1,0 +1,92 @@
+{
+  "id": "real-world-ui-design",
+  "title": "Real-World UI Design Challenges (Next.js)",
+  "description": "Practical Next.js UI design tasks using App Router patterns, server/client boundaries, caching, and production UX flows.",
+  "explanation": "This challenge set focuses on real product screens built with Next.js: dashboard pages, data-heavy interfaces, auth-aware UI, and route-level UX strategies. Prioritize responsive design, loading/error states, and clean server-client responsibilities.",
+  "code": "// app/(dashboard)/layout.jsx\nexport default function DashboardLayout({ children }) {\n  return (\n    <div className=\"min-h-screen grid lg:grid-cols-[260px_1fr]\">\n      <aside className=\"border-r p-4\">Sidebar</aside>\n      <main className=\"p-4\">{children}</main>\n    </div>\n  );\n}",
+  "example": "// app/products/page.jsx\nexport default async function ProductsPage() {\n  const res = await fetch('https://dummyjson.com/products?limit=8', {\n    next: { revalidate: 60 }\n  });\n  const data = await res.json();\n\n  return (\n    <section className=\"grid gap-4 sm:grid-cols-2 lg:grid-cols-4\">\n      {data.products.map((p) => (\n        <article key={p.id} className=\"rounded-xl border p-3\">\n          <h3 className=\"font-semibold\">{p.title}</h3>\n          <p className=\"text-sm text-slate-600\">${p.price}</p>\n        </article>\n      ))}\n    </section>\n  );\n}",
+  "useCase": "Next.js interview rounds, frontend system design tasks, and production feature implementation with App Router.",
+  "category": "Real-World UI Design",
+  "interviewQuestions": [
+    {
+      "question": "How do you decide server vs client component for a UI block?",
+      "answer": "Render static/data-fetching-heavy parts on server; keep interaction-heavy stateful blocks on client."
+    },
+    {
+      "question": "How should loading and error UI be structured in App Router?",
+      "answer": "Use route-level `loading.js` and `error.js`, plus component-level skeletons for finer transitions."
+    },
+    {
+      "question": "How do you keep dashboards fast in Next.js?",
+      "answer": "Use selective caching/revalidation, streaming where useful, and avoid shipping unnecessary client JS."
+    },
+    {
+      "question": "When should middleware be part of UI-related flows?",
+      "answer": "For auth gating, locale routing, and lightweight redirects before route rendering."
+    },
+    {
+      "question": "How do you prevent stale data UX after mutations?",
+      "answer": "Use server actions + revalidatePath/revalidateTag and optimistic UI where appropriate."
+    }
+  ],
+  "exercises": [
+    { "type": "implement", "question": "Build an admin analytics page with route segments for `/overview`, `/users`, `/billing` using shared dashboard layout." },
+    { "type": "implement", "question": "Create a product catalog with server-rendered filters and client-side sort controls." },
+    { "type": "implement", "question": "Design an authenticated profile settings page with optimistic save and rollback on API failure." },
+    { "type": "implement", "question": "Build a media gallery page with masonry-style cards and progressive image loading placeholders." },
+    { "type": "implement", "question": "Create a booking flow with multi-step forms and persistent draft state across route transitions." },
+    { "type": "implement", "question": "Build a docs search interface with route-based query params and highlighted results." },
+    { "type": "implement", "question": "Design a team management UI with role badges, invite modal, and pagination." },
+    { "type": "implement", "question": "Create a support inbox UI using server component list + client detail panel interactions." },
+    { "type": "implement", "question": "Build a pricing/checkout UI with plan comparison, coupon entry, and summary sidebar." },
+    { "type": "implement", "question": "Implement a notifications page with tabs (`all`, `mentions`, `system`) and empty states." },
+    { "type": "debug", "question": "Fix hydration mismatch in a page that renders date/time differently between server and client." },
+    { "type": "debug", "question": "Resolve a slow route caused by client-side overfetch and move suitable logic server-side." },
+    { "type": "debug", "question": "Fix stale list UI after server action mutation by adding correct revalidation strategy." },
+    { "type": "debug", "question": "Debug broken navigation state caused by mixing local state with route params incorrectly." },
+    { "type": "scenario", "question": "Design an enterprise dashboard shell that supports role-based menus and deep route nesting." },
+    { "type": "scenario", "question": "Plan a migration from Pages Router UI to App Router while minimizing downtime and regressions." },
+    { "type": "scenario", "question": "Design a B2B billing page with secure server actions and clear fail/retry UX." },
+    { "type": "scenario", "question": "Create a multitenant workspace switcher with URL-based tenant context and guarded routes." },
+    { "type": "scenario", "question": "Define caching policy for catalog pages, account pages, and admin pages with clear rationale." },
+    { "type": "scenario", "question": "Plan responsive behavior for complex data tables across desktop and mobile breakpoints." },
+    { "type": "theory", "question": "Explain trade-offs of streaming UI with Suspense in dashboard pages." },
+    { "type": "theory", "question": "When should route handlers be used over third-party backend APIs in frontend architecture?" },
+    { "type": "output", "question": "Predict UI behavior when `revalidate = 60` page receives updates every 10 seconds." },
+    { "type": "output", "question": "Predict route rendering path when middleware redirects based on auth cookie." },
+    { "type": "refactor", "question": "Refactor a large client-only page into server/client composition with less bundle size." }
+  ],
+  "programExercises": [
+    {
+      "level": "Medium",
+      "question": "Build a route-segment dashboard shell with persistent sidebar and topbar.",
+      "code": "// app/(workspace)/layout.jsx\nimport Link from 'next/link';\n\nexport default function WorkspaceLayout({ children }) {\n  return (\n    <div className=\"min-h-screen grid lg:grid-cols-[240px_1fr]\">\n      <aside className=\"border-r p-4\">\n        <nav className=\"space-y-2\">\n          <Link href=\"/workspace/overview\">Overview</Link>\n          <Link href=\"/workspace/projects\">Projects</Link>\n          <Link href=\"/workspace/settings\">Settings</Link>\n        </nav>\n      </aside>\n      <div>\n        <header className=\"border-b p-4\">Workspace</header>\n        <main className=\"p-4\">{children}</main>\n      </div>\n    </div>\n  );\n}",
+      "output": "Reusable dashboard layout for nested routes with a consistent shell."
+    },
+    {
+      "level": "Medium",
+      "question": "Create product listing page using server fetch + client sort controls.",
+      "code": "// app/catalog/page.jsx\nimport SortControls from './sort-controls';\n\nexport default async function CatalogPage({ searchParams }) {\n  const sort = searchParams?.sort || 'popular';\n  const res = await fetch(`https://dummyjson.com/products?limit=12`, { next: { revalidate: 120 } });\n  const data = await res.json();\n\n  return (\n    <section className=\"space-y-4\">\n      <SortControls current={sort} />\n      <div className=\"grid gap-4 sm:grid-cols-2 lg:grid-cols-3\">\n        {data.products.map((p) => (\n          <article key={p.id} className=\"rounded-xl border p-3\">\n            <h3 className=\"font-semibold\">{p.title}</h3>\n            <p className=\"text-sm text-slate-600\">${p.price}</p>\n          </article>\n        ))}\n      </div>\n    </section>\n  );\n}",
+      "output": "Server-rendered catalog with URL-based sorting controls."
+    },
+    {
+      "level": "Hard",
+      "question": "Build settings page with server action form and revalidation.",
+      "code": "// app/settings/actions.js\n'use server';\n\nimport { revalidatePath } from 'next/cache';\n\nexport async function updateProfile(formData) {\n  const name = formData.get('name');\n  // await db.profile.update({ name })\n  revalidatePath('/settings');\n  return { ok: true };\n}\n\n// app/settings/page.jsx\nimport { updateProfile } from './actions';\n\nexport default function SettingsPage() {\n  return (\n    <form action={updateProfile} className=\"max-w-md space-y-3\">\n      <input name=\"name\" placeholder=\"Name\" className=\"w-full rounded border px-3 py-2\" />\n      <button className=\"rounded bg-black px-4 py-2 text-white\">Save</button>\n    </form>\n  );\n}",
+      "output": "Settings form submits through server action and refreshes page data safely."
+    },
+    {
+      "level": "Hard",
+      "question": "Implement split-view support inbox with server message list and client detail pane.",
+      "code": "// app/inbox/page.jsx\nimport TicketPane from './ticket-pane';\n\nexport default async function InboxPage() {\n  const tickets = [\n    { id: 1, subject: 'Billing issue' },\n    { id: 2, subject: 'Login failure' }\n  ];\n\n  return (\n    <div className=\"grid gap-4 lg:grid-cols-[320px_1fr]\">\n      <aside className=\"rounded border p-3\">\n        {tickets.map((t) => <a key={t.id} href={`?ticket=${t.id}`} className=\"block rounded p-2 hover:bg-slate-100\">{t.subject}</a>)}\n      </aside>\n      <TicketPane />\n    </div>\n  );\n}",
+      "output": "Support inbox with route-driven selection and responsive split-view layout."
+    },
+    {
+      "level": "Very Hard",
+      "question": "Build multi-step checkout with progress persistence and guarded transitions.",
+      "code": "// app/checkout/page.jsx\nimport { cookies } from 'next/headers';\n\nconst steps = ['shipping', 'payment', 'review'];\n\nexport default async function CheckoutPage({ searchParams }) {\n  const current = searchParams?.step || 'shipping';\n  const cookieStore = await cookies();\n  const draft = cookieStore.get('checkoutDraft')?.value || '{}';\n\n  return (\n    <section className=\"space-y-4\">\n      <ol className=\"flex gap-2 text-sm\">\n        {steps.map((s) => <li key={s} className={s === current ? 'font-bold' : 'text-slate-500'}>{s}</li>)}\n      </ol>\n      <pre className=\"rounded bg-slate-900 p-3 text-xs text-slate-100\">{draft}</pre>\n      <div className=\"rounded border p-4\">Current step: {current}</div>\n    </section>\n  );\n}",
+      "output": "Checkout flow with step indicator and persisted draft state for reliable user recovery."
+    }
+  ]
+}
+

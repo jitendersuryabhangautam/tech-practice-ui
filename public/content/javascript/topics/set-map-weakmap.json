@@ -1,0 +1,155 @@
+{
+  "id": "set-map-weakmap",
+  "title": "Set, Map, WeakMap & WeakSet",
+  "description": "Learn modern JavaScript data structures — Set, Map, WeakMap, WeakSet — their use cases, differences from objects/arrays, and memory management.",
+  "explanation": "ES6 introduced four collection types that solve specific problems plain objects and arrays can't.\n\nSet — a collection of unique values:\n- No duplicates (uses SameValueZero algorithm, like === but NaN === NaN)\n- Preserves insertion order\n- Methods: add(), delete(), has(), clear(), forEach()\n- Iterable: can use for...of, spread, destructuring\n- Property: size (not length)\n- Use for: removing duplicates, fast lookup, set operations (union, intersection)\n\nMap — key-value pairs with any key type:\n- Keys can be ANY type (objects, functions, primitives) — unlike objects (string/symbol keys only)\n- Preserves insertion order\n- Methods: set(), get(), has(), delete(), clear(), forEach()\n- Property: size\n- Better than objects when: keys aren't strings, you need ordered iteration, you frequently add/remove entries\n\nWeakMap — Map with weakly held object keys:\n- Keys must be objects (or symbols)\n- Keys are held weakly — if no other reference exists, the key/value pair is garbage collected\n- NOT iterable, no size property, no clear()\n- Methods: set(), get(), has(), delete()\n- Use for: private data, caching, DOM node metadata\n\nWeakSet — Set with weakly held object values:\n- Values must be objects\n- Weakly held — garbage collected when no other references\n- NOT iterable, no size, no clear()\n- Methods: add(), has(), delete()\n- Use for: tracking objects (visited nodes, tagged objects)\n\nWeak collections prevent memory leaks — they don't prevent garbage collection of their entries.",
+  "code": "// Set\nconst set = new Set([1, 2, 3, 2, 1]);\nconsole.log(set.size);      // 3 (duplicates removed)\nset.add(4);\nset.delete(1);\nconsole.log(set.has(2));    // true\nconsole.log([...set]);      // [2, 3, 4]\n\n// Remove duplicates from array\nconst unique = [...new Set([1, 2, 2, 3, 3, 3])]; // [1, 2, 3]\n\n// Set operations\nconst a = new Set([1, 2, 3]);\nconst b = new Set([2, 3, 4]);\nconst union = new Set([...a, ...b]);     // {1,2,3,4}\nconst intersection = new Set([...a].filter(x => b.has(x))); // {2,3}\nconst difference = new Set([...a].filter(x => !b.has(x)));  // {1}\n\n// Map\nconst map = new Map();\nmap.set('key', 'value');\nmap.set(42, 'number key');\nmap.set({}, 'object key');\nconsole.log(map.get('key'));   // 'value'\nconsole.log(map.size);         // 3\n\n// Map from entries\nconst m = new Map([['a', 1], ['b', 2]]);\nfor (const [key, val] of m) {\n  console.log(`${key}: ${val}`);\n}",
+  "example": "// WeakMap for private data\nconst privateData = new WeakMap();\nclass User {\n  constructor(name, password) {\n    this.name = name;\n    privateData.set(this, { password });\n  }\n  checkPassword(attempt) {\n    return privateData.get(this).password === attempt;\n  }\n}\nconst user = new User('Alice', 'secret');\nconsole.log(user.name);              // 'Alice'\nconsole.log(user.password);           // undefined (private!)\nconsole.log(user.checkPassword('secret')); // true\n\n// WeakMap for caching\nconst cache = new WeakMap();\nfunction expensiveOperation(obj) {\n  if (cache.has(obj)) return cache.get(obj);\n  const result = /* heavy computation */ JSON.stringify(obj);\n  cache.set(obj, result);\n  return result;\n}\n\n// WeakSet for tracking\nconst visited = new WeakSet();\nfunction processNode(node) {\n  if (visited.has(node)) return; // Already processed\n  visited.add(node);\n  // Process node...\n}",
+  "useCase": "Deduplication, fast lookups, caching, private data, DOM metadata, frequency counting, set operations (union/intersection), preventing memory leaks",
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What is the output?\nconst s = new Set([1, 2, 3, 2, 1, 3]);\nconsole.log(s.size);\nconsole.log([...s]);",
+      "answer": "3, then [1, 2, 3] — Set removes duplicates, preserves insertion order"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst m = new Map();\nm.set('a', 1);\nm.set('b', 2);\nm.set('a', 3);\nconsole.log(m.size);\nconsole.log(m.get('a'));",
+      "answer": "2, 3 — Setting same key 'a' again overwrites the value. Size stays 2."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst s = new Set();\ns.add(NaN);\ns.add(NaN);\nconsole.log(s.size);\nconsole.log(s.has(NaN));",
+      "answer": "1, true — Set treats NaN as equal to NaN (SameValueZero algorithm), unlike ==="
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst s = new Set();\ns.add({});\ns.add({});\nconsole.log(s.size);",
+      "answer": "2 — Each {} is a different object reference. Set compares by reference for objects."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst m = new Map();\nconst key1 = { id: 1 };\nconst key2 = { id: 1 };\nm.set(key1, 'a');\nm.set(key2, 'b');\nconsole.log(m.size);\nconsole.log(m.get(key1));\nconsole.log(m.get({ id: 1 }));",
+      "answer": "2, 'a', undefined — Map uses reference equality for object keys. key1 ≠ key2 ≠ new {id:1}"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst obj = {};\nobj[1] = 'a';\nobj['1'] = 'b';\nconsole.log(Object.keys(obj).length);\n\nconst map = new Map();\nmap.set(1, 'a');\nmap.set('1', 'b');\nconsole.log(map.size);",
+      "answer": "1, then 2 — Object converts keys to strings (1 and '1' are same). Map keeps key types separate."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst s = new Set([1, 2, 3, 4, 5]);\nconst result = [...s].filter(x => x % 2 === 0);\nconsole.log(result);",
+      "answer": "[2, 4] — Spread Set to array, then filter for even numbers"
+    },
+    {
+      "type": "concept",
+      "question": "Why can't WeakMap and WeakSet be iterated?",
+      "answer": "Because their entries are weakly held — they can be garbage collected at any time. If you could iterate, the entries might appear/disappear unpredictably. The GC schedule is non-deterministic, so allowing iteration would create inconsistent behavior."
+    },
+    {
+      "type": "concept",
+      "question": "When would you use a Map over a plain object?",
+      "answer": "Use Map when: (1) keys are not strings/symbols, (2) you need to preserve insertion order for iteration, (3) you frequently add/delete keys (Map is optimized for this), (4) you need the size property, (5) you don't want prototype pollution."
+    },
+    {
+      "type": "concept",
+      "question": "How does WeakMap help prevent memory leaks?",
+      "answer": "WeakMap holds keys weakly — if the object key has no other references, both the key and value are garbage collected. Without WeakMap, storing metadata about objects in a regular Map/object keeps those objects alive forever, causing memory leaks."
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "// Remove duplicates\nconst arr = [1, 'a', 2, 'a', 3, 1, 2];\nconsole.log([...new Set(arr)].join(', '));",
+      "expectedOutput": "1, a, 2, 3",
+      "explanation": "Set removes duplicates, spread converts back to array. Works with mixed types."
+    },
+    {
+      "program": "// Word frequency counter\nconst text = 'the cat sat on the mat the cat';\nconst freq = new Map();\ntext.split(' ').forEach(word => {\n  freq.set(word, (freq.get(word) || 0) + 1);\n});\nfor (const [word, count] of freq) {\n  console.log(`${word}: ${count}`);\n}",
+      "expectedOutput": "the: 3\ncat: 2\nsat: 1\non: 1\nmat: 1",
+      "explanation": "Map as frequency counter — preserves insertion order of first occurrence"
+    },
+    {
+      "program": "// Set operations\nconst a = new Set([1, 2, 3, 4]);\nconst b = new Set([3, 4, 5, 6]);\n\nconst union = new Set([...a, ...b]);\nconst intersection = new Set([...a].filter(x => b.has(x)));\nconst difference = new Set([...a].filter(x => !b.has(x)));\n\nconsole.log('Union:', [...union].join(', '));\nconsole.log('Intersection:', [...intersection].join(', '));\nconsole.log('Difference:', [...difference].join(', '));",
+      "expectedOutput": "Union: 1, 2, 3, 4, 5, 6\nIntersection: 3, 4\nDifference: 1, 2",
+      "explanation": "Classic set operations using Set with spread and filter"
+    },
+    {
+      "program": "// Map for caching function results\nconst cache = new Map();\nfunction fibonacci(n) {\n  if (cache.has(n)) return cache.get(n);\n  const result = n <= 1 ? n : fibonacci(n - 1) + fibonacci(n - 2);\n  cache.set(n, result);\n  return result;\n}\nconsole.log(fibonacci(10));\nconsole.log(fibonacci(20));\nconsole.log('Cache size:', cache.size);",
+      "expectedOutput": "55\n6765\nCache size: 21",
+      "explanation": "Memoization with Map — caches fibonacci results for instant subsequent lookups"
+    },
+    {
+      "program": "// Group by using Map\nconst people = [\n  { name: 'Alice', dept: 'eng' },\n  { name: 'Bob', dept: 'sales' },\n  { name: 'Carol', dept: 'eng' },\n  { name: 'Dave', dept: 'sales' },\n];\nconst grouped = new Map();\nfor (const p of people) {\n  if (!grouped.has(p.dept)) grouped.set(p.dept, []);\n  grouped.get(p.dept).push(p.name);\n}\nfor (const [dept, names] of grouped) {\n  console.log(`${dept}: ${names.join(', ')}`);\n}",
+      "expectedOutput": "eng: Alice, Carol\nsales: Bob, Dave",
+      "explanation": "Map for grouping — each key maps to an array of values"
+    },
+    {
+      "program": "// Two-way Map (bidirectional lookup)\nclass BiMap {\n  #forward = new Map();\n  #reverse = new Map();\n  set(key, value) { this.#forward.set(key, value); this.#reverse.set(value, key); }\n  get(key) { return this.#forward.get(key); }\n  getKey(value) { return this.#reverse.get(value); }\n}\nconst codes = new BiMap();\ncodes.set('US', 'United States');\ncodes.set('UK', 'United Kingdom');\nconsole.log(codes.get('US'));\nconsole.log(codes.getKey('United Kingdom'));",
+      "expectedOutput": "United States\nUK",
+      "explanation": "Bidirectional map — lookup by key or by value in O(1) time"
+    },
+    {
+      "program": "// Using Map to index objects\nconst users = [\n  { id: 1, name: 'Alice' },\n  { id: 2, name: 'Bob' },\n  { id: 3, name: 'Carol' }\n];\nconst byId = new Map(users.map(u => [u.id, u]));\nconsole.log(byId.get(2).name);\nconsole.log(byId.has(4));",
+      "expectedOutput": "Bob\nfalse",
+      "explanation": "Map created from array of [key, value] pairs — instant O(1) lookup by ID"
+    },
+    {
+      "program": "// Set as seen-tracker for array intersection\nfunction intersect(arr1, arr2) {\n  const set1 = new Set(arr1);\n  return arr2.filter(x => set1.has(x));\n}\nconsole.log(intersect([1,2,3,4,5], [3,4,5,6,7]).join(', '));",
+      "expectedOutput": "3, 4, 5",
+      "explanation": "Converting one array to Set for O(1) lookups makes intersection O(n) instead of O(n²)"
+    },
+    {
+      "program": "// Map iteration methods\nconst m = new Map([['a', 1], ['b', 2], ['c', 3]]);\nconsole.log([...m.keys()].join(', '));\nconsole.log([...m.values()].join(', '));\nconsole.log([...m.entries()].map(([k,v]) => `${k}=${v}`).join(', '));",
+      "expectedOutput": "a, b, c\n1, 2, 3\na=1, b=2, c=3",
+      "explanation": "Map provides keys(), values(), entries() iterators — all preserve insertion order"
+    },
+    {
+      "program": "// Converting between Map and Object\nconst obj = { x: 1, y: 2, z: 3 };\nconst map = new Map(Object.entries(obj));\nconsole.log(map.get('y'));\n\nconst backToObj = Object.fromEntries(map);\nconsole.log(JSON.stringify(backToObj));",
+      "expectedOutput": "2\n{\"x\":1,\"y\":2,\"z\":3}",
+      "explanation": "Object.entries → Map, Map → Object.fromEntries. Round-trip conversion."
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between Map and a plain object?",
+      "answer": "Map: any key type, ordered, has size property, no prototype keys, optimized for frequent additions/deletions, iterable. Object: string/symbol keys only, enumeration order is complex, no size, has prototype chain, better for fixed known keys, JSON-compatible."
+    },
+    {
+      "question": "What is the difference between Set and an Array?",
+      "answer": "Set: unique values only, has O(1) has() check, no index access, no duplicates allowed. Array: allows duplicates, O(n) includes() check, index access, ordered with push/pop/shift. Use Set for uniqueness checks, Array for ordered collections with duplicates."
+    },
+    {
+      "question": "What is a WeakMap and why is it useful?",
+      "answer": "WeakMap holds object keys weakly — when the key object has no other references, the entry is garbage collected. Useful for: storing private data per object, caching without memory leaks, associating metadata with DOM nodes. Not iterable, no size property."
+    },
+    {
+      "question": "How does Set determine if two values are equal?",
+      "answer": "Set uses the SameValueZero algorithm: like === but treats NaN as equal to NaN. For objects, it uses reference equality (same reference = same value). Two different objects with identical properties are considered different in a Set."
+    },
+    {
+      "question": "What is the difference between WeakMap and Map?",
+      "answer": "Map: any key type, strongly held, iterable, has size. WeakMap: object/symbol keys only, weakly held (GC-eligible), not iterable, no size, no clear(). Use Map for general key-value storage, WeakMap when you want automatic cleanup when keys are dereferenced."
+    },
+    {
+      "question": "How would you implement a cache that doesn't cause memory leaks?",
+      "answer": "Use WeakMap with objects as keys: when the object is garbage collected, the cached value is too. For primitive keys, use Map with an eviction strategy (LRU, TTL). WeakRef + FinalizationRegistry can also help with advanced caching scenarios."
+    },
+    {
+      "question": "What are the new Set methods proposed in ES2025?",
+      "answer": "Set is getting proper set operation methods: .union(other), .intersection(other), .difference(other), .symmetricDifference(other), .isSubsetOf(other), .isSupersetOf(other), .isDisjointFrom(other). These return new Sets and work with any iterable."
+    },
+    {
+      "question": "When would you use WeakSet over Set?",
+      "answer": "WeakSet when: (1) tracking objects without preventing GC (e.g., visited nodes in a graph), (2) tagging objects (e.g., marking DOM elements as processed), (3) checking if an object belongs to a group. Can't iterate WeakSet, so use Set when you need to list all values."
+    },
+    {
+      "question": "Can you convert a Map to JSON and back?",
+      "answer": "Not directly — JSON.stringify(map) gives '{}'. Convert first: JSON.stringify([...map]) serializes as array of pairs. To restore: new Map(JSON.parse(json)). Only works if keys and values are JSON-compatible (not objects)."
+    },
+    {
+      "question": "What is the performance difference between Map/Set and Object/Array?",
+      "answer": "Map.has()/Set.has(): O(1) average. Array.includes(): O(n). Object property access: O(1) average. Map/Set are optimized for frequent add/delete. Objects are optimized for fixed-shape property access. For large collections with frequent membership tests, Set/Map are significantly faster."
+    }
+  ]
+}

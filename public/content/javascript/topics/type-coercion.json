@@ -1,0 +1,155 @@
+{
+  "id": "type-coercion",
+  "title": "Type Coercion & Equality",
+  "description": "Understand JavaScript's type conversion rules — implicit vs explicit coercion, == vs ===, truthy/falsy values, and common interview gotchas.",
+  "explanation": "JavaScript is dynamically typed and performs automatic type conversion (coercion) in many situations.\n\nTwo types of coercion:\n1. Explicit (intentional): Number('5'), String(42), Boolean(0), parseInt('10px')\n2. Implicit (automatic): '5' + 3, '5' - 3, if(value), ==\n\n== (loose equality) vs === (strict equality):\n- === checks value AND type without any conversion\n- == performs type coercion before comparing:\n  - null == undefined → true (special case)\n  - Number vs String → String is converted to Number\n  - Boolean involved → Boolean is converted to Number first\n  - Object vs primitive → Object is converted via ToPrimitive (valueOf/toString)\n\nTruthy vs Falsy:\n- Falsy values (only 8): false, 0, -0, 0n (BigInt), '', null, undefined, NaN\n- Everything else is truthy, including: '0', 'false', [], {}, function(){}\n\nThe + operator:\n- If either operand is a string → string concatenation\n- Otherwise → numeric addition\n- Objects are converted via ToPrimitive: valueOf() first, then toString()\n- Unary +value converts to Number\n\nCommon gotchas:\n- [] + [] → '' (arrays become empty strings)\n- [] + {} → '[object Object]'\n- {} + [] → 0 (block statement + unary plus)\n- null + 1 → 1 (null becomes 0)\n- undefined + 1 → NaN (undefined becomes NaN)\n- typeof null → 'object' (historical bug)\n- NaN !== NaN (use Number.isNaN())",
+  "code": "// Explicit coercion\nconsole.log(Number('42'));      // 42\nconsole.log(Number(''));        // 0\nconsole.log(Number(true));      // 1\nconsole.log(Number(null));      // 0\nconsole.log(Number(undefined)); // NaN\nconsole.log(Number('abc'));     // NaN\n\nconsole.log(String(42));        // '42'\nconsole.log(String(null));      // 'null'\nconsole.log(String(undefined)); // 'undefined'\n\nconsole.log(Boolean(0));        // false\nconsole.log(Boolean(''));       // false\nconsole.log(Boolean('0'));      // true (non-empty string!)\nconsole.log(Boolean([]));       // true (object!)\nconsole.log(Boolean({}));       // true\n\n// Implicit coercion\nconsole.log('5' + 3);     // '53' (string concat)\nconsole.log('5' - 3);     // 2 (numeric subtraction)\nconsole.log(true + true); // 2 (booleans to numbers)\nconsole.log('5' == 5);    // true (string coerced to number)\nconsole.log(null == undefined); // true (special rule)\nconsole.log(null === undefined); // false (different types)",
+  "example": "// Common interview gotchas\nconsole.log([] == false);     // true: [] → '' → 0, false → 0\nconsole.log([] == ![]);       // true: ![] is false, [] → 0, false → 0\nconsole.log('' == false);     // true: '' → 0, false → 0\nconsole.log(' \\t\\n' == 0);    // true: whitespace string → 0\n\n// typeof checks\nconsole.log(typeof 42);        // 'number'\nconsole.log(typeof 'str');     // 'string'\nconsole.log(typeof true);      // 'boolean'\nconsole.log(typeof undefined); // 'undefined'\nconsole.log(typeof null);      // 'object' (bug!)\nconsole.log(typeof []);        // 'object'\nconsole.log(typeof {});        // 'object'\nconsole.log(typeof function(){}); // 'function'\n\n// Safe null check\nconsole.log(null == undefined);  // true\nconsole.log(null == 0);          // false (null only == undefined)\nconsole.log(null == '');         // false\n// Use == null to check for null OR undefined:\nfunction isNullish(x) { return x == null; }",
+  "useCase": "Debugging type-related bugs, writing defensive code, understanding comparison operators, interview preparation, safe equality checks",
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(1 + '2' + 3);",
+      "answer": "'123' — 1+'2' produces '12' (string concat), then '12'+3 produces '123'"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(+'5' + 3);",
+      "answer": "8 — Unary + converts '5' to number 5, then 5+3=8"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log([] + []);\nconsole.log([] + {});\nconsole.log({} + []);",
+      "answer": "'' (empty string), '[object Object]', '[object Object]' — Arrays/objects convert to strings for + operator. Note: {} + [] in a REPL may output 0 if {} is parsed as a block."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(null == undefined);\nconsole.log(null === undefined);\nconsole.log(null == 0);\nconsole.log(null == false);",
+      "answer": "true, false, false, false — null only loosely equals undefined (special rule). null does NOT coerce to 0 with =="
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(NaN === NaN);\nconsole.log(NaN == NaN);\nconsole.log(Number.isNaN(NaN));\nconsole.log(Number.isNaN('abc'));",
+      "answer": "false, false, true, false — NaN is never equal to itself. Number.isNaN checks if value IS NaN (not just 'not a number')"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(true + true + true);\nconsole.log(true + 'false');",
+      "answer": "3, 'truefalse' — true→1 for addition. But true+'false' is string concatenation"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(0 == false);\nconsole.log('' == false);\nconsole.log('0' == false);\nconsole.log([] == false);",
+      "answer": "true, true, true, true — All coerce to 0 on both sides"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(!!'');\nconsole.log(!!'0');\nconsole.log(!!0);\nconsole.log(!!null);\nconsole.log(!!undefined);\nconsole.log(!!NaN);",
+      "answer": "false, true, false, false, false, false — '' is falsy, '0' is truthy (non-empty string), rest are falsy values"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(3 > 2 > 1);",
+      "answer": "false — Parsed left to right: (3>2)>1 → true>1 → 1>1 → false"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(typeof typeof 42);",
+      "answer": "'string' — typeof 42 is 'number' (a string). typeof 'number' is 'string'"
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "console.log('5' - 3);\nconsole.log('5' + 3);\nconsole.log('5' - - '3');",
+      "expectedOutput": "2\n53\n8",
+      "explanation": "Minus forces number conversion: 5-3=2. Plus with string: concatenation '53'. Double minus: 5-(-3)=8"
+    },
+    {
+      "program": "console.log(1 < 2 < 3);\nconsole.log(3 > 2 > 1);",
+      "expectedOutput": "true\nfalse",
+      "explanation": "1<2→true(1), 1<3→true. 3>2→true(1), 1>1→false. Left-to-right evaluation with boolean coercion."
+    },
+    {
+      "program": "const a = [1, 2, 3];\nconst b = [1, 2, 3];\nconsole.log(a == b);\nconsole.log(a === b);\nconsole.log(JSON.stringify(a) === JSON.stringify(b));",
+      "expectedOutput": "false\nfalse\ntrue",
+      "explanation": "Arrays are objects — == and === compare references, not values. Stringify for value comparison."
+    },
+    {
+      "program": "console.log(+'');\nconsole.log(+' ');\nconsole.log(+true);\nconsole.log(+false);\nconsole.log(+null);\nconsole.log(+undefined);\nconsole.log(+[]);\nconsole.log(+{});",
+      "expectedOutput": "0\n0\n1\n0\n0\nNaN\n0\nNaN",
+      "explanation": "Unary +: empty/space→0, bool→0/1, null→0, undefined→NaN, []→''→0, {}→NaN"
+    },
+    {
+      "program": "console.log(0.1 + 0.2 === 0.3);\nconsole.log((0.1 + 0.2).toFixed(1) === '0.3');\nconsole.log(Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON);",
+      "expectedOutput": "false\ntrue\ntrue",
+      "explanation": "IEEE 754 floating point: 0.1+0.2=0.30000000000000004. Use toFixed or epsilon comparison."
+    },
+    {
+      "program": "const values = [0, '', null, undefined, NaN, false, '0', [], {}, 'false'];\nconsole.log('Falsy:', values.filter(v => !v).length);\nconsole.log('Truthy:', values.filter(v => !!v).length);",
+      "expectedOutput": "Falsy: 6\nTruthy: 4",
+      "explanation": "Falsy: 0, '', null, undefined, NaN, false (6). Truthy: '0', [], {}, 'false' (4)"
+    },
+    {
+      "program": "console.log(null + 1);\nconsole.log(undefined + 1);\nconsole.log('' + 1);\nconsole.log(null + '');",
+      "expectedOutput": "1\nNaN\n1\nnull",
+      "explanation": "null→0 for math. undefined→NaN. ''+1→'1' (string concat). null+''→'null' (string concat)"
+    },
+    {
+      "program": "console.log(typeof null);\nconsole.log(typeof undefined);\nconsole.log(typeof NaN);\nconsole.log(typeof [1,2]);\nconsole.log(typeof function(){});",
+      "expectedOutput": "object\nundefined\nnumber\nobject\nfunction",
+      "explanation": "typeof null is 'object' (bug). NaN is type 'number'. Arrays are 'object'. Functions get special 'function' type."
+    },
+    {
+      "program": "console.log([] == ![]);\nconsole.log([] == false);\nconsole.log(![] == false);",
+      "expectedOutput": "true\ntrue\nfalse",
+      "explanation": "![]=false. []==false: []→''→0, false→0, 0==0. ![]==false: false==false→true. Wait — ![] is false, and false==false is true, so output is true."
+    },
+    {
+      "program": "console.log(Object.is(NaN, NaN));\nconsole.log(Object.is(0, -0));\nconsole.log(Object.is(0, +0));\nconsole.log(0 === -0);",
+      "expectedOutput": "true\nfalse\ntrue\ntrue",
+      "explanation": "Object.is is like === but handles two edge cases differently: NaN===NaN is true, 0===-0 is false."
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between == and ===?",
+      "answer": "=== (strict equality) checks both value and type without conversion. == (loose equality) performs type coercion before comparing. Use === by default unless you specifically need coercion (like `x == null` to check both null and undefined)."
+    },
+    {
+      "question": "What are all the falsy values in JavaScript?",
+      "answer": "There are 8 falsy values: false, 0, -0, 0n (BigInt zero), '' (empty string), null, undefined, NaN. Everything else is truthy, including '0', 'false', [], {}, and functions."
+    },
+    {
+      "question": "Why is typeof null === 'object'?",
+      "answer": "This is a historical bug from the first version of JavaScript. In the original implementation, values were stored with a type tag, and null's tag was 0 (same as objects). This can't be fixed without breaking existing code. Use `value === null` for null checks."
+    },
+    {
+      "question": "How does the + operator decide between concatenation and addition?",
+      "answer": "If either operand is a string, + performs string concatenation. Otherwise, it converts both to numbers and adds. Objects are converted via ToPrimitive (valueOf then toString). This is why '5'+3='53' but '5'-3=2 (minus always does numeric conversion)."
+    },
+    {
+      "question": "What is the difference between null and undefined?",
+      "answer": "undefined means a variable was declared but not assigned, or a missing function parameter/return value. null is an intentional 'no value' assignment. typeof undefined is 'undefined', typeof null is 'object'. null == undefined is true, null === undefined is false."
+    },
+    {
+      "question": "Why is NaN !== NaN and how do you check for NaN?",
+      "answer": "NaN is 'Not a Number' but its type is 'number'. By IEEE 754 spec, NaN is not equal to anything, including itself. Check with: Number.isNaN(value) (preferred) or Object.is(value, NaN). Avoid isNaN() which coerces its argument first."
+    },
+    {
+      "question": "What does Object.is() do differently from ===?",
+      "answer": "Object.is is almost identical to === with two exceptions: Object.is(NaN, NaN) returns true (=== returns false), and Object.is(0, -0) returns false (=== returns true). It provides the 'same value' comparison."
+    },
+    {
+      "question": "Explain implicit type coercion with examples.",
+      "answer": "JS automatically converts types: '5'-3→2 (string to number), if('hello')→true (string to boolean), [1]+[2]→'12' (arrays to strings). The rules depend on the operator: + prefers strings, -, *, / always convert to numbers. == coerces types to match."
+    },
+    {
+      "question": "What is the ToPrimitive abstract operation?",
+      "answer": "When an object needs to be converted to a primitive, JS calls ToPrimitive. It tries valueOf() first (for numeric context) or toString() first (for string context). If neither returns a primitive, TypeError is thrown. You can customize it with Symbol.toPrimitive."
+    },
+    {
+      "question": "How would you safely check if a value is a valid number?",
+      "answer": "Use: typeof value === 'number' && !Number.isNaN(value) && Number.isFinite(value). Or: Number.isFinite(value) alone (rejects NaN, Infinity, strings). Avoid: isNaN() (coerces strings), typeof NaN === 'number' (true but misleading)."
+    }
+  ]
+}

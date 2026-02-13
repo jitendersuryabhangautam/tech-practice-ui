@@ -2,12 +2,12 @@
   {
     "question": "What is a Pod in Kubernetes?",
     "options": [
-      "A container",
       "The smallest deployable unit that can contain one or more containers",
+      "A container",
       "A type of storage",
       "A network interface"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "A Pod is the smallest and simplest Kubernetes object. It represents a single instance of a running process and can contain one or more tightly coupled containers that share network and storage."
   },
   {
@@ -24,34 +24,34 @@
   {
     "question": "What is the purpose of a Service in Kubernetes?",
     "options": [
-      "To provide a stable endpoint to access Pods",
-      "To store data",
       "To build images",
+      "To store data",
+      "To provide a stable endpoint to access Pods",
       "To monitor resources"
     ],
-    "correctAnswer": 0,
+    "correctAnswer": 2,
     "explanation": "A Service provides a stable network endpoint to access a set of Pods. Even as Pods are created and destroyed, the Service maintains a consistent way to reach your application."
   },
   {
     "question": "What does kubectl apply do?",
     "options": [
       "Deletes resources",
-      "Creates or updates resources from a configuration file",
+      "Backs up the cluster",
       "Restarts containers",
-      "Backs up the cluster"
+      "Creates or updates resources from a configuration file"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "'kubectl apply' creates new resources or updates existing ones based on the configuration in a file. It's declarative and idempotent, making it safe to run multiple times."
   },
   {
     "question": "What is a ConfigMap used for?",
     "options": [
-      "To store sensitive data",
       "To store non-sensitive configuration data as key-value pairs",
+      "To store sensitive data",
       "To create deployments",
       "To monitor resources"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "ConfigMaps store non-sensitive configuration data in key-value pairs. They allow you to decouple configuration from container images, making applications more portable."
   },
   {
@@ -69,33 +69,33 @@
     "question": "What does 'kubectl get pods -o wide' show compared to regular 'kubectl get pods'?",
     "options": [
       "The same information",
-      "Additional details like node placement and IP addresses",
       "Only running pods",
+      "Additional details like node placement and IP addresses",
       "Fewer details"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "The '-o wide' flag provides additional details including the node each Pod is running on, Pod IP addresses, and nominated nodes, which is useful for debugging and monitoring."
   },
   {
     "question": "What is Kubernetes?",
     "options": [
       "A container runtime",
-      "An open-source container orchestration platform",
+      "An operating system",
       "A programming language",
-      "An operating system"
+      "An open-source container orchestration platform"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "Kubernetes (K8s) is an open-source container orchestration platform that automates deployment, scaling, and management of containerized applications across clusters of hosts."
   },
   {
     "question": "What is a Node in Kubernetes?",
     "options": [
-      "A container",
       "A worker machine (VM or physical) that runs Pods",
+      "A container",
       "A network node",
       "A data node"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "A Node is a worker machine (virtual or physical) in Kubernetes that runs Pods. Each node contains services necessary to run Pods: kubelet, container runtime, and kube-proxy."
   },
   {
@@ -113,33 +113,33 @@
     "question": "What is the Control Plane?",
     "options": [
       "A dashboard",
-      "Components that manage cluster state and make scheduling decisions",
       "A control interface",
+      "Components that manage cluster state and make scheduling decisions",
       "A monitoring tool"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "The Control Plane manages the Kubernetes cluster, making global decisions (scheduling), detecting and responding to events. Includes API server, scheduler, controller manager, and etcd."
   },
   {
     "question": "What is kubectl?",
     "options": [
       "A container",
-      "Command-line tool for interacting with Kubernetes clusters",
+      "A config file",
       "A cluster manager",
-      "A config file"
+      "Command-line tool for interacting with Kubernetes clusters"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "kubectl is the command-line tool for communicating with Kubernetes API server. It allows you to deploy applications, inspect resources, view logs, and manage cluster operations."
   },
   {
     "question": "What does kubectl get pods do?",
     "options": [
-      "Creates pods",
       "Lists all Pods in the current namespace",
+      "Creates pods",
       "Deletes pods",
       "Updates pods"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "kubectl get pods lists all Pods in the current namespace showing name, status, restarts, and age. Use -A or --all-namespaces to see pods across all namespaces."
   },
   {
@@ -156,34 +156,34 @@
   {
     "question": "What is the default namespace?",
     "options": [
-      "default",
-      "default namespace for objects without other namespace",
       "kube-system",
+      "default namespace for objects without other namespace",
+      "default",
       "public"
     ],
-    "correctAnswer": 0,
+    "correctAnswer": 2,
     "explanation": "The 'default' namespace is where objects are placed when no other namespace is specified. Kubernetes also has kube-system, kube-public, and kube-node-lease namespaces."
   },
   {
     "question": "What does kubectl describe do?",
     "options": [
       "Describes use cases",
-      "Shows detailed information about a resource",
+      "Lists resources",
       "Creates descriptions",
-      "Lists resources"
+      "Shows detailed information about a resource"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "kubectl describe provides detailed information about a resource including events, conditions, and configuration. More detailed than kubectl get. Example: kubectl describe pod my-pod."
   },
   {
     "question": "What is a ReplicaSet?",
     "options": [
-      "A set of replicas",
       "Ensures specified number of Pod replicas are running",
+      "A set of replicas",
       "A data replica",
       "A backup set"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "ReplicaSet ensures a specified number of Pod replicas are running at any time. Usually managed by Deployment. Creates/deletes Pods to maintain desired replica count."
   },
   {
@@ -201,33 +201,33 @@
     "question": "What does kubectl logs do?",
     "options": [
       "Creates logs",
-      "Prints container logs from a Pod",
       "Views system logs",
+      "Prints container logs from a Pod",
       "Deletes logs"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "kubectl logs retrieves logs from a container in a Pod. Use -f to follow logs, -c to specify container in multi-container pod, --previous for previous container instance."
   },
   {
     "question": "What does kubectl exec do?",
     "options": [
       "Executes commands",
-      "Runs a command inside a container in a Pod",
+      "Creates executables",
       "Executes pods",
-      "Creates executables"
+      "Runs a command inside a container in a Pod"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "kubectl exec executes commands in a container. kubectl exec -it pod-name -- /bin/bash opens interactive shell. Useful for debugging and troubleshooting."
   },
   {
     "question": "What is a Label in Kubernetes?",
     "options": [
-      "A name tag",
       "Key-value pairs attached to objects for identification and selection",
+      "A name tag",
       "A text label",
       "A description"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "Labels are key-value pairs attached to objects like Pods. Used to organize and select subsets of objects. Selectors use labels to query and filter resources."
   },
   {
@@ -245,33 +245,33 @@
     "question": "What is an Annotation?",
     "options": [
       "A note",
-      "Non-identifying metadata attached to objects",
       "A label",
+      "Non-identifying metadata attached to objects",
       "A comment"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Annotations are key-value pairs for attaching arbitrary non-identifying metadata. Unlike labels, not used for selection. Used for tooling, libraries, or user information."
   },
   {
     "question": "What are the types of Services?",
     "options": [
       "Only ClusterIP",
-      "ClusterIP, NodePort, LoadBalancer, ExternalName",
+      "Public and Private",
       "Internal and External",
-      "Public and Private"
+      "ClusterIP, NodePort, LoadBalancer, ExternalName"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "Service types: ClusterIP (internal only, default), NodePort (exposes on node port), LoadBalancer (cloud load balancer), ExternalName (DNS CNAME)."
   },
   {
     "question": "What is ClusterIP Service?",
     "options": [
-      "IP address",
       "Service accessible only within cluster on internal IP",
+      "IP address",
       "Cluster address",
       "External IP"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "ClusterIP is the default Service type. Exposes Service on internal IP within cluster. Only reachable from within cluster, not from outside."
   },
   {
@@ -289,33 +289,33 @@
     "question": "What is LoadBalancer Service?",
     "options": [
       "Load balancing tool",
-      "Exposes Service via cloud provider's load balancer",
       "Internal balancer",
+      "Exposes Service via cloud provider's load balancer",
       "Traffic distributor"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "LoadBalancer creates external load balancer (in supported cloud providers) and assigns external IP. Automatically creates NodePort and ClusterIP Services."
   },
   {
     "question": "What is a DaemonSet?",
     "options": [
       "A daemon process",
-      "Ensures all or selected Nodes run a copy of a Pod",
+      "Background task",
       "System service",
-      "Background task"
+      "Ensures all or selected Nodes run a copy of a Pod"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "DaemonSet ensures all (or some) Nodes run a copy of a Pod. As nodes are added/removed, Pods are added/removed. Used for node monitoring, logging, storage daemons."
   },
   {
     "question": "What is a StatefulSet?",
     "options": [
-      "Stateful application",
       "Manages stateful applications with stable identity and storage",
+      "Stateful application",
       "State manager",
       "Static set"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "StatefulSet is for stateful applications requiring stable network identity, stable persistent storage, and ordered deployment/scaling. Used for databases, queues."
   },
   {
@@ -333,33 +333,33 @@
     "question": "What is a Job?",
     "options": [
       "Work task",
-      "Creates Pods to run a task to completion",
       "Cron job",
+      "Creates Pods to run a task to completion",
       "Batch job"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Job creates one or more Pods and ensures specified number successfully complete. Used for batch processing, one-time tasks. Tracks successful completions."
   },
   {
     "question": "What is a CronJob?",
     "options": [
       "Cron scheduler",
-      "Creates Jobs on repeating schedule",
+      "Scheduled task",
       "Time-based job",
-      "Scheduled task"
+      "Creates Jobs on repeating schedule"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "CronJob creates Jobs on a repeating schedule written in Cron format. Used for periodic tasks like backups, report generation, sending emails."
   },
   {
     "question": "What is a Volume in Kubernetes?",
     "options": [
-      "Storage volume",
       "Directory accessible to containers in a Pod",
+      "Storage volume",
       "Disk volume",
       "Data volume"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "Volume is a directory accessible to containers in a Pod. Comes in many types (emptyDir, hostPath, PersistentVolume). Data persists across container restarts."
   },
   {
@@ -377,33 +377,33 @@
     "question": "What is a PersistentVolumeClaim (PVC)?",
     "options": [
       "Volume request",
-      "Request for storage by a user/Pod",
       "Claim ticket",
+      "Request for storage by a user/Pod",
       "Storage claim"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "PVC is a request for storage by user. Claims can request specific size and access modes. Kubernetes binds PVC to matching PV. Pods use PVCs to access storage."
   },
   {
     "question": "What is a StorageClass?",
     "options": [
       "Storage type",
-      "Describes storage profiles and enables dynamic provisioning",
+      "Disk class",
       "Storage category",
-      "Disk class"
+      "Describes storage profiles and enables dynamic provisioning"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "StorageClass describes storage 'classes' (performance tiers) and enables dynamic provisioning of PersistentVolumes. Admins can offer different classes (fast SSD, slow HDD)."
   },
   {
     "question": "What are volume access modes?",
     "options": [
-      "Read and Write",
       "ReadWriteOnce, ReadOnlyMany, ReadWriteMany, ReadWriteOncePod",
+      "Read and Write",
       "Public and Private",
       "Local and Remote"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "Access modes: ReadWriteOnce (RWO - single node R/W), ReadOnlyMany (ROX - many nodes read-only), ReadWriteMany (RWX - many nodes R/W), ReadWriteOncePod (RWOP - single pod)."
   },
   {
@@ -421,33 +421,33 @@
     "question": "What is an Ingress Controller?",
     "options": [
       "Traffic controller",
-      "Component that fulfills Ingress rules (e.g., nginx, traefik)",
       "Network controller",
+      "Component that fulfills Ingress rules (e.g., nginx, traefik)",
       "API controller"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Ingress Controller is a component that fulfills Ingress rules. Not started automatically. Popular controllers: nginx, traefik, HAProxy, Kong. Reads Ingress resources and configures routing."
   },
   {
     "question": "What is a NetworkPolicy?",
     "options": [
       "Network rules",
-      "Specification for controlling network traffic between Pods",
+      "Network configuration",
       "Firewall policy",
-      "Network configuration"
+      "Specification for controlling network traffic between Pods"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "NetworkPolicy controls traffic flow at IP address or port level. Acts like firewall rules for Pods. Requires network plugin that supports NetworkPolicies (Calico, Cilium)."
   },
   {
     "question": "What does kubectl delete do?",
     "options": [
-      "Deletes files",
       "Deletes resources from cluster",
+      "Deletes files",
       "Removes containers",
       "Clears cache"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "kubectl delete removes resources from cluster. Can delete by file (kubectl delete -f file.yaml), by resource name, or by label selector. Use --grace-period for controlled shutdown."
   },
   {
@@ -465,33 +465,33 @@
     "question": "What is a Horizontal Pod Autoscaler (HPA)?",
     "options": [
       "Pod scaler",
-      "Automatically scales number of Pods based on metrics",
       "Horizontal scaling",
+      "Automatically scales number of Pods based on metrics",
       "Auto-balancer"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "HPA automatically scales replica count based on observed metrics (CPU, memory, custom metrics). Periodically queries metrics and adjusts replicas to meet target."
   },
   {
     "question": "What is a Vertical Pod Autoscaler (VPA)?",
     "options": [
       "Vertical scaling",
-      "Automatically adjusts CPU and memory requests/limits for containers",
+      "Resource adjuster",
       "Pod resizer",
-      "Resource adjuster"
+      "Automatically adjusts CPU and memory requests/limits for containers"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "VPA automatically sets resource requests and limits for containers based on usage. Frees users from setting resource requirements. Can update running Pods or just provide recommendations."
   },
   {
     "question": "What is a LimitRange?",
     "options": [
-      "Resource limits",
       "Policy to constrain resource allocations per Pod/Container in namespace",
+      "Resource limits",
       "Range limit",
       "Boundary setting"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "LimitRange constrains resource allocation (CPU, memory) per Pod or Container. Sets default requests/limits and enforces min/max values in a namespace."
   },
   {
@@ -509,33 +509,33 @@
     "question": "What does kubectl rollout status do?",
     "options": [
       "Rolls out updates",
-      "Shows status of a rollout",
       "Creates rollout",
+      "Shows status of a rollout",
       "Stops rollout"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "kubectl rollout status shows the status of a rollout. kubectl rollout status deployment/nginx watches rollout until completion. Useful for CI/CD pipelines."
   },
   {
     "question": "What does kubectl rollout undo do?",
     "options": [
       "Undoes changes",
-      "Rolls back to previous revision",
+      "Cancels deployment",
       "Removes rollout",
-      "Cancels deployment"
+      "Rolls back to previous revision"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "kubectl rollout undo rolls back to previous revision. Can specify revision with --to-revision. Useful when new deployment has issues. View history with rollout history."
   },
   {
     "question": "What does kubectl rollout restart do?",
     "options": [
-      "Restarts cluster",
       "Triggers rolling restart of Pods",
+      "Restarts cluster",
       "Reboots nodes",
       "Restarts service"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "kubectl rollout restart triggers a rolling restart of all Pods managed by resource without changing configuration. Useful for picking up ConfigMap/Secret changes."
   },
   {
@@ -553,33 +553,33 @@
     "question": "What is a Liveness Probe?",
     "options": [
       "Life check",
-      "Checks if container is alive, restarts if fails",
       "Status check",
+      "Checks if container is alive, restarts if fails",
       "Running check"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Liveness Probe checks if container is running. If probe fails, kubelet kills and restarts container. Used to detect deadlocks or unresponsive applications."
   },
   {
     "question": "What is a Readiness Probe?",
     "options": [
       "Ready check",
-      "Checks if container is ready to serve traffic",
+      "Service check",
       "Startup check",
-      "Service check"
+      "Checks if container is ready to serve traffic"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "Readiness Probe checks if container is ready to serve requests. If fails, Pod is removed from Service endpoints (stops receiving traffic). Used during startup or when overloaded."
   },
   {
     "question": "What is a Startup Probe?",
     "options": [
-      "Start check",
       "Checks if container application has started",
+      "Start check",
       "Boot check",
       "Initialize check"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "Startup Probe checks if application has started. Disables liveness/readiness probes until succeeds. Useful for slow-starting containers to avoid premature restarts."
   },
   {
@@ -597,33 +597,33 @@
     "question": "What is a Taint?",
     "options": [
       "Node contamination",
-      "Node property that repels Pods unless they tolerate it",
       "Node label",
+      "Node property that repels Pods unless they tolerate it",
       "Node defect"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Taint is applied to Nodes to repel Pods. Pods must have matching Toleration to be scheduled on tainted Node. Used for dedicated nodes, special hardware, node maintenance."
   },
   {
     "question": "What is a Toleration?",
     "options": [
       "Pod tolerance",
-      "Pod property allowing scheduling on Nodes with matching Taints",
+      "Permission",
       "Node acceptance",
-      "Permission"
+      "Pod property allowing scheduling on Nodes with matching Taints"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "Toleration is applied to Pods, allowing (but not requiring) them to schedule onto Nodes with matching Taints. Works with Taints to ensure Pods schedule on appropriate Nodes."
   },
   {
     "question": "What are Taint effects?",
     "options": [
-      "Side effects",
       "NoSchedule, PreferNoSchedule, NoExecute",
+      "Side effects",
       "Taint levels",
       "Impact types"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "Taint effects: NoSchedule (don't schedule new Pods), PreferNoSchedule (try not to schedule), NoExecute (evict existing Pods without toleration). Controls scheduling behavior."
   },
   {
@@ -641,33 +641,33 @@
     "question": "What is Pod Affinity?",
     "options": [
       "Pod friendship",
-      "Rules for co-locating Pods based on labels",
       "Pod grouping",
+      "Rules for co-locating Pods based on labels",
       "Pod attraction"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Pod Affinity allows specifying that Pods should be co-located (scheduled on same Node or zone) with other Pods matching label selector. Useful for performance."
   },
   {
     "question": "What is Pod Anti-Affinity?",
     "options": [
       "Pod dislike",
-      "Rules for spreading Pods across Nodes/zones",
+      "Pod repulsion",
       "Pod separation",
-      "Pod repulsion"
+      "Rules for spreading Pods across Nodes/zones"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "Pod Anti-Affinity specifies that Pods should not be co-located with other Pods matching selector. Used for high availability, spreading replicas across failure domains."
   },
   {
     "question": "What is a ServiceAccount?",
     "options": [
-      "Service user",
       "Identity for processes running in Pods",
+      "Service user",
       "User account",
       "API account"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "ServiceAccount provides identity for processes running in Pods. Used for authentication to API server. Automatically mounted into Pods. Different from user accounts."
   },
   {
@@ -685,33 +685,33 @@
     "question": "What is a Role in RBAC?",
     "options": [
       "User role",
-      "Set of permissions within a namespace",
       "Job role",
+      "Set of permissions within a namespace",
       "Security role"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Role contains rules defining permissions (verbs like get, list, create) on resources within a namespace. Grants permissions, never denies. Use RoleBinding to assign."
   },
   {
     "question": "What is a ClusterRole?",
     "options": [
       "Cluster user",
-      "Set of permissions across entire cluster",
+      "Global role",
       "Admin role",
-      "Global role"
+      "Set of permissions across entire cluster"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "ClusterRole is like Role but cluster-scoped. Can grant access to cluster-scoped resources (nodes, PVs), non-resource endpoints, or resources across all namespaces."
   },
   {
     "question": "What is a RoleBinding?",
     "options": [
-      "Role assignment",
       "Grants Role permissions to users/groups/ServiceAccounts in a namespace",
+      "Role assignment",
       "Role connection",
       "Permission link"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "RoleBinding grants permissions defined in a Role to users, groups, or ServiceAccounts within a namespace. Binds a Role or ClusterRole to subjects."
   },
   {
@@ -729,33 +729,33 @@
     "question": "What is etcd?",
     "options": [
       "Configuration tool",
-      "Distributed key-value store for cluster data",
       "Database",
+      "Distributed key-value store for cluster data",
       "Cache system"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "etcd is a consistent, distributed key-value store that stores all cluster data. It's the backing store for all Kubernetes cluster data. Critical component to backup."
   },
   {
     "question": "What is the kube-apiserver?",
     "options": [
       "API endpoint",
-      "Front-end for Kubernetes control plane, exposes Kubernetes API",
+      "API gateway",
       "Web server",
-      "API gateway"
+      "Front-end for Kubernetes control plane, exposes Kubernetes API"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "kube-apiserver is the front end for Kubernetes control plane. Exposes Kubernetes API. All other components communicate through it. Horizontally scalable."
   },
   {
     "question": "What is the kube-scheduler?",
     "options": [
-      "Task scheduler",
       "Selects Nodes for newly created Pods",
+      "Task scheduler",
       "Job scheduler",
       "Time scheduler"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "kube-scheduler watches for newly created Pods with no assigned Node and selects a Node for them to run on. Factors: resource requirements, constraints, affinity, data locality."
   },
   {
@@ -773,33 +773,33 @@
     "question": "What is the cloud-controller-manager?",
     "options": [
       "Cloud manager",
-      "Runs cloud-specific controller logic",
       "Cloud interface",
+      "Runs cloud-specific controller logic",
       "Cloud connector"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "cloud-controller-manager embeds cloud-specific control logic. Allows linking cluster to cloud provider API. Manages Node, Route, Service, Volume controllers for cloud."
   },
   {
     "question": "What is kubelet?",
     "options": [
       "Small cube",
-      "Agent running on each Node, ensures containers are running in Pods",
+      "Network agent",
       "Container runtime",
-      "Network agent"
+      "Agent running on each Node, ensures containers are running in Pods"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "kubelet is an agent running on each Node. Ensures containers described in PodSpecs are running and healthy. Communicates with control plane. Manages container lifecycle."
   },
   {
     "question": "What is kube-proxy?",
     "options": [
-      "Proxy server",
       "Network proxy running on each Node, maintains network rules",
+      "Proxy server",
       "API proxy",
       "Load balancer"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "kube-proxy is a network proxy running on each Node. Maintains network rules allowing communication to Pods from inside/outside cluster. Implements Service abstraction."
   },
   {
@@ -817,33 +817,33 @@
     "question": "What does kubectl create vs kubectl apply do?",
     "options": [
       "Same thing",
-      "create is imperative (errors if exists), apply is declarative (creates or updates)",
       "create is faster",
+      "create is imperative (errors if exists), apply is declarative (creates or updates)",
       "apply is deprecated"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "kubectl create is imperative and errors if resource exists. kubectl apply is declarative, creates if doesn't exist or updates if exists. apply is preferred for GitOps."
   },
   {
     "question": "What is a Helm chart?",
     "options": [
       "Navigation chart",
-      "Package of Kubernetes resources with templating",
+      "Configuration file",
       "Graph chart",
-      "Configuration file"
+      "Package of Kubernetes resources with templating"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "Helm chart is a package of pre-configured Kubernetes resources. Contains templates and values for deploying applications. Helm is package manager for Kubernetes."
   },
   {
     "question": "What does kubectl port-forward do?",
     "options": [
-      "Forwards ports",
       "Forwards local port to port on Pod for debugging",
+      "Forwards ports",
       "Opens ports",
       "Tunnels traffic"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "kubectl port-forward forwards local port to port on Pod. Used for debugging and testing without exposing Service. Example: kubectl port-forward pod/nginx 8080:80."
   },
   {
@@ -861,33 +861,33 @@
     "question": "What is the metrics-server?",
     "options": [
       "Metrics endpoint",
-      "Cluster-wide aggregator of resource usage data",
       "Monitoring server",
+      "Cluster-wide aggregator of resource usage data",
       "Statistics server"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "metrics-server collects resource metrics from kubelets and exposes them through Metrics API. Required for kubectl top and HPA. Lightweight, in-memory, short-term metrics."
   },
   {
     "question": "What is the difference between requests and limits?",
     "options": [
       "No difference",
-      "Requests are guaranteed resources, limits are maximum allowed",
+      "Requests are maximum",
       "Limits are minimum",
-      "Requests are maximum"
+      "Requests are guaranteed resources, limits are maximum allowed"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "Requests: minimum resources guaranteed to container. Limits: maximum resources container can use. Scheduler uses requests for placement. Container throttled/killed if exceeds limits."
   },
   {
     "question": "What happens when a Pod exceeds memory limit?",
     "options": [
-      "Nothing",
       "Pod is OOMKilled (Out of Memory killed)",
+      "Nothing",
       "Memory is expanded",
       "Warning only"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "When Pod exceeds memory limit, it's OOMKilled (terminated due to Out Of Memory). Status shows OOMKilled. May be restarted based on restart policy."
   },
   {
@@ -905,33 +905,33 @@
     "question": "What is a PodDisruptionBudget (PDB)?",
     "options": [
       "Budget limit",
-      "Limits number of Pods that can be down during voluntary disruptions",
       "Cost budget",
+      "Limits number of Pods that can be down during voluntary disruptions",
       "Resource budget"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "PDB limits number of Pods of replicated application that are down simultaneously from voluntary disruptions (maintenance, upgrades). Ensures minimum availability during disruptions."
   },
   {
     "question": "What are init containers?",
     "options": [
       "Initial containers",
-      "Specialized containers that run before app containers in Pod",
+      "Bootstrap containers",
       "Setup containers",
-      "Bootstrap containers"
+      "Specialized containers that run before app containers in Pod"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "Init containers run before app containers in Pod, run to completion sequentially. Used for setup tasks, waiting for dependencies, pre-population. If fails, Pod restarts."
   },
   {
     "question": "What are sidecar containers?",
     "options": [
-      "Side containers",
       "Helper containers running alongside main container in Pod",
+      "Side containers",
       "Secondary containers",
       "Support containers"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "Sidecar containers run alongside main container in Pod, sharing resources. Common patterns: logging agents, monitoring agents, proxies. Example: service mesh sidecars."
   },
   {
@@ -949,33 +949,33 @@
     "question": "What is an Operator?",
     "options": [
       "System administrator",
-      "Method of packaging and managing Kubernetes application with domain knowledge",
       "User role",
+      "Method of packaging and managing Kubernetes application with domain knowledge",
       "Control operator"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Operator is method of packaging, deploying, and managing Kubernetes application. Extends Kubernetes using CRDs and controllers, encoding domain knowledge for managing complex applications."
   },
   {
     "question": "What does kubectl drain do?",
     "options": [
       "Drains water",
-      "Safely evicts Pods from Node for maintenance",
+      "Empties node",
       "Removes resources",
-      "Empties node"
+      "Safely evicts Pods from Node for maintenance"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "kubectl drain safely evicts Pods from Node, marking it as unschedulable. Used before Node maintenance. Respects PDBs. Use kubectl uncordon to make schedulable again."
   },
   {
     "question": "What does kubectl cordon do?",
     "options": [
-      "Blocks node",
       "Marks Node as unschedulable (no new Pods)",
+      "Blocks node",
       "Isolates node",
       "Seals node"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "kubectl cordon marks Node as unschedulable, preventing new Pods from being scheduled. Existing Pods continue running. Use uncordon to reverse. Less disruptive than drain."
   },
   {
@@ -993,33 +993,33 @@
     "question": "What are Pod Security Standards?",
     "options": [
       "Security guidelines",
-      "Replacement for PSP: Privileged, Baseline, Restricted levels",
       "Security requirements",
+      "Replacement for PSP: Privileged, Baseline, Restricted levels",
       "Compliance standards"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Pod Security Standards replace PSP with three levels: Privileged (unrestricted), Baseline (minimally restrictive), Restricted (heavily restricted). Enforced via admission controller."
   },
   {
     "question": "What is a Quality of Service (QoS) class?",
     "options": [
       "Service quality",
-      "Classification of Pods (Guaranteed, Burstable, BestEffort) based on resources",
+      "Priority level",
       "Performance class",
-      "Priority level"
+      "Classification of Pods (Guaranteed, Burstable, BestEffort) based on resources"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "QoS class determines Pod eviction order under resource pressure. Three classes: Guaranteed (requests=limits), Burstable (some requests/limits), BestEffort (no requests/limits)."
   },
   {
     "question": "What is a PriorityClass?",
     "options": [
-      "Priority level",
       "Defines priority value for Pods affecting scheduling and eviction order",
+      "Priority level",
       "Class priority",
       "Importance level"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "PriorityClass defines priority value assigned to Pods. Higher priority Pods are scheduled first and less likely to be evicted. Used for critical system components."
   },
   {
@@ -1037,33 +1037,33 @@
     "question": "What is a Finalizer?",
     "options": [
       "Last step",
-      "Keys preventing deletion until specific conditions met",
       "Cleanup function",
+      "Keys preventing deletion until specific conditions met",
       "Termination handler"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 2,
     "explanation": "Finalizers are keys preventing resource deletion until removed. Allow controllers to implement asynchronous pre-delete hooks. Object stuck in deletion until finalizers cleared."
   },
   {
     "question": "What is the difference between kubectl create and kubectl run?",
     "options": [
       "No difference",
-      "create creates resources from file/stdin, run creates and runs single Pod",
+      "create is faster",
       "run is deprecated",
-      "create is faster"
+      "create creates resources from file/stdin, run creates and runs single Pod"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 3,
     "explanation": "kubectl create creates resources from file/stdin (generic). kubectl run creates and runs a particular image, typically for quick Pod creation or testing."
   },
   {
     "question": "What does kubectl explain do?",
     "options": [
-      "Explains concepts",
       "Shows documentation for resource fields",
+      "Explains concepts",
       "Provides help",
       "Describes usage"
     ],
-    "correctAnswer": 1,
+    "correctAnswer": 0,
     "explanation": "kubectl explain shows documentation for resource fields. Example: kubectl explain pod.spec.containers. Helps discover available fields and their types. Like inline documentation."
   },
   {

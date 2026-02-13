@@ -26,6 +26,26 @@
     {
       "question": "What is best practice for top-level async flows?",
       "answer": "Keep async boundaries explicit, handle cancellation/timeouts, and always surface actionable errors."
+    },
+    {
+      "question": "What is top-level await?",
+      "answer": "ES2022 allows await at the top level of ES modules (not scripts). The module pauses until the promise resolves. Importing modules wait for it too. Useful for config loading, DB init. Available in Node.js with ESM."
+    },
+    {
+      "question": "How do you run async operations in parallel vs sequentially?",
+      "answer": "Sequential: for (const item of items) { await process(item); }. Parallel: await Promise.all(items.map(item => process(item))). Sequential is needed when operations depend on each other; parallel is faster for independent operations."
+    },
+    {
+      "question": "What does an async function return if you don't explicitly return?",
+      "answer": "A Promise that resolves with undefined. Every async function returns a Promise, even if it contains no await. async function f() {} returns a Promise<undefined>."
+    },
+    {
+      "question": "Can you use await with non-Promise values?",
+      "answer": "Yes. await wraps non-Promise values with Promise.resolve(). So 'await 5' resolves to 5. But it still defers execution to the next microtask, so there's a small performance overhead."
+    },
+    {
+      "question": "How do you handle errors in multiple parallel async operations?",
+      "answer": "Use Promise.allSettled() instead of Promise.all() to get results of all operations regardless of individual failures. Or wrap each promise in a try/catch helper: items.map(async item => { try { return await fn(item); } catch (e) { return { error: e }; } })."
     }
   ],
   "exercises": [
@@ -63,7 +83,8 @@
     },
     {
       "type": "implement",
-      "question": "Implement fetchJson(url) with async/await and !ok error throw."
+      "question": "Implement a retry wrapper that retries an async function up to N times.",
+      "code": "async function retry(fn, n) { for (let i = 0; i < n; i++) { try { return await fn(); } catch(e) { if (i === n-1) throw e; } } }"
     },
     {
       "type": "implement",
@@ -71,8 +92,8 @@
     },
     {
       "type": "debug",
-      "question": "Unhandled rejection still occurs even with try/catch. Why?",
-      "answer": "Promise was not awaited inside try block or function caller did not await/catch."
+      "question": "async forEach with await doesn't wait for all items. Why?",
+      "answer": "forEach doesn't await the callback's return promise. Use for...of loop instead, or map with Promise.all for parallel execution."
     },
     {
       "type": "debug",

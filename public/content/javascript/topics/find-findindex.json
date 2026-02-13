@@ -3,7 +3,7 @@
   "title": "Array.find() & findIndex()",
   "category": "Array Methods",
   "description": "find() returns the first element that satisfies the condition. findIndex() returns its index.",
-  "explanation": "find() returns the first element that satisfies the condition. findIndex() returns its index.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "explanation": "Array.find() returns the FIRST element that satisfies the testing function. Array.findIndex() returns the INDEX of that element.\n\nSyntax:\n- array.find(callback(element, index, array))\n- array.findIndex(callback(element, index, array))\n\nReturn values:\n- find(): the element if found, undefined if not found\n- findIndex(): the index if found, -1 if not found\n\nKey characteristics:\n- Both short-circuit — stop searching after first match (efficient!)\n- find vs filter: find returns ONE element, filter returns ALL matches\n- findIndex vs indexOf: findIndex takes a callback (complex conditions), indexOf checks strict equality (simple value lookup)\n\nSafe usage patterns:\n- Nullish coalescing: const user = users.find(u => u.id === id) ?? defaultUser\n- Optional chaining: users.find(u => u.active)?.name\n- Guard clause: const idx = arr.findIndex(pred); if (idx === -1) return;\n\nRelated methods:\n- findLast() / findLastIndex(): search from end (ES2023)\n- some(): returns boolean (just existence check)\n- includes(): checks value equality (no callback)\n\nPerformance: O(n) worst case, but short-circuits on first match.",
   "implementation": "const users = [\n  {id: 1, name: 'John'},\n  {id: 2, name: 'Jane'}\n];\nconst user = users.find(u => u.id === 2);\nconst index = users.findIndex(u => u.id === 2);",
   "example": "const numbers = [5, 12, 8, 130, 44];\nconst found = numbers.find(n => n > 10); // 12\nconst foundIndex = numbers.findIndex(n => n > 10); // 1",
   "useCase": "Searching specific items, locating array positions",
@@ -27,6 +27,26 @@
     {
       "question": "What is an interview follow-up after find?",
       "answer": "Compare with some/every and explain short-circuit behavior and intent."
+    },
+    {
+      "question": "What is the difference between findIndex and indexOf?",
+      "answer": "indexOf searches by value using strict equality (===). findIndex takes a callback for complex conditions. Use indexOf for primitives, findIndex for objects or complex checks."
+    },
+    {
+      "question": "What are findLast and findLastIndex?",
+      "answer": "ES2023 methods that search from the END of the array. findLast returns the last matching element, findLastIndex returns its index. Useful when you want the most recent match."
+    },
+    {
+      "question": "How do you safely use the result of find?",
+      "answer": "Always handle undefined: use optional chaining (result?.prop), nullish coalescing (result ?? default), or explicit if-check. Never assume find will always match."
+    },
+    {
+      "question": "Can find/findIndex mutate the original array?",
+      "answer": "The methods don't mutate, but the callback CAN mutate elements since objects are passed by reference inside the callback. This is generally bad practice."
+    },
+    {
+      "question": "How would you implement find using reduce?",
+      "answer": "arr.reduce((found, el) => found !== undefined ? found : (pred(el) ? el : undefined), undefined). However, reduce can't short-circuit, so find is more efficient."
     }
   ],
   "exercises": [
@@ -78,8 +98,8 @@
     },
     {
       "type": "debug",
-      "question": "Using findIndex result directly without -1 check causes bug. Fix?",
-      "answer": "Guard for -1 before using as array index."
+      "question": "find() returns a reference to the original object. Mutating it changes the source array. How to avoid?",
+      "answer": "Clone the result: const result = {...arr.find(predicate)} or use structuredClone for deep copy."
     }
   ],
   "programExercises": [

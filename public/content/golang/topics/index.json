@@ -1,5 +1,11 @@
 [
   {
+    "id": "real-world-service-challenges",
+    "file": "topics/real-world-service-challenges.json",
+    "title": "Real-World Go Service Challenges (100+ Practical Drills)",
+    "category": "Real-World Service Challenges"
+  },
+  {
     "id": "syntax",
     "file": "topics/syntax.json",
     "title": "Basic Syntax & Types",

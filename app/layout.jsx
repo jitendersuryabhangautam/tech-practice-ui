@@ -1,6 +1,7 @@
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
+import FloatingCharacters from "@/components/FloatingCharacters";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 
 const spaceGrotesk = Space_Grotesk({
@@ -18,6 +19,13 @@ export const metadata = {
   title: "Tech Revision Platform",
   description:
     "Comprehensive platform for revising JavaScript, React, Next.js, Golang, PostgreSQL, Docker, and Kubernetes",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -27,8 +35,9 @@ export default function RootLayout({ children }) {
         className={`${spaceGrotesk.variable} ${plexMono.variable} antialiased`}
       >
         <ThemeProvider>
+          <FloatingCharacters />
           <ThemeToggle />
-          {children}
+          <div className="relative z-10">{children}</div>
         </ThemeProvider>
       </body>
     </html>

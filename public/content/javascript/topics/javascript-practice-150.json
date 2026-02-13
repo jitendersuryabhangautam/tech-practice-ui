@@ -1,8 +1,8 @@
 {
   "id": "javascript-practice-150",
   "title": "JavaScript Practice Hub (150+ Exercises)",
-  "description": "A complete JavaScript practice bank with 150 guided exercises and 80 program drills spanning fundamentals to interview-level scenarios.",
-  "explanation": "Use this section for bulk practice similar to PostgreSQL extended drills. Solve by category, review output predictions, then implement/refactor/debug under time constraints. The exercises intentionally rotate between coding, reasoning, and debugging to simulate interview pressure.",
+  "description": "A cross-topic JavaScript practice bank with output prediction, implementation, and debugging exercises spanning closures, async, prototypes, coercion, and more.",
+  "explanation": "This section combines exercises from multiple JavaScript topics into a mixed practice format. Unlike individual topic pages that focus on one concept, these exercises require you to identify which concept is being tested and apply the right knowledge. This simulates real interview conditions where questions jump between topics.\n\nRecommended workflow:\n1. Pick 10 exercises at random\n2. Time yourself (3-5 min per exercise)\n3. Explain your reasoning out loud (interview practice)\n4. Review wrong answers by visiting the relevant topic page\n5. Re-attempt after 24 hours for spaced repetition",
   "implementation": "// Suggested workflow\n// 1) Pick 10 exercises by mixed types\n// 2) Solve with time limit (5-10 min each)\n// 3) Re-solve missed ones without notes\n// 4) Convert best solutions to reusable utilities",
   "example": "// Quick warm-up\nconst arr = [1, 2, 3, 4, 5];\nconst evens = arr.filter(n => n % 2 === 0);\nconst doubled = evens.map(n => n * 2);\nconsole.log(doubled); // [4, 8]",
   "useCase": "Interview preparation, frontend screening rounds, DSA-lite JavaScript practice, and core language mastery.",
@@ -31,829 +31,154 @@
   ],
   "exercises": [
     {
-      "type": "implement",
-      "question": "Exercise 1: Solve a arrays problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "type": "output",
+      "question": "What is the output?\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
+      "answer": "3, 3, 3 â€” var is function-scoped, all callbacks share the same i which is 3 after the loop"
     },
     {
       "type": "output",
-      "question": "Exercise 2: Solve a objects problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 3: Solve a functions problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 4: Solve a closures problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 5: Solve a scope problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 6: Solve a hoisting problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 7: Solve a promises problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconsole.log(typeof null);\nconsole.log(typeof undefined);\nconsole.log(null == undefined);\nconsole.log(null === undefined);",
+      "answer": "object, undefined, true, false â€” typeof null is a historical bug. null loosely equals undefined."
     },
     {
       "type": "output",
-      "question": "Exercise 8: Solve a async-await problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 9: Solve a event-loop problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 10: Solve a timers problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 11: Solve a map problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 12: Solve a filter problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 13: Solve a reduce problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconst a = { x: 1 };\nconst b = { x: 1 };\nconsole.log(a === b);\nconsole.log(a == b);",
+      "answer": "false, false â€” Objects are compared by reference, not by value. a and b are different objects."
     },
     {
       "type": "output",
-      "question": "Exercise 14: Solve a find problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 15: Solve a sort problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 16: Solve a sets problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 17: Solve a maps problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 18: Solve a destructuring problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 19: Solve a spread-rest problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconsole.log(1 + '2' + 3);\nconsole.log(1 + 2 + '3');",
+      "answer": "'123', '33' â€” First: 1+'2'='12', '12'+3='123'. Second: 1+2=3, 3+'3'='33'."
     },
     {
       "type": "output",
-      "question": "Exercise 20: Solve a currying problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 21: Solve a debounce problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 22: Solve a throttle problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 23: Solve a local-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 24: Solve a session-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 25: Solve a json problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nfunction foo() {\n  console.log(this);\n}\nconst obj = { foo };\nobj.foo();\nconst fn = obj.foo;\nfn();",
+      "answer": "obj (implicit binding), then undefined in strict mode / window in non-strict (lost binding when assigned to variable)"
     },
     {
       "type": "output",
-      "question": "Exercise 26: Solve a error-handling problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 27: Solve a regex problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 28: Solve a dates problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 29: Solve a strings problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 30: Solve a numbers problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 31: Solve a arrays problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconsole.log('start');\nsetTimeout(() => console.log('timeout'), 0);\nPromise.resolve().then(() => console.log('promise'));\nconsole.log('end');",
+      "answer": "start, end, promise, timeout â€” Sync first, then microtasks (promise), then macrotasks (setTimeout)"
     },
     {
       "type": "output",
-      "question": "Exercise 32: Solve a objects problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 33: Solve a functions problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 34: Solve a closures problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 35: Solve a scope problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 36: Solve a hoisting problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 37: Solve a promises problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconst arr = [1, 2, 3];\narr[10] = 11;\nconsole.log(arr.length);\nconsole.log(arr.filter(x => x).length);",
+      "answer": "11, 4 â€” Array length is 11 (sparse). filter skips empty slots, so only 4 elements: 1,2,3,11"
     },
     {
       "type": "output",
-      "question": "Exercise 38: Solve a async-await problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 39: Solve a event-loop problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 40: Solve a timers problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 41: Solve a map problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 42: Solve a filter problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 43: Solve a reduce problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nlet x = 10;\nlet y = x;\nx = 20;\nconsole.log(x, y);",
+      "answer": "20, 10 â€” Primitives are copied by value. Changing x doesn't affect y."
     },
     {
       "type": "output",
-      "question": "Exercise 44: Solve a find problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 45: Solve a sort problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 46: Solve a sets problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 47: Solve a maps problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 48: Solve a destructuring problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 49: Solve a spread-rest problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconst obj = { a: 1, b: 2 };\nconst { a: x, b: y } = obj;\nconsole.log(x, y);",
+      "answer": "1, 2 â€” Destructuring with renaming: a is renamed to x, b to y."
     },
     {
       "type": "output",
-      "question": "Exercise 50: Solve a currying problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 51: Solve a debounce problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 52: Solve a throttle problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 53: Solve a local-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 54: Solve a session-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 55: Solve a json problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\n[] + [];\n[] + {};\n{} + [];",
+      "answer": "'' (empty string), '[object Object]', '[object Object]' â€” Arrays/objects convert via toString for + operator"
     },
     {
       "type": "output",
-      "question": "Exercise 56: Solve a error-handling problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 57: Solve a regex problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 58: Solve a dates problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 59: Solve a strings problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 60: Solve a numbers problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 61: Solve a arrays problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconst promise = new Promise((resolve) => {\n  console.log('A');\n  resolve();\n  console.log('B');\n});\npromise.then(() => console.log('C'));\nconsole.log('D');",
+      "answer": "A, B, D, C â€” Promise executor runs synchronously. resolve() doesn't stop execution. .then is a microtask."
     },
     {
       "type": "output",
-      "question": "Exercise 62: Solve a objects problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 63: Solve a functions problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 64: Solve a closures problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 65: Solve a scope problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 66: Solve a hoisting problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 67: Solve a promises problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nfunction createCounter() {\n  let count = 0;\n  return {\n    inc: () => ++count,\n    get: () => count\n  };\n}\nconst c = createCounter();\nc.inc(); c.inc(); c.inc();\nconsole.log(c.get());",
+      "answer": "3 â€” Closure captures count by reference. Three inc() calls increment to 3."
     },
     {
       "type": "output",
-      "question": "Exercise 68: Solve a async-await problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 69: Solve a event-loop problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 70: Solve a timers problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 71: Solve a map problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 72: Solve a filter problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 73: Solve a reduce problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconsole.log(0.1 + 0.2 === 0.3);\nconsole.log(0.1 + 0.2);",
+      "answer": "false, 0.30000000000000004 â€” IEEE 754 floating point precision issue"
     },
     {
       "type": "output",
-      "question": "Exercise 74: Solve a find problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 75: Solve a sort problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 76: Solve a sets problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 77: Solve a maps problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 78: Solve a destructuring problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 79: Solve a spread-rest problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconst arr = [1, 2, 3, 4, 5];\nconst [a, , b, ...rest] = arr;\nconsole.log(a, b, rest);",
+      "answer": "1, 3, [4, 5] â€” Destructuring: a=1, skip 2, b=3, rest collects remaining"
     },
     {
       "type": "output",
-      "question": "Exercise 80: Solve a currying problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 81: Solve a debounce problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 82: Solve a throttle problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 83: Solve a local-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 84: Solve a session-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 85: Solve a json problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nasync function test() {\n  return 1;\n}\nconsole.log(test());\nconsole.log(await test());",
+      "answer": "Promise { 1 }, then 1 â€” async always returns Promise. await unwraps it."
     },
     {
       "type": "output",
-      "question": "Exercise 86: Solve a error-handling problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 87: Solve a regex problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 88: Solve a dates problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 89: Solve a strings problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 90: Solve a numbers problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 91: Solve a arrays problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nclass Animal {\n  constructor(name) { this.name = name; }\n  speak() { return `${this.name} speaks`; }\n}\nclass Dog extends Animal {\n  speak() { return `${this.name} barks`; }\n}\nconsole.log(new Dog('Rex').speak());\nconsole.log(new Dog('Rex') instanceof Animal);",
+      "answer": "Rex barks, true â€” Dog overrides speak(). instanceof checks prototype chain."
     },
     {
       "type": "output",
-      "question": "Exercise 92: Solve a objects problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 93: Solve a functions problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 94: Solve a closures problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 95: Solve a scope problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 96: Solve a hoisting problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 97: Solve a promises problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconst s = new Set([1, 2, 3, 1, 2]);\nconsole.log(s.size);\ns.add(1);\nconsole.log(s.size);",
+      "answer": "3, 3 â€” Set removes duplicates. Adding existing value has no effect."
     },
     {
       "type": "output",
-      "question": "Exercise 98: Solve a async-await problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 99: Solve a event-loop problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 100: Solve a timers problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 101: Solve a map problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 102: Solve a filter problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 103: Solve a reduce problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\nconst m = new Map();\nm.set({}, 'a');\nm.set({}, 'b');\nconsole.log(m.size);",
+      "answer": "2 â€” Each {} creates a new object reference, so they're different keys."
     },
     {
       "type": "output",
-      "question": "Exercise 104: Solve a find problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 105: Solve a sort problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 106: Solve a sets problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 107: Solve a maps problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 108: Solve a destructuring problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 109: Solve a spread-rest problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
+      "question": "What is the output?\ntry {\n  throw new Error('oops');\n} catch (e) {\n  console.log(e.message);\n} finally {\n  console.log('done');\n}",
+      "answer": "oops, done â€” catch handles the error, finally always runs"
     },
     {
       "type": "output",
-      "question": "Exercise 110: Solve a currying problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 111: Solve a debounce problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 112: Solve a throttle problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 113: Solve a local-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 114: Solve a session-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
+      "question": "What is the output?\nconsole.log(Boolean(''));\nconsole.log(Boolean('0'));\nconsole.log(Boolean(0));\nconsole.log(Boolean([]));\nconsole.log(Boolean({}));",
+      "answer": "false, true, false, true, true â€” '' and 0 are falsy. '0', [], {} are truthy."
     },
     {
       "type": "implement",
-      "question": "Exercise 115: Solve a json problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
-    },
-    {
-      "type": "output",
-      "question": "Exercise 116: Solve a error-handling problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 117: Solve a regex problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 118: Solve a dates problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 119: Solve a strings problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 120: Solve a numbers problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
+      "question": "Implement a debounce function that delays execution until N ms after the last call.",
+      "answer": "function debounce(fn, ms) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); }; }"
     },
     {
       "type": "implement",
-      "question": "Exercise 121: Solve a arrays problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
-    },
-    {
-      "type": "output",
-      "question": "Exercise 122: Solve a objects problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 123: Solve a functions problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 124: Solve a closures problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 125: Solve a scope problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 126: Solve a hoisting problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
+      "question": "Implement a function that deep clones an object (handle objects, arrays, dates).",
+      "answer": "function deepClone(obj) { if (obj === null || typeof obj !== 'object') return obj; if (obj instanceof Date) return new Date(obj); if (Array.isArray(obj)) return obj.map(deepClone); return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, deepClone(v)])); }"
     },
     {
       "type": "implement",
-      "question": "Exercise 127: Solve a promises problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
-    },
-    {
-      "type": "output",
-      "question": "Exercise 128: Solve a async-await problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 129: Solve a event-loop problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 130: Solve a timers problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 131: Solve a map problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 132: Solve a filter problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
+      "question": "Implement Array.prototype.myMap without using the built-in map.",
+      "answer": "Array.prototype.myMap = function(cb) { const result = []; for (let i = 0; i < this.length; i++) { if (i in this) result[i] = cb(this[i], i, this); } return result; }"
     },
     {
       "type": "implement",
-      "question": "Exercise 133: Solve a reduce problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
-    },
-    {
-      "type": "output",
-      "question": "Exercise 134: Solve a find problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
-    },
-    {
-      "type": "debug",
-      "question": "Exercise 135: Solve a sort problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 136: Solve a sets problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 137: Solve a maps problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 138: Solve a destructuring problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
+      "question": "Implement a pipe function: pipe(fn1, fn2, fn3)(value) applies functions left to right.",
+      "answer": "const pipe = (...fns) => (x) => fns.reduce((v, fn) => fn(v), x);"
     },
     {
       "type": "implement",
-      "question": "Exercise 139: Solve a spread-rest problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
-    },
-    {
-      "type": "output",
-      "question": "Exercise 140: Solve a currying problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
+      "question": "Implement a function that flattens a nested array to any depth.",
+      "answer": "function flatten(arr, depth = Infinity) { return depth > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatten(val, depth - 1) : val), []) : arr.slice(); }"
     },
     {
       "type": "debug",
-      "question": "Exercise 141: Solve a debounce problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
-    },
-    {
-      "type": "refactor",
-      "question": "Exercise 142: Solve a throttle problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
-    },
-    {
-      "type": "scenario",
-      "question": "Exercise 143: Solve a local-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
-    },
-    {
-      "type": "theory",
-      "question": "Exercise 144: Solve a session-storage problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
-    },
-    {
-      "type": "implement",
-      "question": "Exercise 145: Solve a json problem using clean, interview-ready JavaScript.",
-      "hint": "Prefer small pure functions and clear naming."
-    },
-    {
-      "type": "output",
-      "question": "Exercise 146: Solve a error-handling problem using clean, interview-ready JavaScript.",
-      "hint": "Trace call stack, then microtasks, then macrotasks.",
-      "answer": "Explain exact output order with reasoning."
+      "question": "Bug: ['1','2','3'].map(parseInt) returns [1, NaN, NaN] instead of [1, 2, 3]. Why and how to fix?",
+      "answer": "parseInt receives (element, index) as arguments: parseInt('2', 1) is NaN (base 1 invalid). Fix: .map(s => parseInt(s, 10)) or .map(Number)"
     },
     {
       "type": "debug",
-      "question": "Exercise 147: Solve a regex problem using clean, interview-ready JavaScript.",
-      "hint": "Identify root cause first, then provide minimal fix.",
-      "answer": "Provide bug explanation and corrected snippet."
+      "question": "Bug: const obj = {a: 1}; const copy = {...obj}; copy.nested = obj.nested; â€” copy.nested changes when obj.nested changes. Why?",
+      "answer": "Spread is a shallow copy. Nested objects share references. Fix: use structuredClone(obj) or JSON parse/stringify for deep copy."
     },
     {
-      "type": "refactor",
-      "question": "Exercise 148: Solve a dates problem using clean, interview-ready JavaScript.",
-      "hint": "Preserve behavior and improve readability/performance."
+      "type": "debug",
+      "question": "Bug: async function fetchAll(urls) { urls.forEach(async url => { await fetch(url); }); console.log('done'); } â€” 'done' logs before fetches complete. Why?",
+      "answer": "forEach doesn't await async callbacks â€” it fires all and returns immediately. Fix: use for...of loop or await Promise.all(urls.map(url => fetch(url)))."
     },
     {
-      "type": "scenario",
-      "question": "Exercise 149: Solve a strings problem using clean, interview-ready JavaScript.",
-      "hint": "Explain trade-offs and production constraints."
+      "type": "concept",
+      "question": "Explain the difference between == and === with examples.",
+      "answer": "=== (strict equality) checks type and value without conversion. == (loose equality) coerces types first. Examples: '5' == 5 is true (string coerced to number), '5' === 5 is false (different types). Best practice: always use === unless checking null/undefined (x == null)."
     },
     {
-      "type": "theory",
-      "question": "Exercise 150: Solve a numbers problem using clean, interview-ready JavaScript.",
-      "hint": "Define concept, edge cases, and practical usage.",
-      "answer": "Give concise definition, one pitfall, and one real use case."
+      "type": "concept",
+      "question": "What is the event loop and how does it process tasks?",
+      "answer": "The event loop checks: 1) Call stack (synchronous code runs first), 2) Microtask queue (Promise.then, queueMicrotask â€” processed after each task, before rendering), 3) Macrotask queue (setTimeout, setInterval â€” one per tick). Microtasks have higher priority than macrotasks."
     }
   ],
   "programExercises": [

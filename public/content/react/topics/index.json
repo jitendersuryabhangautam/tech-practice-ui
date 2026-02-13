@@ -1,5 +1,11 @@
 [
   {
+    "id": "real-world-ui-design",
+    "file": "topics/real-world-ui-design.json",
+    "title": "Real-World UI Design Challenges (React)",
+    "category": "Real-World UI Design"
+  },
+  {
     "id": "usestate",
     "file": "topics/usestate.json",
     "title": "useState Hook",

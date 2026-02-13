@@ -1,0 +1,98 @@
+{
+  "id": "real-world-ui-design",
+  "title": "Real-World UI Design Challenges (React)",
+  "description": "Hands-on React UI design practice with production-like components, responsive layouts, accessibility, and interaction patterns.",
+  "explanation": "This track focuses on practical frontend work: designing reusable UI building blocks, handling stateful interactions, and shipping responsive, accessible interfaces. Each challenge mirrors tasks from real product teams.",
+  "implementation": "import React from 'react';\n\n// Suggested approach for each challenge:\n// 1) Define UI states and transitions\n// 2) Build semantic structure first\n// 3) Add responsive behavior\n// 4) Add accessibility and keyboard support\n// 5) Optimize render behavior",
+  "example": "function ProductCard({ product, onAdd }) {\n  return (\n    <article className=\"rounded-xl border p-4\">\n      <h3 className=\"text-lg font-semibold\">{product.name}</h3>\n      <p className=\"text-sm text-gray-600\">{product.description}</p>\n      <div className=\"mt-3 flex items-center justify-between\">\n        <span className=\"font-bold\">${product.price}</span>\n        <button onClick={() => onAdd(product)} className=\"rounded bg-black px-3 py-1 text-white\">Add</button>\n      </div>\n    </article>\n  );\n}",
+  "useCase": "Frontend interviews, product UI implementation rounds, portfolio projects, and day-to-day React feature development.",
+  "category": "Real-World UI Design",
+  "interviewQuestions": [
+    {
+      "question": "How do you design React components for reuse without overengineering?",
+      "answer": "Start with focused props, clear composition slots, and avoid adding abstractions until repeated usage patterns appear."
+    },
+    {
+      "question": "How do you keep UI state manageable in medium-size screens?",
+      "answer": "Separate server state from local UI state, colocate state near usage, and extract shared state only when multiple siblings need it."
+    },
+    {
+      "question": "What accessibility checks should be mandatory for every UI task?",
+      "answer": "Keyboard navigation, visible focus, semantic landmarks, proper labels, and color contrast."
+    },
+    {
+      "question": "How do you avoid layout shift in dynamic UI?",
+      "answer": "Reserve space with skeletons/aspect-ratio, avoid injecting unknown-height blocks abruptly, and preload critical assets."
+    },
+    {
+      "question": "What metrics matter for frontend UI quality?",
+      "answer": "Perceived responsiveness, interaction latency, CLS, accessibility score, and error-free user flows."
+    }
+  ],
+  "exercises": [
+    { "type": "implement", "question": "Design a responsive admin dashboard with sidebar, KPI cards, and activity table." },
+    { "type": "implement", "question": "Build a design-system style `Button` with variants, loading state, icon slots, and disabled behavior." },
+    { "type": "implement", "question": "Create a modal system with focus trap, escape-to-close, and nested confirmation dialog." },
+    { "type": "implement", "question": "Implement a Kanban board layout with drag placeholder visuals and keyboard fallback controls." },
+    { "type": "implement", "question": "Create an e-commerce product listing page with filters, sort, pagination, and empty states." },
+    { "type": "implement", "question": "Build a pricing table with monthly/yearly toggle and highlighted recommended plan." },
+    { "type": "implement", "question": "Design a multi-step onboarding wizard with progress indicator and validation summary." },
+    { "type": "implement", "question": "Build a chat UI with grouped messages, sticky date separators, and optimistic send state." },
+    { "type": "implement", "question": "Create a notification center with unread badge, mark-all-read, and grouped categories." },
+    { "type": "implement", "question": "Design a searchable command palette (Ctrl/Cmd+K) with keyboard navigation and actions." },
+    { "type": "debug", "question": "Fix a list UI that re-renders every row on single-item update and explain optimization steps." },
+    { "type": "debug", "question": "Investigate dropdown clipping issues inside overflow containers and provide robust fix options." },
+    { "type": "debug", "question": "Resolve a modal focus loss bug when async submit triggers route/state changes." },
+    { "type": "debug", "question": "Fix flickering skeleton/content transition caused by race conditions in fetch updates." },
+    { "type": "scenario", "question": "You must redesign a legacy settings screen for mobile first. Define component boundaries and migration plan." },
+    { "type": "scenario", "question": "Design a data table for 50k rows with sorting/filtering while preserving good UX." },
+    { "type": "scenario", "question": "Build a checkout form that supports saved addresses and guest checkout without complexity explosion." },
+    { "type": "scenario", "question": "Design role-based UI controls where admins and users see different actions safely." },
+    { "type": "scenario", "question": "Plan a theme system with light/dark and brand colors without rewriting every component." },
+    { "type": "scenario", "question": "Design a profile page with inline edit patterns and optimistic save rollback behavior." },
+    { "type": "theory", "question": "Explain trade-offs between CSS utility classes, CSS modules, and styled-components in team scale." },
+    { "type": "theory", "question": "When should you split a component versus keep one component with conditional branches?" },
+    { "type": "output", "question": "Given debounced search + loading states + cache hits, predict the exact UI state order." },
+    { "type": "output", "question": "Predict render sequence when parent state and context both update after a click event." },
+    { "type": "refactor", "question": "Refactor a monolithic page component into reusable primitives while preserving behavior." }
+  ],
+  "programExercises": [
+    {
+      "level": "Medium",
+      "question": "Build a reusable `StatsCardGrid` with responsive columns and icon support.",
+      "code": "import React from 'react';\n\nexport function StatsCardGrid({ items }) {\n  return (\n    <section className=\"grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4\">\n      {items.map((item) => (\n        <article key={item.id} className=\"rounded-xl border bg-white p-4 shadow-sm\">\n          <div className=\"flex items-center justify-between\">\n            <p className=\"text-sm text-gray-600\">{item.label}</p>\n            <span>{item.icon}</span>\n          </div>\n          <p className=\"mt-2 text-2xl font-bold\">{item.value}</p>\n          <p className=\"mt-1 text-xs text-green-600\">{item.delta}</p>\n        </article>\n      ))}\n    </section>\n  );\n}",
+      "output": "A responsive KPI grid that scales from 1 to 4 columns and renders card label/value/delta consistently."
+    },
+    {
+      "level": "Medium",
+      "question": "Implement `FilterChips` with keyboard support and removable active tags.",
+      "code": "import React from 'react';\n\nexport function FilterChips({ active, onRemove }) {\n  return (\n    <ul className=\"flex flex-wrap gap-2\" aria-label=\"Active filters\">\n      {active.map((chip) => (\n        <li key={chip}>\n          <button\n            type=\"button\"\n            onClick={() => onRemove(chip)}\n            className=\"rounded-full bg-slate-100 px-3 py-1 text-sm hover:bg-slate-200\"\n            aria-label={`Remove filter ${chip}`}\n          >\n            {chip} ✕\n          </button>\n        </li>\n      ))}\n    </ul>\n  );\n}",
+      "output": "Chip list where each active filter can be removed by click/keyboard and screen readers announce proper labels."
+    },
+    {
+      "level": "Medium",
+      "question": "Create `ModalWithFocusTrap` component for accessible overlays.",
+      "code": "import React, { useEffect, useRef } from 'react';\n\nexport function ModalWithFocusTrap({ open, onClose, children }) {\n  const ref = useRef(null);\n\n  useEffect(() => {\n    if (!open) return;\n    const root = ref.current;\n    const focusables = root?.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex=\"-1\"])');\n    focusables?.[0]?.focus();\n\n    const onKeyDown = (e) => {\n      if (e.key === 'Escape') onClose();\n    };\n    document.addEventListener('keydown', onKeyDown);\n    return () => document.removeEventListener('keydown', onKeyDown);\n  }, [open, onClose]);\n\n  if (!open) return null;\n  return (\n    <div className=\"fixed inset-0 z-50 grid place-items-center bg-black/50\" role=\"dialog\" aria-modal=\"true\">\n      <div ref={ref} className=\"w-full max-w-lg rounded-xl bg-white p-5\">\n        {children}\n      </div>\n    </div>\n  );\n}",
+      "output": "Modal opens with initial focus inside, closes on Escape, and stays keyboard navigable."
+    },
+    {
+      "level": "Hard",
+      "question": "Build `VirtualizedList` for long data with fixed row height.",
+      "code": "import React, { useMemo, useState } from 'react';\n\nexport function VirtualizedList({ items, rowHeight = 44, viewportHeight = 360 }) {\n  const [scrollTop, setScrollTop] = useState(0);\n  const totalHeight = items.length * rowHeight;\n\n  const { start, end } = useMemo(() => {\n    const s = Math.floor(scrollTop / rowHeight);\n    const visible = Math.ceil(viewportHeight / rowHeight);\n    return { start: Math.max(0, s - 5), end: Math.min(items.length, s + visible + 5) };\n  }, [scrollTop, rowHeight, viewportHeight, items.length]);\n\n  const visibleItems = items.slice(start, end);\n\n  return (\n    <div\n      className=\"overflow-auto rounded border\"\n      style={{ height: viewportHeight }}\n      onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}\n    >\n      <div style={{ height: totalHeight, position: 'relative' }}>\n        {visibleItems.map((item, i) => {\n          const idx = start + i;\n          return (\n            <div key={item.id} style={{ position: 'absolute', top: idx * rowHeight, left: 0, right: 0, height: rowHeight }} className=\"border-b px-3 py-2\">\n              {item.label}\n            </div>\n          );\n        })}\n      </div>\n    </div>\n  );\n}",
+      "output": "Large lists render smoothly by only mounting visible rows plus overscan window."
+    },
+    {
+      "level": "Hard",
+      "question": "Implement `DashboardLayout` with resizable/collapsible sidebar and persisted width.",
+      "code": "import React, { useEffect, useState } from 'react';\n\nconst KEY = 'sidebar-width';\n\nexport function DashboardLayout({ sidebar, children }) {\n  const [width, setWidth] = useState(280);\n  const [collapsed, setCollapsed] = useState(false);\n\n  useEffect(() => {\n    const saved = Number(localStorage.getItem(KEY));\n    if (saved > 200 && saved < 500) setWidth(saved);\n  }, []);\n\n  useEffect(() => {\n    localStorage.setItem(KEY, String(width));\n  }, [width]);\n\n  return (\n    <div className=\"grid min-h-screen\" style={{ gridTemplateColumns: collapsed ? '72px 1fr' : `${width}px 1fr` }}>\n      <aside className=\"border-r bg-slate-50 p-3\">{sidebar}</aside>\n      <main className=\"p-5\">{children}</main>\n      <button className=\"fixed bottom-4 left-4 rounded bg-slate-900 px-3 py-2 text-white\" onClick={() => setCollapsed((v) => !v)}>\n        {collapsed ? 'Expand' : 'Collapse'}\n      </button>\n      {!collapsed && (\n        <input\n          type=\"range\"\n          min={220}\n          max={420}\n          value={width}\n          onChange={(e) => setWidth(Number(e.target.value))}\n          className=\"fixed bottom-4 left-28\"\n        />\n      )}\n    </div>\n  );\n}",
+      "output": "Dashboard with collapsible sidebar and persisted width preference across reloads."
+    },
+    {
+      "level": "Very Hard",
+      "question": "Build a `FormBuilder` UI with schema-driven fields, validation, and live preview panel.",
+      "code": "import React, { useMemo, useState } from 'react';\n\nconst schema = [\n  { id: 'name', label: 'Name', type: 'text', required: true },\n  { id: 'email', label: 'Email', type: 'email', required: true },\n  { id: 'budget', label: 'Budget', type: 'number', required: false }\n];\n\nexport function FormBuilder() {\n  const [values, setValues] = useState({});\n  const [touched, setTouched] = useState({});\n\n  const errors = useMemo(() => {\n    const e = {};\n    for (const f of schema) {\n      if (f.required && !values[f.id]) e[f.id] = `${f.label} is required`;\n      if (f.type === 'email' && values[f.id] && !String(values[f.id]).includes('@')) e[f.id] = 'Invalid email';\n    }\n    return e;\n  }, [values]);\n\n  return (\n    <div className=\"grid gap-6 lg:grid-cols-2\">\n      <form className=\"space-y-4 rounded-xl border p-4\">\n        {schema.map((field) => (\n          <label key={field.id} className=\"block\">\n            <span className=\"mb-1 block text-sm font-medium\">{field.label}</span>\n            <input\n              type={field.type}\n              value={values[field.id] ?? ''}\n              onBlur={() => setTouched((t) => ({ ...t, [field.id]: true }))}\n              onChange={(e) => setValues((v) => ({ ...v, [field.id]: e.target.value }))}\n              className=\"w-full rounded border px-3 py-2\"\n            />\n            {touched[field.id] && errors[field.id] && <p className=\"mt-1 text-sm text-red-600\">{errors[field.id]}</p>}\n          </label>\n        ))}\n      </form>\n      <aside className=\"rounded-xl border bg-slate-50 p-4\">\n        <h4 className=\"mb-2 font-semibold\">Live Preview</h4>\n        <pre className=\"overflow-auto rounded bg-slate-900 p-3 text-xs text-slate-100\">{JSON.stringify(values, null, 2)}</pre>\n      </aside>\n    </div>\n  );\n}",
+      "output": "Schema-driven form with validation messages and real-time JSON preview."
+    }
+  ]
+}
+

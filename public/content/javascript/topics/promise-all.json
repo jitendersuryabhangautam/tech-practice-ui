@@ -3,7 +3,7 @@
   "title": "Promise.all() & Promise.race()",
   "category": "Async Programming",
   "description": "Promise.all waits for all promises. Promise.race returns the first settled promise.",
-  "explanation": "Promise.all waits for all promises. Promise.race returns the first settled promise.\n\nInterview focus:\n- Core definition and mental model\n- Trade-offs and edge cases\n- Practical implementation and debugging patterns\n- Real production use cases",
+  "explanation": "Promise combinators let you work with multiple promises simultaneously. ES2015+ provides four:\n\nPromise.all(iterable):\n- Waits for ALL promises to fulfill\n- Returns array of results in input order\n- FAILS FAST: rejects immediately if ANY promise rejects\n- Non-promise values are wrapped with Promise.resolve()\n\nPromise.allSettled(iterable) (ES2020):\n- Waits for ALL promises to settle (fulfill OR reject)\n- Never rejects — always returns array of {status, value/reason}\n- Use when you need results regardless of individual failures\n\nPromise.race(iterable):\n- Resolves/rejects with the FIRST promise that settles\n- Use for timeout patterns: race against a setTimeout rejection\n- Result takes the state (fulfilled/rejected) of the winner\n\nPromise.any(iterable) (ES2021):\n- Resolves with the FIRST promise that FULFILLS\n- Ignores rejections until ALL reject\n- If all reject, throws AggregateError\n- Use for redundancy: fastest successful response wins\n\nParallel vs Sequential:\n- Promise.all runs promises concurrently (not in parallel — still single-threaded)\n- Be careful with unbounded concurrency — rate-limit or batch large arrays",
   "implementation": "// Promise.all - waits for all\nconst results = await Promise.all([\n  fetch('/api/users'),\n  fetch('/api/posts'),\n  fetch('/api/comments')\n]);\n\n// Promise.race - first to complete\nconst fastest = await Promise.race([\n  fetch('/api/server1'),\n  fetch('/api/server2')\n]);",
   "example": "async function loadPageData() {\n  try {\n    const [users, products, settings] = await Promise.all([\n      fetchUsers(),\n      fetchProducts(),\n      fetchSettings()\n    ]);\n    return {users, products, settings};\n  } catch (error) {\n    console.error('Failed to load:', error);\n  }\n}",
   "useCase": "Parallel API calls, loading multiple resources, timeout implementations",
@@ -27,6 +27,26 @@
     {
       "question": "What is a production concern with Promise.all on huge arrays?",
       "answer": "Unbounded concurrency can overload APIs or memory; use controlled batching."
+    },
+    {
+      "question": "What is Promise.any and how does it differ from Promise.race?",
+      "answer": "Promise.any resolves with the first FULFILLED promise (ignores rejections). Promise.race resolves/rejects with the first SETTLED promise (fulfilled or rejected). Use any for redundancy (fastest success), race for timeouts."
+    },
+    {
+      "question": "What is AggregateError?",
+      "answer": "Thrown when ALL promises passed to Promise.any() reject. Contains an .errors property (array of all rejection reasons). It's a subclass of Error, introduced in ES2021."
+    },
+    {
+      "question": "How do you implement a timeout with Promise.race?",
+      "answer": "Race the actual promise against a rejecting timeout: Promise.race([fetchData(), new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))]). First to settle wins."
+    },
+    {
+      "question": "Does Promise.all run promises in parallel?",
+      "answer": "JavaScript is single-threaded, so promises don't run truly in parallel. They are concurrent — I/O operations overlap while waiting. CPU-bound work still blocks. Promise.all just waits for all to settle."
+    },
+    {
+      "question": "How do you batch/throttle concurrent Promise.all calls?",
+      "answer": "Process in chunks: split array into batches of N, await Promise.all for each batch sequentially. Or use a semaphore/pool pattern to limit active promises. Libraries like p-limit can help."
     }
   ],
   "exercises": [
@@ -53,9 +73,8 @@
     },
     {
       "type": "output",
-      "question": "Predict output: await Promise.all([Promise.resolve(1), 2])",
-      "answer": "[1,2]",
-      "output": "[1,2]"
+      "question": "Predict output: Promise.any([Promise.reject('A'), Promise.resolve('B'), Promise.resolve('C')]).then(console.log)",
+      "answer": "B — Promise.any resolves with the first fulfilled promise, ignoring rejections."
     },
     {
       "type": "output",
@@ -72,8 +91,8 @@
     },
     {
       "type": "debug",
-      "question": "One Promise.all task rejects and all fail. Alternative?",
-      "answer": "Use Promise.allSettled to collect all outcomes."
+      "question": "Promise.all fires hundreds of API calls at once, overwhelming the server. How to fix?",
+      "answer": "Batch the promises: split into chunks of N and await Promise.all for each chunk sequentially. Or use a concurrency limiter like p-limit."
     },
     {
       "type": "debug",

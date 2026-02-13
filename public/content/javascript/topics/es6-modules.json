@@ -1,0 +1,155 @@
+{
+  "id": "es6-modules",
+  "title": "ES6 Modules",
+  "description": "Learn JavaScript modules — import/export syntax, named vs default exports, CommonJS vs ESM, dynamic imports, and module patterns.",
+  "explanation": "JavaScript modules allow splitting code into separate files with explicit imports/exports.\n\nES Modules (ESM) — the modern standard:\n- import/export syntax\n- Static analysis (imports resolved at compile time)\n- Tree-shakeable (dead code elimination)\n- Always in strict mode\n- Top-level 'this' is undefined (not window)\n\nExport types:\n1. Named exports: export const x = 5; or export { x, y }\n2. Default export: export default function() {} (one per module)\n3. Re-exports: export { x } from './other'\n4. Namespace export: export * from './other'\n\nImport types:\n1. Named: import { x, y } from './mod'\n2. Default: import myName from './mod'\n3. Namespace: import * as mod from './mod'\n4. Side-effect only: import './mod' (runs module, imports nothing)\n5. Dynamic: const mod = await import('./mod') (lazy loading, returns Promise)\n\nCommonJS (CJS) vs ESM:\n- CJS: require()/module.exports — synchronous, dynamic, Node.js original\n- ESM: import/export — async, static, browser + Node standard\n- CJS loads at runtime (can be conditional). ESM is analyzed at compile time.\n- ESM can import CJS, but CJS cannot require() ESM (without dynamic import)\n\nModule patterns:\n- Barrel files: index.js that re-exports from multiple files\n- Lazy loading: dynamic import() for code splitting\n- Circular dependencies: ESM handles them better than CJS (live bindings vs copies)",
+  "code": "// Named exports\nexport const PI = 3.14159;\nexport function add(a, b) { return a + b; }\nexport class Calculator {\n  multiply(a, b) { return a * b; }\n}\n\n// Default export\nexport default function greet(name) {\n  return `Hello, ${name}`;\n}\n\n// Importing named exports\nimport { PI, add, Calculator } from './math.js';\n\n// Importing default export\nimport greet from './greet.js';\n\n// Renaming imports\nimport { add as sum } from './math.js';\n\n// Namespace import\nimport * as MathLib from './math.js';\nconsole.log(MathLib.PI); // 3.14159\n\n// Dynamic import (code splitting)\nasync function loadFeature() {\n  const module = await import('./heavy-feature.js');\n  module.init();\n}\n\n// Re-exports (barrel file)\nexport { add, subtract } from './arithmetic.js';\nexport { default as Logger } from './logger.js';",
+  "example": "// CommonJS (Node.js traditional)\nconst fs = require('fs');\nmodule.exports = { readFile: fs.readFileSync };\nmodule.exports.helper = function() {};\n\n// ESM equivalent\nimport fs from 'fs';\nexport const readFile = fs.readFileSync;\nexport function helper() {}\n\n// Conditional imports (only possible with dynamic import)\nasync function loadPolyfill() {\n  if (!window.IntersectionObserver) {\n    await import('intersection-observer');\n  }\n}\n\n// Top-level await (ES2022, ESM only)\nconst config = await fetch('/config.json').then(r => r.json());\nexport default config;\n\n// Module pattern (pre-ESM, still useful)\nconst Counter = (() => {\n  let count = 0;\n  return {\n    increment: () => ++count,\n    getCount: () => count\n  };\n})();",
+  "useCase": "Code organization, code splitting, lazy loading, dependency management, tree-shaking, bundler optimization, shared utility libraries",
+  "exercises": [
+    {
+      "type": "concept",
+      "question": "What is the difference between named and default exports?",
+      "answer": "Named exports: multiple per module, imported with exact name (or renamed with 'as'). Default export: one per module, imported with any name. Named: export const x = 5; import { x }. Default: export default 5; import whatever."
+    },
+    {
+      "type": "concept",
+      "question": "What happens when you do: import './side-effects.js'?",
+      "answer": "The module is loaded and executed but nothing is imported. Used for modules that modify global state, register service workers, add polyfills, or have side effects that should run on import."
+    },
+    {
+      "type": "concept",
+      "question": "Can you use import statements inside if blocks?",
+      "answer": "No. Static import statements must be at the top level of the module. For conditional loading, use dynamic import(): if (condition) { const mod = await import('./mod.js'); }. Dynamic import() returns a Promise."
+    },
+    {
+      "type": "concept",
+      "question": "What is a barrel file?",
+      "answer": "An index.js file that re-exports from multiple modules: export { A } from './a'; export { B } from './b'. Consumers import from one place: import { A, B } from './components'. Simplifies imports but can hurt tree-shaking if not careful."
+    },
+    {
+      "type": "concept",
+      "question": "What are live bindings in ESM?",
+      "answer": "ESM exports are live references — if the exporting module changes a value, importers see the updated value. CJS copies values at require() time. Example: if a.js exports let count=0 and increments it, importers see the new count."
+    },
+    {
+      "type": "concept",
+      "question": "How do you handle circular dependencies?",
+      "answer": "ESM handles circular deps better than CJS because of live bindings. CJS may give partial objects. Best practice: avoid circular deps by restructuring code (extract shared logic to a third module). Tools like madge can detect cycles."
+    },
+    {
+      "type": "concept",
+      "question": "What is tree-shaking?",
+      "answer": "Tree-shaking is dead code elimination — bundlers (Webpack, Rollup, esbuild) analyze static imports to remove unused exports. Only works with ESM (static analysis). Doesn't work with CJS (dynamic require). import * can still be tree-shaken if only specific properties are used."
+    },
+    {
+      "type": "concept",
+      "question": "What is the 'type: module' field in package.json?",
+      "answer": "It tells Node.js to treat .js files as ES modules (import/export). Without it, .js files are treated as CommonJS. Alternatively, use .mjs for ESM and .cjs for CommonJS regardless of this setting."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\n// a.js\nexport let count = 0;\nexport function increment() { count++; }\n\n// b.js\nimport { count, increment } from './a.js';\nconsole.log(count);\nincrement();\nconsole.log(count);",
+      "answer": "0, then 1 — ESM live bindings: count is a live reference to a.js's count variable. increment() changes it, and b.js sees the update."
+    },
+    {
+      "type": "concept",
+      "question": "What is import.meta?",
+      "answer": "import.meta is an object available in ES modules with metadata about the current module. import.meta.url gives the module's URL. In Node.js, used to get __filename equivalent: new URL(import.meta.url).pathname. Also used for Vite's import.meta.env."
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "// Simulating module pattern (runs in single file)\nconst MathModule = (() => {\n  const PI = 3.14159;\n  function area(r) { return PI * r * r; }\n  function circumference(r) { return 2 * PI * r; }\n  return { area, circumference };\n})();\n\nconsole.log(MathModule.area(5).toFixed(2));\nconsole.log(MathModule.circumference(5).toFixed(2));",
+      "expectedOutput": "78.54\n31.42",
+      "explanation": "IIFE module pattern — PI is private, only area and circumference are exposed"
+    },
+    {
+      "program": "// Simulating named exports and imports\nconst moduleA = { add: (a, b) => a + b, multiply: (a, b) => a * b };\nconst { add, multiply } = moduleA;\nconsole.log(add(2, 3));\nconsole.log(multiply(4, 5));",
+      "expectedOutput": "5\n20",
+      "explanation": "Destructuring simulates named imports from a module"
+    },
+    {
+      "program": "// Simulating default + named exports\nconst myModule = {\n  default: function greet(name) { return `Hi ${name}`; },\n  VERSION: '1.0',\n  MAX: 100\n};\nconst greet = myModule.default;\nconst { VERSION, MAX } = myModule;\nconsole.log(greet('World'));\nconsole.log(VERSION, MAX);",
+      "expectedOutput": "Hi World\n1.0 100",
+      "explanation": "Simulating a module with both default and named exports"
+    },
+    {
+      "program": "// Dynamic import simulation with lazy loading\nconst modules = {\n  math: () => ({ add: (a,b) => a+b }),\n  string: () => ({ upper: (s) => s.toUpperCase() })\n};\n\nasync function loadModule(name) {\n  // Simulates: const mod = await import(`./modules/${name}.js`)\n  return modules[name]();\n}\n\n(async () => {\n  const math = await loadModule('math');\n  console.log(math.add(1, 2));\n  const str = await loadModule('string');\n  console.log(str.upper('hello'));\n})();",
+      "expectedOutput": "3\nHELLO",
+      "explanation": "Simulating dynamic imports for lazy loading modules"
+    },
+    {
+      "program": "// Namespace import pattern\nconst Utils = {\n  format: (n) => n.toFixed(2),\n  parse: (s) => parseFloat(s),\n  clamp: (n, min, max) => Math.min(Math.max(n, min), max)\n};\n\nconsole.log(Utils.format(3.14159));\nconsole.log(Utils.parse('42.5'));\nconsole.log(Utils.clamp(150, 0, 100));",
+      "expectedOutput": "3.14\n42.5\n100",
+      "explanation": "Namespace import pattern (import * as Utils) groups related utilities"
+    },
+    {
+      "program": "// Re-export / barrel file simulation\nconst componentA = { render: () => 'A' };\nconst componentB = { render: () => 'B' };\nconst componentC = { render: () => 'C' };\n\n// Barrel: export { componentA, componentB, componentC }\nconst Components = { componentA, componentB, componentC };\n\nObject.values(Components).forEach(c => console.log(c.render()));",
+      "expectedOutput": "A\nB\nC",
+      "explanation": "Barrel file pattern — re-exports multiple components from a single entry point"
+    },
+    {
+      "program": "// Singleton module pattern\nconst createDB = (() => {\n  let instance;\n  return () => {\n    if (!instance) {\n      instance = { connected: true, query: (q) => `Result: ${q}` };\n      console.log('DB created');\n    }\n    return instance;\n  };\n})();\n\nconst db1 = createDB();\nconst db2 = createDB();\nconsole.log(db1 === db2);\nconsole.log(db1.query('SELECT 1'));",
+      "expectedOutput": "DB created\ntrue\nResult: SELECT 1",
+      "explanation": "Modules are singletons — they execute once and cache the result. Same behavior as ESM."
+    },
+    {
+      "program": "// Plugin architecture with modules\nconst plugins = [];\nfunction registerPlugin(plugin) { plugins.push(plugin); }\nfunction runPlugins(data) { return plugins.reduce((d, p) => p(d), data); }\n\nregisterPlugin(s => s.toUpperCase());\nregisterPlugin(s => s.split('').reverse().join(''));\nregisterPlugin(s => `[${s}]`);\n\nconsole.log(runPlugins('hello'));",
+      "expectedOutput": "[OLLEH]",
+      "explanation": "Plugin pattern — modules register transform functions that are applied in sequence"
+    },
+    {
+      "program": "// Dependency injection pattern\nfunction createService(logger) {\n  return {\n    process(data) {\n      logger.log(`Processing: ${data}`);\n      return data.toUpperCase();\n    }\n  };\n}\nconst fakeLogger = { log: (msg) => console.log(`[LOG] ${msg}`) };\nconst service = createService(fakeLogger);\nconsole.log(service.process('test'));",
+      "expectedOutput": "[LOG] Processing: test\nTEST",
+      "explanation": "Instead of importing directly, inject dependencies — easier to test and swap implementations"
+    },
+    {
+      "program": "// Feature flags with conditional loading\nconst features = { darkMode: true, analytics: false };\nconst loaded = [];\n\nfor (const [name, enabled] of Object.entries(features)) {\n  if (enabled) {\n    // Simulates: await import(`./features/${name}.js`)\n    loaded.push(name);\n  }\n}\nconsole.log('Loaded features:', loaded.join(', '));",
+      "expectedOutput": "Loaded features: darkMode",
+      "explanation": "Conditional dynamic imports — only load enabled features (code splitting)"
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between CommonJS and ES Modules?",
+      "answer": "CJS: require()/module.exports, synchronous, copies values, dynamic (can require conditionally), default in Node.js. ESM: import/export, async, live bindings, static (analyzed at compile time), tree-shakeable. ESM is the modern standard for both browser and Node."
+    },
+    {
+      "question": "What is dynamic import() and when would you use it?",
+      "answer": "import() returns a Promise that resolves to the module. Used for: code splitting (load on demand), conditional loading, loading modules in non-module scripts, and lazy loading heavy features. Example: const { Chart } = await import('./chart.js')."
+    },
+    {
+      "question": "Why are ES modules better for tree-shaking?",
+      "answer": "ESM imports are static — bundlers can analyze the dependency graph at build time and remove unused exports. CJS require() is dynamic (can be inside if-blocks, use variables for paths), so bundlers can't statically determine what's used."
+    },
+    {
+      "question": "What happens if two modules import the same module?",
+      "answer": "The module is only executed once. Both imports get the same module instance (singleton behavior). This is why modules work well for shared state — all importers see the same exported values."
+    },
+    {
+      "question": "What are live bindings in ES modules?",
+      "answer": "ESM exports are live references to the original variable. If the exporting module changes the value, all importers see the updated value. CJS creates a copy at require() time, so changes aren't reflected. This also helps with circular dependencies."
+    },
+    {
+      "question": "How do circular dependencies work in ESM vs CJS?",
+      "answer": "CJS: require() returns a partial object (whatever has been exported so far), can cause bugs. ESM: uses live bindings and hoists imports, so circular deps usually work if you don't access the import synchronously during evaluation. Best practice: avoid circular deps."
+    },
+    {
+      "question": "What is import.meta and what properties does it have?",
+      "answer": "import.meta is a meta-property for modules containing metadata. import.meta.url: the full URL of the current module. In Node: used to get __dirname equivalent. In Vite: import.meta.env for environment variables. import.meta.resolve() for resolving module specifiers."
+    },
+    {
+      "question": "What is the difference between export default and named exports?",
+      "answer": "Named exports: multiple per file, imported by exact name, better for tree-shaking, more IDE-friendly (auto-import). Default export: one per file, imported with any name, common for components/classes. Some style guides prefer named exports exclusively for consistency."
+    },
+    {
+      "question": "How do you configure Node.js to use ES modules?",
+      "answer": "Three ways: (1) Add \"type\": \"module\" in package.json — all .js files are ESM. (2) Use .mjs extension. (3) Use --input-type=module flag. For CJS in an ESM package, use .cjs extension. TypeScript uses tsconfig's module and moduleResolution settings."
+    },
+    {
+      "question": "What is top-level await and what are its implications?",
+      "answer": "ES2022 allows await at the top level of ES modules (not in scripts). The module's execution pauses until the promise resolves. Any module importing it will wait too. Useful for config loading, DB connections. Risk: can slow down module graph loading if overused."
+    }
+  ]
+}

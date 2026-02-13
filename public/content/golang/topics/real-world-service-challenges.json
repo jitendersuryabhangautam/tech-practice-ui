@@ -1,0 +1,1326 @@
+{
+  "id": "real-world-service-challenges",
+  "title": "Real-World Go Service Challenges (100+ Practical Drills)",
+  "description": "Production-focused Go practice bank with architecture-level interview questions, practical debugging scenarios, and implementation-heavy program drills.",
+  "explanation": "This module is designed for real backend interviews and day-to-day Go service work. It covers concurrency, reliability, data integrity, API contracts, observability, and performance. Use it as a progressive training track: Medium -> Hard -> Very Hard.",
+  "implementation": "// Suggested workflow\n// 1) Solve 10 mixed exercises daily (implement/debug/output/scenario)\n// 2) Complete 2-3 programs with full error handling and tests\n// 3) Add benchmarking/profiling notes for each hard problem\n// 4) Explain design trade-offs verbally after every solution",
+  "example": "// Example: context-aware repository call\nctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)\ndefer cancel()\nuser, err := repo.GetByID(ctx, id)\nif err != nil {\n  writeErr(w, http.StatusNotFound, \"user not found\")\n  return\n}\nwriteJSON(w, http.StatusOK, user)",
+  "useCase": "Backend Go interview prep, service hardening practice, and production-readiness upskilling.",
+  "category": "Real-World Service Challenges",
+  "interviewQuestions": [
+    {
+      "question": "Interview Q1: How would you design and defend a http apis decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For http apis, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q2: How would you design and defend a database transactions decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For database transactions, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q3: How would you design and defend a redis caching decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For redis caching, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q4: How would you design and defend a concurrency control decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For concurrency control, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q5: How would you design and defend a message processing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For message processing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q6: How would you design and defend a observability decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For observability, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q7: How would you design and defend a resilience decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For resilience, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q8: How would you design and defend a security decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For security, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q9: How would you design and defend a testing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For testing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q10: How would you design and defend a performance decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For performance, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q11: How would you design and defend a http apis decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For http apis, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q12: How would you design and defend a database transactions decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For database transactions, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q13: How would you design and defend a redis caching decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For redis caching, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q14: How would you design and defend a concurrency control decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For concurrency control, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q15: How would you design and defend a message processing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For message processing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q16: How would you design and defend a observability decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For observability, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q17: How would you design and defend a resilience decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For resilience, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q18: How would you design and defend a security decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For security, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q19: How would you design and defend a testing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For testing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q20: How would you design and defend a performance decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For performance, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q21: How would you design and defend a http apis decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For http apis, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q22: How would you design and defend a database transactions decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For database transactions, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q23: How would you design and defend a redis caching decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For redis caching, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q24: How would you design and defend a concurrency control decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For concurrency control, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q25: How would you design and defend a message processing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For message processing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q26: How would you design and defend a observability decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For observability, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q27: How would you design and defend a resilience decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For resilience, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q28: How would you design and defend a security decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For security, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q29: How would you design and defend a testing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For testing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q30: How would you design and defend a performance decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For performance, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q31: How would you design and defend a http apis decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For http apis, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q32: How would you design and defend a database transactions decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For database transactions, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q33: How would you design and defend a redis caching decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For redis caching, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q34: How would you design and defend a concurrency control decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For concurrency control, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q35: How would you design and defend a message processing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For message processing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q36: How would you design and defend a observability decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For observability, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q37: How would you design and defend a resilience decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For resilience, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q38: How would you design and defend a security decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For security, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q39: How would you design and defend a testing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For testing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q40: How would you design and defend a performance decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For performance, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q41: How would you design and defend a http apis decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For http apis, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q42: How would you design and defend a database transactions decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For database transactions, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q43: How would you design and defend a redis caching decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For redis caching, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q44: How would you design and defend a concurrency control decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For concurrency control, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q45: How would you design and defend a message processing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For message processing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q46: How would you design and defend a observability decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For observability, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q47: How would you design and defend a resilience decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For resilience, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q48: How would you design and defend a security decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For security, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q49: How would you design and defend a testing decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For testing, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    },
+    {
+      "question": "Interview Q50: How would you design and defend a performance decision in a production Go service?",
+      "answer": "Start from failure modes, define clear contracts, add context timeouts, enforce structured errors, and validate with tests/metrics before rollout. For performance, explicitly document trade-offs (latency, consistency, complexity, and operability)."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "implement",
+      "question": "Exercise 1: Build bounded worker pool with cancellation and backpressure.",
+      "topic": "HTTP APIs"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 2: Fix goroutine leak in channel fan-in pipeline.",
+      "topic": "Database Transactions",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 3: Predict output/order for defer + panic + recover flow.",
+      "topic": "Redis Caching",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 4: Design idempotent payment webhook consumer with retries.",
+      "topic": "Concurrency Control"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 5: Explain mutex vs channel trade-offs in shared state updates.",
+      "topic": "Message Processing"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 6: Handle nil-interface bug in typed error wrappers.",
+      "topic": "Observability",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 7: Implement request-scoped timeout propagation through repository layer.",
+      "topic": "Resilience"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 8: Debug DB pool exhaustion under concurrent API load.",
+      "topic": "Security",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 9: Predict race detector findings for shared map write code.",
+      "topic": "Testing",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 10: Design cache-aside strategy with stampede protection.",
+      "topic": "Performance"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 11: Implement optimistic locking update with version checks.",
+      "topic": "HTTP APIs"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 12: Debug stale cache invalidation after write success.",
+      "topic": "Database Transactions",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 13: Predict behavior of append with shared backing slices.",
+      "topic": "Redis Caching"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 14: Design graceful shutdown for HTTP server + workers + queue.",
+      "topic": "Concurrency Control",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 15: Explain why time.After in loop can leak resources.",
+      "topic": "Message Processing",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 16: Implement structured logging middleware with request IDs.",
+      "topic": "Observability"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 17: Debug retry storm against unstable dependency.",
+      "topic": "Resilience"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 18: Predict channel close behavior across multiple consumers.",
+      "topic": "Security",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 19: Design alerting strategy for high p95 latency endpoint.",
+      "topic": "Testing"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 20: Explain consistency trade-offs for outbox/inbox pattern.",
+      "topic": "Performance",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 21: Build bounded worker pool with cancellation and backpressure.",
+      "topic": "HTTP APIs",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 22: Fix goroutine leak in channel fan-in pipeline.",
+      "topic": "Database Transactions"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 23: Predict output/order for defer + panic + recover flow.",
+      "topic": "Redis Caching"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 24: Design idempotent payment webhook consumer with retries.",
+      "topic": "Concurrency Control",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 25: Explain mutex vs channel trade-offs in shared state updates.",
+      "topic": "Message Processing"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 26: Handle nil-interface bug in typed error wrappers.",
+      "topic": "Observability",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 27: Implement request-scoped timeout propagation through repository layer.",
+      "topic": "Resilience",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 28: Debug DB pool exhaustion under concurrent API load.",
+      "topic": "Security"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 29: Predict race detector findings for shared map write code.",
+      "topic": "Testing"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 30: Design cache-aside strategy with stampede protection.",
+      "topic": "Performance",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 31: Implement optimistic locking update with version checks.",
+      "topic": "HTTP APIs"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 32: Debug stale cache invalidation after write success.",
+      "topic": "Database Transactions",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 33: Predict behavior of append with shared backing slices.",
+      "topic": "Redis Caching",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 34: Design graceful shutdown for HTTP server + workers + queue.",
+      "topic": "Concurrency Control"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 35: Explain why time.After in loop can leak resources.",
+      "topic": "Message Processing"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 36: Implement structured logging middleware with request IDs.",
+      "topic": "Observability",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 37: Debug retry storm against unstable dependency.",
+      "topic": "Resilience"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 38: Predict channel close behavior across multiple consumers.",
+      "topic": "Security",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 39: Design alerting strategy for high p95 latency endpoint.",
+      "topic": "Testing",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 40: Explain consistency trade-offs for outbox/inbox pattern.",
+      "topic": "Performance"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 41: Build bounded worker pool with cancellation and backpressure.",
+      "topic": "HTTP APIs"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 42: Fix goroutine leak in channel fan-in pipeline.",
+      "topic": "Database Transactions",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 43: Predict output/order for defer + panic + recover flow.",
+      "topic": "Redis Caching"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 44: Design idempotent payment webhook consumer with retries.",
+      "topic": "Concurrency Control",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 45: Explain mutex vs channel trade-offs in shared state updates.",
+      "topic": "Message Processing",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 46: Handle nil-interface bug in typed error wrappers.",
+      "topic": "Observability"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 47: Implement request-scoped timeout propagation through repository layer.",
+      "topic": "Resilience"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 48: Debug DB pool exhaustion under concurrent API load.",
+      "topic": "Security",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 49: Predict race detector findings for shared map write code.",
+      "topic": "Testing"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 50: Design cache-aside strategy with stampede protection.",
+      "topic": "Performance",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 51: Implement optimistic locking update with version checks.",
+      "topic": "HTTP APIs",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 52: Debug stale cache invalidation after write success.",
+      "topic": "Database Transactions"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 53: Predict behavior of append with shared backing slices.",
+      "topic": "Redis Caching"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 54: Design graceful shutdown for HTTP server + workers + queue.",
+      "topic": "Concurrency Control",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 55: Explain why time.After in loop can leak resources.",
+      "topic": "Message Processing"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 56: Implement structured logging middleware with request IDs.",
+      "topic": "Observability",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 57: Debug retry storm against unstable dependency.",
+      "topic": "Resilience",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 58: Predict channel close behavior across multiple consumers.",
+      "topic": "Security"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 59: Design alerting strategy for high p95 latency endpoint.",
+      "topic": "Testing"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 60: Explain consistency trade-offs for outbox/inbox pattern.",
+      "topic": "Performance",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 61: Build bounded worker pool with cancellation and backpressure.",
+      "topic": "HTTP APIs"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 62: Fix goroutine leak in channel fan-in pipeline.",
+      "topic": "Database Transactions",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 63: Predict output/order for defer + panic + recover flow.",
+      "topic": "Redis Caching",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 64: Design idempotent payment webhook consumer with retries.",
+      "topic": "Concurrency Control"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 65: Explain mutex vs channel trade-offs in shared state updates.",
+      "topic": "Message Processing"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 66: Handle nil-interface bug in typed error wrappers.",
+      "topic": "Observability",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 67: Implement request-scoped timeout propagation through repository layer.",
+      "topic": "Resilience"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 68: Debug DB pool exhaustion under concurrent API load.",
+      "topic": "Security",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 69: Predict race detector findings for shared map write code.",
+      "topic": "Testing",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 70: Design cache-aside strategy with stampede protection.",
+      "topic": "Performance"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 71: Implement optimistic locking update with version checks.",
+      "topic": "HTTP APIs"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 72: Debug stale cache invalidation after write success.",
+      "topic": "Database Transactions",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 73: Predict behavior of append with shared backing slices.",
+      "topic": "Redis Caching"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 74: Design graceful shutdown for HTTP server + workers + queue.",
+      "topic": "Concurrency Control",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 75: Explain why time.After in loop can leak resources.",
+      "topic": "Message Processing",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 76: Implement structured logging middleware with request IDs.",
+      "topic": "Observability"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 77: Debug retry storm against unstable dependency.",
+      "topic": "Resilience"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 78: Predict channel close behavior across multiple consumers.",
+      "topic": "Security",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 79: Design alerting strategy for high p95 latency endpoint.",
+      "topic": "Testing"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 80: Explain consistency trade-offs for outbox/inbox pattern.",
+      "topic": "Performance",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 81: Build bounded worker pool with cancellation and backpressure.",
+      "topic": "HTTP APIs",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 82: Fix goroutine leak in channel fan-in pipeline.",
+      "topic": "Database Transactions"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 83: Predict output/order for defer + panic + recover flow.",
+      "topic": "Redis Caching"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 84: Design idempotent payment webhook consumer with retries.",
+      "topic": "Concurrency Control",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 85: Explain mutex vs channel trade-offs in shared state updates.",
+      "topic": "Message Processing"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 86: Handle nil-interface bug in typed error wrappers.",
+      "topic": "Observability",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 87: Implement request-scoped timeout propagation through repository layer.",
+      "topic": "Resilience",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 88: Debug DB pool exhaustion under concurrent API load.",
+      "topic": "Security"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 89: Predict race detector findings for shared map write code.",
+      "topic": "Testing"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 90: Design cache-aside strategy with stampede protection.",
+      "topic": "Performance",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 91: Implement optimistic locking update with version checks.",
+      "topic": "HTTP APIs"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 92: Debug stale cache invalidation after write success.",
+      "topic": "Database Transactions",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 93: Predict behavior of append with shared backing slices.",
+      "topic": "Redis Caching",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 94: Design graceful shutdown for HTTP server + workers + queue.",
+      "topic": "Concurrency Control"
+    },
+    {
+      "type": "theory",
+      "question": "Exercise 95: Explain why time.After in loop can leak resources.",
+      "topic": "Message Processing"
+    },
+    {
+      "type": "tricky",
+      "question": "Exercise 96: Implement structured logging middleware with request IDs.",
+      "topic": "Observability",
+      "answer": "Document edge case, failure surface, and mitigation pattern used in production."
+    },
+    {
+      "type": "implement",
+      "question": "Exercise 97: Debug retry storm against unstable dependency.",
+      "topic": "Resilience"
+    },
+    {
+      "type": "debug",
+      "question": "Exercise 98: Predict channel close behavior across multiple consumers.",
+      "topic": "Security",
+      "hint": "Identify root cause first (leak/race/deadlock), then apply smallest safe fix."
+    },
+    {
+      "type": "output",
+      "question": "Exercise 99: Design alerting strategy for high p95 latency endpoint.",
+      "topic": "Testing",
+      "answer": "Provide exact output and explain synchronization/order guarantees line by line."
+    },
+    {
+      "type": "scenario",
+      "question": "Exercise 100: Explain consistency trade-offs for outbox/inbox pattern.",
+      "topic": "Performance"
+    }
+  ],
+  "programExercises": [
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 1: Implement context-aware HTTP handler with timeout and JSON error envelope",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"encoding/json\"\n  \"net/http\"\n  \"time\"\n)\n\nfunc writeJSON(w http.ResponseWriter, code int, v any) {\n  w.Header().Set(\"Content-Type\", \"application/json\")\n  w.WriteHeader(code)\n  _ = json.NewEncoder(w).Encode(v)\n}\n\nfunc main() {\n  http.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 500*time.Millisecond)\n    defer cancel()\n    select {\n    case <-ctx.Done():\n      writeJSON(w, http.StatusGatewayTimeout, map[string]string{\"error\": \"timeout\"})\n    default:\n      writeJSON(w, http.StatusOK, map[string]string{\"status\": \"ok\"})\n    }\n  })\n  _ = http.ListenAndServe(\":8080\", nil)\n}",
+      "output": "Serves /health with JSON status and timeout-safe context handling."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 2: Build worker pool with bounded queue and cancellation",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"sync\"\n)\n\nfunc main() {\n  ctx, cancel := context.WithCancel(context.Background())\n  defer cancel()\n\n  jobs := make(chan int, 8)\n  var wg sync.WaitGroup\n\n  worker := func(id int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case j, ok := <-jobs:\n        if !ok { return }\n        fmt.Println(\"worker\", id, \"job\", j)\n      }\n    }\n  }\n\n  for i := 0; i < 3; i++ { wg.Add(1); go worker(i) }\n  for j := 1; j <= 6; j++ { jobs <- j }\n  close(jobs)\n  wg.Wait()\n}",
+      "output": "Processes queued jobs concurrently without leaking goroutines."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 3: Repository method with sql.ErrNoRows mapping",
+      "code": "func (r *UserRepo) GetByID(ctx context.Context, id int64) (User, error) {\n  var u User\n  err := r.db.QueryRowContext(ctx, \"SELECT id,email FROM users WHERE id=$1\", id).Scan(&u.ID, &u.Email)\n  if err == sql.ErrNoRows {\n    return User{}, ErrUserNotFound\n  }\n  if err != nil {\n    return User{}, fmt.Errorf(\"query user: %w\", err)\n  }\n  return u, nil\n}",
+      "output": "Returns domain not-found error and wraps infrastructure failures safely."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 4: Implement Redis cache-aside getter with miss fill",
+      "code": "func GetUserCached(ctx context.Context, rdb *redis.Client, repo UserRepository, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  raw, err := rdb.Get(ctx, key).Result()\n  if err == nil {\n    var u User\n    if json.Unmarshal([]byte(raw), &u) == nil {\n      return u, nil\n    }\n  }\n\n  u, err := repo.GetByID(ctx, id)\n  if err != nil { return User{}, err }\n\n  b, _ := json.Marshal(u)\n  _ = rdb.Set(ctx, key, b, 5*time.Minute).Err()\n  return u, nil\n}",
+      "output": "Reads from cache first and repopulates cache on miss."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 5: Table-driven validator tests with subtests",
+      "code": "func TestValidateEmail(t *testing.T) {\n  cases := []struct {\n    name string\n    in   string\n    ok   bool\n  }{\n    {\"valid\", \"a@b.com\", true},\n    {\"missing-at\", \"ab.com\", false},\n    {\"empty\", \"\", false},\n  }\n\n  for _, tc := range cases {\n    tc := tc\n    t.Run(tc.name, func(t *testing.T) {\n      got := ValidateEmail(tc.in)\n      if got != tc.ok {\n        t.Fatalf(\"got=%v want=%v\", got, tc.ok)\n      }\n    })\n  }\n}",
+      "output": "Deterministic subtests validating multiple input cases."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 6: Implement context-aware HTTP handler with timeout and JSON error envelope",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"encoding/json\"\n  \"net/http\"\n  \"time\"\n)\n\nfunc writeJSON(w http.ResponseWriter, code int, v any) {\n  w.Header().Set(\"Content-Type\", \"application/json\")\n  w.WriteHeader(code)\n  _ = json.NewEncoder(w).Encode(v)\n}\n\nfunc main() {\n  http.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 500*time.Millisecond)\n    defer cancel()\n    select {\n    case <-ctx.Done():\n      writeJSON(w, http.StatusGatewayTimeout, map[string]string{\"error\": \"timeout\"})\n    default:\n      writeJSON(w, http.StatusOK, map[string]string{\"status\": \"ok\"})\n    }\n  })\n  _ = http.ListenAndServe(\":8080\", nil)\n}",
+      "output": "Serves /health with JSON status and timeout-safe context handling."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 7: Build worker pool with bounded queue and cancellation",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"sync\"\n)\n\nfunc main() {\n  ctx, cancel := context.WithCancel(context.Background())\n  defer cancel()\n\n  jobs := make(chan int, 8)\n  var wg sync.WaitGroup\n\n  worker := func(id int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case j, ok := <-jobs:\n        if !ok { return }\n        fmt.Println(\"worker\", id, \"job\", j)\n      }\n    }\n  }\n\n  for i := 0; i < 3; i++ { wg.Add(1); go worker(i) }\n  for j := 1; j <= 6; j++ { jobs <- j }\n  close(jobs)\n  wg.Wait()\n}",
+      "output": "Processes queued jobs concurrently without leaking goroutines."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 8: Repository method with sql.ErrNoRows mapping",
+      "code": "func (r *UserRepo) GetByID(ctx context.Context, id int64) (User, error) {\n  var u User\n  err := r.db.QueryRowContext(ctx, \"SELECT id,email FROM users WHERE id=$1\", id).Scan(&u.ID, &u.Email)\n  if err == sql.ErrNoRows {\n    return User{}, ErrUserNotFound\n  }\n  if err != nil {\n    return User{}, fmt.Errorf(\"query user: %w\", err)\n  }\n  return u, nil\n}",
+      "output": "Returns domain not-found error and wraps infrastructure failures safely."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 9: Implement Redis cache-aside getter with miss fill",
+      "code": "func GetUserCached(ctx context.Context, rdb *redis.Client, repo UserRepository, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  raw, err := rdb.Get(ctx, key).Result()\n  if err == nil {\n    var u User\n    if json.Unmarshal([]byte(raw), &u) == nil {\n      return u, nil\n    }\n  }\n\n  u, err := repo.GetByID(ctx, id)\n  if err != nil { return User{}, err }\n\n  b, _ := json.Marshal(u)\n  _ = rdb.Set(ctx, key, b, 5*time.Minute).Err()\n  return u, nil\n}",
+      "output": "Reads from cache first and repopulates cache on miss."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 10: Table-driven validator tests with subtests",
+      "code": "func TestValidateEmail(t *testing.T) {\n  cases := []struct {\n    name string\n    in   string\n    ok   bool\n  }{\n    {\"valid\", \"a@b.com\", true},\n    {\"missing-at\", \"ab.com\", false},\n    {\"empty\", \"\", false},\n  }\n\n  for _, tc := range cases {\n    tc := tc\n    t.Run(tc.name, func(t *testing.T) {\n      got := ValidateEmail(tc.in)\n      if got != tc.ok {\n        t.Fatalf(\"got=%v want=%v\", got, tc.ok)\n      }\n    })\n  }\n}",
+      "output": "Deterministic subtests validating multiple input cases."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 11: Implement context-aware HTTP handler with timeout and JSON error envelope",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"encoding/json\"\n  \"net/http\"\n  \"time\"\n)\n\nfunc writeJSON(w http.ResponseWriter, code int, v any) {\n  w.Header().Set(\"Content-Type\", \"application/json\")\n  w.WriteHeader(code)\n  _ = json.NewEncoder(w).Encode(v)\n}\n\nfunc main() {\n  http.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 500*time.Millisecond)\n    defer cancel()\n    select {\n    case <-ctx.Done():\n      writeJSON(w, http.StatusGatewayTimeout, map[string]string{\"error\": \"timeout\"})\n    default:\n      writeJSON(w, http.StatusOK, map[string]string{\"status\": \"ok\"})\n    }\n  })\n  _ = http.ListenAndServe(\":8080\", nil)\n}",
+      "output": "Serves /health with JSON status and timeout-safe context handling."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 12: Build worker pool with bounded queue and cancellation",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"sync\"\n)\n\nfunc main() {\n  ctx, cancel := context.WithCancel(context.Background())\n  defer cancel()\n\n  jobs := make(chan int, 8)\n  var wg sync.WaitGroup\n\n  worker := func(id int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case j, ok := <-jobs:\n        if !ok { return }\n        fmt.Println(\"worker\", id, \"job\", j)\n      }\n    }\n  }\n\n  for i := 0; i < 3; i++ { wg.Add(1); go worker(i) }\n  for j := 1; j <= 6; j++ { jobs <- j }\n  close(jobs)\n  wg.Wait()\n}",
+      "output": "Processes queued jobs concurrently without leaking goroutines."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 13: Repository method with sql.ErrNoRows mapping",
+      "code": "func (r *UserRepo) GetByID(ctx context.Context, id int64) (User, error) {\n  var u User\n  err := r.db.QueryRowContext(ctx, \"SELECT id,email FROM users WHERE id=$1\", id).Scan(&u.ID, &u.Email)\n  if err == sql.ErrNoRows {\n    return User{}, ErrUserNotFound\n  }\n  if err != nil {\n    return User{}, fmt.Errorf(\"query user: %w\", err)\n  }\n  return u, nil\n}",
+      "output": "Returns domain not-found error and wraps infrastructure failures safely."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 14: Implement Redis cache-aside getter with miss fill",
+      "code": "func GetUserCached(ctx context.Context, rdb *redis.Client, repo UserRepository, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  raw, err := rdb.Get(ctx, key).Result()\n  if err == nil {\n    var u User\n    if json.Unmarshal([]byte(raw), &u) == nil {\n      return u, nil\n    }\n  }\n\n  u, err := repo.GetByID(ctx, id)\n  if err != nil { return User{}, err }\n\n  b, _ := json.Marshal(u)\n  _ = rdb.Set(ctx, key, b, 5*time.Minute).Err()\n  return u, nil\n}",
+      "output": "Reads from cache first and repopulates cache on miss."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 15: Table-driven validator tests with subtests",
+      "code": "func TestValidateEmail(t *testing.T) {\n  cases := []struct {\n    name string\n    in   string\n    ok   bool\n  }{\n    {\"valid\", \"a@b.com\", true},\n    {\"missing-at\", \"ab.com\", false},\n    {\"empty\", \"\", false},\n  }\n\n  for _, tc := range cases {\n    tc := tc\n    t.Run(tc.name, func(t *testing.T) {\n      got := ValidateEmail(tc.in)\n      if got != tc.ok {\n        t.Fatalf(\"got=%v want=%v\", got, tc.ok)\n      }\n    })\n  }\n}",
+      "output": "Deterministic subtests validating multiple input cases."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 16: Implement context-aware HTTP handler with timeout and JSON error envelope",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"encoding/json\"\n  \"net/http\"\n  \"time\"\n)\n\nfunc writeJSON(w http.ResponseWriter, code int, v any) {\n  w.Header().Set(\"Content-Type\", \"application/json\")\n  w.WriteHeader(code)\n  _ = json.NewEncoder(w).Encode(v)\n}\n\nfunc main() {\n  http.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 500*time.Millisecond)\n    defer cancel()\n    select {\n    case <-ctx.Done():\n      writeJSON(w, http.StatusGatewayTimeout, map[string]string{\"error\": \"timeout\"})\n    default:\n      writeJSON(w, http.StatusOK, map[string]string{\"status\": \"ok\"})\n    }\n  })\n  _ = http.ListenAndServe(\":8080\", nil)\n}",
+      "output": "Serves /health with JSON status and timeout-safe context handling."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 17: Build worker pool with bounded queue and cancellation",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"sync\"\n)\n\nfunc main() {\n  ctx, cancel := context.WithCancel(context.Background())\n  defer cancel()\n\n  jobs := make(chan int, 8)\n  var wg sync.WaitGroup\n\n  worker := func(id int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case j, ok := <-jobs:\n        if !ok { return }\n        fmt.Println(\"worker\", id, \"job\", j)\n      }\n    }\n  }\n\n  for i := 0; i < 3; i++ { wg.Add(1); go worker(i) }\n  for j := 1; j <= 6; j++ { jobs <- j }\n  close(jobs)\n  wg.Wait()\n}",
+      "output": "Processes queued jobs concurrently without leaking goroutines."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 18: Repository method with sql.ErrNoRows mapping",
+      "code": "func (r *UserRepo) GetByID(ctx context.Context, id int64) (User, error) {\n  var u User\n  err := r.db.QueryRowContext(ctx, \"SELECT id,email FROM users WHERE id=$1\", id).Scan(&u.ID, &u.Email)\n  if err == sql.ErrNoRows {\n    return User{}, ErrUserNotFound\n  }\n  if err != nil {\n    return User{}, fmt.Errorf(\"query user: %w\", err)\n  }\n  return u, nil\n}",
+      "output": "Returns domain not-found error and wraps infrastructure failures safely."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 19: Implement Redis cache-aside getter with miss fill",
+      "code": "func GetUserCached(ctx context.Context, rdb *redis.Client, repo UserRepository, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  raw, err := rdb.Get(ctx, key).Result()\n  if err == nil {\n    var u User\n    if json.Unmarshal([]byte(raw), &u) == nil {\n      return u, nil\n    }\n  }\n\n  u, err := repo.GetByID(ctx, id)\n  if err != nil { return User{}, err }\n\n  b, _ := json.Marshal(u)\n  _ = rdb.Set(ctx, key, b, 5*time.Minute).Err()\n  return u, nil\n}",
+      "output": "Reads from cache first and repopulates cache on miss."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 20: Table-driven validator tests with subtests",
+      "code": "func TestValidateEmail(t *testing.T) {\n  cases := []struct {\n    name string\n    in   string\n    ok   bool\n  }{\n    {\"valid\", \"a@b.com\", true},\n    {\"missing-at\", \"ab.com\", false},\n    {\"empty\", \"\", false},\n  }\n\n  for _, tc := range cases {\n    tc := tc\n    t.Run(tc.name, func(t *testing.T) {\n      got := ValidateEmail(tc.in)\n      if got != tc.ok {\n        t.Fatalf(\"got=%v want=%v\", got, tc.ok)\n      }\n    })\n  }\n}",
+      "output": "Deterministic subtests validating multiple input cases."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 21: Implement context-aware HTTP handler with timeout and JSON error envelope",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"encoding/json\"\n  \"net/http\"\n  \"time\"\n)\n\nfunc writeJSON(w http.ResponseWriter, code int, v any) {\n  w.Header().Set(\"Content-Type\", \"application/json\")\n  w.WriteHeader(code)\n  _ = json.NewEncoder(w).Encode(v)\n}\n\nfunc main() {\n  http.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 500*time.Millisecond)\n    defer cancel()\n    select {\n    case <-ctx.Done():\n      writeJSON(w, http.StatusGatewayTimeout, map[string]string{\"error\": \"timeout\"})\n    default:\n      writeJSON(w, http.StatusOK, map[string]string{\"status\": \"ok\"})\n    }\n  })\n  _ = http.ListenAndServe(\":8080\", nil)\n}",
+      "output": "Serves /health with JSON status and timeout-safe context handling."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 22: Build worker pool with bounded queue and cancellation",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"sync\"\n)\n\nfunc main() {\n  ctx, cancel := context.WithCancel(context.Background())\n  defer cancel()\n\n  jobs := make(chan int, 8)\n  var wg sync.WaitGroup\n\n  worker := func(id int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case j, ok := <-jobs:\n        if !ok { return }\n        fmt.Println(\"worker\", id, \"job\", j)\n      }\n    }\n  }\n\n  for i := 0; i < 3; i++ { wg.Add(1); go worker(i) }\n  for j := 1; j <= 6; j++ { jobs <- j }\n  close(jobs)\n  wg.Wait()\n}",
+      "output": "Processes queued jobs concurrently without leaking goroutines."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 23: Repository method with sql.ErrNoRows mapping",
+      "code": "func (r *UserRepo) GetByID(ctx context.Context, id int64) (User, error) {\n  var u User\n  err := r.db.QueryRowContext(ctx, \"SELECT id,email FROM users WHERE id=$1\", id).Scan(&u.ID, &u.Email)\n  if err == sql.ErrNoRows {\n    return User{}, ErrUserNotFound\n  }\n  if err != nil {\n    return User{}, fmt.Errorf(\"query user: %w\", err)\n  }\n  return u, nil\n}",
+      "output": "Returns domain not-found error and wraps infrastructure failures safely."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 24: Implement Redis cache-aside getter with miss fill",
+      "code": "func GetUserCached(ctx context.Context, rdb *redis.Client, repo UserRepository, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  raw, err := rdb.Get(ctx, key).Result()\n  if err == nil {\n    var u User\n    if json.Unmarshal([]byte(raw), &u) == nil {\n      return u, nil\n    }\n  }\n\n  u, err := repo.GetByID(ctx, id)\n  if err != nil { return User{}, err }\n\n  b, _ := json.Marshal(u)\n  _ = rdb.Set(ctx, key, b, 5*time.Minute).Err()\n  return u, nil\n}",
+      "output": "Reads from cache first and repopulates cache on miss."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 25: Table-driven validator tests with subtests",
+      "code": "func TestValidateEmail(t *testing.T) {\n  cases := []struct {\n    name string\n    in   string\n    ok   bool\n  }{\n    {\"valid\", \"a@b.com\", true},\n    {\"missing-at\", \"ab.com\", false},\n    {\"empty\", \"\", false},\n  }\n\n  for _, tc := range cases {\n    tc := tc\n    t.Run(tc.name, func(t *testing.T) {\n      got := ValidateEmail(tc.in)\n      if got != tc.ok {\n        t.Fatalf(\"got=%v want=%v\", got, tc.ok)\n      }\n    })\n  }\n}",
+      "output": "Deterministic subtests validating multiple input cases."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 26: Implement context-aware HTTP handler with timeout and JSON error envelope",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"encoding/json\"\n  \"net/http\"\n  \"time\"\n)\n\nfunc writeJSON(w http.ResponseWriter, code int, v any) {\n  w.Header().Set(\"Content-Type\", \"application/json\")\n  w.WriteHeader(code)\n  _ = json.NewEncoder(w).Encode(v)\n}\n\nfunc main() {\n  http.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {\n    ctx, cancel := context.WithTimeout(r.Context(), 500*time.Millisecond)\n    defer cancel()\n    select {\n    case <-ctx.Done():\n      writeJSON(w, http.StatusGatewayTimeout, map[string]string{\"error\": \"timeout\"})\n    default:\n      writeJSON(w, http.StatusOK, map[string]string{\"status\": \"ok\"})\n    }\n  })\n  _ = http.ListenAndServe(\":8080\", nil)\n}",
+      "output": "Serves /health with JSON status and timeout-safe context handling."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 27: Build worker pool with bounded queue and cancellation",
+      "code": "package main\n\nimport (\n  \"context\"\n  \"fmt\"\n  \"sync\"\n)\n\nfunc main() {\n  ctx, cancel := context.WithCancel(context.Background())\n  defer cancel()\n\n  jobs := make(chan int, 8)\n  var wg sync.WaitGroup\n\n  worker := func(id int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case j, ok := <-jobs:\n        if !ok { return }\n        fmt.Println(\"worker\", id, \"job\", j)\n      }\n    }\n  }\n\n  for i := 0; i < 3; i++ { wg.Add(1); go worker(i) }\n  for j := 1; j <= 6; j++ { jobs <- j }\n  close(jobs)\n  wg.Wait()\n}",
+      "output": "Processes queued jobs concurrently without leaking goroutines."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 28: Repository method with sql.ErrNoRows mapping",
+      "code": "func (r *UserRepo) GetByID(ctx context.Context, id int64) (User, error) {\n  var u User\n  err := r.db.QueryRowContext(ctx, \"SELECT id,email FROM users WHERE id=$1\", id).Scan(&u.ID, &u.Email)\n  if err == sql.ErrNoRows {\n    return User{}, ErrUserNotFound\n  }\n  if err != nil {\n    return User{}, fmt.Errorf(\"query user: %w\", err)\n  }\n  return u, nil\n}",
+      "output": "Returns domain not-found error and wraps infrastructure failures safely."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 29: Implement Redis cache-aside getter with miss fill",
+      "code": "func GetUserCached(ctx context.Context, rdb *redis.Client, repo UserRepository, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  raw, err := rdb.Get(ctx, key).Result()\n  if err == nil {\n    var u User\n    if json.Unmarshal([]byte(raw), &u) == nil {\n      return u, nil\n    }\n  }\n\n  u, err := repo.GetByID(ctx, id)\n  if err != nil { return User{}, err }\n\n  b, _ := json.Marshal(u)\n  _ = rdb.Set(ctx, key, b, 5*time.Minute).Err()\n  return u, nil\n}",
+      "output": "Reads from cache first and repopulates cache on miss."
+    },
+    {
+      "type": "program",
+      "level": "Medium",
+      "question": "Program 30: Table-driven validator tests with subtests",
+      "code": "func TestValidateEmail(t *testing.T) {\n  cases := []struct {\n    name string\n    in   string\n    ok   bool\n  }{\n    {\"valid\", \"a@b.com\", true},\n    {\"missing-at\", \"ab.com\", false},\n    {\"empty\", \"\", false},\n  }\n\n  for _, tc := range cases {\n    tc := tc\n    t.Run(tc.name, func(t *testing.T) {\n      got := ValidateEmail(tc.in)\n      if got != tc.ok {\n        t.Fatalf(\"got=%v want=%v\", got, tc.ok)\n      }\n    })\n  }\n}",
+      "output": "Deterministic subtests validating multiple input cases."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 31: Retry with exponential backoff + jitter + context cancel",
+      "code": "func Retry(ctx context.Context, max int, fn func(context.Context) error) error {\n  var err error\n  for i := 0; i < max; i++ {\n    if err = fn(ctx); err == nil { return nil }\n\n    d := time.Duration(1<<i) * 50 * time.Millisecond\n    jitter := time.Duration(rand.Intn(40)) * time.Millisecond\n    timer := time.NewTimer(d + jitter)\n\n    select {\n    case <-ctx.Done():\n      timer.Stop()\n      return ctx.Err()\n    case <-timer.C:\n    }\n  }\n  return fmt.Errorf(\"retry exhausted: %w\", err)\n}",
+      "output": "Retries failures with bounded exponential backoff and cancel support."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 32: Token bucket rate limiter middleware",
+      "code": "type TokenBucket struct {\n  mu       sync.Mutex\n  tokens   float64\n  capacity float64\n  rate     float64\n  last     time.Time\n}\n\nfunc (b *TokenBucket) Allow() bool {\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  now := time.Now()\n  elapsed := now.Sub(b.last).Seconds()\n  b.tokens = math.Min(b.capacity, b.tokens+elapsed*b.rate)\n  b.last = now\n\n  if b.tokens < 1 { return false }\n  b.tokens--\n  return true\n}\n\nfunc RateLimit(next http.Handler, bucket *TokenBucket) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    if !bucket.Allow() {\n      http.Error(w, \"rate limited\", http.StatusTooManyRequests)\n      return\n    }\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Protects endpoints with deterministic token-based throttling."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 33: Graceful shutdown coordinator for HTTP + workers",
+      "code": "func Run(ctx context.Context, srv *http.Server, runWorkers func(context.Context) error) error {\n  g, gctx := errgroup.WithContext(ctx)\n\n  g.Go(func() error { return srv.ListenAndServe() })\n  g.Go(func() error { return runWorkers(gctx) })\n\n  <-gctx.Done()\n\n  shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)\n  defer cancel()\n  _ = srv.Shutdown(shutdownCtx)\n\n  return g.Wait()\n}",
+      "output": "Coordinates service stop and drains inflight work safely."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 34: Outbox publisher transaction skeleton",
+      "code": "func CreateOrderWithOutbox(ctx context.Context, db *sql.DB, order Order) error {\n  tx, err := db.BeginTx(ctx, nil)\n  if err != nil { return err }\n  defer tx.Rollback()\n\n  _, err = tx.ExecContext(ctx, \"INSERT INTO orders(id,total) VALUES($1,$2)\", order.ID, order.Total)\n  if err != nil { return err }\n\n  payload, _ := json.Marshal(order)\n  _, err = tx.ExecContext(ctx, \"INSERT INTO outbox(event_type,payload,status) VALUES($1,$2,'pending')\", \"order.created\", payload)\n  if err != nil { return err }\n\n  return tx.Commit()\n}",
+      "output": "Writes domain change and outbox event atomically in one transaction."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 35: Channel fan-in with context cancellation and error channel",
+      "code": "func FanIn(ctx context.Context, inputs ...<-chan int) (<-chan int, <-chan error) {\n  out := make(chan int)\n  errCh := make(chan error, 1)\n  var wg sync.WaitGroup\n\n  forward := func(ch <-chan int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case v, ok := <-ch:\n        if !ok { return }\n        select {\n        case out <- v:\n        case <-ctx.Done(): return\n        }\n      }\n    }\n  }\n\n  wg.Add(len(inputs))\n  for _, ch := range inputs { go forward(ch) }\n\n  go func() {\n    wg.Wait()\n    close(out)\n    close(errCh)\n  }()\n\n  return out, errCh\n}",
+      "output": "Merges multiple streams safely with cancellation-aware forwarding."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 36: Retry with exponential backoff + jitter + context cancel",
+      "code": "func Retry(ctx context.Context, max int, fn func(context.Context) error) error {\n  var err error\n  for i := 0; i < max; i++ {\n    if err = fn(ctx); err == nil { return nil }\n\n    d := time.Duration(1<<i) * 50 * time.Millisecond\n    jitter := time.Duration(rand.Intn(40)) * time.Millisecond\n    timer := time.NewTimer(d + jitter)\n\n    select {\n    case <-ctx.Done():\n      timer.Stop()\n      return ctx.Err()\n    case <-timer.C:\n    }\n  }\n  return fmt.Errorf(\"retry exhausted: %w\", err)\n}",
+      "output": "Retries failures with bounded exponential backoff and cancel support."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 37: Token bucket rate limiter middleware",
+      "code": "type TokenBucket struct {\n  mu       sync.Mutex\n  tokens   float64\n  capacity float64\n  rate     float64\n  last     time.Time\n}\n\nfunc (b *TokenBucket) Allow() bool {\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  now := time.Now()\n  elapsed := now.Sub(b.last).Seconds()\n  b.tokens = math.Min(b.capacity, b.tokens+elapsed*b.rate)\n  b.last = now\n\n  if b.tokens < 1 { return false }\n  b.tokens--\n  return true\n}\n\nfunc RateLimit(next http.Handler, bucket *TokenBucket) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    if !bucket.Allow() {\n      http.Error(w, \"rate limited\", http.StatusTooManyRequests)\n      return\n    }\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Protects endpoints with deterministic token-based throttling."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 38: Graceful shutdown coordinator for HTTP + workers",
+      "code": "func Run(ctx context.Context, srv *http.Server, runWorkers func(context.Context) error) error {\n  g, gctx := errgroup.WithContext(ctx)\n\n  g.Go(func() error { return srv.ListenAndServe() })\n  g.Go(func() error { return runWorkers(gctx) })\n\n  <-gctx.Done()\n\n  shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)\n  defer cancel()\n  _ = srv.Shutdown(shutdownCtx)\n\n  return g.Wait()\n}",
+      "output": "Coordinates service stop and drains inflight work safely."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 39: Outbox publisher transaction skeleton",
+      "code": "func CreateOrderWithOutbox(ctx context.Context, db *sql.DB, order Order) error {\n  tx, err := db.BeginTx(ctx, nil)\n  if err != nil { return err }\n  defer tx.Rollback()\n\n  _, err = tx.ExecContext(ctx, \"INSERT INTO orders(id,total) VALUES($1,$2)\", order.ID, order.Total)\n  if err != nil { return err }\n\n  payload, _ := json.Marshal(order)\n  _, err = tx.ExecContext(ctx, \"INSERT INTO outbox(event_type,payload,status) VALUES($1,$2,'pending')\", \"order.created\", payload)\n  if err != nil { return err }\n\n  return tx.Commit()\n}",
+      "output": "Writes domain change and outbox event atomically in one transaction."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 40: Channel fan-in with context cancellation and error channel",
+      "code": "func FanIn(ctx context.Context, inputs ...<-chan int) (<-chan int, <-chan error) {\n  out := make(chan int)\n  errCh := make(chan error, 1)\n  var wg sync.WaitGroup\n\n  forward := func(ch <-chan int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case v, ok := <-ch:\n        if !ok { return }\n        select {\n        case out <- v:\n        case <-ctx.Done(): return\n        }\n      }\n    }\n  }\n\n  wg.Add(len(inputs))\n  for _, ch := range inputs { go forward(ch) }\n\n  go func() {\n    wg.Wait()\n    close(out)\n    close(errCh)\n  }()\n\n  return out, errCh\n}",
+      "output": "Merges multiple streams safely with cancellation-aware forwarding."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 41: Retry with exponential backoff + jitter + context cancel",
+      "code": "func Retry(ctx context.Context, max int, fn func(context.Context) error) error {\n  var err error\n  for i := 0; i < max; i++ {\n    if err = fn(ctx); err == nil { return nil }\n\n    d := time.Duration(1<<i) * 50 * time.Millisecond\n    jitter := time.Duration(rand.Intn(40)) * time.Millisecond\n    timer := time.NewTimer(d + jitter)\n\n    select {\n    case <-ctx.Done():\n      timer.Stop()\n      return ctx.Err()\n    case <-timer.C:\n    }\n  }\n  return fmt.Errorf(\"retry exhausted: %w\", err)\n}",
+      "output": "Retries failures with bounded exponential backoff and cancel support."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 42: Token bucket rate limiter middleware",
+      "code": "type TokenBucket struct {\n  mu       sync.Mutex\n  tokens   float64\n  capacity float64\n  rate     float64\n  last     time.Time\n}\n\nfunc (b *TokenBucket) Allow() bool {\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  now := time.Now()\n  elapsed := now.Sub(b.last).Seconds()\n  b.tokens = math.Min(b.capacity, b.tokens+elapsed*b.rate)\n  b.last = now\n\n  if b.tokens < 1 { return false }\n  b.tokens--\n  return true\n}\n\nfunc RateLimit(next http.Handler, bucket *TokenBucket) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    if !bucket.Allow() {\n      http.Error(w, \"rate limited\", http.StatusTooManyRequests)\n      return\n    }\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Protects endpoints with deterministic token-based throttling."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 43: Graceful shutdown coordinator for HTTP + workers",
+      "code": "func Run(ctx context.Context, srv *http.Server, runWorkers func(context.Context) error) error {\n  g, gctx := errgroup.WithContext(ctx)\n\n  g.Go(func() error { return srv.ListenAndServe() })\n  g.Go(func() error { return runWorkers(gctx) })\n\n  <-gctx.Done()\n\n  shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)\n  defer cancel()\n  _ = srv.Shutdown(shutdownCtx)\n\n  return g.Wait()\n}",
+      "output": "Coordinates service stop and drains inflight work safely."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 44: Outbox publisher transaction skeleton",
+      "code": "func CreateOrderWithOutbox(ctx context.Context, db *sql.DB, order Order) error {\n  tx, err := db.BeginTx(ctx, nil)\n  if err != nil { return err }\n  defer tx.Rollback()\n\n  _, err = tx.ExecContext(ctx, \"INSERT INTO orders(id,total) VALUES($1,$2)\", order.ID, order.Total)\n  if err != nil { return err }\n\n  payload, _ := json.Marshal(order)\n  _, err = tx.ExecContext(ctx, \"INSERT INTO outbox(event_type,payload,status) VALUES($1,$2,'pending')\", \"order.created\", payload)\n  if err != nil { return err }\n\n  return tx.Commit()\n}",
+      "output": "Writes domain change and outbox event atomically in one transaction."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 45: Channel fan-in with context cancellation and error channel",
+      "code": "func FanIn(ctx context.Context, inputs ...<-chan int) (<-chan int, <-chan error) {\n  out := make(chan int)\n  errCh := make(chan error, 1)\n  var wg sync.WaitGroup\n\n  forward := func(ch <-chan int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case v, ok := <-ch:\n        if !ok { return }\n        select {\n        case out <- v:\n        case <-ctx.Done(): return\n        }\n      }\n    }\n  }\n\n  wg.Add(len(inputs))\n  for _, ch := range inputs { go forward(ch) }\n\n  go func() {\n    wg.Wait()\n    close(out)\n    close(errCh)\n  }()\n\n  return out, errCh\n}",
+      "output": "Merges multiple streams safely with cancellation-aware forwarding."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 46: Retry with exponential backoff + jitter + context cancel",
+      "code": "func Retry(ctx context.Context, max int, fn func(context.Context) error) error {\n  var err error\n  for i := 0; i < max; i++ {\n    if err = fn(ctx); err == nil { return nil }\n\n    d := time.Duration(1<<i) * 50 * time.Millisecond\n    jitter := time.Duration(rand.Intn(40)) * time.Millisecond\n    timer := time.NewTimer(d + jitter)\n\n    select {\n    case <-ctx.Done():\n      timer.Stop()\n      return ctx.Err()\n    case <-timer.C:\n    }\n  }\n  return fmt.Errorf(\"retry exhausted: %w\", err)\n}",
+      "output": "Retries failures with bounded exponential backoff and cancel support."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 47: Token bucket rate limiter middleware",
+      "code": "type TokenBucket struct {\n  mu       sync.Mutex\n  tokens   float64\n  capacity float64\n  rate     float64\n  last     time.Time\n}\n\nfunc (b *TokenBucket) Allow() bool {\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  now := time.Now()\n  elapsed := now.Sub(b.last).Seconds()\n  b.tokens = math.Min(b.capacity, b.tokens+elapsed*b.rate)\n  b.last = now\n\n  if b.tokens < 1 { return false }\n  b.tokens--\n  return true\n}\n\nfunc RateLimit(next http.Handler, bucket *TokenBucket) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    if !bucket.Allow() {\n      http.Error(w, \"rate limited\", http.StatusTooManyRequests)\n      return\n    }\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Protects endpoints with deterministic token-based throttling."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 48: Graceful shutdown coordinator for HTTP + workers",
+      "code": "func Run(ctx context.Context, srv *http.Server, runWorkers func(context.Context) error) error {\n  g, gctx := errgroup.WithContext(ctx)\n\n  g.Go(func() error { return srv.ListenAndServe() })\n  g.Go(func() error { return runWorkers(gctx) })\n\n  <-gctx.Done()\n\n  shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)\n  defer cancel()\n  _ = srv.Shutdown(shutdownCtx)\n\n  return g.Wait()\n}",
+      "output": "Coordinates service stop and drains inflight work safely."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 49: Outbox publisher transaction skeleton",
+      "code": "func CreateOrderWithOutbox(ctx context.Context, db *sql.DB, order Order) error {\n  tx, err := db.BeginTx(ctx, nil)\n  if err != nil { return err }\n  defer tx.Rollback()\n\n  _, err = tx.ExecContext(ctx, \"INSERT INTO orders(id,total) VALUES($1,$2)\", order.ID, order.Total)\n  if err != nil { return err }\n\n  payload, _ := json.Marshal(order)\n  _, err = tx.ExecContext(ctx, \"INSERT INTO outbox(event_type,payload,status) VALUES($1,$2,'pending')\", \"order.created\", payload)\n  if err != nil { return err }\n\n  return tx.Commit()\n}",
+      "output": "Writes domain change and outbox event atomically in one transaction."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 50: Channel fan-in with context cancellation and error channel",
+      "code": "func FanIn(ctx context.Context, inputs ...<-chan int) (<-chan int, <-chan error) {\n  out := make(chan int)\n  errCh := make(chan error, 1)\n  var wg sync.WaitGroup\n\n  forward := func(ch <-chan int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case v, ok := <-ch:\n        if !ok { return }\n        select {\n        case out <- v:\n        case <-ctx.Done(): return\n        }\n      }\n    }\n  }\n\n  wg.Add(len(inputs))\n  for _, ch := range inputs { go forward(ch) }\n\n  go func() {\n    wg.Wait()\n    close(out)\n    close(errCh)\n  }()\n\n  return out, errCh\n}",
+      "output": "Merges multiple streams safely with cancellation-aware forwarding."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 51: Retry with exponential backoff + jitter + context cancel",
+      "code": "func Retry(ctx context.Context, max int, fn func(context.Context) error) error {\n  var err error\n  for i := 0; i < max; i++ {\n    if err = fn(ctx); err == nil { return nil }\n\n    d := time.Duration(1<<i) * 50 * time.Millisecond\n    jitter := time.Duration(rand.Intn(40)) * time.Millisecond\n    timer := time.NewTimer(d + jitter)\n\n    select {\n    case <-ctx.Done():\n      timer.Stop()\n      return ctx.Err()\n    case <-timer.C:\n    }\n  }\n  return fmt.Errorf(\"retry exhausted: %w\", err)\n}",
+      "output": "Retries failures with bounded exponential backoff and cancel support."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 52: Token bucket rate limiter middleware",
+      "code": "type TokenBucket struct {\n  mu       sync.Mutex\n  tokens   float64\n  capacity float64\n  rate     float64\n  last     time.Time\n}\n\nfunc (b *TokenBucket) Allow() bool {\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  now := time.Now()\n  elapsed := now.Sub(b.last).Seconds()\n  b.tokens = math.Min(b.capacity, b.tokens+elapsed*b.rate)\n  b.last = now\n\n  if b.tokens < 1 { return false }\n  b.tokens--\n  return true\n}\n\nfunc RateLimit(next http.Handler, bucket *TokenBucket) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    if !bucket.Allow() {\n      http.Error(w, \"rate limited\", http.StatusTooManyRequests)\n      return\n    }\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Protects endpoints with deterministic token-based throttling."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 53: Graceful shutdown coordinator for HTTP + workers",
+      "code": "func Run(ctx context.Context, srv *http.Server, runWorkers func(context.Context) error) error {\n  g, gctx := errgroup.WithContext(ctx)\n\n  g.Go(func() error { return srv.ListenAndServe() })\n  g.Go(func() error { return runWorkers(gctx) })\n\n  <-gctx.Done()\n\n  shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)\n  defer cancel()\n  _ = srv.Shutdown(shutdownCtx)\n\n  return g.Wait()\n}",
+      "output": "Coordinates service stop and drains inflight work safely."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 54: Outbox publisher transaction skeleton",
+      "code": "func CreateOrderWithOutbox(ctx context.Context, db *sql.DB, order Order) error {\n  tx, err := db.BeginTx(ctx, nil)\n  if err != nil { return err }\n  defer tx.Rollback()\n\n  _, err = tx.ExecContext(ctx, \"INSERT INTO orders(id,total) VALUES($1,$2)\", order.ID, order.Total)\n  if err != nil { return err }\n\n  payload, _ := json.Marshal(order)\n  _, err = tx.ExecContext(ctx, \"INSERT INTO outbox(event_type,payload,status) VALUES($1,$2,'pending')\", \"order.created\", payload)\n  if err != nil { return err }\n\n  return tx.Commit()\n}",
+      "output": "Writes domain change and outbox event atomically in one transaction."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 55: Channel fan-in with context cancellation and error channel",
+      "code": "func FanIn(ctx context.Context, inputs ...<-chan int) (<-chan int, <-chan error) {\n  out := make(chan int)\n  errCh := make(chan error, 1)\n  var wg sync.WaitGroup\n\n  forward := func(ch <-chan int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case v, ok := <-ch:\n        if !ok { return }\n        select {\n        case out <- v:\n        case <-ctx.Done(): return\n        }\n      }\n    }\n  }\n\n  wg.Add(len(inputs))\n  for _, ch := range inputs { go forward(ch) }\n\n  go func() {\n    wg.Wait()\n    close(out)\n    close(errCh)\n  }()\n\n  return out, errCh\n}",
+      "output": "Merges multiple streams safely with cancellation-aware forwarding."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 56: Retry with exponential backoff + jitter + context cancel",
+      "code": "func Retry(ctx context.Context, max int, fn func(context.Context) error) error {\n  var err error\n  for i := 0; i < max; i++ {\n    if err = fn(ctx); err == nil { return nil }\n\n    d := time.Duration(1<<i) * 50 * time.Millisecond\n    jitter := time.Duration(rand.Intn(40)) * time.Millisecond\n    timer := time.NewTimer(d + jitter)\n\n    select {\n    case <-ctx.Done():\n      timer.Stop()\n      return ctx.Err()\n    case <-timer.C:\n    }\n  }\n  return fmt.Errorf(\"retry exhausted: %w\", err)\n}",
+      "output": "Retries failures with bounded exponential backoff and cancel support."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 57: Token bucket rate limiter middleware",
+      "code": "type TokenBucket struct {\n  mu       sync.Mutex\n  tokens   float64\n  capacity float64\n  rate     float64\n  last     time.Time\n}\n\nfunc (b *TokenBucket) Allow() bool {\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  now := time.Now()\n  elapsed := now.Sub(b.last).Seconds()\n  b.tokens = math.Min(b.capacity, b.tokens+elapsed*b.rate)\n  b.last = now\n\n  if b.tokens < 1 { return false }\n  b.tokens--\n  return true\n}\n\nfunc RateLimit(next http.Handler, bucket *TokenBucket) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    if !bucket.Allow() {\n      http.Error(w, \"rate limited\", http.StatusTooManyRequests)\n      return\n    }\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Protects endpoints with deterministic token-based throttling."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 58: Graceful shutdown coordinator for HTTP + workers",
+      "code": "func Run(ctx context.Context, srv *http.Server, runWorkers func(context.Context) error) error {\n  g, gctx := errgroup.WithContext(ctx)\n\n  g.Go(func() error { return srv.ListenAndServe() })\n  g.Go(func() error { return runWorkers(gctx) })\n\n  <-gctx.Done()\n\n  shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)\n  defer cancel()\n  _ = srv.Shutdown(shutdownCtx)\n\n  return g.Wait()\n}",
+      "output": "Coordinates service stop and drains inflight work safely."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 59: Outbox publisher transaction skeleton",
+      "code": "func CreateOrderWithOutbox(ctx context.Context, db *sql.DB, order Order) error {\n  tx, err := db.BeginTx(ctx, nil)\n  if err != nil { return err }\n  defer tx.Rollback()\n\n  _, err = tx.ExecContext(ctx, \"INSERT INTO orders(id,total) VALUES($1,$2)\", order.ID, order.Total)\n  if err != nil { return err }\n\n  payload, _ := json.Marshal(order)\n  _, err = tx.ExecContext(ctx, \"INSERT INTO outbox(event_type,payload,status) VALUES($1,$2,'pending')\", \"order.created\", payload)\n  if err != nil { return err }\n\n  return tx.Commit()\n}",
+      "output": "Writes domain change and outbox event atomically in one transaction."
+    },
+    {
+      "type": "program",
+      "level": "Hard",
+      "question": "Program 60: Channel fan-in with context cancellation and error channel",
+      "code": "func FanIn(ctx context.Context, inputs ...<-chan int) (<-chan int, <-chan error) {\n  out := make(chan int)\n  errCh := make(chan error, 1)\n  var wg sync.WaitGroup\n\n  forward := func(ch <-chan int) {\n    defer wg.Done()\n    for {\n      select {\n      case <-ctx.Done():\n        return\n      case v, ok := <-ch:\n        if !ok { return }\n        select {\n        case out <- v:\n        case <-ctx.Done(): return\n        }\n      }\n    }\n  }\n\n  wg.Add(len(inputs))\n  for _, ch := range inputs { go forward(ch) }\n\n  go func() {\n    wg.Wait()\n    close(out)\n    close(errCh)\n  }()\n\n  return out, errCh\n}",
+      "output": "Merges multiple streams safely with cancellation-aware forwarding."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 61: Circuit breaker with closed/open/half-open transitions",
+      "code": "type State int\nconst (\n  Closed State = iota\n  Open\n  HalfOpen\n)\n\ntype Breaker struct {\n  mu            sync.Mutex\n  state         State\n  failures      int\n  threshold     int\n  openUntil     time.Time\n  resetInterval time.Duration\n}\n\nfunc (b *Breaker) Execute(fn func() error) error {\n  b.mu.Lock()\n  now := time.Now()\n\n  if b.state == Open && now.Before(b.openUntil) {\n    b.mu.Unlock()\n    return errors.New(\"circuit open\")\n  }\n\n  if b.state == Open && now.After(b.openUntil) {\n    b.state = HalfOpen\n  }\n  b.mu.Unlock()\n\n  err := fn()\n\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  if err == nil {\n    b.failures = 0\n    b.state = Closed\n    return nil\n  }\n\n  b.failures++\n  if b.failures >= b.threshold {\n    b.state = Open\n    b.openUntil = time.Now().Add(b.resetInterval)\n  }\n  return err\n}",
+      "output": "Prevents cascading failures by short-circuiting unstable dependencies."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 62: Idempotency middleware with request key store",
+      "code": "func Idempotency(next http.Handler, store KeyStore) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    key := r.Header.Get(\"Idempotency-Key\")\n    if key == \"\" {\n      http.Error(w, \"missing idempotency key\", http.StatusBadRequest)\n      return\n    }\n\n    if store.Exists(r.Context(), key) {\n      w.WriteHeader(http.StatusConflict)\n      _, _ = w.Write([]byte(\"duplicate request\"))\n      return\n    }\n\n    if err := store.Mark(r.Context(), key, 5*time.Minute); err != nil {\n      http.Error(w, \"store unavailable\", http.StatusServiceUnavailable)\n      return\n    }\n\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Rejects duplicate mutation requests safely within TTL window."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 63: Streaming batch processor with bounded parallelism and partial failures",
+      "code": "func ProcessBatches[T any](ctx context.Context, in []T, batchSize int, workers int, fn func(context.Context, T) error) []error {\n  jobs := make(chan T)\n  errs := make(chan error, len(in))\n  var wg sync.WaitGroup\n\n  worker := func() {\n    defer wg.Done()\n    for item := range jobs {\n      if err := fn(ctx, item); err != nil {\n        errs <- err\n      }\n    }\n  }\n\n  for i := 0; i < workers; i++ {\n    wg.Add(1)\n    go worker()\n  }\n\n  for _, item := range in {\n    select {\n    case <-ctx.Done():\n      break\n    case jobs <- item:\n    }\n  }\n\n  close(jobs)\n  wg.Wait()\n  close(errs)\n\n  out := make([]error, 0, len(errs))\n  for e := range errs { out = append(out, e) }\n  return out\n}",
+      "output": "Processes large inputs concurrently and returns aggregated error set."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 64: Query service with layered cache + stale fallback + singleflight",
+      "code": "type Service struct {\n  cache Cache\n  repo  Repo\n  sf    singleflight.Group\n}\n\nfunc (s *Service) GetUser(ctx context.Context, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  if u, ok := s.cache.GetFresh(ctx, key); ok {\n    return u, nil\n  }\n\n  v, err, _ := s.sf.Do(key, func() (any, error) {\n    u, err := s.repo.GetUser(ctx, id)\n    if err != nil {\n      if stale, ok := s.cache.GetStale(ctx, key); ok {\n        return stale, nil\n      }\n      return User{}, err\n    }\n    _ = s.cache.Set(ctx, key, u, 5*time.Minute)\n    return u, nil\n  })\n\n  if err != nil { return User{}, err }\n  return v.(User), nil\n}",
+      "output": "Prevents cache stampedes and supports stale fallback on dependency failures."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 65: Service observability bootstrap (logs, metrics, tracing context hooks)",
+      "code": "type Logger interface { Info(msg string, fields ...any); Error(msg string, fields ...any) }\n\ntype Metrics interface {\n  IncCounter(name string, labels map[string]string)\n  ObserveHistogram(name string, value float64, labels map[string]string)\n}\n\nfunc Instrument(next http.Handler, log Logger, m Metrics) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    start := time.Now()\n    next.ServeHTTP(w, r)\n    dur := time.Since(start).Seconds()\n\n    labels := map[string]string{\"path\": r.URL.Path, \"method\": r.Method}\n    m.IncCounter(\"http_requests_total\", labels)\n    m.ObserveHistogram(\"http_request_duration_seconds\", dur, labels)\n    log.Info(\"request_complete\", \"path\", r.URL.Path, \"duration_sec\", dur)\n  })\n}",
+      "output": "Adds baseline observability for request count/latency and structured logs."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 66: Circuit breaker with closed/open/half-open transitions",
+      "code": "type State int\nconst (\n  Closed State = iota\n  Open\n  HalfOpen\n)\n\ntype Breaker struct {\n  mu            sync.Mutex\n  state         State\n  failures      int\n  threshold     int\n  openUntil     time.Time\n  resetInterval time.Duration\n}\n\nfunc (b *Breaker) Execute(fn func() error) error {\n  b.mu.Lock()\n  now := time.Now()\n\n  if b.state == Open && now.Before(b.openUntil) {\n    b.mu.Unlock()\n    return errors.New(\"circuit open\")\n  }\n\n  if b.state == Open && now.After(b.openUntil) {\n    b.state = HalfOpen\n  }\n  b.mu.Unlock()\n\n  err := fn()\n\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  if err == nil {\n    b.failures = 0\n    b.state = Closed\n    return nil\n  }\n\n  b.failures++\n  if b.failures >= b.threshold {\n    b.state = Open\n    b.openUntil = time.Now().Add(b.resetInterval)\n  }\n  return err\n}",
+      "output": "Prevents cascading failures by short-circuiting unstable dependencies."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 67: Idempotency middleware with request key store",
+      "code": "func Idempotency(next http.Handler, store KeyStore) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    key := r.Header.Get(\"Idempotency-Key\")\n    if key == \"\" {\n      http.Error(w, \"missing idempotency key\", http.StatusBadRequest)\n      return\n    }\n\n    if store.Exists(r.Context(), key) {\n      w.WriteHeader(http.StatusConflict)\n      _, _ = w.Write([]byte(\"duplicate request\"))\n      return\n    }\n\n    if err := store.Mark(r.Context(), key, 5*time.Minute); err != nil {\n      http.Error(w, \"store unavailable\", http.StatusServiceUnavailable)\n      return\n    }\n\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Rejects duplicate mutation requests safely within TTL window."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 68: Streaming batch processor with bounded parallelism and partial failures",
+      "code": "func ProcessBatches[T any](ctx context.Context, in []T, batchSize int, workers int, fn func(context.Context, T) error) []error {\n  jobs := make(chan T)\n  errs := make(chan error, len(in))\n  var wg sync.WaitGroup\n\n  worker := func() {\n    defer wg.Done()\n    for item := range jobs {\n      if err := fn(ctx, item); err != nil {\n        errs <- err\n      }\n    }\n  }\n\n  for i := 0; i < workers; i++ {\n    wg.Add(1)\n    go worker()\n  }\n\n  for _, item := range in {\n    select {\n    case <-ctx.Done():\n      break\n    case jobs <- item:\n    }\n  }\n\n  close(jobs)\n  wg.Wait()\n  close(errs)\n\n  out := make([]error, 0, len(errs))\n  for e := range errs { out = append(out, e) }\n  return out\n}",
+      "output": "Processes large inputs concurrently and returns aggregated error set."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 69: Query service with layered cache + stale fallback + singleflight",
+      "code": "type Service struct {\n  cache Cache\n  repo  Repo\n  sf    singleflight.Group\n}\n\nfunc (s *Service) GetUser(ctx context.Context, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  if u, ok := s.cache.GetFresh(ctx, key); ok {\n    return u, nil\n  }\n\n  v, err, _ := s.sf.Do(key, func() (any, error) {\n    u, err := s.repo.GetUser(ctx, id)\n    if err != nil {\n      if stale, ok := s.cache.GetStale(ctx, key); ok {\n        return stale, nil\n      }\n      return User{}, err\n    }\n    _ = s.cache.Set(ctx, key, u, 5*time.Minute)\n    return u, nil\n  })\n\n  if err != nil { return User{}, err }\n  return v.(User), nil\n}",
+      "output": "Prevents cache stampedes and supports stale fallback on dependency failures."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 70: Service observability bootstrap (logs, metrics, tracing context hooks)",
+      "code": "type Logger interface { Info(msg string, fields ...any); Error(msg string, fields ...any) }\n\ntype Metrics interface {\n  IncCounter(name string, labels map[string]string)\n  ObserveHistogram(name string, value float64, labels map[string]string)\n}\n\nfunc Instrument(next http.Handler, log Logger, m Metrics) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    start := time.Now()\n    next.ServeHTTP(w, r)\n    dur := time.Since(start).Seconds()\n\n    labels := map[string]string{\"path\": r.URL.Path, \"method\": r.Method}\n    m.IncCounter(\"http_requests_total\", labels)\n    m.ObserveHistogram(\"http_request_duration_seconds\", dur, labels)\n    log.Info(\"request_complete\", \"path\", r.URL.Path, \"duration_sec\", dur)\n  })\n}",
+      "output": "Adds baseline observability for request count/latency and structured logs."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 71: Circuit breaker with closed/open/half-open transitions",
+      "code": "type State int\nconst (\n  Closed State = iota\n  Open\n  HalfOpen\n)\n\ntype Breaker struct {\n  mu            sync.Mutex\n  state         State\n  failures      int\n  threshold     int\n  openUntil     time.Time\n  resetInterval time.Duration\n}\n\nfunc (b *Breaker) Execute(fn func() error) error {\n  b.mu.Lock()\n  now := time.Now()\n\n  if b.state == Open && now.Before(b.openUntil) {\n    b.mu.Unlock()\n    return errors.New(\"circuit open\")\n  }\n\n  if b.state == Open && now.After(b.openUntil) {\n    b.state = HalfOpen\n  }\n  b.mu.Unlock()\n\n  err := fn()\n\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  if err == nil {\n    b.failures = 0\n    b.state = Closed\n    return nil\n  }\n\n  b.failures++\n  if b.failures >= b.threshold {\n    b.state = Open\n    b.openUntil = time.Now().Add(b.resetInterval)\n  }\n  return err\n}",
+      "output": "Prevents cascading failures by short-circuiting unstable dependencies."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 72: Idempotency middleware with request key store",
+      "code": "func Idempotency(next http.Handler, store KeyStore) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    key := r.Header.Get(\"Idempotency-Key\")\n    if key == \"\" {\n      http.Error(w, \"missing idempotency key\", http.StatusBadRequest)\n      return\n    }\n\n    if store.Exists(r.Context(), key) {\n      w.WriteHeader(http.StatusConflict)\n      _, _ = w.Write([]byte(\"duplicate request\"))\n      return\n    }\n\n    if err := store.Mark(r.Context(), key, 5*time.Minute); err != nil {\n      http.Error(w, \"store unavailable\", http.StatusServiceUnavailable)\n      return\n    }\n\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Rejects duplicate mutation requests safely within TTL window."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 73: Streaming batch processor with bounded parallelism and partial failures",
+      "code": "func ProcessBatches[T any](ctx context.Context, in []T, batchSize int, workers int, fn func(context.Context, T) error) []error {\n  jobs := make(chan T)\n  errs := make(chan error, len(in))\n  var wg sync.WaitGroup\n\n  worker := func() {\n    defer wg.Done()\n    for item := range jobs {\n      if err := fn(ctx, item); err != nil {\n        errs <- err\n      }\n    }\n  }\n\n  for i := 0; i < workers; i++ {\n    wg.Add(1)\n    go worker()\n  }\n\n  for _, item := range in {\n    select {\n    case <-ctx.Done():\n      break\n    case jobs <- item:\n    }\n  }\n\n  close(jobs)\n  wg.Wait()\n  close(errs)\n\n  out := make([]error, 0, len(errs))\n  for e := range errs { out = append(out, e) }\n  return out\n}",
+      "output": "Processes large inputs concurrently and returns aggregated error set."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 74: Query service with layered cache + stale fallback + singleflight",
+      "code": "type Service struct {\n  cache Cache\n  repo  Repo\n  sf    singleflight.Group\n}\n\nfunc (s *Service) GetUser(ctx context.Context, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  if u, ok := s.cache.GetFresh(ctx, key); ok {\n    return u, nil\n  }\n\n  v, err, _ := s.sf.Do(key, func() (any, error) {\n    u, err := s.repo.GetUser(ctx, id)\n    if err != nil {\n      if stale, ok := s.cache.GetStale(ctx, key); ok {\n        return stale, nil\n      }\n      return User{}, err\n    }\n    _ = s.cache.Set(ctx, key, u, 5*time.Minute)\n    return u, nil\n  })\n\n  if err != nil { return User{}, err }\n  return v.(User), nil\n}",
+      "output": "Prevents cache stampedes and supports stale fallback on dependency failures."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 75: Service observability bootstrap (logs, metrics, tracing context hooks)",
+      "code": "type Logger interface { Info(msg string, fields ...any); Error(msg string, fields ...any) }\n\ntype Metrics interface {\n  IncCounter(name string, labels map[string]string)\n  ObserveHistogram(name string, value float64, labels map[string]string)\n}\n\nfunc Instrument(next http.Handler, log Logger, m Metrics) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    start := time.Now()\n    next.ServeHTTP(w, r)\n    dur := time.Since(start).Seconds()\n\n    labels := map[string]string{\"path\": r.URL.Path, \"method\": r.Method}\n    m.IncCounter(\"http_requests_total\", labels)\n    m.ObserveHistogram(\"http_request_duration_seconds\", dur, labels)\n    log.Info(\"request_complete\", \"path\", r.URL.Path, \"duration_sec\", dur)\n  })\n}",
+      "output": "Adds baseline observability for request count/latency and structured logs."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 76: Circuit breaker with closed/open/half-open transitions",
+      "code": "type State int\nconst (\n  Closed State = iota\n  Open\n  HalfOpen\n)\n\ntype Breaker struct {\n  mu            sync.Mutex\n  state         State\n  failures      int\n  threshold     int\n  openUntil     time.Time\n  resetInterval time.Duration\n}\n\nfunc (b *Breaker) Execute(fn func() error) error {\n  b.mu.Lock()\n  now := time.Now()\n\n  if b.state == Open && now.Before(b.openUntil) {\n    b.mu.Unlock()\n    return errors.New(\"circuit open\")\n  }\n\n  if b.state == Open && now.After(b.openUntil) {\n    b.state = HalfOpen\n  }\n  b.mu.Unlock()\n\n  err := fn()\n\n  b.mu.Lock()\n  defer b.mu.Unlock()\n\n  if err == nil {\n    b.failures = 0\n    b.state = Closed\n    return nil\n  }\n\n  b.failures++\n  if b.failures >= b.threshold {\n    b.state = Open\n    b.openUntil = time.Now().Add(b.resetInterval)\n  }\n  return err\n}",
+      "output": "Prevents cascading failures by short-circuiting unstable dependencies."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 77: Idempotency middleware with request key store",
+      "code": "func Idempotency(next http.Handler, store KeyStore) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    key := r.Header.Get(\"Idempotency-Key\")\n    if key == \"\" {\n      http.Error(w, \"missing idempotency key\", http.StatusBadRequest)\n      return\n    }\n\n    if store.Exists(r.Context(), key) {\n      w.WriteHeader(http.StatusConflict)\n      _, _ = w.Write([]byte(\"duplicate request\"))\n      return\n    }\n\n    if err := store.Mark(r.Context(), key, 5*time.Minute); err != nil {\n      http.Error(w, \"store unavailable\", http.StatusServiceUnavailable)\n      return\n    }\n\n    next.ServeHTTP(w, r)\n  })\n}",
+      "output": "Rejects duplicate mutation requests safely within TTL window."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 78: Streaming batch processor with bounded parallelism and partial failures",
+      "code": "func ProcessBatches[T any](ctx context.Context, in []T, batchSize int, workers int, fn func(context.Context, T) error) []error {\n  jobs := make(chan T)\n  errs := make(chan error, len(in))\n  var wg sync.WaitGroup\n\n  worker := func() {\n    defer wg.Done()\n    for item := range jobs {\n      if err := fn(ctx, item); err != nil {\n        errs <- err\n      }\n    }\n  }\n\n  for i := 0; i < workers; i++ {\n    wg.Add(1)\n    go worker()\n  }\n\n  for _, item := range in {\n    select {\n    case <-ctx.Done():\n      break\n    case jobs <- item:\n    }\n  }\n\n  close(jobs)\n  wg.Wait()\n  close(errs)\n\n  out := make([]error, 0, len(errs))\n  for e := range errs { out = append(out, e) }\n  return out\n}",
+      "output": "Processes large inputs concurrently and returns aggregated error set."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 79: Query service with layered cache + stale fallback + singleflight",
+      "code": "type Service struct {\n  cache Cache\n  repo  Repo\n  sf    singleflight.Group\n}\n\nfunc (s *Service) GetUser(ctx context.Context, id int64) (User, error) {\n  key := fmt.Sprintf(\"user:%d\", id)\n  if u, ok := s.cache.GetFresh(ctx, key); ok {\n    return u, nil\n  }\n\n  v, err, _ := s.sf.Do(key, func() (any, error) {\n    u, err := s.repo.GetUser(ctx, id)\n    if err != nil {\n      if stale, ok := s.cache.GetStale(ctx, key); ok {\n        return stale, nil\n      }\n      return User{}, err\n    }\n    _ = s.cache.Set(ctx, key, u, 5*time.Minute)\n    return u, nil\n  })\n\n  if err != nil { return User{}, err }\n  return v.(User), nil\n}",
+      "output": "Prevents cache stampedes and supports stale fallback on dependency failures."
+    },
+    {
+      "type": "program",
+      "level": "Very Hard",
+      "question": "Program 80: Service observability bootstrap (logs, metrics, tracing context hooks)",
+      "code": "type Logger interface { Info(msg string, fields ...any); Error(msg string, fields ...any) }\n\ntype Metrics interface {\n  IncCounter(name string, labels map[string]string)\n  ObserveHistogram(name string, value float64, labels map[string]string)\n}\n\nfunc Instrument(next http.Handler, log Logger, m Metrics) http.Handler {\n  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n    start := time.Now()\n    next.ServeHTTP(w, r)\n    dur := time.Since(start).Seconds()\n\n    labels := map[string]string{\"path\": r.URL.Path, \"method\": r.Method}\n    m.IncCounter(\"http_requests_total\", labels)\n    m.ObserveHistogram(\"http_request_duration_seconds\", dur, labels)\n    log.Info(\"request_complete\", \"path\", r.URL.Path, \"duration_sec\", dur)\n  })\n}",
+      "output": "Adds baseline observability for request count/latency and structured logs."
+    }
+  ]
+}

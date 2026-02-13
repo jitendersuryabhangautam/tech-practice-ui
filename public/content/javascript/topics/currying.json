@@ -26,6 +26,26 @@
     {
       "question": "What is a caveat of currying in modern codebases?",
       "answer": "Overusing it can reduce readability for teammates not used to functional patterns."
+    },
+    {
+      "question": "How do you implement a generic curry function?",
+      "answer": "function curry(fn) { return function curried(...args) { if (args.length >= fn.length) return fn(...args); return (...next) => curried(...args, ...next); }; }. Collects args until fn.length is reached, then calls the original function."
+    },
+    {
+      "question": "What is the relationship between currying and closures?",
+      "answer": "Currying relies on closures — each returned function closes over the previously provided arguments. const add = a => b => a + b: the inner function (b => a + b) closes over 'a' from the outer scope."
+    },
+    {
+      "question": "How is currying used in functional composition?",
+      "answer": "Curried functions are easy to compose: const pipe = (...fns) => x => fns.reduce((v, f) => f(v), x). With curried helpers: pipe(filter(isActive), map(getName), sort(byAlpha))(users)."
+    },
+    {
+      "question": "What is the difference between curry(fn)(1)(2)(3) and fn(1, 2, 3)?",
+      "answer": "The curried version allows partial application — you can save intermediate functions: const add5 = curry(add)(5), then reuse add5(3), add5(10). The direct call requires all arguments at once."
+    },
+    {
+      "question": "How does currying work with arrow functions?",
+      "answer": "Arrow functions make currying natural: const add = a => b => a + b. Each arrow returns the next function. This is manual currying. For automatic currying of existing functions, use a curry utility."
     }
   ],
   "exercises": [

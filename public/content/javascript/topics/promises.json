@@ -4,7 +4,7 @@
   "description": "Promises represent the eventual completion or failure of an asynchronous operation. They provide a cleaner way to handle async code compared to callbacks, avoiding callback hell.",
   "explanation": "A Promise is an object representing the eventual completion or failure of an asynchronous operation. It's a proxy for a value not necessarily known when the promise is created.\n\nPromise States:\n1. Pending: Initial state, neither fulfilled nor rejected\n2. Fulfilled: Operation completed successfully\n3. Rejected: Operation failed\n\nPromises solve the callback hell problem by allowing you to chain operations using .then() and handle errors with .catch().\n\nKey advantages:\n- Better error handling with .catch()\n- Chainable operations with .then()\n- Multiple promises with Promise.all()\n- Race conditions with Promise.race()\n- Cleaner, more readable code",
   "implementation": "const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    const success = true;\n    if (success) {\n      resolve('Operation successful!');\n    } else {\n      reject('Operation failed!');\n    }\n  }, 1000);\n});\n\npromise\n  .then(result => console.log(result))\n  .catch(error => console.error(error))\n  .finally(() => console.log('Done'));",
-  "example": "// API call example\nfunction fetchUser(userId) {\n  return new Promise((resolve, reject) => {\n    fetch(`/api/users/${userId}`)\n      .then(response => {\n        if (!response.ok) {\n          reject('User not found');\n        }\n        return response.json();\n      })\n      .then(data => resolve(data))\n      .catch(error => reject(error));\n  });\n}\n\n// Chaining promises\nfetchUser(1)\n  .then(user => {\n    console.log('User:', user);\n    return fetchUserPosts(user.id);\n  })\n  .then(posts => {\n    console.log('Posts:', posts);\n  })\n  .catch(error => {\n    console.error('Error:', error);\n  });",
+  "example": "// API call example\nfunction fetchUser(userId) {\n  return fetch(`/api/users/${userId}`)\n    .then(response => {\n      if (!response.ok) {\n        throw new Error('User not found');\n      }\n      return response.json();\n    });\n}\n\n// Chaining promises\nfetchUser(1)\n  .then(user => {\n    console.log('User:', user);\n    return fetchUserPosts(user.id);\n  })\n  .then(posts => {\n    console.log('Posts:', posts);\n  })\n  .catch(error => {\n    console.error('Error:', error);\n  });",
   "useCase": "API calls, file operations, timers, async operations, chaining async tasks",
   "interviewQuestions": [
     {
@@ -26,6 +26,26 @@
     {
       "question": "What is an anti-pattern with promises?",
       "answer": "Nesting chains instead of returning promises, which breaks composition."
+    },
+    {
+      "question": "What is the Promise constructor anti-pattern?",
+      "answer": "Wrapping an already-promise-returning function in new Promise(). Example: new Promise((resolve) => fetch(url).then(resolve)) — just use fetch(url) directly. Extra wrapping adds overhead and can swallow errors."
+    },
+    {
+      "question": "What is the difference between Promise.resolve() and new Promise(resolve => resolve())?",
+      "answer": "Promise.resolve(value) returns an already-resolved promise synchronously. new Promise(resolve => resolve(value)) creates a new promise that resolves on the next microtask. Promise.resolve is more efficient for wrapping known values."
+    },
+    {
+      "question": "Can a Promise be cancelled?",
+      "answer": "No, native Promises cannot be cancelled. Once started, they will settle. Use AbortController with fetch for cancellable network requests, or use a cancellation token pattern for custom promises."
+    },
+    {
+      "question": "What happens if you resolve a Promise with another Promise?",
+      "answer": "The outer promise 'follows' the inner promise — it adopts the state and value of the inner promise. resolve(anotherPromise) waits for anotherPromise to settle. reject() does NOT unwrap — it rejects with whatever value is given."
+    },
+    {
+      "question": "How does .finally() work and when should you use it?",
+      "answer": ".finally(callback) runs after the promise settles (fulfilled or rejected), without receiving the value/reason. It passes through the original result. Use for cleanup: closing connections, hiding loaders, logging. Similar to try-catch-finally."
     }
   ],
   "exercises": [
@@ -58,16 +78,18 @@
     },
     {
       "type": "implement",
-      "question": "Implement delay(ms) returning Promise resolved after ms."
+      "question": "Implement a promisified version of fs.readFile.",
+      "code": "function readFileAsync(path) { return new Promise((resolve, reject) => { fs.readFile(path, 'utf8', (err, data) => err ? reject(err) : resolve(data)); }); }"
     },
     {
       "type": "implement",
-      "question": "Wrap callback-style setTimeout in Promise and log result."
+      "question": "Create a Promise that resolves with a value after validating it, or rejects.",
+      "code": "function validateAsync(value) { return new Promise((resolve, reject) => { if(value > 0) resolve(value); else reject('Invalid value'); }); }"
     },
     {
       "type": "debug",
-      "question": "Promise chain stops unexpectedly after then. Fix?",
-      "answer": "Return value/promise from then callback so chain continues."
+      "question": "Promise.resolve().then(() => { throw 'error' }).then(v => console.log(v)); — why is 'error' never caught?",
+      "answer": "There's no .catch() in the chain. The thrown error creates a rejected promise that is unhandled. Add .catch(e => console.error(e)) at the end."
     },
     {
       "type": "debug",

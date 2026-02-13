@@ -1,0 +1,155 @@
+{
+  "id": "scope-hoisting",
+  "title": "Scope & Hoisting",
+  "description": "Master JavaScript scoping rules — var vs let vs const, function/block scope, temporal dead zone, and hoisting behavior.",
+  "explanation": "Scope determines where variables are accessible. JavaScript has three types of scope:\n\n1. Global Scope — accessible everywhere\n2. Function Scope — created by function declarations/expressions\n3. Block Scope — created by { } blocks (only for let/const)\n\nvar vs let vs const:\n- var: function-scoped, hoisted (initialized as undefined), can be re-declared\n- let: block-scoped, hoisted but NOT initialized (Temporal Dead Zone), no re-declaration\n- const: block-scoped, hoisted but NOT initialized (TDZ), no re-assignment, no re-declaration\n- const with objects/arrays: the binding is immutable, but the contents can be mutated\n\nHoisting:\n- JavaScript moves declarations to the top of their scope during compilation\n- Function declarations: fully hoisted (both name and body available)\n- var: hoisted but initialized as undefined\n- let/const: hoisted but NOT initialized → accessing before declaration throws ReferenceError (TDZ)\n- Class declarations: hoisted but NOT initialized (TDZ, like let)\n\nTemporal Dead Zone (TDZ):\n- The period between entering a scope and the let/const declaration being reached\n- Accessing a variable in its TDZ throws ReferenceError\n- TDZ exists to catch bugs — using variables before they're initialized\n\nScope chain:\n- Inner scopes have access to outer scope variables\n- Variable lookup goes from current scope → parent scope → ... → global scope\n- This is called lexical scoping (determined by code structure, not runtime)",
+  "code": "// var vs let vs const\nfunction demo() {\n  console.log(a); // undefined (var is hoisted)\n  // console.log(b); // ReferenceError (TDZ)\n  // console.log(c); // ReferenceError (TDZ)\n  \n  var a = 1;\n  let b = 2;\n  const c = 3;\n}\n\n// Block scope\nif (true) {\n  var x = 'var';   // escapes block! (function-scoped)\n  let y = 'let';   // block-scoped\n  const z = 'const'; // block-scoped\n}\nconsole.log(x); // 'var'\n// console.log(y); // ReferenceError\n// console.log(z); // ReferenceError\n\n// Function hoisting\nsayHello(); // Works! Function declarations are fully hoisted\nfunction sayHello() { console.log('Hello'); }\n\n// Function expression - NOT fully hoisted\n// greet(); // TypeError: greet is not a function\nvar greet = function() { console.log('Hi'); };\n\n// const mutation\nconst obj = { a: 1 };\nobj.a = 2;        // OK! Mutating contents\nobj.b = 3;        // OK! Adding properties\n// obj = {};      // TypeError! Cannot reassign const",
+  "example": "// Temporal Dead Zone\nlet x = 'outer';\nfunction inner() {\n  // console.log(x); // ReferenceError! x is in TDZ\n  // Even though outer 'x' exists, the local 'let x' below\n  // creates a TDZ from start of block to the declaration\n  let x = 'inner';\n  console.log(x); // 'inner'\n}\n\n// Practical scope example\nfunction createButtons() {\n  const buttons = [];\n  // With var — classic bug\n  for (var i = 0; i < 3; i++) {\n    buttons.push(() => console.log('var:', i)); // All print 3!\n  }\n  // With let — works correctly\n  for (let j = 0; j < 3; j++) {\n    buttons.push(() => console.log('let:', j)); // 0, 1, 2\n  }\n  return buttons;\n}\n\n// IIFE for scope isolation (pre-ES6 pattern)\nvar counter = (function() {\n  var count = 0;\n  return {\n    increment: function() { return ++count; },\n    getCount: function() { return count; }\n  };\n})();",
+  "useCase": "Variable declaration best practices, avoiding bugs with var, understanding closure behavior, module patterns, interview questions about hoisting and TDZ",
+  "exercises": [
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(a);\nvar a = 5;\nconsole.log(a);",
+      "answer": "undefined, then 5 — var declaration is hoisted (value becomes undefined), assignment stays in place"
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(typeof x);\nlet x = 10;",
+      "answer": "ReferenceError — let is hoisted but not initialized. 'x' is in the Temporal Dead Zone. typeof does NOT save you from TDZ with let/const."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nvar x = 1;\nfunction foo() {\n  console.log(x);\n  var x = 2;\n}\nfoo();",
+      "answer": "undefined — local var x is hoisted inside foo(), shadowing the global x. At the console.log, it's declared but not yet assigned."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfoo();\nbar();\nfunction foo() { console.log('foo'); }\nvar bar = function() { console.log('bar'); };",
+      "answer": "foo prints, then TypeError: bar is not a function — Function declarations are fully hoisted. var bar is hoisted as undefined, so bar() fails."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconst arr = [1, 2, 3];\narr.push(4);\nconsole.log(arr);",
+      "answer": "[1, 2, 3, 4] — const prevents re-assignment of the binding, not mutation of the value. Arrays/objects can still be modified."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfor (var i = 0; i < 3; i++) {}\nconsole.log(i);\nfor (let j = 0; j < 3; j++) {}\ntry { console.log(j); } catch(e) { console.log(e.message); }",
+      "answer": "3, then 'j is not defined' — var i leaks out of the loop. let j is block-scoped to the loop."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nvar a = 1;\nvar a = 2;\nconsole.log(a);\nlet b = 1;\n// let b = 2; // Would throw SyntaxError",
+      "answer": "2 — var allows re-declaration in the same scope. let does NOT allow re-declaration."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\n(function() {\n  var a = b = 5;\n})();\nconsole.log(typeof a);\nconsole.log(b);",
+      "answer": "undefined, then 5 — 'var a = b = 5' means b=5 (no var, becomes global!), a=5 (var, function-scoped). Outside: a is gone, b leaked to global."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nfunction test() {\n  let x = 1;\n  if (true) {\n    let x = 2;\n    console.log(x);\n  }\n  console.log(x);\n}test();",
+      "answer": "2, then 1 — let creates separate bindings in each block. Inner x=2 doesn't affect outer x=1."
+    },
+    {
+      "type": "output",
+      "question": "What is the output?\nconsole.log(foo);\nconsole.log(bar);\nfunction foo() { return 1; }\nvar bar = function() { return 2; };",
+      "answer": "[Function: foo], undefined — Function declaration is fully hoisted. var bar is hoisted but only as undefined."
+    }
+  ],
+  "programExercises": [
+    {
+      "program": "console.log(x);\nvar x = 10;\nconsole.log(x);",
+      "expectedOutput": "undefined\n10",
+      "explanation": "var hoisting: declaration moves up, assignment stays. First log sees undefined, second sees 10."
+    },
+    {
+      "program": "let a = 'global';\nfunction outer() {\n  let a = 'outer';\n  function inner() {\n    let a = 'inner';\n    console.log(a);\n  }\n  inner();\n  console.log(a);\n}\nouter();\nconsole.log(a);",
+      "expectedOutput": "inner\nouter\nglobal",
+      "explanation": "Each function/block has its own scope. inner sees 'inner', outer sees 'outer', global sees 'global'."
+    },
+    {
+      "program": "function hoistTest() {\n  a = 1;\n  var b = 2;\n}\nhoistTest();\nconsole.log(a);\ntry { console.log(b); } catch(e) { console.log('b not defined'); }",
+      "expectedOutput": "1\nb not defined",
+      "explanation": "a=1 without var/let/const creates a global variable. b is function-scoped, not accessible outside."
+    },
+    {
+      "program": "const funcs = [];\nfor (let i = 0; i < 3; i++) {\n  funcs.push(() => i);\n}\nconsole.log(funcs.map(f => f()).join(', '));",
+      "expectedOutput": "0, 1, 2",
+      "explanation": "let creates a new binding per loop iteration. Each closure captures its own i."
+    },
+    {
+      "program": "const funcs = [];\nfor (var i = 0; i < 3; i++) {\n  funcs.push(() => i);\n}\nconsole.log(funcs.map(f => f()).join(', '));",
+      "expectedOutput": "3, 3, 3",
+      "explanation": "var is function-scoped. All closures share the same i, which is 3 after the loop ends."
+    },
+    {
+      "program": "function foo() {\n  if (true) {\n    var a = 1;\n    let b = 2;\n    const c = 3;\n  }\n  console.log(a);\n  try { console.log(b); } catch(e) { console.log('b error'); }\n}\nfoo();",
+      "expectedOutput": "1\nb error",
+      "explanation": "var escapes the if-block (function-scoped). let is block-scoped — not accessible outside the if."
+    },
+    {
+      "program": "const obj = Object.freeze({ a: 1, b: { c: 2 } });\ntry { obj.a = 10; } catch(e) {}\nconsole.log(obj.a);\nobj.b.c = 20;\nconsole.log(obj.b.c);",
+      "expectedOutput": "1\n20",
+      "explanation": "Object.freeze is shallow — top-level props are frozen (a stays 1), but nested objects can still be mutated (b.c changed to 20)."
+    },
+    {
+      "program": "foo();\nfunction foo() { console.log(1); }\nfunction foo() { console.log(2); }\nfunction foo() { console.log(3); }",
+      "expectedOutput": "3",
+      "explanation": "All three function declarations are hoisted. The last one wins — foo is the third version."
+    },
+    {
+      "program": "var x = 1;\nfunction test() {\n  console.log(x);\n  if (false) {\n    var x = 2;\n  }\n}\ntest();",
+      "expectedOutput": "undefined",
+      "explanation": "Even though the if(false) block never runs, var x inside it is still hoisted to the function scope, shadowing the global x."
+    },
+    {
+      "program": "const funcs = [];\n{\n  let i = 0;\n  while (i < 3) {\n    const j = i;\n    funcs.push(() => j);\n    i++;\n  }\n}\nconsole.log(funcs.map(f => f()).join(', '));",
+      "expectedOutput": "0, 1, 2",
+      "explanation": "const j captures the current value of i each iteration. Each closure gets its own j."
+    }
+  ],
+  "interviewQuestions": [
+    {
+      "question": "What is the difference between var, let, and const?",
+      "answer": "var: function-scoped, hoisted as undefined, allows re-declaration. let: block-scoped, hoisted but in TDZ, no re-declaration. const: like let but cannot be re-assigned (the binding is immutable, but object contents can be mutated)."
+    },
+    {
+      "question": "What is hoisting in JavaScript?",
+      "answer": "Hoisting is JavaScript's behavior of processing declarations before execution. Function declarations are fully hoisted (name + body). var declarations are hoisted but initialized as undefined. let/const are hoisted but placed in the Temporal Dead Zone — accessing them before their declaration throws ReferenceError."
+    },
+    {
+      "question": "What is the Temporal Dead Zone (TDZ)?",
+      "answer": "TDZ is the period from entering a scope until the let/const declaration is reached. The variable exists (is hoisted) but cannot be accessed. Any access (read or write) during TDZ throws ReferenceError. TDZ prevents using variables before they're properly initialized."
+    },
+    {
+      "question": "Why does typeof work for undeclared variables but throws for TDZ variables?",
+      "answer": "For undeclared variables, typeof safely returns 'undefined'. But for let/const in TDZ, typeof throws ReferenceError because the variable IS declared (hoisted) but not initialized. The TDZ is a stronger check than 'not declared'."
+    },
+    {
+      "question": "Explain the scope chain in JavaScript.",
+      "answer": "When a variable is referenced, JS looks in the current scope first. If not found, it goes to the outer (parent) scope, then that scope's parent, etc., up to the global scope. This chain is determined at compile time by the lexical structure of the code, not at runtime."
+    },
+    {
+      "question": "What is the difference between function scope and block scope?",
+      "answer": "Function scope (var): the variable is accessible throughout the entire function, regardless of blocks (if/for/while). Block scope (let/const): the variable is only accessible within the enclosing { } block. Block scope prevents variable leaking."
+    },
+    {
+      "question": "Why does 'var a = b = 5' in a function make b global?",
+      "answer": "This is parsed as: b = 5 (no var/let/const → becomes global in non-strict mode), then var a = b (a is function-scoped). In strict mode, b = 5 would throw ReferenceError because implicit globals are not allowed."
+    },
+    {
+      "question": "What happens when you re-declare a variable with var in the same scope?",
+      "answer": "var allows re-declaration in the same scope — the second declaration is silently ignored (the variable already exists). let and const throw SyntaxError on re-declaration. This is one reason let/const are preferred — they catch accidental re-declarations."
+    },
+    {
+      "question": "How does hoisting work with function expressions vs function declarations?",
+      "answer": "Function declarations are fully hoisted — you can call them before the declaration. Function expressions (var f = function(){}) only hoist the var declaration (as undefined), not the function assignment. So calling f() before the assignment throws TypeError: f is not a function."
+    },
+    {
+      "question": "Can you explain variable shadowing?",
+      "answer": "Shadowing occurs when a variable in an inner scope has the same name as one in an outer scope. The inner variable 'shadows' the outer one — any reference in the inner scope uses the local variable. The outer variable is not affected. let can shadow var, but var cannot shadow let in the same function scope."
+    }
+  ]
+}

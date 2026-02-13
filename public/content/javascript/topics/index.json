@@ -100,5 +100,59 @@
     "file": "topics/local-storage.json",
     "title": "Local Storage and Session Storage",
     "category": "Browser APIs"
+  },
+  {
+    "id": "closures",
+    "file": "topics/closures.json",
+    "title": "Closures",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "event-loop",
+    "file": "topics/event-loop.json",
+    "title": "Event Loop & Microtasks",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "this-keyword",
+    "file": "topics/this-keyword.json",
+    "title": "The 'this' Keyword",
+    "category": "Core Concepts"
+  },
+  {
+    "id": "prototypes-classes",
+    "file": "topics/prototypes-classes.json",
+    "title": "Prototypes & Classes",
+    "category": "Core Language"
+  },
+  {
+    "id": "scope-hoisting",
+    "file": "topics/scope-hoisting.json",
+    "title": "Scope & Hoisting",
+    "category": "Core Language"
+  },
+  {
+    "id": "type-coercion",
+    "file": "topics/type-coercion.json",
+    "title": "Type Coercion & Equality",
+    "category": "Core Language"
+  },
+  {
+    "id": "error-handling",
+    "file": "topics/error-handling.json",
+    "title": "Error Handling",
+    "category": "Core Language"
+  },
+  {
+    "id": "es6-modules",
+    "file": "topics/es6-modules.json",
+    "title": "ES6 Modules",
+    "category": "Core Language"
+  },
+  {
+    "id": "set-map-weakmap",
+    "file": "topics/set-map-weakmap.json",
+    "title": "Set, Map & WeakMap",
+    "category": "Data Structures"
   }
 ]
