@@ -136,8 +136,8 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
 
   if (showResult) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-        <div className="content-card min-w-0 max-h-[92vh] w-full max-w-xl overflow-y-auto p-4 sm:p-6">
+      <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-900/60 p-2 sm:items-center sm:p-4">
+        <div className="content-card min-w-0 max-h-[calc(100dvh-0.75rem)] w-full max-w-xl overflow-y-auto p-4 sm:max-h-[92vh] sm:p-6">
           <div className="mb-4 flex items-start justify-between">
             <h3 className="text-xl font-bold text-slate-900 sm:text-2xl dark:text-slate-100">
               Quiz Complete
@@ -187,8 +187,8 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
 
   const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-      <div className="content-card min-w-0 max-h-[92vh] w-full max-w-2xl overflow-y-auto p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-900/60 p-2 sm:items-center sm:p-4">
+      <div className="content-card min-w-0 max-h-[calc(100dvh-0.75rem)] w-full max-w-2xl overflow-y-auto p-4 sm:max-h-[92vh] sm:p-6">
         <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2 dark:border-slate-700 dark:bg-slate-900 sm:-mx-6 sm:px-6">
           <h3 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-slate-100">
             Interview Practice MCQ

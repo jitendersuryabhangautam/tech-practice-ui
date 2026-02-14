@@ -34,6 +34,7 @@ body {
   padding: 0;
   width: 100%;
   max-width: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
@@ -52,6 +53,13 @@ body {
     var(--background);
   color: var(--foreground);
   font-family: var(--font-display), "Segoe UI", sans-serif;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
 }
 
 * {

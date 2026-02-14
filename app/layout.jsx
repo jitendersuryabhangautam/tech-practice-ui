@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${plexMono.variable} antialiased`}
+        className={`${spaceGrotesk.variable} ${plexMono.variable} overflow-x-hidden antialiased`}
       >
         <ThemeProvider>
           <FloatingCharacters />

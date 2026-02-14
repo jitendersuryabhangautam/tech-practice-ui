@@ -105,7 +105,7 @@ export default function Sidebar({ topics, activeId, onTopicClick }) {
           </p>
         </div>
         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-          Open
+          Topics
         </span>
       </button>
 
@@ -114,14 +114,14 @@ export default function Sidebar({ topics, activeId, onTopicClick }) {
           type="button"
           aria-label="Close topic navigator"
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-20 bg-slate-900/45 lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/45 lg:hidden"
         />
       )}
 
       <aside
         className={`content-card motion-card overflow-hidden lg:sticky lg:top-20 lg:h-[calc(100vh-5.5rem)] lg:flex lg:flex-col ${
           isOpen
-            ? "fixed inset-x-2 top-20 bottom-2 z-30 lg:static"
+            ? "fixed inset-x-2 bottom-2 top-[4.25rem] z-50 max-h-[calc(100dvh-4.75rem)] lg:static lg:max-h-none"
             : "hidden lg:block"
         }`}
       >

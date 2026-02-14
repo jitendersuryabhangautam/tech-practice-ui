@@ -6,9 +6,9 @@ export default function Card({ card }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl transition-all border border-gray-200 dark:border-gray-700">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg transition-all hover:shadow-xl sm:p-6 dark:border-gray-700 dark:bg-gray-800">
       <div className="flex justify-between items-start mb-3">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <h3 className="min-w-0 break-words pr-2 text-lg font-semibold text-gray-900 sm:text-xl dark:text-white">
           {card.title}
         </h3>
         <button
@@ -48,7 +48,7 @@ export default function Card({ card }) {
         </button>
       </div>
 
-      <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 leading-relaxed">
+      <p className="mb-4 break-words text-sm leading-relaxed text-gray-700 dark:text-gray-300">
         {card.description}
       </p>
 
@@ -59,7 +59,7 @@ export default function Card({ card }) {
               <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-400 mb-2">
                 Code:
               </h4>
-              <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded overflow-x-auto text-sm border border-gray-300 dark:border-gray-600">
+              <pre className="overflow-x-auto rounded border border-gray-300 bg-gray-100 p-3 text-sm dark:border-gray-600 dark:bg-gray-900 sm:p-4">
                 <code className="text-green-700 dark:text-green-400">
                   {card.code}
                 </code>
@@ -72,7 +72,7 @@ export default function Card({ card }) {
               <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-400 mb-2">
                 Command:
               </h4>
-              <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded overflow-x-auto text-sm border border-gray-300 dark:border-gray-600">
+              <pre className="overflow-x-auto rounded border border-gray-300 bg-gray-100 p-3 text-sm dark:border-gray-600 dark:bg-gray-900 sm:p-4">
                 <code className="text-blue-700 dark:text-blue-400">
                   {card.command}
                 </code>
@@ -85,7 +85,7 @@ export default function Card({ card }) {
               <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-400 mb-2">
                 Example:
               </h4>
-              <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded overflow-x-auto text-sm border border-gray-300 dark:border-gray-600">
+              <pre className="overflow-x-auto rounded border border-gray-300 bg-gray-100 p-3 text-sm dark:border-gray-600 dark:bg-gray-900 sm:p-4">
                 <code className="text-yellow-700 dark:text-yellow-400">
                   {card.example}
                 </code>

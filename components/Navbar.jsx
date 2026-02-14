@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -21,6 +21,22 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setProfileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const userName = useMemo(() => {
     if (typeof window === "undefined") {
@@ -49,7 +65,7 @@ export default function Navbar() {
           </svg>
         </span>
       </div>
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
           <span className="nav-logo-badge nav-logo-mark flex h-10 w-10 items-center justify-center rounded-xl text-slate-900">
             <svg viewBox="0 0 40 40" className="h-8 w-8" fill="none">
@@ -116,7 +132,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="border-t border-slate-200 bg-white px-3 py-3 dark:border-slate-800 dark:bg-slate-950 lg:hidden">
+        <div className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-t border-slate-200 bg-white px-3 py-3 sm:max-h-[calc(100dvh-4rem)] dark:border-slate-800 dark:bg-slate-950 lg:hidden">
           <div className="mb-3 rounded-lg border border-slate-200 p-2 dark:border-slate-700">
             <p className="text-xs text-slate-500 dark:text-slate-400">Signed in as</p>
             <div className="mt-1 flex items-center justify-between gap-2">
@@ -132,7 +148,7 @@ export default function Navbar() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}

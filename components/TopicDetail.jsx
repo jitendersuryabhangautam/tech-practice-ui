@@ -158,7 +158,7 @@ function MermaidDiagram({ title, definition }) {
       {svg ? (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
           <div
-            className="min-w-[720px]"
+            className="min-w-[520px] sm:min-w-[720px] [&>svg]:h-auto [&>svg]:max-w-none"
             dangerouslySetInnerHTML={{ __html: svg }}
           />
         </div>

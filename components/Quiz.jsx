@@ -16,7 +16,7 @@ export default function Quiz({ questions }) {
   const question = questions[currentQuestion];
 
   const handleAnswer = (answerIndex) => {
-    if (selectedAnswer !== null) return; // Already answered
+    if (selectedAnswer !== null) return;
 
     setSelectedAnswer(answerIndex);
     const isCorrect = answerIndex === question.correctAnswer;
@@ -55,11 +55,11 @@ export default function Quiz({ questions }) {
 
   if (showResult) {
     return (
-      <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500 rounded-lg p-6 mb-8">
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          Quiz Complete! 🎉
+      <div className="mb-8 rounded-lg border-2 border-blue-500 bg-blue-50 p-4 sm:p-6 dark:bg-blue-900/20">
+        <h3 className="mb-4 text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
+          Quiz Complete
         </h3>
-        <p className="text-xl text-gray-800 dark:text-gray-200 mb-4">
+        <p className="mb-4 text-lg text-gray-800 sm:text-xl dark:text-gray-200">
           Your Score:{" "}
           <span className="font-bold text-blue-600 dark:text-blue-400">
             {score}
@@ -67,33 +67,33 @@ export default function Quiz({ questions }) {
           / {questions.length}
         </p>
         <div className="mb-6">
-          <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-4">
+          <div className="h-4 w-full rounded-full bg-gray-300 dark:bg-gray-600">
             <div
-              className="bg-blue-600 h-4 rounded-full transition-all"
+              className="h-4 rounded-full bg-blue-600 transition-all"
               style={{ width: `${(score / questions.length) * 100}%` }}
             ></div>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {Math.round((score / questions.length) * 100)}% Correct
           </p>
         </div>
 
         <div className="mb-6 max-h-96 overflow-y-auto">
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+          <h4 className="mb-3 font-semibold text-gray-900 dark:text-white">
             Review Answers:
           </h4>
           {answeredQuestions.map((item, index) => (
             <div
               key={index}
-              className={`p-3 rounded mb-2 ${item.isCorrect ? "bg-green-100 dark:bg-green-900/30" : "bg-red-100 dark:bg-red-900/30"}`}
+              className={`mb-2 rounded p-3 ${item.isCorrect ? "bg-green-100 dark:bg-green-900/30" : "bg-red-100 dark:bg-red-900/30"}`}
             >
-              <p className="font-medium text-gray-900 dark:text-white mb-1">
+              <p className="mb-1 break-words font-medium text-gray-900 dark:text-white">
                 Q{index + 1}: {item.question}
               </p>
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 Your answer: {questions[index].options[item.selectedAnswer]}
                 {!item.isCorrect && (
-                  <span className="block text-green-600 dark:text-green-400 mt-1">
+                  <span className="mt-1 block text-green-600 dark:text-green-400">
                     Correct: {questions[index].options[item.correctAnswer]}
                   </span>
                 )}
@@ -104,7 +104,7 @@ export default function Quiz({ questions }) {
 
         <button
           onClick={resetQuiz}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
         >
           Retry Quiz
         </button>
@@ -113,10 +113,10 @@ export default function Quiz({ questions }) {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-500 dark:border-blue-400 rounded-lg p-6 mb-8">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-          📝 Quick Quiz
+    <div className="mb-8 rounded-lg border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 dark:border-blue-400 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-lg font-bold text-gray-900 sm:text-xl dark:text-white">
+          Quick Quiz
         </h3>
         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
           Question {currentQuestion + 1} / {questions.length}
@@ -124,14 +124,14 @@ export default function Quiz({ questions }) {
       </div>
 
       <div className="mb-6">
-        <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 mb-4">
+        <div className="mb-4 h-2 w-full rounded-full bg-gray-300 dark:bg-gray-600">
           <div
-            className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all"
+            className="h-2 rounded-full bg-blue-600 transition-all dark:bg-blue-400"
             style={{ width: `${(currentQuestion / questions.length) * 100}%` }}
           ></div>
         </div>
 
-        <p className="text-lg font-medium text-gray-900 dark:text-white mb-6">
+        <p className="mb-6 break-words text-base font-medium text-gray-900 sm:text-lg dark:text-white">
           {question.question}
         </p>
 
@@ -142,11 +142,11 @@ export default function Quiz({ questions }) {
             const showAnswer = selectedAnswer !== null;
 
             let buttonClass =
-              "w-full text-left p-4 rounded-lg border-2 transition-all ";
+              "w-full rounded-lg border-2 p-4 text-left transition-all ";
 
             if (!showAnswer) {
               buttonClass +=
-                "border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30";
+                "border-gray-300 bg-white hover:border-blue-500 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-blue-400 dark:hover:bg-blue-900/30";
             } else if (isCorrect) {
               buttonClass +=
                 "border-green-500 bg-green-100 dark:bg-green-900/30";
@@ -154,7 +154,7 @@ export default function Quiz({ questions }) {
               buttonClass += "border-red-500 bg-red-100 dark:bg-red-900/30";
             } else {
               buttonClass +=
-                "border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 opacity-50";
+                "border-gray-300 bg-gray-100 opacity-50 dark:border-gray-600 dark:bg-gray-700";
             }
 
             return (
@@ -164,21 +164,21 @@ export default function Quiz({ questions }) {
                 disabled={selectedAnswer !== null}
                 className={buttonClass}
               >
-                <div className="flex items-center">
-                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold mr-3">
+                <div className="flex items-start">
+                  <span className="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-300">
                     {String.fromCharCode(65 + index)}
                   </span>
-                  <span className="text-gray-900 dark:text-gray-100">
+                  <span className="break-words text-gray-900 dark:text-gray-100">
                     {option}
                   </span>
                   {showAnswer && isCorrect && (
                     <span className="ml-auto text-green-600 dark:text-green-400">
-                      ✓
+                      OK
                     </span>
                   )}
                   {showAnswer && isSelected && !isCorrect && (
                     <span className="ml-auto text-red-600 dark:text-red-400">
-                      ✗
+                      X
                     </span>
                   )}
                 </div>
@@ -189,12 +189,12 @@ export default function Quiz({ questions }) {
 
         {selectedAnswer !== null && (
           <div
-            className={`mt-4 p-4 rounded-lg ${selectedAnswer === question.correctAnswer ? "bg-green-100 dark:bg-green-900/30 border border-green-500" : "bg-red-100 dark:bg-red-900/30 border border-red-500"}`}
+            className={`mt-4 rounded-lg border p-4 ${selectedAnswer === question.correctAnswer ? "border-green-500 bg-green-100 dark:bg-green-900/30" : "border-red-500 bg-red-100 dark:bg-red-900/30"}`}
           >
-            <p className="font-semibold text-gray-900 dark:text-white mb-2">
+            <p className="mb-2 font-semibold text-gray-900 dark:text-white">
               {selectedAnswer === question.correctAnswer
-                ? "✓ Correct!"
-                : "✗ Incorrect"}
+                ? "Correct"
+                : "Incorrect"}
             </p>
             <p className="text-sm text-gray-700 dark:text-gray-300">
               {question.explanation}
@@ -206,10 +206,10 @@ export default function Quiz({ questions }) {
       {selectedAnswer !== null && (
         <button
           onClick={nextQuestion}
-          className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
         >
           {currentQuestion < questions.length - 1
-            ? "Next Question →"
+            ? "Next Question"
             : "View Results"}
         </button>
       )}
