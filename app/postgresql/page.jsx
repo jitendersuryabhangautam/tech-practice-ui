@@ -100,7 +100,8 @@ export default function PostgreSQLPage() {
   const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "postgresql",
     postgresqlData,
-    postgresqlQuiz
+    postgresqlQuiz,
+    { fetchMode: "index" }
   );
 
   if (loading) {
@@ -125,6 +126,7 @@ export default function PostgreSQLPage() {
 
   return (
     <InterviewTopicPage
+      technology="postgresql"
       title={title || "PostgreSQL Interview Preparation"}
       description={
         description ||
@@ -135,4 +137,3 @@ export default function PostgreSQLPage() {
     />
   );
 }
-

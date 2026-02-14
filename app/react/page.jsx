@@ -222,7 +222,8 @@ export default function ReactPage() {
   const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "react",
     reactContent.topics || [],
-    reactContent.quiz || []
+    reactContent.quiz || [],
+    { fetchMode: "index" }
   );
 
   if (loading) {
@@ -250,6 +251,7 @@ export default function ReactPage() {
 
   return (
     <InterviewTopicPage
+      technology="react"
       title={title || reactContent.title}
       description={description || reactContent.description}
       topics={enrichedTopics}

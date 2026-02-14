@@ -2,9 +2,10 @@ const path = require("path");
 
 /** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === "production";
+const outputMode = process.env.NEXT_OUTPUT_MODE || (isProd ? "export" : "");
 
 const nextConfig = {
-  output: "export",
+  ...(outputMode === "export" ? { output: "export" } : {}),
   outputFileTracingRoot: path.resolve(__dirname),
   images: {
     unoptimized: true,

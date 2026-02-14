@@ -1,8 +1,7 @@
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import ThemeToggle from "@/components/ThemeToggle";
-import FloatingCharacters from "@/components/FloatingCharacters";
-import ChatbotWidget from "@/components/ChatbotWidget";
+import { DataSourceProvider } from "@/components/DataSourceProvider";
+import GlobalWidgets from "@/components/GlobalWidgets";
 import UserTrackingBootstrap from "@/components/UserTrackingBootstrap";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 
@@ -37,11 +36,11 @@ export default function RootLayout({ children }) {
         className={`${spaceGrotesk.variable} ${plexMono.variable} overflow-x-hidden antialiased`}
       >
         <ThemeProvider>
-          <UserTrackingBootstrap />
-          <FloatingCharacters />
-          <ThemeToggle />
-          <ChatbotWidget />
-          <div className="relative z-10">{children}</div>
+          <DataSourceProvider>
+            <UserTrackingBootstrap />
+            <GlobalWidgets />
+            <div className="relative z-10">{children}</div>
+          </DataSourceProvider>
         </ThemeProvider>
       </body>
     </html>

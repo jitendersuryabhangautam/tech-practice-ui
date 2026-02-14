@@ -220,7 +220,6 @@ pre {
 @layer components {
   .page-shell {
     position: relative;
-    overflow-x: clip;
     min-height: calc(100vh - 4rem);
     background:
       radial-gradient(
@@ -527,7 +526,7 @@ pre {
 
   .nav-motion-shell {
     position: sticky;
-    overflow: hidden;
+    overflow-x: clip;
   }
 
   .nav-cartoon-track {

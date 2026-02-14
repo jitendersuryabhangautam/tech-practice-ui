@@ -12,7 +12,7 @@ export default function AuthWrapper({ children }) {
   useEffect(() => {
     const loggedIn = localStorage.getItem("isLoggedIn");
 
-    if (!loggedIn && pathname !== "/login") {
+    if (!loggedIn && pathname !== "/login" && pathname !== "/") {
       router.push("/login");
     } else {
       setIsAuthenticated(true);
@@ -31,7 +31,7 @@ export default function AuthWrapper({ children }) {
     );
   }
 
-  if (!isAuthenticated && pathname !== "/login") {
+  if (!isAuthenticated && pathname !== "/login" && pathname !== "/") {
     return null;
   }
 

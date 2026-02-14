@@ -218,7 +218,8 @@ export default function NextJSPage() {
   const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "nextjs",
     nextjsData,
-    nextjsQuiz
+    nextjsQuiz,
+    { fetchMode: "index" }
   );
 
   if (loading) {
@@ -249,6 +250,7 @@ export default function NextJSPage() {
 
   return (
     <InterviewTopicPage
+      technology="nextjs"
       title={title || "Next.js Interview Preparation"}
       description={
         description ||

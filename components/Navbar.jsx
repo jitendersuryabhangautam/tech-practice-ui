@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { trackEvent } from "@/lib/userTracking";
 
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
+  { href: "/dashboard", label: "Home" },
   { href: "/javascript", label: "JavaScript" },
   { href: "/react", label: "React" },
   { href: "/nextjs", label: "Next.js" },
@@ -22,6 +21,8 @@ const ADMIN_LINK = { href: "/admin", label: "AI Console" };
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -41,18 +42,35 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const userName = useMemo(() => {
-    if (typeof window === "undefined") {
-      return "Learner";
-    }
-    return localStorage.getItem("userName") || "Learner";
-  }, []);
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then(async (res) => {
+        if (!active) return;
+        if (!res.ok) {
+          setUser(null);
+          setAuthChecked(true);
+          return;
+        }
+        const payload = await res.json();
+        setUser(payload?.user || null);
+        setAuthChecked(true);
+      })
+      .catch(() => {
+        if (!active) return;
+        setUser(null);
+        setAuthChecked(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
 
-  const handleLogout = () => {
-    trackEvent("logout");
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userEmail");
+  const userName = user?.name || "Learner";
+  const isAdmin = user?.role === "admin";
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
   };
 
@@ -88,12 +106,12 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-0.5 lg:flex xl:gap-1">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`nav-link-motion rounded-lg px-3 py-2 text-sm font-medium transition ${
+              className={`nav-link-motion whitespace-nowrap rounded-lg px-2 py-1.5 text-xs font-medium transition xl:px-2.5 xl:py-2 xl:text-sm ${
                 pathname === link.href
                   ? "bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
                   : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -102,20 +120,22 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
-          <Link
-            href={ADMIN_LINK.href}
-            className={`nav-link-motion flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
-              pathname === ADMIN_LINK.href
-                ? "bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
-                : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-            }`}
-          >
-            <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-              <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-            </svg>
-            {ADMIN_LINK.label}
-          </Link>
+          <span className="mx-0.5 h-5 w-px bg-slate-200 xl:mx-1 dark:bg-slate-700" />
+          {isAdmin && (
+            <Link
+              href={ADMIN_LINK.href}
+              className={`nav-link-motion flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1.5 text-xs font-medium transition xl:gap-1.5 xl:px-2.5 xl:py-2 xl:text-sm ${
+                pathname === ADMIN_LINK.href
+                  ? "bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
+                  : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+              }`}
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+              </svg>
+              {ADMIN_LINK.label}
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -125,7 +145,7 @@ export default function Navbar() {
               onClick={() => setProfileOpen((value) => !value)}
               className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
             >
-              {userName}
+              {authChecked ? userName : "Loading..."}
             </button>
             {profileOpen && (
               <div className="absolute right-0 mt-2 w-44 rounded-lg border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-900">
@@ -183,22 +203,24 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          <div className="mt-2 border-t border-slate-200 pt-2 dark:border-slate-700">
-            <Link
-              href={ADMIN_LINK.href}
-              onClick={() => setMenuOpen(false)}
-              className={`nav-link-motion flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
-                pathname === ADMIN_LINK.href
-                  ? "bg-amber-100 font-semibold text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
-                  : "text-slate-500 dark:text-slate-400"
-              }`}
-            >
-              <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-              </svg>
-              {ADMIN_LINK.label}
-            </Link>
-          </div>
+          {isAdmin && (
+            <div className="mt-2 border-t border-slate-200 pt-2 dark:border-slate-700">
+              <Link
+                href={ADMIN_LINK.href}
+                onClick={() => setMenuOpen(false)}
+                className={`nav-link-motion flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+                  pathname === ADMIN_LINK.href
+                    ? "bg-amber-100 font-semibold text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
+                    : "text-slate-500 dark:text-slate-400"
+                }`}
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                  <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                </svg>
+                {ADMIN_LINK.label}
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </nav>

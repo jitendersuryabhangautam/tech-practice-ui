@@ -309,7 +309,8 @@ export default function GolangPage() {
   const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "golang",
     fallbackTopics,
-    fallbackQuiz
+    fallbackQuiz,
+    { fetchMode: "index" }
   );
 
   if (loading) {
@@ -340,6 +341,7 @@ export default function GolangPage() {
 
   return (
     <InterviewTopicPage
+      technology="golang"
       title={title || "Golang Interview Preparation"}
       description={
         description ||

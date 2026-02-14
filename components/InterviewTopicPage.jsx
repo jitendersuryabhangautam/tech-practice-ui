@@ -7,6 +7,7 @@ import Sidebar from "@/components/Sidebar";
 import TopicDetail from "@/components/TopicDetail";
 import MCQSection from "@/components/MCQSection";
 import { normalizeTopics } from "@/lib/topicUtils";
+import { useDataSource } from "@/components/DataSourceProvider";
 
 function IconTrack() {
   return (
@@ -49,14 +50,59 @@ export default function InterviewTopicPage({
   description,
   topics,
   quiz,
+  technology,
 }) {
+  const { mode } = useDataSource();
   const normalizedTopics = useMemo(() => normalizeTopics(topics), [topics]);
   const [activeTopicId, setActiveTopicId] = useState(normalizedTopics[0]?.id);
+  const [activeTopicData, setActiveTopicData] = useState(null);
+  const [isTopicLoading, setIsTopicLoading] = useState(false);
   const [showMCQ, setShowMCQ] = useState(false);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
-  const activeTopic =
+  const activeTopicLocal =
     normalizedTopics.find((topic) => topic.id === activeTopicId) ?? null;
+  const activeTopic = mode === "db" ? activeTopicData || activeTopicLocal : activeTopicLocal;
+
+  useEffect(() => {
+    if (!normalizedTopics.length) return;
+    if (!activeTopicId) {
+      setActiveTopicId(normalizedTopics[0]?.id);
+    }
+  }, [normalizedTopics, activeTopicId]);
+
+  useEffect(() => {
+    if (!activeTopicId) return;
+    if (mode !== "db" || !technology) {
+      setActiveTopicData(activeTopicLocal);
+      return;
+    }
+
+    let active = true;
+    setIsTopicLoading(true);
+    fetch(`/api/learning/content/${technology}/topics/${activeTopicId}`, {
+      cache: "no-store",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load topic");
+        return res.json();
+      })
+      .then((payload) => {
+        if (!active) return;
+        setActiveTopicData(payload.topic || activeTopicLocal);
+      })
+      .catch(() => {
+        if (!active) return;
+        setActiveTopicData(activeTopicLocal);
+      })
+      .finally(() => {
+        if (active) setIsTopicLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [mode, technology, activeTopicId, activeTopicLocal]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -124,6 +170,11 @@ export default function InterviewTopicPage({
               onTopicClick={handleTopicClick}
             />
             <main className="content-card motion-card min-w-0 p-4 sm:p-6 lg:p-8">
+              {isTopicLoading && mode === "db" ? (
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-300">
+                  Loading topic from DB API...
+                </p>
+              ) : null}
               <TopicDetail topic={activeTopic} />
             </main>
           </div>

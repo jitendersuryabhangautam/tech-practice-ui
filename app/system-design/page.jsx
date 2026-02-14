@@ -8,7 +8,8 @@ export default function SystemDesignPage() {
   const { data, quiz, metadata, loading } = useTopicDataFromContent(
     "system-design",
     systemDesignData,
-    systemDesignQuiz
+    systemDesignQuiz,
+    { fetchMode: "index" }
   );
 
   if (loading) {
@@ -26,6 +27,7 @@ export default function SystemDesignPage() {
 
   return (
     <InterviewTopicPage
+      technology="system-design"
       title={metadata.title || "System Design Interview Preparation"}
       description={
         metadata.description ||

@@ -9,7 +9,8 @@ export default function DockerPage() {
   const { data, quiz, metadata, loading } = useTopicDataFromContent(
     "docker",
     dockerData,
-    dockerQuiz
+    dockerQuiz,
+    { fetchMode: "index" }
   );
 
   if (loading) {
@@ -27,6 +28,7 @@ export default function DockerPage() {
 
   return (
     <InterviewTopicPage
+      technology="docker"
       title={metadata.title || "Docker Interview Preparation"}
       description={
         metadata.description ||

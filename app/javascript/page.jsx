@@ -8,7 +8,8 @@ export default function JavaScriptPage() {
   const { data, quiz, title, description, loading } = useTopicDataFromContent(
     "javascript",
     javascriptContent.topics,
-    javascriptContent.quiz
+    javascriptContent.quiz,
+    { fetchMode: "index" }
   );
 
   if (loading) {
@@ -26,6 +27,7 @@ export default function JavaScriptPage() {
 
   return (
     <InterviewTopicPage
+      technology="javascript"
       title={title || javascriptContent.title}
       description={description || javascriptContent.description}
       topics={data}

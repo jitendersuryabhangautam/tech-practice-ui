@@ -6,6 +6,7 @@ import FreeModeBanner from "@/components/FreeModeBanner";
 import AdminGeneratePanel from "@/components/AdminGeneratePanel";
 import AdminBudgetDashboard from "@/components/AdminBudgetDashboard";
 import UserTrackingPanel from "@/components/UserTrackingPanel";
+import AdminSubnav from "@/components/AdminSubnav";
 
 const TABS = [
   { value: "generate", label: "Generate Content", icon: "GEN" },
@@ -34,6 +35,7 @@ export default function AdminPage() {
         </div>
 
         <FreeModeBanner queueDepth={2} quotaUsed={54} />
+        <AdminSubnav />
 
         <div className="mb-6 flex gap-2 overflow-x-auto border-b border-slate-200 dark:border-slate-700">
           {TABS.map((tab) => (

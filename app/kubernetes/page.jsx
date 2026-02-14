@@ -8,7 +8,8 @@ export default function KubernetesPage() {
   const { data, quiz, metadata, loading } = useTopicDataFromContent(
     "kubernetes",
     kubernetesData,
-    kubernetesQuiz
+    kubernetesQuiz,
+    { fetchMode: "index" }
   );
 
   if (loading) {
@@ -26,6 +27,7 @@ export default function KubernetesPage() {
 
   return (
     <InterviewTopicPage
+      technology="kubernetes"
       title={metadata.title || "Kubernetes Interview Preparation"}
       description={
         metadata.description ||
