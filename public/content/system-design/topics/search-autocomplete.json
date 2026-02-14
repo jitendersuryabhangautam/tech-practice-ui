@@ -1,0 +1,156 @@
+{
+  "id": "search-autocomplete",
+  "title": "Search Autocomplete System",
+  "category": "Company HLD",
+  "description": "Design a search autocomplete (typeahead) system that provides real-time suggestions as users type, using Trie data structures, ranking algorithms, and caching.",
+  "explanation": "Search autocomplete (typeahead) suggests completions as the user types. Google processes 8.5 billion searches/day; every keystroke triggers a suggestion request. The system must be fast (<100ms), relevant, and fresh.\n\n**Core Architecture**:\n1. **Trie Service**: Stores prefix → suggestion mappings. Each trie node has top-K suggestions pre-computed.\n2. **Data Collection Service**: Collects search queries and their frequencies from logs.\n3. **Aggregation Service**: Periodically aggregates query frequencies, applies time decay, builds a new trie.\n4. **Ranking Service**: Ranks suggestions by popularity, personalization, recency, and trending signals.\n5. **Cache Layer**: CDN + Redis cache for popular prefixes.\n\n**How It Works**:\n1. User types 'sys' → client sends request to autocomplete API.\n2. API checks cache for prefix 'sys'. If hit → return cached top-10.\n3. If miss → Trie Service traverses trie to 'sys' node → returns pre-computed top-K.\n4. Response: ['system design', 'system of equations', 'system32', ...].\n5. Client debounces: only sends request after 150ms of no typing (saves ~60% requests).\n\n**Trie Design**:\n- Each node: character + children + top-K suggestions.\n- Top-K at each node = pre-computed from all descendants.\n- Trade-off: more memory, but O(1) lookup for suggestions at any prefix.\n- Trie rebuilt offline every 15 minutes from aggregated data.\n\n**Ranking Signals**:\n- Query frequency (weighted by recency: recent queries weighted higher).\n- Time decay: frequency * e^(-λ * age_in_hours).\n- Personalization: boost queries user has searched before.\n- Trending: if query frequency spikes above baseline → boost.\n- Filtering: remove offensive/harmful suggestions.\n\n**Scaling**:\n- Shard trie by prefix range: a-m on shard 1, n-z on shard 2.\n- Replicate each shard for availability.\n- CDN caching: top 10,000 prefixes are cached at CDN edge.\n- Redis: prefix → JSON suggestions (TTL: 15 min, matching trie rebuild cycle).",
+  "code": "// Trie-based autocomplete with frequency ranking\nclass TrieNode {\n  constructor() {\n    this.children = {};\n    this.isEnd = false;\n    this.frequency = 0;\n    this.topK = []; // pre-computed top suggestions\n  }\n}\n\nclass Autocomplete {\n  constructor(k = 5) {\n    this.root = new TrieNode();\n    this.k = k;\n  }\n\n  insert(word, frequency = 1) {\n    let node = this.root;\n    for (const char of word) {\n      if (!node.children[char]) node.children[char] = new TrieNode();\n      node = node.children[char];\n    }\n    node.isEnd = true;\n    node.frequency += frequency;\n    this._updateTopK();\n  }\n\n  _getAllWords(node, prefix) {\n    const results = [];\n    if (node.isEnd) results.push({ word: prefix, freq: node.frequency });\n    for (const [char, child] of Object.entries(node.children)) {\n      results.push(...this._getAllWords(child, prefix + char));\n    }\n    return results;\n  }\n\n  _updateTopK() {\n    const update = (node, prefix) => {\n      const allWords = this._getAllWords(node, prefix);\n      node.topK = allWords.sort((a, b) => b.freq - a.freq).slice(0, this.k);\n      for (const [char, child] of Object.entries(node.children)) {\n        update(child, prefix + char);\n      }\n    };\n    update(this.root, '');\n  }\n\n  suggest(prefix) {\n    let node = this.root;\n    for (const char of prefix) {\n      if (!node.children[char]) return [];\n      node = node.children[char];\n    }\n    return node.topK;\n  }\n}\n\nconst ac = new Autocomplete(3);\nac.insert('system design', 100);\nac.insert('system design interview', 80);\nac.insert('system of equations', 40);\nac.insert('systemic risk', 20);\nac.insert('syntax error', 60);\nac.insert('synchronous', 30);\n\nconsole.log('Prefix \"sys\":', ac.suggest('sys'));\nconsole.log('Prefix \"system d\":', ac.suggest('system d'));\nconsole.log('Prefix \"syn\":', ac.suggest('syn'));",
+  "example": "// Autocomplete with time-decay ranking\nclass DecayAutocomplete {\n  constructor() {\n    this.queries = []; // { query, timestamp, count }\n  }\n  record(query, timestamp = Date.now()) {\n    const existing = this.queries.find(q => q.query === query);\n    if (existing) { existing.count++; existing.timestamp = timestamp; }\n    else this.queries.push({ query, timestamp, count: 1 });\n  }\n  suggest(prefix, now = Date.now(), k = 5) {\n    const lambda = 0.0001; // decay factor\n    return this.queries\n      .filter(q => q.query.startsWith(prefix))\n      .map(q => ({\n        query: q.query,\n        score: q.count * Math.exp(-lambda * (now - q.timestamp)),\n      }))\n      .sort((a, b) => b.score - a.score)\n      .slice(0, k);\n  }\n}\n\nconst dac = new DecayAutocomplete();\nconst now = Date.now();\ndac.record('system design', now - 86400000); // 1 day ago, once\ndac.record('system design', now - 86400000);\ndac.record('system design', now - 86400000); // 3 times total\ndac.record('system architecture', now); // just now, once\ndac.record('system architecture', now); // twice now\n\nconsole.log(dac.suggest('system', now));",
+  "useCase": "Search engines, e-commerce product search, IDE code completion, address lookup, social media username search, email recipient suggestion.",
+  "interviewQuestions": [
+    {
+      "question": "Why use a Trie instead of a database for autocomplete?",
+      "answer": "Trie provides O(prefix_length) lookup — milliseconds. Database LIKE 'sys%' requires index scan, slower for real-time. Trie can store pre-computed top-K at each node for O(1) suggestion retrieval. Database needs ORDER BY + LIMIT on every request. Trie fits in memory for web-scale prefix sets."
+    },
+    {
+      "question": "How do you handle the 'build vs serve' dichotomy?",
+      "answer": "Separate offline build from online serving. Offline: aggregation service processes search logs every 15 min → builds new trie → serializes to blob storage. Online: trie servers load latest snapshot → serve suggestions from memory. No online writes. This avoids consistency issues and allows atomic trie replacement."
+    },
+    {
+      "question": "How do you store top-K suggestions efficiently in the Trie?",
+      "answer": "At each internal node, store top-K suggestions (sorted by score) from all descendants. On build: bottom-up merge — leaf nodes have their own terms. Parent merges children's top-K lists. Space: if K=10 and each suggestion is 50 bytes, each node stores 500 bytes. Trade-off: more memory, but zero traversal at query time."
+    },
+    {
+      "question": "How do you implement personalization?",
+      "answer": "Two layers: (1) Global top-K from trie (default). (2) User-specific boost: store user's recent search history (last 100 queries in Redis). At query time: merge global suggestions with user's history matches. Boost score for previously searched terms. Privacy: user can clear history. Don't send user data to CDN cache."
+    },
+    {
+      "question": "How do you handle trending queries?",
+      "answer": "Maintain a sliding window counter per query (last 1 hour). Compare with historical baseline (same hour last week). If current_count > 3× baseline → mark as trending → boost score by 2×. Use Redis Sorted Set: ZINCRBY trending_queries 1 'query'. Decay: TTL on the trending entries. Show 'Trending' badge in UI."
+    },
+    {
+      "question": "How do you filter offensive or harmful suggestions?",
+      "answer": "Blocklist: maintain set of banned terms. During trie build: filter out suggestions matching blocklist (exact or substring). Pattern-based: regex filters for known offensive patterns. ML: train a classifier to score suggestion safety. Human review: flag and remove reported suggestions. Legal: remove court-ordered suggestions."
+    },
+    {
+      "question": "How do you reduce the number of API requests?",
+      "answer": "Client-side debounce: only send request after 150ms of no typing (saves ~60%). Client cache: if user types 'sys', cache response. If then types 'syst', check if subset of cached 'sys' results starts with 'syst' — filter client-side, no API call. Pre-fetch: on focus of search box, fetch top suggestions for empty prefix."
+    },
+    {
+      "question": "How do you shard the trie?",
+      "answer": "By prefix range: shard 1 handles a-f, shard 2 handles g-m, etc. Benefits: each shard is smaller (fits memory). Routing: first character determines shard. Rebalancing: if one shard is hot (e.g., 's' has more queries), sub-shard: sa-sm on shard 5a, sn-sz on shard 5b. Replication: each shard has 3 replicas."
+    },
+    {
+      "question": "What is the data pipeline for building the trie?",
+      "answer": "1) Search logs → Kafka. 2) Stream processor (Flink): aggregate query + count per 15-min window. 3) Store aggregated data in HDFS/S3. 4) Trie builder job: reads aggregated data, applies time decay, builds trie with top-K per node. 5) Serialize trie to binary format. 6) Upload to blob storage. 7) Trie servers pull latest snapshot and swap."
+    },
+    {
+      "question": "How do you handle multi-language autocomplete?",
+      "answer": "Separate tries per language. Language detection: from user locale settings or first typed characters. Unicode-aware trie: nodes represent Unicode code points, not just ASCII. CJK (Chinese/Japanese/Korean): character-level trie (no word boundaries). Transliteration: if user types phonetic input, map to native script suggestions. Example: typing 'bei' → '北京' (Beijing)."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "estimation",
+      "question": "Google: 8.5B searches/day. Average query length: 4 words, typed character by character. With debouncing (150ms), estimate autocomplete QPS.",
+      "answer": "Average characters per query: 4 words × 5 chars = 20 chars. With debouncing, ~50% of keystrokes trigger requests: 10 requests/query. Total requests: 8.5B × 10 = 85B/day. QPS: 85B / 86400 ≈ 983,796 QPS. Peak (3x): ~3M QPS. Need heavy caching — top 1000 prefixes serve 90%+ of traffic."
+    },
+    {
+      "type": "design",
+      "question": "Design the caching strategy for autocomplete.",
+      "answer": "L1: CDN edge cache — top 10K prefixes (covers 80% traffic). TTL: 15 min. L2: Redis — all prefixes queried in last hour. TTL: 15 min. L3: Trie server (in-memory). Cache key: prefix string. Cache value: JSON array of suggestions. Invalidation: on trie rebuild (every 15 min), broadcast cache-clear. Personalized results bypass CDN."
+    },
+    {
+      "type": "scenario",
+      "question": "A celebrity scandal breaks. Millions search their name. How does autocomplete adapt?",
+      "answer": "Trending detection picks up spike in 5-10 minutes. But trie rebuilds every 15 min — too slow. Solution: 'hot query' fast path. Real-time counter (Redis): if query count > 10× baseline in 5-min window → inject into suggestion cache directly (bypass trie). Cap injection to prevent manipulation. Remove after scandal fades (decay)."
+    },
+    {
+      "type": "tricky",
+      "question": "Can you implement autocomplete without a Trie?",
+      "answer": "Yes: (1) Sorted array + binary search: store all queries sorted. Binary search for prefix. O(log n) lookup + scan. (2) Inverted index: prefix → query list. (3) Elasticsearch: prefix query or completion suggester. (4) Redis Sorted Set: ZRANGEBYLEX for prefix matching. Trie is optimal for in-memory, but alternatives work at different scales."
+    },
+    {
+      "type": "design",
+      "question": "Design autocomplete for an e-commerce site (product search).",
+      "answer": "Different from web search: suggestions are product names, categories, and brands. Trie built from product catalog + search logs. Ranking: product popularity, availability, margin. Category suggestions: 'shoes' → 'Men's Running Shoes', 'Women's Formal Shoes'. Show product images alongside suggestions. Real-time inventory: filter out out-of-stock products."
+    },
+    {
+      "type": "estimation",
+      "question": "How much memory does a trie with 10M unique queries need?",
+      "answer": "Average query: 20 characters. Naive trie: 10M × 20 = 200M nodes. Each node: 1B char + 26 pointers (8B each) = 209B/node. Total: 200M × 209B = 41.8GB — too large! Optimization: compressed trie (radix/Patricia tree): collapse single-child paths. Reduces to ~50M nodes → ~10GB. With top-K (10 × 50B per node): +2.5GB overhead."
+    },
+    {
+      "type": "debug",
+      "question": "Autocomplete returns stale results after a trie rebuild. What's wrong?",
+      "answer": "1) CDN/Redis cache not invalidated after rebuild → serving old cached results. Fix: version trie builds, include version in cache key. 2) Trie servers not all serving same version — rolling deploy issue. Fix: atomic swap with health check. 3) Client caching prefix results locally. Fix: add cache-control headers with max-age matching rebuild interval."
+    },
+    {
+      "type": "design",
+      "question": "Design an autocomplete system that respects user privacy.",
+      "answer": "1) No logging of individual user queries → only aggregate counts. 2) Differential privacy: add noise to query counts before building trie. 3) No personalization on server → personalization only client-side using local history. 4) HTTPS for all autocomplete requests. 5) Right to be forgotten: user can request deletion of their search history. 6) Anonymize IP in logs."
+    },
+    {
+      "type": "scenario",
+      "question": "Competitor tries to manipulate autocomplete by generating fake searches. How to prevent?",
+      "answer": "1) Rate limit per IP/user: max 100 searches/hour. 2) CAPTCHA for suspicious patterns (same prefix repeated). 3) Account age requirement: ignore searches from accounts < 24h old. 4) IP diversity: require suggestions to come from 100+ distinct IPs. 5) ML anomaly detection: flag sudden unnatural spikes. 6) Manual review for high-visibility suggestions."
+    },
+    {
+      "type": "output",
+      "question": "Trie has: 'apple'(100), 'app'(80), 'application'(60), 'apply'(40), 'appetizer'(30). User types 'app'. What are top-3 suggestions?",
+      "answer": "All 5 words match prefix 'app'. Sort by frequency: apple(100), app(80), application(60), apply(40), appetizer(30). Top-3: ['apple', 'app', 'application']. Node at 'app' has pre-computed topK=[apple, app, application]. Returned in O(1) without traversal."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Basic Trie with insert and search",
+      "code": "class TrieNode {\n  constructor() { this.children = {}; this.isEnd = false; }\n}\n\nclass Trie {\n  constructor() { this.root = new TrieNode(); }\n  insert(word) {\n    let node = this.root;\n    for (const c of word) {\n      if (!node.children[c]) node.children[c] = new TrieNode();\n      node = node.children[c];\n    }\n    node.isEnd = true;\n  }\n  search(word) {\n    let node = this.root;\n    for (const c of word) {\n      if (!node.children[c]) return false;\n      node = node.children[c];\n    }\n    return node.isEnd;\n  }\n  startsWith(prefix) {\n    let node = this.root;\n    for (const c of prefix) {\n      if (!node.children[c]) return false;\n      node = node.children[c];\n    }\n    return true;\n  }\n}\n\nconst t = new Trie();\nt.insert('apple'); t.insert('app'); t.insert('application');\nconsole.log(t.search('app'));       // true\nconsole.log(t.search('ap'));        // false\nconsole.log(t.startsWith('ap'));    // true\nconsole.log(t.startsWith('b'));     // false",
+      "output": "true\nfalse\ntrue\nfalse"
+    },
+    {
+      "question": "Program 2: Autocomplete with frequency ranking",
+      "code": "class AutocompleteTrie {\n  constructor() { this.root = { children: {}, words: [] }; }\n  insert(word, freq) {\n    let node = this.root;\n    for (const c of word) {\n      if (!node.children[c]) node.children[c] = { children: {}, words: [] };\n      node = node.children[c];\n      // Update top-5 at each node\n      const idx = node.words.findIndex(w => w.word === word);\n      if (idx >= 0) node.words[idx].freq = freq;\n      else node.words.push({ word, freq });\n      node.words.sort((a, b) => b.freq - a.freq);\n      if (node.words.length > 5) node.words.pop();\n    }\n  }\n  suggest(prefix) {\n    let node = this.root;\n    for (const c of prefix) {\n      if (!node.children[c]) return [];\n      node = node.children[c];\n    }\n    return node.words.map(w => `${w.word} (${w.freq})`);\n  }\n}\n\nconst ac = new AutocompleteTrie();\nac.insert('system design', 100);\nac.insert('system design interview', 80);\nac.insert('syntax error', 60);\nac.insert('system of equations', 40);\nac.insert('synchronous', 30);\nac.insert('sysadmin', 20);\nac.insert('sys', 10);\n\nconsole.log(ac.suggest('sy'));\nconsole.log(ac.suggest('system'));",
+      "output": "[\n  'system design (100)',\n  'system design interview (80)',\n  'syntax error (60)',\n  'system of equations (40)',\n  'synchronous (30)'\n]\n[\n  'system design (100)',\n  'system design interview (80)',\n  'system of equations (40)'\n]"
+    },
+    {
+      "question": "Program 3: Client-side debounce for typeahead",
+      "code": "class DebounceSimulator {\n  constructor(delayMs) {\n    this.delay = delayMs;\n    this.timer = null;\n    this.calls = [];\n    this.actual = [];\n  }\n  type(char, timestamp) {\n    this.calls.push({ char, timestamp });\n    // Cancel previous timer\n    if (this.timer && timestamp < this.timer.fireAt) {\n      this.timer = null;\n    }\n    this.timer = { char, fireAt: timestamp + this.delay };\n  }\n  flush(currentTime) {\n    if (this.timer && currentTime >= this.timer.fireAt) {\n      this.actual.push({ fireAt: this.timer.fireAt });\n      this.timer = null;\n    }\n  }\n  simulate(keystrokes) {\n    let prefix = '';\n    const requests = [];\n    keystrokes.forEach(({ char, time }) => {\n      prefix += char;\n      this.type(char, time);\n      // Check if any pending timer should fire\n      this.flush(time);\n    });\n    // Final flush\n    this.flush(keystrokes[keystrokes.length - 1].time + this.delay + 1);\n    return { totalKeystrokes: keystrokes.length, apiCalls: this.actual.length, saved: `${((1 - this.actual.length / keystrokes.length) * 100).toFixed(0)}%` };\n  }\n}\n\nconst ds = new DebounceSimulator(150);\nconst result = ds.simulate([\n  { char: 's', time: 0 },\n  { char: 'y', time: 80 },\n  { char: 's', time: 160 },  // timer from 'y' fires? No, 80+150=230 > 160\n  { char: 't', time: 240 },\n  { char: 'e', time: 320 },\n  { char: 'm', time: 400 },\n  // pause 200ms\n  { char: ' ', time: 600 },\n  { char: 'd', time: 680 },\n]);\nconsole.log(result);",
+      "output": "{ totalKeystrokes: 8, apiCalls: 2, saved: '75%' }"
+    },
+    {
+      "question": "Program 4: Prefix-based cache with TTL",
+      "code": "class PrefixCache {\n  constructor(ttlMs) {\n    this.cache = new Map();\n    this.ttl = ttlMs;\n    this.hits = 0;\n    this.misses = 0;\n  }\n  get(prefix) {\n    const entry = this.cache.get(prefix);\n    if (!entry) { this.misses++; return null; }\n    if (Date.now() > entry.expiresAt) {\n      this.cache.delete(prefix);\n      this.misses++;\n      return null;\n    }\n    this.hits++;\n    return entry.suggestions;\n  }\n  set(prefix, suggestions) {\n    this.cache.set(prefix, { suggestions, expiresAt: Date.now() + this.ttl });\n  }\n  stats() {\n    const total = this.hits + this.misses;\n    return {\n      hits: this.hits,\n      misses: this.misses,\n      hitRate: total ? (this.hits / total * 100).toFixed(1) + '%' : 'N/A',\n      size: this.cache.size,\n    };\n  }\n}\n\nconst pc = new PrefixCache(5000);\npc.set('sys', ['system design', 'syntax error']);\npc.set('rea', ['react', 'react hooks', 'read']);\n\nconsole.log(pc.get('sys'));\nconsole.log(pc.get('sys'));\nconsole.log(pc.get('xyz'));\nconsole.log(pc.stats());",
+      "output": "[ 'system design', 'syntax error' ]\n[ 'system design', 'syntax error' ]\nnull\n{ hits: 2, misses: 1, hitRate: '66.7%', size: 2 }"
+    },
+    {
+      "question": "Program 5: Query frequency aggregator with time decay",
+      "code": "class QueryAggregator {\n  constructor(decayFactor) {\n    this.queries = new Map();\n    this.decay = decayFactor;\n  }\n  record(query, timestamp = Date.now()) {\n    if (!this.queries.has(query)) this.queries.set(query, []);\n    this.queries.get(query).push(timestamp);\n  }\n  getScore(query, now = Date.now()) {\n    const times = this.queries.get(query) || [];\n    return times.reduce((score, t) => {\n      const ageHours = (now - t) / 3600000;\n      return score + Math.exp(-this.decay * ageHours);\n    }, 0);\n  }\n  topK(prefix, k = 5, now = Date.now()) {\n    const results = [];\n    for (const [query] of this.queries) {\n      if (query.startsWith(prefix)) {\n        results.push({ query, score: parseFloat(this.getScore(query, now).toFixed(3)) });\n      }\n    }\n    return results.sort((a, b) => b.score - a.score).slice(0, k);\n  }\n}\n\nconst qa = new QueryAggregator(0.01); // slow decay\nconst now = Date.now();\nqa.record('system design', now - 3600000 * 24); // 24h ago\nqa.record('system design', now - 3600000 * 12);\nqa.record('system design', now - 3600000);\nqa.record('system architecture', now); // just now\nqa.record('system architecture', now);\n\nconsole.log(qa.topK('system', 5, now));",
+      "output": "[\n  { query: 'system design', score: 2.572 },\n  { query: 'system architecture', score: 2.0 }\n]"
+    },
+    {
+      "question": "Program 6: Trie with delete operation",
+      "code": "class DeletableTrie {\n  constructor() { this.root = { children: {}, count: 0, isEnd: false }; }\n  insert(word) {\n    let node = this.root;\n    for (const c of word) {\n      if (!node.children[c]) node.children[c] = { children: {}, count: 0, isEnd: false };\n      node = node.children[c];\n      node.count++;\n    }\n    node.isEnd = true;\n  }\n  delete(word) {\n    const _delete = (node, word, i) => {\n      if (i === word.length) {\n        if (!node.isEnd) return false;\n        node.isEnd = false;\n        return Object.keys(node.children).length === 0;\n      }\n      const c = word[i];\n      if (!node.children[c]) return false;\n      node.children[c].count--;\n      const shouldDelete = _delete(node.children[c], word, i + 1);\n      if (shouldDelete) delete node.children[c];\n      return Object.keys(node.children).length === 0 && !node.isEnd;\n    };\n    _delete(this.root, word, 0);\n  }\n  autocomplete(prefix) {\n    let node = this.root;\n    for (const c of prefix) {\n      if (!node.children[c]) return [];\n      node = node.children[c];\n    }\n    const results = [];\n    const dfs = (n, p) => {\n      if (n.isEnd) results.push(p);\n      for (const [c, child] of Object.entries(n.children)) dfs(child, p + c);\n    };\n    dfs(node, prefix);\n    return results;\n  }\n}\n\nconst dt = new DeletableTrie();\ndt.insert('apple'); dt.insert('app'); dt.insert('application');\nconsole.log(dt.autocomplete('app'));\ndt.delete('apple');\nconsole.log(dt.autocomplete('app'));\ndt.delete('app');\nconsole.log(dt.autocomplete('app'));",
+      "output": "[ 'app', 'apple', 'application' ]\n[ 'app', 'application' ]\n[ 'application' ]"
+    },
+    {
+      "question": "Program 7: Trending queries detector",
+      "code": "class TrendingDetector {\n  constructor(windowMs, spikeThreshold) {\n    this.windowMs = windowMs;\n    this.spikeThreshold = spikeThreshold;\n    this.current = new Map(); // query -> count in current window\n    this.baseline = new Map(); // query -> avg count\n  }\n  setBaseline(query, avgCount) {\n    this.baseline.set(query, avgCount);\n  }\n  record(query) {\n    this.current.set(query, (this.current.get(query) || 0) + 1);\n  }\n  getTrending() {\n    const trending = [];\n    for (const [query, count] of this.current) {\n      const base = this.baseline.get(query) || 1;\n      const ratio = count / base;\n      if (ratio >= this.spikeThreshold) {\n        trending.push({ query, count, baseline: base, spike: ratio.toFixed(1) + 'x' });\n      }\n    }\n    return trending.sort((a, b) => parseFloat(b.spike) - parseFloat(a.spike));\n  }\n}\n\nconst td = new TrendingDetector(3600000, 3); // 1hr window, 3x spike\ntd.setBaseline('system design', 100);\ntd.setBaseline('javascript', 200);\ntd.setBaseline('breaking news', 10);\n\n// Simulate current window counts\nfor (let i = 0; i < 120; i++) td.record('system design'); // 120 vs 100 baseline\nfor (let i = 0; i < 150; i++) td.record('javascript');    // 150 vs 200 baseline\nfor (let i = 0; i < 50; i++) td.record('breaking news');  // 50 vs 10 baseline\nfor (let i = 0; i < 500; i++) td.record('new trend');     // no baseline\n\nconsole.log(td.getTrending());",
+      "output": "[\n  { query: 'new trend', count: 500, baseline: 1, spike: '500.0x' },\n  { query: 'breaking news', count: 50, baseline: 10, spike: '5.0x' }\n]"
+    },
+    {
+      "question": "Program 8: Prefix range sharding",
+      "code": "class TrieShardRouter {\n  constructor(shards) {\n    // shards: [{ id, range: [startChar, endChar] }]\n    this.shards = shards;\n  }\n  route(prefix) {\n    if (!prefix) return { error: 'Empty prefix' };\n    const first = prefix[0].toLowerCase();\n    const shard = this.shards.find(s => first >= s.range[0] && first <= s.range[1]);\n    return shard ? { prefix, shardId: shard.id, range: shard.range.join('-') } : { error: 'No shard for prefix' };\n  }\n  routeAll(prefixes) {\n    const grouped = {};\n    prefixes.forEach(p => {\n      const r = this.route(p);\n      if (r.shardId) {\n        if (!grouped[r.shardId]) grouped[r.shardId] = [];\n        grouped[r.shardId].push(p);\n      }\n    });\n    return grouped;\n  }\n}\n\nconst router = new TrieShardRouter([\n  { id: 'shard-1', range: ['a', 'f'] },\n  { id: 'shard-2', range: ['g', 'm'] },\n  { id: 'shard-3', range: ['n', 's'] },\n  { id: 'shard-4', range: ['t', 'z'] },\n]);\n\nconsole.log(router.route('system'));\nconsole.log(router.route('javascript'));\nconsole.log(router.routeAll(['apple', 'go', 'react', 'vue', 'next', 'docker']));",
+      "output": "{ prefix: 'system', shardId: 'shard-3', range: 'n-s' }\n{ prefix: 'javascript', shardId: 'shard-2', range: 'g-m' }\n{\n  'shard-1': [ 'apple', 'docker' ],\n  'shard-2': [ 'go' ],\n  'shard-3': [ 'react', 'next' ],\n  'shard-4': [ 'vue' ]\n}"
+    },
+    {
+      "question": "Program 9: Autocomplete with spell correction",
+      "code": "class SpellCorrectAutocomplete {\n  constructor() { this.words = new Map(); }\n  add(word, freq) { this.words.set(word.toLowerCase(), freq); }\n  editDistance(a, b) {\n    const m = a.length, n = b.length;\n    const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));\n    for (let i = 0; i <= m; i++) dp[i][0] = i;\n    for (let j = 0; j <= n; j++) dp[0][j] = j;\n    for (let i = 1; i <= m; i++)\n      for (let j = 1; j <= n; j++)\n        dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);\n    return dp[m][n];\n  }\n  suggest(input, maxDist = 2, k = 3) {\n    const results = [];\n    for (const [word, freq] of this.words) {\n      if (word.startsWith(input)) {\n        results.push({ word, freq, distance: 0, type: 'prefix' });\n      } else if (this.editDistance(input, word.substring(0, input.length)) <= maxDist) {\n        results.push({ word, freq, distance: this.editDistance(input, word.substring(0, input.length)), type: 'fuzzy' });\n      }\n    }\n    return results.sort((a, b) => a.distance - b.distance || b.freq - a.freq).slice(0, k);\n  }\n}\n\nconst sca = new SpellCorrectAutocomplete();\nsca.add('javascript', 100); sca.add('java', 80); sca.add('python', 60);\nsca.add('typescript', 50); sca.add('javscript', 5); // common misspelling\n\nconsole.log(sca.suggest('javas'));  // exact prefix\nconsole.log(sca.suggest('javscr')); // typo",
+      "output": "[\n  { word: 'javascript', freq: 100, distance: 0, type: 'prefix' },\n  { word: 'javscript', freq: 5, distance: 0, type: 'prefix' }\n]\n[\n  { word: 'javscript', freq: 5, distance: 0, type: 'prefix' },\n  { word: 'javascript', freq: 100, distance: 1, type: 'fuzzy' }\n]"
+    },
+    {
+      "question": "Program 10: Full autocomplete system with cache + trie",
+      "code": "class FullAutocomplete {\n  constructor() {\n    this.trie = { children: {}, top: [] };\n    this.cache = new Map();\n    this.stats = { trieHits: 0, cacheHits: 0 };\n  }\n  buildTrie(entries) {\n    entries.forEach(({ term, score }) => {\n      let node = this.trie;\n      for (const c of term) {\n        if (!node.children[c]) node.children[c] = { children: {}, top: [] };\n        node = node.children[c];\n        const idx = node.top.findIndex(t => t.term === term);\n        if (idx >= 0) node.top[idx].score = score;\n        else node.top.push({ term, score });\n        node.top.sort((a, b) => b.score - a.score);\n        if (node.top.length > 5) node.top.pop();\n      }\n    });\n  }\n  suggest(prefix) {\n    // Check cache first\n    if (this.cache.has(prefix)) {\n      this.stats.cacheHits++;\n      return { source: 'cache', results: this.cache.get(prefix) };\n    }\n    // Trie lookup\n    let node = this.trie;\n    for (const c of prefix) {\n      if (!node.children[c]) return { source: 'trie', results: [] };\n      node = node.children[c];\n    }\n    this.stats.trieHits++;\n    const results = node.top.map(t => t.term);\n    this.cache.set(prefix, results);\n    return { source: 'trie', results };\n  }\n}\n\nconst fa = new FullAutocomplete();\nfa.buildTrie([\n  { term: 'system design', score: 100 },\n  { term: 'system architecture', score: 70 },\n  { term: 'syntax error', score: 60 },\n  { term: 'synchronous', score: 40 },\n  { term: 'symbol table', score: 30 },\n]);\nconsole.log(fa.suggest('sy'));  // trie\nconsole.log(fa.suggest('sy'));  // cache\nconsole.log(fa.suggest('system'));\nconsole.log('Stats:', fa.stats);",
+      "output": "{ source: 'trie', results: ['system design', 'system architecture', 'syntax error', 'synchronous', 'symbol table'] }\n{ source: 'cache', results: ['system design', 'system architecture', 'syntax error', 'synchronous', 'symbol table'] }\n{ source: 'trie', results: ['system design', 'system architecture'] }\nStats: { trieHits: 2, cacheHits: 1 }"
+    }
+  ]
+}

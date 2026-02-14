@@ -23,8 +23,8 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
     return shuffled;
   };
 
-  // Shuffle questions and options, limit to 15 questions
-  const shuffledQuiz = useMemo(() => {
+  // Shuffle questions and options, limit quiz mode to 15 questions
+  const quizQuestions = useMemo(() => {
     if (!quiz || quiz.length === 0) return [];
 
     // Shuffle and take first 15 questions
@@ -33,7 +33,28 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
       shuffledQuestions.reverse();
     }
 
-    // Shuffle options for each question and update correctAnswer index
+    return shuffledQuestions.map((question) => {
+      const correctOption = question.options[question.correctAnswer];
+      const shuffledOptions = shuffleArray(question.options);
+      const newCorrectIndex = shuffledOptions.indexOf(correctOption);
+
+      return {
+        ...question,
+        options: shuffledOptions,
+        correctAnswer: newCorrectIndex,
+      };
+    });
+  }, [quiz, shuffleKey]);
+
+  // Study mode shows all questions with shuffled options
+  const studyQuestions = useMemo(() => {
+    if (!quiz || quiz.length === 0) return [];
+
+    const shuffledQuestions = shuffleArray(quiz);
+    if (shuffleKey % 2 === 1) {
+      shuffledQuestions.reverse();
+    }
+
     return shuffledQuestions.map((question) => {
       const correctOption = question.options[question.correctAnswer];
       const shuffledOptions = shuffleArray(question.options);
@@ -51,7 +72,7 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
     return null;
   }
 
-  const question = shuffledQuiz[currentQuestion];
+  const question = quizQuestions[currentQuestion];
 
   const resetQuiz = (nextMode = MODE_QUIZ) => {
     setMode(nextMode);
@@ -85,7 +106,7 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
   };
 
   const nextQuestion = () => {
-    if (currentQuestion < shuffledQuiz.length - 1) {
+    if (currentQuestion < quizQuestions.length - 1) {
       setCurrentQuestion((value) => value + 1);
       setSelectedAnswer(null);
       return;
@@ -133,13 +154,13 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
           <p className="mb-4 text-slate-700 dark:text-slate-300">
             Score:{" "}
             <span className="font-bold">
-              {score} / {shuffledQuiz.length}
+              {score} / {quizQuestions.length}
             </span>
           </p>
           <div className="mb-6 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
             <div
               className="h-3 rounded-full bg-emerald-500"
-              style={{ width: `${(score / shuffledQuiz.length) * 100}%` }}
+              style={{ width: `${(score / quizQuestions.length) * 100}%` }}
             />
           </div>
 
@@ -164,13 +185,11 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
     );
   }
 
-  const progress = ((currentQuestion + 1) / shuffledQuiz.length) * 100;
-  const correctAnswerText = question.options[question.correctAnswer];
-
+  const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
       <div className="content-card min-w-0 max-h-[92vh] w-full max-w-2xl overflow-y-auto p-4 sm:p-6">
-        <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2 dark:border-slate-700 dark:bg-slate-900 sm:-mx-6 sm:px-6">
           <h3 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-slate-100">
             Interview Practice MCQ
           </h3>
@@ -208,19 +227,27 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
           </button>
         </div>
 
-        <div className="mb-4 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-          <div
-            className="h-full rounded-full bg-amber-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <p className="mb-5 text-sm text-slate-500 dark:text-slate-400">
-          Question {currentQuestion + 1} of {shuffledQuiz.length}
-        </p>
+        {mode === MODE_QUIZ ? (
+          <>
+            <div className="mb-4 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div
+                className="h-full rounded-full bg-amber-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="mb-5 text-sm text-slate-500 dark:text-slate-400">
+              Question {currentQuestion + 1} of {quizQuestions.length}
+            </p>
 
-        <p className="mb-5 break-words text-base font-semibold text-slate-900 sm:text-lg dark:text-slate-100">
-          {question.question}
-        </p>
+            <p className="mb-5 break-words text-base font-semibold text-slate-900 sm:text-lg dark:text-slate-100">
+              {question.question}
+            </p>
+          </>
+        ) : (
+          <p className="mb-5 text-sm text-slate-500 dark:text-slate-400">
+            Showing {studyQuestions.length} questions
+          </p>
+        )}
 
         {mode === MODE_QUIZ ? (
           <>
@@ -261,7 +288,7 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
                   onClick={nextQuestion}
                   className="mt-4 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
                 >
-                  {currentQuestion === shuffledQuiz.length - 1
+                  {currentQuestion === quizQuestions.length - 1
                     ? "See Result"
                     : "Next Question"}
                 </button>
@@ -269,43 +296,49 @@ export default function MCQSection({ quiz, isVisible, onToggle }) {
             )}
           </>
         ) : (
-          <div className="space-y-4">
-            <div className="min-w-0 space-y-2">
-              {question.options.map((option, index) => {
-                const isCorrect = index === question.correctAnswer;
-                const optionClass = isCorrect
-                  ? "border-emerald-500 bg-emerald-500/10"
-                  : "border-slate-300 dark:border-slate-700";
+          <div className="space-y-6">
+            {studyQuestions.map((studyQuestion, questionIndex) => {
+              const studyAnswerText =
+                studyQuestion.options[studyQuestion.correctAnswer];
 
-                return (
-                  <div
-                    key={`${question.question}-study-${index}`}
-                    className={`w-full break-words rounded-lg border px-4 py-3 text-left text-sm text-slate-900 dark:text-slate-100 ${optionClass}`}
-                  >
-                    {option}
+              return (
+                <div
+                  key={`${studyQuestion.question}-study-question-${questionIndex}`}
+                  className="rounded-lg border border-slate-200 p-4 dark:border-slate-700"
+                >
+                  <p className="mb-4 break-words text-base font-semibold text-slate-900 sm:text-lg dark:text-slate-100">
+                    {questionIndex + 1}. {studyQuestion.question}
+                  </p>
+
+                  <div className="min-w-0 space-y-2">
+                    {studyQuestion.options.map((option, index) => {
+                      const isCorrect = index === studyQuestion.correctAnswer;
+                      const optionClass = isCorrect
+                        ? "border-emerald-500 bg-emerald-500/10"
+                        : "border-slate-300 dark:border-slate-700";
+
+                      return (
+                        <div
+                          key={`${studyQuestion.question}-study-${index}`}
+                          className={`w-full break-words rounded-lg border px-4 py-3 text-left text-sm text-slate-900 dark:text-slate-100 ${optionClass}`}
+                        >
+                          {option}
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
 
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-700/40 dark:bg-emerald-900/20">
-              <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                Answer: {correctAnswerText}
-              </p>
-              <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
-                {question.explanation}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={nextQuestion}
-              className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
-            >
-              {currentQuestion === shuffledQuiz.length - 1
-                ? "Finish Study"
-                : "Next Question"}
-            </button>
+                  <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-700/40 dark:bg-emerald-900/20">
+                    <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                      Answer: {studyAnswerText}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                      {studyQuestion.explanation}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

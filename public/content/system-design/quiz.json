@@ -1,0 +1,1110 @@
+[
+  {
+    "question": "What is the first step in a system design interview?",
+    "options": [
+      "Jump into component design",
+      "Write code immediately",
+      "Clarify requirements and ask questions",
+      "Draw the database schema"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Always start by clarifying functional and non-functional requirements. Ask about users, scale, latency, and constraints before designing."
+  },
+  {
+    "question": "In capacity estimation, if a system handles 10M DAU and each user makes 5 requests/day, what is the average QPS?",
+    "options": ["578", "5000", "50000", "115"],
+    "correctAnswer": 0,
+    "explanation": "QPS = 10M × 5 / 86400 ≈ 578 requests per second. 86400 is the number of seconds in a day."
+  },
+  {
+    "question": "What does the CAP theorem state?",
+    "options": [
+      "A system can have Consistency, Availability, and Partition tolerance simultaneously",
+      "A distributed system can only guarantee two of three: Consistency, Availability, Partition tolerance",
+      "Caching Always Performs better than databases",
+      "Clusters Are Partitioned by default"
+    ],
+    "correctAnswer": 1,
+    "explanation": "CAP theorem states that in a distributed system experiencing network partition, you must choose between consistency and availability."
+  },
+  {
+    "question": "Which load balancing algorithm distributes requests to the server with the fewest active connections?",
+    "options": [
+      "Round Robin",
+      "Weighted Round Robin",
+      "Least Connections",
+      "IP Hash"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Least Connections sends each new request to the server with the fewest active connections, ideal for varying request durations."
+  },
+  {
+    "question": "What is the primary purpose of a reverse proxy?",
+    "options": [
+      "Encrypt data at rest",
+      "Sit in front of servers to handle client requests",
+      "Store session data",
+      "Compress database queries"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A reverse proxy sits between clients and backend servers, handling load balancing, SSL termination, caching, and security."
+  },
+  {
+    "question": "In a cache-aside (lazy loading) pattern, what happens on a cache miss?",
+    "options": [
+      "Return null to the client",
+      "Application reads from DB, then writes to cache",
+      "Cache automatically fetches from DB",
+      "Request is queued for later"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In cache-aside, on a miss the application reads from the database and then populates the cache before returning the result."
+  },
+  {
+    "question": "What is the main disadvantage of write-through caching?",
+    "options": [
+      "Data loss on cache failure",
+      "Stale data",
+      "Higher write latency",
+      "Complex invalidation"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Write-through writes to both cache and DB synchronously, increasing write latency but ensuring consistency."
+  },
+  {
+    "question": "Which caching eviction policy removes the item that hasn't been used for the longest time?",
+    "options": ["FIFO", "LRU", "LFU", "Random"],
+    "correctAnswer": 1,
+    "explanation": "LRU (Least Recently Used) evicts the item accessed least recently, which is the most commonly used eviction strategy."
+  },
+  {
+    "question": "What is a cache stampede?",
+    "options": [
+      "When cache memory is full",
+      "When many requests hit the DB simultaneously after a popular cache key expires",
+      "When cache becomes the bottleneck",
+      "When cache data is corrupted"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A cache stampede occurs when a popular key expires and many concurrent requests all miss the cache, overwhelming the database."
+  },
+  {
+    "question": "What is horizontal sharding?",
+    "options": [
+      "Splitting a table by columns",
+      "Adding more columns to a table",
+      "Splitting rows across multiple databases based on a shard key",
+      "Creating read replicas"
+    ],
+    "correctAnswer": 2,
+    "explanation": "Horizontal sharding distributes rows across multiple database instances based on a shard key (e.g., user_id % num_shards)."
+  },
+  {
+    "question": "What is the main challenge with range-based sharding?",
+    "options": [
+      "Complex implementation",
+      "Hotspots - uneven data distribution",
+      "Inability to query by shard key",
+      "High memory usage"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Range-based sharding can create hotspots. For example, sharding by date puts all recent writes on one shard."
+  },
+  {
+    "question": "What problem does consistent hashing solve?",
+    "options": [
+      "SQL injection attacks",
+      "Minimizing data movement when nodes are added/removed",
+      "Encrypting data in transit",
+      "Improving query performance"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Consistent hashing minimizes the number of keys that need to be remapped when nodes join or leave the ring, typically only K/N keys."
+  },
+  {
+    "question": "In consistent hashing, what are virtual nodes used for?",
+    "options": [
+      "Backup servers",
+      "Better load distribution across physical nodes",
+      "Caching layer",
+      "DNS resolution"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Virtual nodes map each physical node to multiple positions on the hash ring, ensuring more even key distribution."
+  },
+  {
+    "question": "What is the primary advantage of message queues in system design?",
+    "options": [
+      "They make systems faster",
+      "They decouple producers from consumers",
+      "They reduce storage costs",
+      "They eliminate the need for databases"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Message queues decouple producers and consumers, enabling asynchronous processing, resilience to failures, and independent scaling."
+  },
+  {
+    "question": "In Kafka, what is a consumer group?",
+    "options": [
+      "A group of Kafka brokers",
+      "Multiple consumers sharing the work of consuming from topic partitions",
+      "A set of related topics",
+      "A replication strategy"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A consumer group is a set of consumers that cooperatively consume from topic partitions. Each partition is consumed by exactly one consumer in the group."
+  },
+  {
+    "question": "What is the token bucket algorithm used for?",
+    "options": [
+      "Authentication",
+      "Rate limiting",
+      "Load balancing",
+      "Data encryption"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Token bucket is a rate limiting algorithm. Tokens are added at a fixed rate. Each request consumes a token. If no tokens, request is rejected."
+  },
+  {
+    "question": "What is the difference between rate limiting and throttling?",
+    "options": [
+      "They are the same thing",
+      "Rate limiting rejects excess, throttling queues/slows excess",
+      "Rate limiting is client-side, throttling is server-side",
+      "Throttling is always faster"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Rate limiting hard-rejects requests over the limit (429 error). Throttling slows down or queues excess requests instead of rejecting."
+  },
+  {
+    "question": "Which HTTP status code indicates rate limiting?",
+    "options": [
+      "401 Unauthorized",
+      "403 Forbidden",
+      "429 Too Many Requests",
+      "503 Service Unavailable"
+    ],
+    "correctAnswer": 2,
+    "explanation": "429 Too Many Requests is the standard HTTP status code indicating the client has sent too many requests in a given time window."
+  },
+  {
+    "question": "What is REST's main architectural constraint?",
+    "options": [
+      "Stateful connections",
+      "Statelessness - each request contains all needed information",
+      "Binary protocol",
+      "Single endpoint for all operations"
+    ],
+    "correctAnswer": 1,
+    "explanation": "REST is stateless: each request from client to server must contain all information needed to process it. The server stores no session state."
+  },
+  {
+    "question": "When should you prefer GraphQL over REST?",
+    "options": [
+      "For simple CRUD operations",
+      "When clients need flexible, nested data fetching to avoid over/under-fetching",
+      "For real-time streaming",
+      "For file uploads"
+    ],
+    "correctAnswer": 1,
+    "explanation": "GraphQL excels when clients need to fetch exactly the data they need, especially with nested/related resources, avoiding multiple REST calls."
+  },
+  {
+    "question": "What is API versioning and why is it important?",
+    "options": [
+      "It's optional and rarely needed",
+      "It allows evolving APIs without breaking existing clients",
+      "It speeds up API responses",
+      "It's only needed for GraphQL"
+    ],
+    "correctAnswer": 1,
+    "explanation": "API versioning (e.g., /v1/users, /v2/users) allows introducing breaking changes while maintaining backward compatibility for existing clients."
+  },
+  {
+    "question": "What is the key benefit of microservices over monoliths?",
+    "options": [
+      "Always faster performance",
+      "Independent deployment and scaling of services",
+      "Simpler debugging",
+      "Lower operational costs"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Microservices allow each service to be deployed, scaled, and updated independently. Trade-off: increased operational complexity."
+  },
+  {
+    "question": "What is the Circuit Breaker pattern?",
+    "options": [
+      "A hardware protection device",
+      "Prevents cascading failures by stopping calls to a failing service",
+      "A database optimization technique",
+      "A caching strategy"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Circuit breaker monitors failure rates. If failures exceed threshold, it 'opens' the circuit and returns fallback responses, preventing cascading failures."
+  },
+  {
+    "question": "What is the Saga pattern used for?",
+    "options": [
+      "Database indexing",
+      "Managing distributed transactions across microservices",
+      "Load balancing",
+      "Monitoring"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Saga manages distributed transactions as a sequence of local transactions with compensating actions for rollback on failure."
+  },
+  {
+    "question": "What is a CDN?",
+    "options": [
+      "Central Data Node",
+      "Content Delivery Network - serves content from edge servers closer to users",
+      "Cloud Database Network",
+      "Cached Data Namespace"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A CDN distributes content to edge servers worldwide, reducing latency by serving requests from the geographically nearest server."
+  },
+  {
+    "question": "What is the difference between push CDN and pull CDN?",
+    "options": [
+      "Push is faster",
+      "Push: origin uploads to CDN. Pull: CDN fetches from origin on first request",
+      "They are identical",
+      "Pull CDN doesn't cache"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Push CDN: content is uploaded by origin to CDN proactively. Pull CDN: content is fetched from origin when first requested, then cached."
+  },
+  {
+    "question": "What are the four golden signals of monitoring?",
+    "options": [
+      "CPU, RAM, Disk, Network",
+      "Latency, Traffic, Errors, Saturation",
+      "Uptime, Response Time, Throughput, Memory",
+      "Read, Write, Delete, Update"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The four golden signals (from Google SRE): Latency, Traffic (throughput), Errors (error rate), and Saturation (resource utilization)."
+  },
+  {
+    "question": "What is distributed tracing?",
+    "options": [
+      "Logging errors across services",
+      "Tracking a request's journey through multiple microservices",
+      "Monitoring CPU usage",
+      "A type of load balancer"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Distributed tracing (e.g., Jaeger, Zipkin) assigns a trace ID to each request and tracks it across all services it touches."
+  },
+  {
+    "question": "What is the P99 latency?",
+    "options": [
+      "Average latency",
+      "99th percentile - 99% of requests are faster than this value",
+      "Maximum latency",
+      "Median latency"
+    ],
+    "correctAnswer": 1,
+    "explanation": "P99 means 99% of requests complete within this time. It captures tail latency, which is more useful than averages for SLA monitoring."
+  },
+  {
+    "question": "In Netflix's architecture, what is Adaptive Bitrate (ABR) streaming?",
+    "options": [
+      "Fixed quality streaming",
+      "Adjusting video quality based on client bandwidth in real-time",
+      "Streaming at maximum quality always",
+      "Compressing video on the fly"
+    ],
+    "correctAnswer": 1,
+    "explanation": "ABR streaming encodes video at multiple quality levels. The player switches between them based on current bandwidth and buffer health."
+  },
+  {
+    "question": "What is the 'celebrity problem' in Facebook's news feed?",
+    "options": [
+      "Celebrities get priority in feed ranking",
+      "Fanout-on-write for celebrities would create millions of writes per post",
+      "Celebrity accounts are stored differently",
+      "Celebrities have faster API access"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A celebrity with 10M followers posting triggers 10M fanout writes. Solution: hybrid approach — fanout-on-read for celebrities, fanout-on-write for regular users."
+  },
+  {
+    "question": "In YouTube's video processing pipeline, what is transcoding?",
+    "options": [
+      "Uploading a video",
+      "Converting video to multiple formats and resolutions",
+      "Adding subtitles",
+      "Generating thumbnails"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Transcoding converts the uploaded video to multiple formats (H.264, VP9, AV1) and resolutions (240p to 4K) for different devices and bandwidths."
+  },
+  {
+    "question": "How does Zomato assign delivery partners to orders?",
+    "options": [
+      "Random assignment",
+      "First-come-first-served",
+      "Scoring algorithm based on distance, rating, availability, and current load",
+      "Always the nearest partner"
+    ],
+    "correctAnswer": 2,
+    "explanation": "A scoring algorithm considers multiple factors: distance to restaurant, current delivery load, rating, vehicle type, and zone familiarity."
+  },
+  {
+    "question": "What is the 'seat locking' problem in BookMyShow?",
+    "options": [
+      "Seats are permanently locked",
+      "Temporary hold on selected seats to prevent double-booking",
+      "Seats are assigned randomly",
+      "Lock prevents seat selection"
+    ],
+    "correctAnswer": 1,
+    "explanation": "When a user selects seats, they're temporarily locked (5-10 min) with a TTL. If payment isn't completed, seats are released. Prevents two users booking the same seat."
+  },
+  {
+    "question": "In logistics systems like Delhivery, what is an AWB?",
+    "options": [
+      "Automated Web Browser",
+      "Air Waybill - unique tracking number for a shipment",
+      "Average Weight Balance",
+      "Automated Warehouse Bot"
+    ],
+    "correctAnswer": 1,
+    "explanation": "AWB (Air Waybill) is a unique tracking number assigned to each shipment, used to track the package through every stage of delivery."
+  },
+  {
+    "question": "What encoding does a URL shortener typically use?",
+    "options": ["Base64", "Base62 (a-z, A-Z, 0-9)", "Hexadecimal", "Binary"],
+    "correctAnswer": 1,
+    "explanation": "Base62 uses [a-zA-Z0-9] — 62 URL-safe characters. A 7-character base62 string can represent 62^7 ≈ 3.5 trillion unique URLs."
+  },
+  {
+    "question": "Why does a URL shortener use 301 redirect instead of 302?",
+    "options": [
+      "301 is faster",
+      "301 (permanent) allows browser caching; 302 (temporary) lets you track clicks",
+      "They are the same",
+      "302 doesn't work with HTTPS"
+    ],
+    "correctAnswer": 1,
+    "explanation": "301 = permanent redirect (browser caches). 302 = temporary (browser always hits shortener). Use 302 if you need analytics; 301 for reduced server load."
+  },
+  {
+    "question": "How do real-time chat systems deliver messages to online users?",
+    "options": [
+      "HTTP polling every second",
+      "Email notification",
+      "WebSocket persistent connection",
+      "SMTP protocol"
+    ],
+    "correctAnswer": 2,
+    "explanation": "WebSocket provides a persistent full-duplex connection, allowing the server to push messages instantly without the client polling."
+  },
+  {
+    "question": "How does WhatsApp handle group message delivery for small groups?",
+    "options": [
+      "Fanout-on-read",
+      "Store once, deliver per member (fanout-on-write)",
+      "Broadcast to all users",
+      "Peer-to-peer between members"
+    ],
+    "correctAnswer": 1,
+    "explanation": "For small groups (<256), fanout-on-write: the message is stored once and a delivery record is created per member for tracking."
+  },
+  {
+    "question": "What is the Signal Protocol used for in chat systems?",
+    "options": [
+      "Load balancing",
+      "End-to-end encryption (E2EE)",
+      "Message compression",
+      "User authentication"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Signal Protocol provides end-to-end encryption using key exchange (X3DH) and double ratchet algorithm. Used by WhatsApp, Signal."
+  },
+  {
+    "question": "In a notification system, what is the purpose of a 'dead letter queue'?",
+    "options": [
+      "Queue for deleted messages",
+      "Stores notifications that failed all retry attempts",
+      "Queue for expired notifications",
+      "Archive of old notifications"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A dead letter queue stores messages that couldn't be processed after maximum retries, allowing manual investigation and reprocessing."
+  },
+  {
+    "question": "What is notification 'digest' mode?",
+    "options": [
+      "Compressed notifications",
+      "Batching multiple notifications into a single summary notification",
+      "Encrypted notifications",
+      "Priority notifications"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Digest batches multiple low-priority notifications and delivers them as one summary (e.g., 'You have 5 new likes and 3 comments')."
+  },
+  {
+    "question": "Why is a Trie data structure ideal for search autocomplete?",
+    "options": [
+      "Uses less memory than arrays",
+      "Provides O(prefix_length) lookup with pre-computed top-K suggestions",
+      "Supports SQL queries",
+      "It's a database index type"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A Trie provides O(prefix_length) lookup. With top-K suggestions pre-computed at each node, retrieval is O(1) after reaching the prefix node."
+  },
+  {
+    "question": "How does client-side debouncing help in search autocomplete?",
+    "options": [
+      "Improves search accuracy",
+      "Reduces API calls by waiting for typing pause before sending request",
+      "Encrypts search queries",
+      "Sorts results alphabetically"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Debouncing waits ~150ms after the last keystroke before sending a request, reducing API calls by ~60% (most intermediate keystrokes are skipped)."
+  },
+  {
+    "question": "What is the surge pricing trigger in ride-matching systems?",
+    "options": [
+      "Time of day only",
+      "When demand exceeds supply in a geographic zone",
+      "Number of active drivers",
+      "Weather conditions only"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Surge is triggered when demand (ride requests) exceeds supply (available drivers) in a zone. Multiplier = demand/supply ratio, typically capped at 3-5x."
+  },
+  {
+    "question": "What geospatial indexing does Uber use for finding nearby drivers?",
+    "options": [
+      "B-tree index",
+      "GeoHash / S2 Geometry / H3 cells",
+      "Full-text search",
+      "Linear scan"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Uber uses geospatial indexing (GeoHash, Google S2, or H3 cells) stored in Redis GEO for O(log N) nearby driver lookups."
+  },
+  {
+    "question": "What is idempotency in payment systems?",
+    "options": [
+      "Processing payments faster",
+      "Ensuring the same request produces the same result regardless of retries",
+      "Encrypting payment data",
+      "Validating card numbers"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Idempotency ensures a payment is processed exactly once. Client sends a unique idempotency key; server returns cached result on duplicate requests."
+  },
+  {
+    "question": "What is a double-entry ledger?",
+    "options": [
+      "A backup database",
+      "Every transaction records equal debits and credits across accounts",
+      "Two separate ledger systems",
+      "A type of database index"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Double-entry bookkeeping records every transaction as balanced debit and credit entries. Sum of all debits always equals sum of all credits."
+  },
+  {
+    "question": "What is the difference between horizontal and vertical scaling?",
+    "options": [
+      "They are identical",
+      "Horizontal adds more machines; vertical adds more resources to one machine",
+      "Horizontal is always better",
+      "Vertical adds more machines"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Vertical scaling (scale up): bigger machine. Horizontal scaling (scale out): more machines. Horizontal is preferred for web-scale but adds complexity."
+  },
+  {
+    "question": "What is eventual consistency?",
+    "options": [
+      "Data is always consistent",
+      "All replicas will eventually have the same data, but not immediately",
+      "Consistency is never achieved",
+      "Only the primary has correct data"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Eventual consistency means all replicas will converge to the same state eventually. Writes propagate asynchronously. Common in AP systems (DynamoDB, Cassandra)."
+  },
+  {
+    "question": "What is the difference between strong consistency and eventual consistency?",
+    "options": [
+      "Strong is slower but reads always return latest write; eventual is faster but may return stale data",
+      "They are the same in distributed systems",
+      "Eventual is always better",
+      "Strong consistency doesn't exist"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Strong consistency guarantees any read returns the most recent write. Eventual consistency allows temporary staleness for better availability and performance."
+  },
+  {
+    "question": "What is back-of-the-envelope estimation in system design?",
+    "options": [
+      "Exact mathematical calculation",
+      "Rough calculations to estimate system requirements using simple math",
+      "A debugging technique",
+      "A database optimization"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Back-of-the-envelope estimation uses simple arithmetic to quickly estimate QPS, storage, bandwidth, etc. — crucial for capacity planning in interviews."
+  },
+  {
+    "question": "How many bytes are in 1 GB?",
+    "options": ["1 million", "1 billion (10^9)", "1 trillion", "100 million"],
+    "correctAnswer": 1,
+    "explanation": "1 GB = 10^9 bytes = 1,000,000,000 bytes. Useful for quick capacity calculations: 1 char ≈ 1 byte, 1 row ≈ 1KB."
+  },
+  {
+    "question": "What is a Layer 4 vs Layer 7 load balancer?",
+    "options": [
+      "Layer 4 is better",
+      "L4 routes by IP/port (transport); L7 routes by URL/headers/cookies (application)",
+      "They are the same",
+      "Layer 7 is transport layer"
+    ],
+    "correctAnswer": 1,
+    "explanation": "L4 works at TCP/UDP level (fast, simple). L7 works at HTTP level (can route by URL path, headers, cookies — more flexible but more overhead)."
+  },
+  {
+    "question": "What is the purpose of health checks in load balancing?",
+    "options": [
+      "Monitoring CPU usage",
+      "Detecting unhealthy servers to stop routing traffic to them",
+      "Optimizing cache hit rates",
+      "Encrypting traffic"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Health checks periodically probe each backend server. If a server fails health checks, the load balancer removes it from the rotation."
+  },
+  {
+    "question": "What is a write-behind (write-back) cache?",
+    "options": [
+      "Writes go to DB only",
+      "Writes go to cache, asynchronously synced to DB later",
+      "Cache is read-only",
+      "Writes bypass cache entirely"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Write-behind writes to cache immediately and asynchronously flushes to DB. Benefit: low write latency. Risk: data loss if cache crashes before flush."
+  },
+  {
+    "question": "What is Redis Pub/Sub used for?",
+    "options": [
+      "Database replication",
+      "Publishing messages to subscribers in real-time",
+      "Caching HTML pages",
+      "File storage"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Redis Pub/Sub enables real-time messaging: publishers send messages to channels, all subscribers on that channel receive them instantly."
+  },
+  {
+    "question": "What is the primary use case for Kafka vs RabbitMQ?",
+    "options": [
+      "They are interchangeable",
+      "Kafka: high-throughput event streaming with replay. RabbitMQ: traditional message queuing with routing",
+      "RabbitMQ is faster",
+      "Kafka doesn't support queuing"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Kafka excels at high-throughput event streaming with message replay. RabbitMQ is better for complex routing, priority queues, and traditional pub/sub."
+  },
+  {
+    "question": "What is the sliding window rate limiting algorithm?",
+    "options": [
+      "A fixed window with a counter",
+      "Combines fixed window counters with weighted timestamps for smooth rate limiting",
+      "A queue-based approach",
+      "Token-based limiting"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Sliding window combines two adjacent fixed windows with weighted counts based on elapsed time, providing smoother rate limiting than fixed window alone."
+  },
+  {
+    "question": "What is gRPC and when would you use it?",
+    "options": [
+      "A REST alternative",
+      "High-performance RPC framework using HTTP/2 and Protocol Buffers, ideal for service-to-service communication",
+      "A database protocol",
+      "A caching mechanism"
+    ],
+    "correctAnswer": 1,
+    "explanation": "gRPC uses HTTP/2 for multiplexing and Protocol Buffers for efficient serialization. Ideal for low-latency microservice communication."
+  },
+  {
+    "question": "What is an API Gateway?",
+    "options": [
+      "A type of database",
+      "A single entry point that handles authentication, rate limiting, routing, and aggregation for microservices",
+      "A caching layer",
+      "A message queue"
+    ],
+    "correctAnswer": 1,
+    "explanation": "API Gateway (e.g., Kong, AWS API Gateway) is the single entry point for all client requests, handling cross-cutting concerns like auth, rate limiting, and routing."
+  },
+  {
+    "question": "What is service discovery in microservices?",
+    "options": [
+      "Finding bugs in services",
+      "Mechanism for services to find each other's network locations dynamically",
+      "Discovering new API endpoints",
+      "Load testing services"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Service discovery (e.g., Consul, etcd) allows services to register themselves and discover other services' locations dynamically."
+  },
+  {
+    "question": "What is the Bulkhead pattern?",
+    "options": [
+      "A type of load balancer",
+      "Isolating components so failure in one doesn't cascade to others",
+      "A database sharding technique",
+      "A caching strategy"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Bulkhead (from ship design) isolates resources per service/function. If one pool is exhausted, others remain unaffected, preventing cascading failures."
+  },
+  {
+    "question": "What is edge computing in the context of CDNs?",
+    "options": [
+      "Computing at the main data center",
+      "Running computation at CDN edge servers close to users",
+      "A type of database",
+      "Networking protocol"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Edge computing runs logic at CDN edge locations (e.g., Cloudflare Workers), reducing latency by processing requests closer to users."
+  },
+  {
+    "question": "What is the difference between active-passive and active-active replication?",
+    "options": [
+      "They are the same",
+      "Active-passive: one primary handles writes. Active-active: multiple nodes handle writes",
+      "Active-active is always better",
+      "Neither supports failover"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Active-passive: writes go to primary only, passive takes over on failure. Active-active: writes go to multiple nodes, better availability but needs conflict resolution."
+  },
+  {
+    "question": "What is an SLA (Service Level Agreement)?",
+    "options": [
+      "A type of database",
+      "A contract defining uptime, latency, and error rate guarantees",
+      "A security protocol",
+      "A load balancing algorithm"
+    ],
+    "correctAnswer": 1,
+    "explanation": "SLA defines guaranteed service quality: e.g., 99.9% uptime (8.77 hours downtime/year), P99 latency < 200ms, error rate < 0.1%."
+  },
+  {
+    "question": "What does 99.99% availability (four nines) mean in terms of downtime per year?",
+    "options": ["8.77 hours", "52.6 minutes", "5.26 minutes", "No downtime"],
+    "correctAnswer": 1,
+    "explanation": "99.99% = 52.6 minutes downtime/year. 99.9% = 8.77 hours. 99.999% (five nines) = 5.26 minutes/year."
+  },
+  {
+    "question": "In Facebook's feed ranking, what is EdgeRank?",
+    "options": [
+      "A graph database",
+      "Algorithm scoring posts by affinity, weight, and time decay",
+      "A CDN optimization",
+      "A compression algorithm"
+    ],
+    "correctAnswer": 1,
+    "explanation": "EdgeRank (simplified) scores posts using: Affinity (relationship), Weight (content type), Time Decay (recency). Higher score = higher in feed."
+  },
+  {
+    "question": "What is Content ID in YouTube?",
+    "options": [
+      "Video file name",
+      "Digital fingerprinting system for copyright detection",
+      "User authentication",
+      "Database key"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Content ID creates a digital fingerprint of copyrighted content and scans all uploads against it, allowing copyright holders to claim or block content."
+  },
+  {
+    "question": "What is a virtual waiting room in booking systems?",
+    "options": [
+      "Physical queue at venue",
+      "Queue system that controls access during high demand to prevent server overload",
+      "A VR experience",
+      "A chat room"
+    ],
+    "correctAnswer": 1,
+    "explanation": "During high-demand events, a virtual waiting room queues users (showing position) and admits them gradually, preventing server overload."
+  },
+  {
+    "question": "What is volumetric weight in logistics?",
+    "options": [
+      "Actual weight of package",
+      "Max of actual weight and volume-based weight (L×W×H / divisor)",
+      "Weight of delivery vehicle",
+      "Total order weight"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Volumetric weight = (Length × Width × Height) / divisor. Shipping cost is based on max(actual_weight, volumetric_weight) to account for space."
+  },
+  {
+    "question": "How does a URL shortener handle collisions in hash-based approaches?",
+    "options": [
+      "Ignores them",
+      "Appends timestamp or uses counter-based approach to ensure uniqueness",
+      "Rejects the URL",
+      "Uses longer hash"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Collision handling: (1) Append pre-defined string and rehash. (2) Use counter-based approach (auto-increment ID → base62 encode) for guaranteed uniqueness."
+  },
+  {
+    "question": "What is read receipt in a chat system?",
+    "options": [
+      "Server log entry",
+      "Acknowledgment that recipient has viewed the message",
+      "Message delivery confirmation",
+      "Error report"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A read receipt signals that the recipient has viewed the message (blue ticks in WhatsApp). Different from delivery receipt (message reached device)."
+  },
+  {
+    "question": "What is APNs in the context of push notifications?",
+    "options": [
+      "Application Programming Network",
+      "Apple Push Notification Service",
+      "Automated Push Notifier System",
+      "API Notification Standard"
+    ],
+    "correctAnswer": 1,
+    "explanation": "APNs (Apple Push Notification Service) is Apple's service for sending push notifications to iOS devices. FCM (Firebase Cloud Messaging) is Google's equivalent."
+  },
+  {
+    "question": "What is a Trie node's top-K list used for in autocomplete?",
+    "options": [
+      "Storing all words",
+      "Pre-computed most popular suggestions for instant retrieval at query time",
+      "Caching recent searches",
+      "Database index"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Each Trie node stores the top-K most popular completions from all descendants, allowing O(1) suggestion retrieval at any prefix without traversal."
+  },
+  {
+    "question": "What is the Haversine formula?",
+    "options": [
+      "A sorting algorithm",
+      "Calculates the distance between two points on a sphere using lat/lng",
+      "A hash function",
+      "A compression technique"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The Haversine formula calculates great-circle distance between two GPS coordinates on Earth's surface, accounting for the planet's curvature."
+  },
+  {
+    "question": "What is PCI-DSS compliance in payment systems?",
+    "options": [
+      "A programming language",
+      "Security standard for handling credit card data",
+      "A database optimization",
+      "An API specification"
+    ],
+    "correctAnswer": 1,
+    "explanation": "PCI-DSS (Payment Card Industry Data Security Standard) mandates security practices for handling card data: encryption, access controls, audit logs, etc."
+  },
+  {
+    "question": "What is the reconciliation process in payments?",
+    "options": [
+      "User authentication",
+      "Matching internal payment records with external gateway/bank settlement data",
+      "Backup restoration",
+      "Load balancing"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Reconciliation compares internal ledger entries with external settlement reports daily, identifying discrepancies for resolution."
+  },
+  {
+    "question": "What is database replication?",
+    "options": [
+      "Deleting duplicate data",
+      "Maintaining copies of data across multiple nodes for availability and read scaling",
+      "Compressing database files",
+      "Encrypting database fields"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Replication maintains data copies across multiple nodes. Primary handles writes; replicas handle reads. Provides availability, fault tolerance, and read scaling."
+  },
+  {
+    "question": "What is a bloom filter?",
+    "options": [
+      "A type of load balancer",
+      "Probabilistic data structure that tells whether an element might be in a set",
+      "A database index",
+      "A caching algorithm"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Bloom filter answers 'might be in set' or 'definitely not in set'. False positives possible, false negatives impossible. Space-efficient for membership testing."
+  },
+  {
+    "question": "What is the difference between SQL and NoSQL databases?",
+    "options": [
+      "SQL is always faster",
+      "SQL: structured/relational with ACID. NoSQL: flexible schema, horizontal scaling, various data models",
+      "NoSQL doesn't support queries",
+      "They are identical"
+    ],
+    "correctAnswer": 1,
+    "explanation": "SQL: fixed schema, ACID transactions, joins, vertical scaling. NoSQL: flexible schema, BASE, horizontal scaling. Choose based on access patterns and consistency needs."
+  },
+  {
+    "question": "What is CQRS (Command Query Responsibility Segregation)?",
+    "options": [
+      "A database type",
+      "Separating read and write models/stores for independent optimization",
+      "A caching technique",
+      "A security pattern"
+    ],
+    "correctAnswer": 1,
+    "explanation": "CQRS uses separate models for reads (queries) and writes (commands). Each can be optimized independently: writes to normalized DB, reads from denormalized views."
+  },
+  {
+    "question": "What is event sourcing?",
+    "options": [
+      "Logging events to a file",
+      "Storing state changes as immutable events instead of current state",
+      "Message queue processing",
+      "Real-time event streaming"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Instead of storing current state, event sourcing stores all state changes as events. Current state is derived by replaying events. Provides complete audit trail."
+  },
+  {
+    "question": "What is the difference between TCP and UDP?",
+    "options": [
+      "TCP is newer",
+      "TCP: reliable, ordered delivery with connection. UDP: unreliable, unordered, connectionless but faster",
+      "UDP is always better",
+      "They are the same protocol"
+    ],
+    "correctAnswer": 1,
+    "explanation": "TCP guarantees delivery and ordering (HTTP, database). UDP trades reliability for speed (video streaming, gaming, DNS). Choose based on use case."
+  },
+  {
+    "question": "What is a message broker?",
+    "options": [
+      "A human mediator",
+      "Middleware that translates, routes, and queues messages between services",
+      "A type of database",
+      "A monitoring tool"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A message broker (Kafka, RabbitMQ, SQS) receives messages from producers, routes them to appropriate queues/topics, and delivers to consumers."
+  },
+  {
+    "question": "What is data partitioning?",
+    "options": [
+      "Duplicating data",
+      "Splitting data across multiple storage units based on a partition key",
+      "Compressing data",
+      "Encrypting data"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Data partitioning distributes data across nodes by a partition key. Types: hash-based (uniform), range-based (ordered), list-based (categorical)."
+  },
+  {
+    "question": "What is a leader election algorithm?",
+    "options": [
+      "Voting for team leads",
+      "Process for distributed nodes to agree on a single coordinator/leader",
+      "A scheduling algorithm",
+      "A sorting algorithm"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Leader election (Raft, Paxos, ZooKeeper) ensures distributed nodes agree on one leader that coordinates writes and decisions, maintaining consistency."
+  },
+  {
+    "question": "What is the difference between latency and throughput?",
+    "options": [
+      "They are the same",
+      "Latency: time for one request. Throughput: number of requests per second",
+      "Throughput is always more important",
+      "Latency measures bandwidth"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Latency = time for a single request (ms). Throughput = total requests handled per second (QPS). Optimizing one may affect the other."
+  },
+  {
+    "question": "What is connection pooling?",
+    "options": [
+      "Creating new connections for each request",
+      "Reusing a pool of pre-established connections to reduce connection overhead",
+      "Disconnecting idle clients",
+      "Load balancing connections"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Connection pooling maintains reusable connections (DB, HTTP). Instead of creating/destroying connections per request, connections are borrowed and returned."
+  },
+  {
+    "question": "What is a reverse proxy vs forward proxy?",
+    "options": [
+      "Same thing",
+      "Forward proxy: represents clients. Reverse proxy: represents servers",
+      "Forward proxy is server-side",
+      "Reverse proxy is client-side"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Forward proxy sits before clients (VPN, content filtering). Reverse proxy sits before servers (load balancing, SSL termination, caching)."
+  },
+  {
+    "question": "What is DNS round-robin?",
+    "options": [
+      "A security protocol",
+      "DNS returns different IP addresses in rotation for load distribution",
+      "A caching strategy",
+      "A database technique"
+    ],
+    "correctAnswer": 1,
+    "explanation": "DNS round-robin returns different server IPs in rotation for the same domain, distributing traffic. Simple but lacks health checking and session persistence."
+  },
+  {
+    "question": "What is optimistic locking?",
+    "options": [
+      "Locking resources permanently",
+      "Using version numbers to detect conflicts at commit time without holding locks",
+      "Blocking all concurrent access",
+      "A database backup strategy"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Optimistic locking uses a version column. On update: check if version matches. If not (another transaction modified it), reject and retry. No blocking locks held."
+  },
+  {
+    "question": "What is the difference between synchronous and asynchronous communication?",
+    "options": [
+      "They produce the same result",
+      "Sync: caller waits for response. Async: caller continues without waiting",
+      "Async is always slower",
+      "Sync doesn't need a network"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Synchronous: caller blocks until response (HTTP). Asynchronous: caller sends message and continues (message queue). Async improves resilience and decoupling."
+  },
+  {
+    "question": "What is a hot partition problem?",
+    "options": [
+      "Server overheating",
+      "Disproportionate traffic going to one shard/partition",
+      "Full storage on one node",
+      "Network congestion"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Hot partition occurs when one shard receives significantly more traffic (reads/writes) than others, becoming a bottleneck. Caused by poor shard key choice."
+  },
+  {
+    "question": "What is the fan-out problem in social networks?",
+    "options": [
+      "Too many server fans",
+      "When a popular user's post triggers writes to millions of followers' feeds",
+      "Network bandwidth issue",
+      "Database schema problem"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Fan-out: one post by a user with 10M followers requires writing to 10M timelines. Solutions: fanout-on-read for high-follower users, hybrid approaches."
+  },
+  {
+    "question": "What is a tombstone in distributed systems?",
+    "options": [
+      "A failed node",
+      "A marker indicating deleted data, kept temporarily for replication consistency",
+      "A type of database constraint",
+      "An error message"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A tombstone marks data as deleted rather than physically removing it. Required in distributed systems so deletion propagates to all replicas."
+  },
+  {
+    "question": "What is gossip protocol?",
+    "options": [
+      "A chat protocol",
+      "Peer-to-peer communication where nodes periodically share state with random neighbors",
+      "A security protocol",
+      "An encryption algorithm"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Gossip (epidemic) protocol: each node periodically shares its state with random peers. Information propagates exponentially. Used in Cassandra, DynamoDB."
+  },
+  {
+    "question": "What is the purpose of a heartbeat in distributed systems?",
+    "options": [
+      "Health monitoring",
+      "Periodic signals to indicate a node is alive",
+      "Data synchronization",
+      "Load balancing"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Heartbeats are periodic signals sent between nodes. If a node misses consecutive heartbeats, it's considered failed and traffic is rerouted."
+  },
+  {
+    "question": "In ride-matching, what is the 'thundering herd' problem?",
+    "options": [
+      "Too many servers starting up",
+      "Multiple ride requests simultaneously targeting the same nearest driver",
+      "Network congestion from GPS updates",
+      "Database lock contention"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Multiple riders in same area all get matched to the same nearest driver simultaneously. Fix: batch matching over 2s windows with global optimization."
+  },
+  {
+    "question": "What is webhook vs polling?",
+    "options": [
+      "Same mechanism",
+      "Webhook: server pushes event to client URL. Polling: client repeatedly asks server for updates",
+      "Polling is always better",
+      "Webhooks use UDP"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Polling: client checks periodically (wasteful if no updates). Webhook: server sends HTTP POST to client's URL when event occurs (event-driven, efficient)."
+  },
+  {
+    "question": "What is the CAP theorem trade-off for Cassandra?",
+    "options": [
+      "CA (Consistency + Availability)",
+      "AP (Availability + Partition Tolerance)",
+      "CP (Consistency + Partition Tolerance)",
+      "All three"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Cassandra is an AP system — it prioritizes availability and partition tolerance with tunable consistency (eventual by default, strong with quorum)."
+  },
+  {
+    "question": "What is a WAL (Write-Ahead Log)?",
+    "options": [
+      "A web server log",
+      "Log where changes are written before being applied to the database, ensuring durability",
+      "An API endpoint",
+      "A monitoring dashboard"
+    ],
+    "correctAnswer": 1,
+    "explanation": "WAL writes every change to a durable log before applying to the database. On crash recovery, uncommitted changes can be replayed from the log."
+  },
+  {
+    "question": "What is sharding key selection important for?",
+    "options": [
+      "It doesn't matter",
+      "Even data distribution, query efficiency, and avoiding hotspots",
+      "Database security",
+      "Index optimization only"
+    ],
+    "correctAnswer": 1,
+    "explanation": "A good shard key distributes data evenly (avoid hotspots), supports your access patterns (queries should hit one shard), and provides high cardinality."
+  }
+]
