@@ -62,6 +62,7 @@
 36. [Code Examples (JavaScript)](#36-code-examples-javascript)
 37. [Troubleshooting and Common Pitfalls](#37-troubleshooting-and-common-pitfalls)
 38. [Enterprise Readiness (Future)](#38-enterprise-readiness-future)
+39. [Free Integrations (Verified)](#39-free-integrations-verified)
 
 ---
 
@@ -334,12 +335,12 @@ POST /api/content/approve
 | Aspect | Details |
 |--------|---------|
 | **Models** | Gemini 2.0 Flash (fast), Gemini 1.5 Pro (quality) |
-| **Pricing** | Flash: FREE up to 15 RPM / 1M TPD; Pro: $1.25-$5/1M tokens |
+| **Pricing** | Free tier available in eligible countries; limits are model-dependent and change over time |
 | **Latency** | Flash: 300ms-1s; Pro: 600ms-2s |
 | **Context Window** | 1M tokens (Flash), 2M tokens (Pro) |
 | **Streaming** | Yes |
 | **JSON Mode** | Yes (via `responseMimeType: "application/json"`) |
-| **Rate Limits** | Free tier: 15 RPM, 1M TPD, 1500 RPD |
+| **Rate Limits** | Vary by model and tier (check AI Studio quota page for current values) |
 | **SDK** | `@google/generative-ai` npm package |
 | **Best For** | Prototyping (free tier), processing very large context |
 
@@ -393,10 +394,10 @@ Budget = 100%: All AI features disabled (kill switch)
 |----------|---------------------|------|
 | **$0 prototype** | Gemini 2.0 Flash | Free |
 | **$0 with speed** | Groq Llama 3.3 70B | Free |
-| **$0 multi-model** | OpenRouter (free models) | Free |
+| **$0 multi-model** | OpenRouter free variants (`:free`) | Free but very tight limits |
 | **$0 offline** | Ollama + Llama 3.1 8B | Free (local GPU) |
-| **$0 GitHub user** | GitHub Models (GPT-4o-mini) | Free |
-| **$0 production** | Gemini Flash + Groq fallback | Free |
+| **$0 GitHub user** | GitHub Models (rate-limited catalog access) | Free for prototyping |
+| **$0 production** | Gemini Flash + Groq fallback | Free for low volume only |
 | **Low-cost production** | OpenAI GPT-4o-mini | ~$3/mo |
 | **Best quality** | OpenAI GPT-4o | ~$45/mo |
 
@@ -3898,12 +3899,88 @@ These features are for when the platform scales beyond single-tenant use:
 
 ---
 
+## 39. Free Integrations (Verified)
+
+This section is for a strictly free setup as of **February 14, 2026**. Free-tier limits change often, so treat dashboard quotas as source-of-truth.
+
+### Free-Only Stack (Recommended)
+
+| Layer | Free Choice | Notes |
+|------|-------------|------|
+| LLM (generation + chat) | Gemini Developer API (free tier) | Best zero-cost default; model/region limits apply |
+| LLM fallback | Groq free tier | Good speed fallback when Gemini quotas are exhausted |
+| Embeddings | Gemini embedding model (free tier) | Keep embedding model fixed for both ingest and query |
+| Database + vector search | Supabase Free (Postgres + pgvector) | No separate vector DB needed at small scale |
+| Queue/jobs | Inngest Free | Use async jobs to avoid request timeout risk |
+| Rate limit/cache | Upstash Redis Free | Enough for initial single-user/small-team usage |
+| Hosting | Vercel Hobby | Great for early stage; watch monthly quotas |
+| Local/offline option | Ollama + local model | Zero API cost, hardware-dependent quality/speed |
+
+### Corrections to Previous Free Claims
+
+1. Do not hardcode Gemini free limits (for example `15 RPM`, `1500 RPD`) globally. Limits vary by model and can change.
+2. Do not assume Vercel Hobby always has a `10s` function timeout. Duration behavior depends on current runtime settings and plan capabilities.
+3. Treat OpenRouter free models as limited prototyping capacity, not guaranteed production capacity.
+4. Treat GitHub Models as rate-limited access to a model catalog; specific model availability (for example GPT-4o-mini) can change.
+5. Upstash free quotas should be read from pricing dashboard values, not fixed daily assumptions in static docs.
+
+### Free-Only Integration Rules
+
+1. Default all generation/chat to Gemini free tier.
+2. On quota/rate-limit errors, fallback to Groq.
+3. If both providers are unavailable, queue jobs for retry and surface clear UI status.
+4. Keep OpenAI disabled by default in free mode.
+5. Add a config switch:
+
+```env
+AI_MODE=free
+FREE_PRIMARY_PROVIDER=gemini
+FREE_FALLBACK_PROVIDER=groq
+OPENAI_ENABLED=false
+```
+
+### Minimal Free `.env.local` Example
+
+```env
+# Free mode only
+AI_MODE=free
+
+# Gemini (required)
+GEMINI_API_KEY=your_key_here
+
+# Groq fallback (optional but recommended)
+GROQ_API_KEY=your_key_here
+
+# Supabase (free project)
+DATABASE_URL=postgresql://...
+
+# Upstash (free)
+UPSTASH_REDIS_REST_URL=...
+UPSTASH_REDIS_REST_TOKEN=...
+
+# App
+NEXTAUTH_SECRET=replace_me
+```
+
+### Suggested Free-Mode Limits
+
+| Feature | Suggested limit |
+|--------|------------------|
+| Topic generation | 5/day per user |
+| Quiz generation | 20/day per user |
+| Chat | 200 messages/day per user |
+| Embedding sync | Run nightly (batched) |
+
+These caps keep your platform inside typical free-tier envelopes and avoid quota spikes.
+
+---
+
 ## Quick Start Checklist
 
 ```
-[ ] 1. Get an OpenAI API key (https://platform.openai.com/api-keys)
-[ ] 2. npm install openai ai @ai-sdk/openai zod prisma @prisma/client next-auth inngest
-[ ] 3. Create .env.local with OPENAI_API_KEY + DATABASE_URL + NEXTAUTH_SECRET
+[ ] 1. Get a Gemini API key (Google AI Studio) and optional Groq API key for fallback
+[ ] 2. npm install @google/generative-ai ai zod prisma @prisma/client next-auth inngest
+[ ] 3. Create .env.local with GEMINI_API_KEY + GROQ_API_KEY + DATABASE_URL + NEXTAUTH_SECRET
 [ ] 4. Set up PostgreSQL (local Docker or Supabase free)
 [ ] 5. npx prisma migrate dev --name init
 [ ] 6. Create app/api/generate/topic/route.js

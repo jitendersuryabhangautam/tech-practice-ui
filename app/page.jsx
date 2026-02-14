@@ -54,6 +54,27 @@ const TECHNOLOGIES = [
   },
 ];
 
+const AI_FEATURES = [
+  {
+    title: "Admin AI Studio",
+    href: "/admin",
+    description:
+      "Queue topic and quiz generation jobs, review previews, then approve content for publishing.",
+  },
+  {
+    title: "User Tracking",
+    href: "/admin",
+    description:
+      "Track page views, topic engagement, quiz performance, and chat usage across all learners.",
+  },
+  {
+    title: "Budget & Operations",
+    href: "/admin",
+    description:
+      "Monitor AI spend, model fallback ladder, recent jobs, and audit trails in real-time.",
+  },
+];
+
 function CardLogo({ name }) {
   const key = name.toLowerCase();
 
@@ -211,6 +232,36 @@ export default function Home() {
                 </div>
               </Link>
             ))}
+          </section>
+
+          <section className="mt-6 sm:mt-8">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-slate-100">
+                AI Features (Beta)
+              </h2>
+              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                Free-Mode Ready
+              </span>
+            </div>
+            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {AI_FEATURES.map((feature) => (
+                <Link
+                  key={feature.title}
+                  href={feature.href}
+                  className="content-card p-4 sm:p-5"
+                >
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    {feature.description}
+                  </p>
+                  <p className="mt-3 text-sm font-semibold text-amber-700 dark:text-amber-300">
+                    Open feature
+                  </p>
+                </Link>
+              ))}
+            </div>
           </section>
         </div>
       </div>

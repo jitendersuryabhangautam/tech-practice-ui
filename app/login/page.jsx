@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/userTracking";
 
 export default function LoginPage() {
   const [name, setName] = useState("");
@@ -18,6 +19,8 @@ export default function LoginPage() {
     setTimeout(() => {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userName", name.trim());
+      localStorage.setItem("userEmail", email.trim());
+      trackEvent("login_success", { email: email.trim() });
       router.push("/");
     }, 400);
   };

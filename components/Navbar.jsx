@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/userTracking";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -15,6 +16,8 @@ const NAV_LINKS = [
   { href: "/docker", label: "Docker" },
   { href: "/kubernetes", label: "Kubernetes" },
 ];
+
+const ADMIN_LINK = { href: "/admin", label: "AI Console" };
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -46,8 +49,10 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
+    trackEvent("logout");
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userName");
+    localStorage.removeItem("userEmail");
     router.push("/login");
   };
 
@@ -97,6 +102,20 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <span className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
+          <Link
+            href={ADMIN_LINK.href}
+            className={`nav-link-motion flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
+              pathname === ADMIN_LINK.href
+                ? "bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
+                : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            }`}
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+              <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+            </svg>
+            {ADMIN_LINK.label}
+          </Link>
         </div>
 
         <div className="flex items-center gap-2">
@@ -163,6 +182,22 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+          </div>
+          <div className="mt-2 border-t border-slate-200 pt-2 dark:border-slate-700">
+            <Link
+              href={ADMIN_LINK.href}
+              onClick={() => setMenuOpen(false)}
+              className={`nav-link-motion flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+                pathname === ADMIN_LINK.href
+                  ? "bg-amber-100 font-semibold text-amber-900 dark:bg-amber-500/20 dark:text-amber-200"
+                  : "text-slate-500 dark:text-slate-400"
+              }`}
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+              </svg>
+              {ADMIN_LINK.label}
+            </Link>
           </div>
         </div>
       )}
