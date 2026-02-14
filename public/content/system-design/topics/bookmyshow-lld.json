@@ -1,0 +1,156 @@
+{
+  "id": "bookmyshow-lld",
+  "title": "BookMyShow: Ticket Booking Platform",
+  "category": "Company LLD",
+  "description": "Low-level design of BookMyShow's seat selection, concurrent booking, payment handling, and show management system.",
+  "explanation": "BookMyShow handles millions of concurrent users during popular movie/event launches. The core challenge is managing seat inventory with strict consistency — no double-booking — while providing responsive user experience under extreme load.\n\n**Core Entities**:\n- Movie/Event → has multiple Shows\n- Show → specific date/time at a Venue\n- Venue → has multiple Screens\n- Screen → has Seats (with categories: Silver, Gold, Platinum)\n- Booking → links User to Seats for a Show\n\n**Seat Booking Flow**:\n1. User searches for movie/event → sees available shows.\n2. Selects show → sees seat map with availability (available/booked/locked).\n3. Selects seats → System temporarily locks seats (5-10 minute hold).\n4. Proceeds to payment → Payment processed within lock timeout.\n5. Payment success → Booking confirmed, seats marked as booked.\n6. Payment failure/timeout → Seats released back to available.\n\n**Concurrency Challenge — The Hot Seat Problem**:\nWhen a blockbuster launches, 100K+ users try to book simultaneously. Without proper concurrency control:\n- Two users see seat A1 as available.\n- Both click book → double booking.\n\n**Solutions**:\n1. **Pessimistic Locking**: Lock seats in DB when user selects them. Others see them as locked. Simple but blocks aggressively.\n2. **Optimistic Locking**: Allow selection, check at commit time. Use version numbers. If version changed → conflict → retry.\n3. **Temporary Hold with TTL**: Redis-based. SETNX(seat_key, user_id, TTL=600s). If set succeeds → seat is yours for 10 min. If fails → seat taken.\n\n**Recommended: Temporary Hold + Optimistic Locking**:\n- Lock in Redis (fast, TTL auto-expires).\n- Confirm in DB with optimistic lock (version check).\n- Background job cleans expired holds.\n\n**Pricing**:\n- Base price per seat category.\n- Convenience fee (flat or %).\n- Dynamic pricing: popular shows/times get premium.\n- Offers: coupons, credit card discounts applied at checkout.\n\n**Scale Considerations**:\n- Read-heavy: seat map viewed 100x per booking. Cache aggressively.\n- Write-hot: limited seats, many writers. Serialize writes per show.\n- Waitlist: if show sells out, allow waitlist with auto-assign on cancellation.",
+  "code": "// Seat management with temporary hold\nclass SeatManager {\n  constructor(seats) {\n    this.seats = new Map();\n    seats.forEach(s => this.seats.set(s.id, { ...s, status: 'AVAILABLE', heldBy: null, heldAt: null }));\n    this.HOLD_TIMEOUT_MS = 600000; // 10 minutes\n  }\n\n  getSeatMap() {\n    this.releaseExpired();\n    return [...this.seats.values()].map(s => ({\n      id: s.id, category: s.category, price: s.price,\n      status: s.status,\n    }));\n  }\n\n  holdSeats(userId, seatIds) {\n    this.releaseExpired();\n    const results = [];\n    for (const id of seatIds) {\n      const seat = this.seats.get(id);\n      if (!seat) { results.push({ id, success: false, reason: 'Not found' }); continue; }\n      if (seat.status !== 'AVAILABLE') { results.push({ id, success: false, reason: `Already ${seat.status}` }); continue; }\n      seat.status = 'HELD';\n      seat.heldBy = userId;\n      seat.heldAt = Date.now();\n      results.push({ id, success: true });\n    }\n    const allSuccess = results.every(r => r.success);\n    if (!allSuccess) {\n      // Rollback partial holds\n      results.filter(r => r.success).forEach(r => {\n        const seat = this.seats.get(r.id);\n        seat.status = 'AVAILABLE'; seat.heldBy = null; seat.heldAt = null;\n      });\n    }\n    return { success: allSuccess, results };\n  }\n\n  confirmBooking(userId, seatIds) {\n    for (const id of seatIds) {\n      const seat = this.seats.get(id);\n      if (!seat || seat.heldBy !== userId) return { success: false, reason: 'Seat not held by user' };\n    }\n    seatIds.forEach(id => {\n      const seat = this.seats.get(id);\n      seat.status = 'BOOKED';\n    });\n    return { success: true, booked: seatIds };\n  }\n\n  releaseHold(userId) {\n    for (const seat of this.seats.values()) {\n      if (seat.heldBy === userId && seat.status === 'HELD') {\n        seat.status = 'AVAILABLE'; seat.heldBy = null; seat.heldAt = null;\n      }\n    }\n  }\n\n  releaseExpired() {\n    const now = Date.now();\n    for (const seat of this.seats.values()) {\n      if (seat.status === 'HELD' && (now - seat.heldAt) > this.HOLD_TIMEOUT_MS) {\n        seat.status = 'AVAILABLE'; seat.heldBy = null; seat.heldAt = null;\n      }\n    }\n  }\n}\n\nconst sm = new SeatManager([\n  { id: 'A1', category: 'Gold', price: 300 },\n  { id: 'A2', category: 'Gold', price: 300 },\n  { id: 'B1', category: 'Silver', price: 200 },\n]);\nconsole.log('Hold A1+A2 for user1:', sm.holdSeats('user1', ['A1', 'A2']));\nconsole.log('Hold A1 for user2:', sm.holdSeats('user2', ['A1'])); // fails\nconsole.log('Confirm user1:', sm.confirmBooking('user1', ['A1', 'A2']));\nconsole.log('Seat map:', sm.getSeatMap());",
+  "example": "// Concurrent booking simulation with optimistic locking\nclass BookingService {\n  constructor() {\n    this.seatVersions = new Map(); // seatId -> version\n    this.bookings = [];\n  }\n\n  initSeats(seatIds) {\n    seatIds.forEach(id => this.seatVersions.set(id, { version: 0, status: 'AVAILABLE', bookedBy: null }));\n  }\n\n  attemptBook(userId, seatId) {\n    const seat = this.seatVersions.get(seatId);\n    if (!seat) return { success: false, reason: 'Seat not found' };\n\n    // Read current version\n    const readVersion = seat.version;\n\n    // Simulate processing delay\n    if (seat.status !== 'AVAILABLE') return { success: false, reason: 'Seat unavailable', version: seat.version };\n\n    // Optimistic lock check\n    if (seat.version !== readVersion) return { success: false, reason: 'Concurrent modification' };\n\n    // Commit\n    seat.version++;\n    seat.status = 'BOOKED';\n    seat.bookedBy = userId;\n    this.bookings.push({ userId, seatId, confirmedAt: Date.now() });\n    return { success: true, version: seat.version };\n  }\n}\n\nconst bs = new BookingService();\nbs.initSeats(['A1', 'A2', 'A3']);\nconsole.log('User1 books A1:', bs.attemptBook('user1', 'A1'));\nconsole.log('User2 books A1:', bs.attemptBook('user2', 'A1')); // fails\nconsole.log('User2 books A2:', bs.attemptBook('user2', 'A2')); // succeeds\nconsole.log('Bookings:', bs.bookings);",
+  "useCase": "Movie/event ticket booking, airline seat reservation, hotel room booking, appointment scheduling, any system requiring exclusive resource allocation under concurrency.",
+  "interviewQuestions": [
+    {
+      "question": "How do you prevent double-booking of the same seat?",
+      "answer": "Three-layer defense: 1) Redis SETNX for temporary hold (fast, atomic). 2) DB row-level lock or optimistic locking (version column) at confirm time. 3) Unique constraint on (show_id, seat_id) in bookings table. Even if Redis and app logic both fail, DB constraint prevents double booking."
+    },
+    {
+      "question": "Why use temporary hold instead of immediate booking?",
+      "answer": "Users need 5-10 minutes to complete payment. Without hold, seats would be locked as 'booked' but payment might fail, requiring cancellation. With hold: seat is reserved for limited time, auto-releases if payment fails/expires. Better UX and inventory utilization."
+    },
+    {
+      "question": "How do you handle 100K concurrent users trying to book for a popular show?",
+      "answer": "1) CDN for static content. 2) Virtual waiting room (queue) before seat selection. 3) Rate limit API per user. 4) Seat map cached in Redis, invalidated on changes. 5) Partition seat locks by screen/zone. 6) Horizontal scale stateless app servers. 7) Single writer per show for consistency (serialize via Redis/queue)."
+    },
+    {
+      "question": "What happens if payment takes longer than the hold timeout?",
+      "answer": "Options: 1) Extend hold once if payment is in-progress (detected via payment webhook). 2) Notify user at 2-minute warning. 3) If expired, check if seats are still available — if yes, re-hold and retry payment. 4) If seats taken, show alternatives. 5) Refund if payment went through but hold expired."
+    },
+    {
+      "question": "How do you implement a waitlist for sold-out shows?",
+      "answer": "When all seats booked, allow users to join waitlist (queue per show). On cancellation, auto-assign released seats to waitlisted user #1. Notify via push/SMS with 5-minute accept window. If not accepted, move to next user. Max waitlist size: 50 per show."
+    },
+    {
+      "question": "How do you design the seat map for fast rendering?",
+      "answer": "Pre-compute seat layout (row, column, category) per screen — stored as static JSON. Dynamic overlay: seat status (available/held/booked) from Redis. Client fetches layout once (cacheable), polls status every 5 seconds. WebSocket for real-time updates during high-demand shows."
+    },
+    {
+      "question": "How do you handle partial failures in multi-seat booking?",
+      "answer": "Atomic transaction: either all seats are held/booked or none. If any seat fails to lock, rollback all successful locks. In Redis: use Lua script for atomic multi-key SETNX. In DB: single transaction with row locks. Never allow partial bookings — user must select available replacement seats."
+    },
+    {
+      "question": "How does dynamic pricing work for shows?",
+      "answer": "Price factors: demand (fill rate), show timing (evening premium), day (weekend premium), seat category, days until show (early bird discount). Formula: base_price × demand_multiplier × time_multiplier × category_multiplier. Recalculate hourly. Cap multiplier at 2x base. Show price transparency to user."
+    },
+    {
+      "question": "How do you prevent scalping/bot bookings?",
+      "answer": "1) CAPTCHA at checkout. 2) Rate limiting per IP and user. 3) Device fingerprinting. 4) Max 10 tickets per user per show. 5) Pattern detection: same user booking then canceling repeatedly. 6) Payment verification required (no free holds). 7) Virtual waiting room with random queue position."
+    },
+    {
+      "question": "How do you handle seat map for a stadium with 50,000 seats?",
+      "answer": "Multi-level zoom: section overview → block → individual seats. Only load seat-level data when user zooms into a block. Aggregate status at block level: 'mostly available', 'filling fast', 'sold out'. WebSocket updates at block level. Reduce payload: encode status as bitfield (2 bits per seat)."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "design",
+      "question": "Design the seat locking system using Redis.",
+      "answer": "Key: `lock:{show_id}:{seat_id}`. Value: `{user_id}:{timestamp}`. Command: `SET lock:s1:A1 user123 NX EX 600`. NX = set only if not exists (atomic). EX 600 = expire in 10 min. To release: `DEL lock:s1:A1` (only if value matches user_id — use Lua script for atomicity). Multi-seat: Lua script doing SETNX on all keys atomically."
+    },
+    {
+      "type": "estimation",
+      "question": "Popular movie opening day: 5000 screens × 3 shows × 200 seats. 80% fill rate. How many bookings? Average 2.5 tickets per booking.",
+      "answer": "Total seats: 5000 × 3 × 200 = 3M. At 80% fill: 2.4M tickets. Bookings: 2.4M / 2.5 = 960K bookings. Over 8 hours: 120K bookings/hour = 33/second average. Peak (first hour, 40% of bookings): 384K/hour = 107/second."
+    },
+    {
+      "type": "scenario",
+      "question": "Payment gateway goes down for 5 minutes during a popular show's opening. Thousands of users have seats held. What happens?",
+      "answer": "1) Holds remain until TTL expires (10 min). 2) Show 'Payment temporarily unavailable' — retry in 30s. 3) Extend hold TTL by 5 min for affected users. 4) Queue payment retries. 5) When gateway recovers, process queued payments. 6) Seats held but not paid release after extended TTL. 7) Send notifications to affected users."
+    },
+    {
+      "type": "tricky",
+      "question": "Why not use database locks directly instead of Redis for seat holds?",
+      "answer": "DB locks are persistent and heavyweight. If app crashes while holding DB lock, seats stay locked until timeout/manual release. Redis TTL auto-expires. Redis is faster (in-memory, O(1) operations). DB can't efficiently handle 100K concurrent SETNX-like operations. Use Redis for holds, DB for confirmed bookings."
+    },
+    {
+      "type": "debug",
+      "question": "Users report seeing 'sold out' for a show, but admin panel shows 30% seats still available. What could be wrong?",
+      "answer": "1) Seats are HELD (not booked) — held seats appear unavailable to other users but aren't 'sold'. 2) Cache staleness: seat map cache not updated after hold release. 3) Category mismatch: user filtering specific category (Gold) which is full, but other categories available. 4) Geo-restriction: user's city filter incorrect."
+    },
+    {
+      "type": "design",
+      "question": "Design the virtual waiting room for high-demand shows.",
+      "answer": "On show announcement: enable waiting room. Users enter queue and get position. Queue stored in Redis sorted set (score = join time). When booking opens: dequeue N users every 30 seconds (N = capacity). Each dequeued user gets 5-min booking window. Show estimated wait time. Random initial position (prevent advantage to page refresh). CAPTCHA at entry."
+    },
+    {
+      "type": "estimation",
+      "question": "A screen has 300 seats. Seat map JSON with status for each seat. How much data per API call? With 10K concurrent users polling every 5s, what's the load?",
+      "answer": "Per seat: {id, status, category} ≈ 30 bytes. 300 seats = 9KB/response. With gzip: ~2KB. 10K users × 1 request/5s = 2K req/s. Bandwidth: 2K × 2KB = 4MB/s. Manageable. Optimize: send only changes (delta updates via WebSocket) = ~100 bytes per update."
+    },
+    {
+      "type": "design",
+      "question": "Design the cancellation and refund system.",
+      "answer": "Cancellation window: >24h before show = 100% refund - convenience fee. 12-24h = 50% refund. <12h = no refund. Process: mark booking as cancelled → release seats (set AVAILABLE) → trigger refund via payment gateway → notify waitlisted users. Refund modes: original payment method or platform credits (instant). Full automation, no manual approval for within-policy cancellations."
+    },
+    {
+      "type": "scenario",
+      "question": "Show gets cancelled by venue 2 hours before start time. 500 bookings exist. System response?",
+      "answer": "1) Admin triggers show cancellation. 2) Batch: mark all bookings as CANCELLED_BY_VENUE. 3) Full refund + convenience fee for all bookings. 4) Push notification + SMS to all booked users. 5) Offer complimentary voucher for inconvenience. 6) Remove show from listings. 7) Release all held seats. 8) Audit log for financial reconciliation."
+    },
+    {
+      "type": "output",
+      "question": "Convenience fee: 18% GST on base amount + ₹30 internet handling. Base ticket: ₹350 Gold × 2 seats. What is the total?",
+      "answer": "Base: 350 × 2 = ₹700. GST on base: 700 × 0.18 = ₹126. Handling: ₹30. Total = 700 + 126 + 30 = ₹856."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Atomic seat hold with rollback",
+      "code": "class AtomicSeatLock {\n  constructor() { this.locks = new Map(); }\n  \n  holdMultiple(userId, seatIds, ttlMs = 600000) {\n    // Check all available first\n    for (const id of seatIds) {\n      if (this.locks.has(id)) {\n        return { success: false, failedAt: id, reason: 'Already held' };\n      }\n    }\n    // Lock all atomically\n    const expiry = Date.now() + ttlMs;\n    seatIds.forEach(id => this.locks.set(id, { userId, expiry }));\n    return { success: true, held: seatIds, expiresIn: ttlMs / 1000 + 's' };\n  }\n  \n  release(userId) {\n    let released = 0;\n    for (const [id, lock] of this.locks) {\n      if (lock.userId === userId) { this.locks.delete(id); released++; }\n    }\n    return { released };\n  }\n  \n  status() {\n    return [...this.locks.entries()].map(([id, l]) => ({ seat: id, user: l.userId }));\n  }\n}\n\nconst lock = new AtomicSeatLock();\nconsole.log(lock.holdMultiple('u1', ['A1', 'A2']));\nconsole.log(lock.holdMultiple('u2', ['A2', 'A3'])); // fails at A2\nconsole.log(lock.holdMultiple('u2', ['A3', 'A4'])); // succeeds\nconsole.log(lock.status());",
+      "output": "{ success: true, held: [ 'A1', 'A2' ], expiresIn: '600s' }\n{ success: false, failedAt: 'A2', reason: 'Already held' }\n{ success: true, held: [ 'A3', 'A4' ], expiresIn: '600s' }\n[\n  { seat: 'A1', user: 'u1' },\n  { seat: 'A2', user: 'u1' },\n  { seat: 'A3', user: 'u2' },\n  { seat: 'A4', user: 'u2' }\n]"
+    },
+    {
+      "question": "Program 2: Seat map renderer",
+      "code": "function renderSeatMap(seats, columns) {\n  const rows = [];\n  for (let i = 0; i < seats.length; i += columns) {\n    const row = seats.slice(i, i + columns).map(s => {\n      const icon = s.status === 'AVAILABLE' ? '🟢' : s.status === 'HELD' ? '🟡' : '🔴';\n      return `${icon}${s.id}`;\n    });\n    rows.push(row.join('  '));\n  }\n  const legend = '🟢 Available  🟡 Held  🔴 Booked';\n  return rows.join('\\n') + '\\n' + legend;\n}\n\nconst seats = [\n  { id: 'A1', status: 'BOOKED' },  { id: 'A2', status: 'BOOKED' },\n  { id: 'A3', status: 'AVAILABLE' }, { id: 'A4', status: 'HELD' },\n  { id: 'B1', status: 'AVAILABLE' }, { id: 'B2', status: 'AVAILABLE' },\n  { id: 'B3', status: 'BOOKED' },   { id: 'B4', status: 'AVAILABLE' },\n];\nconsole.log(renderSeatMap(seats, 4));",
+      "output": "🔴A1  🔴A2  🟢A3  🟡A4\n🟢B1  🟢B2  🔴B3  🟢B4\n🟢 Available  🟡 Held  🔴 Booked"
+    },
+    {
+      "question": "Program 3: Booking price calculator",
+      "code": "function calculatePrice(seats, offers, conveniencePct = 18, handlingFee = 30) {\n  const base = seats.reduce((s, seat) => s + seat.price, 0);\n  let discount = 0;\n  offers.forEach(offer => {\n    if (offer.type === 'percent') discount += base * (offer.value / 100);\n    if (offer.type === 'flat') discount += offer.value;\n  });\n  discount = Math.min(discount, base); // can't go negative\n  const afterDiscount = base - discount;\n  const convenience = Math.round(afterDiscount * (conveniencePct / 100));\n  const total = afterDiscount + convenience + handlingFee;\n  return {\n    base: `₹${base}`,\n    discount: `₹${Math.round(discount)}`,\n    subtotal: `₹${afterDiscount}`,\n    convenience: `₹${convenience} (${conveniencePct}%)`,\n    handling: `₹${handlingFee}`,\n    total: `₹${total}`,\n  };\n}\n\nconsole.log(calculatePrice(\n  [{ id: 'A1', price: 350 }, { id: 'A2', price: 350 }],\n  [{ type: 'percent', value: 10, name: 'New User' }]\n));\nconsole.log(calculatePrice(\n  [{ id: 'B1', price: 200 }],\n  [{ type: 'flat', value: 50, name: 'Coupon' }]\n));",
+      "output": "{\n  base: '₹700',\n  discount: '₹70',\n  subtotal: '₹630',\n  convenience: '₹113 (18%)',\n  handling: '₹30',\n  total: '₹773'\n}\n{\n  base: '₹200',\n  discount: '₹50',\n  subtotal: '₹150',\n  convenience: '₹27 (18%)',\n  handling: '₹30',\n  total: '₹207'\n}"
+    },
+    {
+      "question": "Program 4: Virtual waiting room queue",
+      "code": "class WaitingRoom {\n  constructor(batchSize, intervalSec) {\n    this.queue = []; // { userId, joinedAt, position }\n    this.batchSize = batchSize;\n    this.intervalSec = intervalSec;\n    this.admitted = [];\n  }\n  join(userId) {\n    const pos = this.queue.length + this.admitted.length + 1;\n    this.queue.push({ userId, joinedAt: Date.now(), position: pos });\n    const waitBatches = Math.ceil(this.queue.length / this.batchSize);\n    return { position: pos, estimatedWait: `~${waitBatches * this.intervalSec}s` };\n  }\n  admitBatch() {\n    const batch = this.queue.splice(0, this.batchSize);\n    batch.forEach(u => this.admitted.push(u.userId));\n    return { admitted: batch.map(u => u.userId), remaining: this.queue.length };\n  }\n  status() {\n    return { waiting: this.queue.length, admitted: this.admitted.length };\n  }\n}\n\nconst wr = new WaitingRoom(2, 30);\nconsole.log(wr.join('Alice'));\nconsole.log(wr.join('Bob'));\nconsole.log(wr.join('Carol'));\nconsole.log(wr.join('Dave'));\nconsole.log('Batch 1:', wr.admitBatch());\nconsole.log('Batch 2:', wr.admitBatch());\nconsole.log(wr.status());",
+      "output": "{ position: 1, estimatedWait: '~30s' }\n{ position: 2, estimatedWait: '~30s' }\n{ position: 3, estimatedWait: '~60s' }\n{ position: 4, estimatedWait: '~60s' }\nBatch 1: { admitted: [ 'Alice', 'Bob' ], remaining: 2 }\nBatch 2: { admitted: [ 'Carol', 'Dave' ], remaining: 0 }\n{ waiting: 0, admitted: 4 }"
+    },
+    {
+      "question": "Program 5: Show availability aggregator",
+      "code": "function aggregateAvailability(shows) {\n  return shows.map(show => {\n    const total = show.seats.length;\n    const available = show.seats.filter(s => s.status === 'AVAILABLE').length;\n    const held = show.seats.filter(s => s.status === 'HELD').length;\n    const booked = show.seats.filter(s => s.status === 'BOOKED').length;\n    const fillRate = ((booked / total) * 100).toFixed(0);\n    let tag = 'Available';\n    if (available === 0) tag = 'Sold Out';\n    else if (available < total * 0.1) tag = 'Almost Full';\n    else if (available < total * 0.3) tag = 'Filling Fast';\n    return { show: show.time, total, available, held, booked, fillRate: fillRate + '%', tag };\n  });\n}\n\nconsole.log(aggregateAvailability([\n  { time: '10:00 AM', seats: [\n    { status: 'BOOKED' }, { status: 'BOOKED' }, { status: 'AVAILABLE' },\n    { status: 'AVAILABLE' }, { status: 'HELD' }, { status: 'AVAILABLE' },\n  ]},\n  { time: '2:00 PM', seats: [\n    { status: 'BOOKED' }, { status: 'BOOKED' }, { status: 'BOOKED' },\n    { status: 'BOOKED' }, { status: 'BOOKED' }, { status: 'HELD' },\n  ]},\n]));",
+      "output": "[\n  { show: '10:00 AM', total: 6, available: 3, held: 1, booked: 2, fillRate: '33%', tag: 'Filling Fast' },\n  { show: '2:00 PM', total: 6, available: 0, held: 1, booked: 5, fillRate: '83%', tag: 'Sold Out' }\n]"
+    },
+    {
+      "question": "Program 6: Cancellation and refund processor",
+      "code": "function processCancellation(booking, showTime) {\n  const hoursUntilShow = (showTime - Date.now()) / 3600000;\n  let refundPct, policy;\n  if (hoursUntilShow > 24) { refundPct = 100; policy = 'Full refund'; }\n  else if (hoursUntilShow > 12) { refundPct = 50; policy = 'Partial refund'; }\n  else if (hoursUntilShow > 0) { refundPct = 0; policy = 'No refund (< 12h)'; }\n  else { return { allowed: false, reason: 'Show already started' }; }\n  \n  const refundAmount = Math.round(booking.totalPaid * (refundPct / 100));\n  return {\n    allowed: true,\n    policy,\n    hoursUntilShow: Math.round(hoursUntilShow),\n    refundPct: refundPct + '%',\n    refundAmount: `₹${refundAmount}`,\n    seatsReleased: booking.seats,\n  };\n}\n\nconst now = Date.now();\nconsole.log(processCancellation(\n  { totalPaid: 856, seats: ['A1', 'A2'] },\n  now + 30 * 3600000 // 30h from now\n));\nconsole.log(processCancellation(\n  { totalPaid: 450, seats: ['B1'] },\n  now + 6 * 3600000 // 6h from now\n));",
+      "output": "{\n  allowed: true,\n  policy: 'Full refund',\n  hoursUntilShow: 30,\n  refundPct: '100%',\n  refundAmount: '₹856',\n  seatsReleased: [ 'A1', 'A2' ]\n}\n{\n  allowed: true,\n  policy: 'No refund (< 12h)',\n  hoursUntilShow: 6,\n  refundPct: '0%',\n  refundAmount: '₹0',\n  seatsReleased: [ 'B1' ]\n}"
+    },
+    {
+      "question": "Program 7: Waitlist manager",
+      "code": "class Waitlist {\n  constructor(maxSize) { this.queue = []; this.maxSize = maxSize; this.notified = []; }\n  join(userId, seatsWanted) {\n    if (this.queue.length >= this.maxSize) return { joined: false, reason: 'Waitlist full' };\n    this.queue.push({ userId, seatsWanted, joinedAt: Date.now() });\n    return { joined: true, position: this.queue.length };\n  }\n  releaseSeats(count) {\n    const notifications = [];\n    let remaining = count;\n    while (remaining > 0 && this.queue.length > 0) {\n      const next = this.queue[0];\n      if (next.seatsWanted <= remaining) {\n        this.queue.shift();\n        remaining -= next.seatsWanted;\n        notifications.push({ userId: next.userId, seats: next.seatsWanted, action: 'OFFERED' });\n      } else break;\n    }\n    return { notifications, seatsUnallocated: remaining };\n  }\n}\n\nconst wl = new Waitlist(5);\nconsole.log(wl.join('Alice', 2));\nconsole.log(wl.join('Bob', 1));\nconsole.log(wl.join('Carol', 3));\nconsole.log('Release 3 seats:', wl.releaseSeats(3));\nconsole.log('Queue remaining:', wl.queue.length);",
+      "output": "{ joined: true, position: 1 }\n{ joined: true, position: 2 }\n{ joined: true, position: 3 }\nRelease 3 seats: {\n  notifications: [\n    { userId: 'Alice', seats: 2, action: 'OFFERED' },\n    { userId: 'Bob', seats: 1, action: 'OFFERED' }\n  ],\n  seatsUnallocated: 0\n}\nQueue remaining: 1"
+    },
+    {
+      "question": "Program 8: Dynamic pricing engine",
+      "code": "function dynamicPrice(basePrice, factors) {\n  let multiplier = 1.0;\n  const applied = [];\n  \n  // Demand factor\n  if (factors.fillRate > 0.8) { multiplier *= 1.3; applied.push('High demand +30%'); }\n  else if (factors.fillRate > 0.5) { multiplier *= 1.1; applied.push('Moderate demand +10%'); }\n  \n  // Time factor\n  if (factors.isWeekend) { multiplier *= 1.15; applied.push('Weekend +15%'); }\n  if (factors.isEvening) { multiplier *= 1.1; applied.push('Evening show +10%'); }\n  \n  // Early bird\n  if (factors.daysUntilShow > 7) { multiplier *= 0.9; applied.push('Early bird -10%'); }\n  \n  multiplier = Math.min(2.0, multiplier); // cap at 2x\n  const finalPrice = Math.round(basePrice * multiplier);\n  return { basePrice, multiplier: +multiplier.toFixed(2), finalPrice, applied };\n}\n\nconsole.log(dynamicPrice(300, { fillRate: 0.85, isWeekend: true, isEvening: true, daysUntilShow: 2 }));\nconsole.log(dynamicPrice(300, { fillRate: 0.3, isWeekend: false, isEvening: false, daysUntilShow: 14 }));",
+      "output": "{\n  basePrice: 300,\n  multiplier: 1.64,\n  finalPrice: 493,\n  applied: [ 'High demand +30%', 'Weekend +15%', 'Evening show +10%' ]\n}\n{\n  basePrice: 300,\n  multiplier: 0.9,\n  finalPrice: 270,\n  applied: [ 'Early bird -10%' ]\n}"
+    },
+    {
+      "question": "Program 9: Show search with filters",
+      "code": "function searchShows(shows, filters) {\n  return shows.filter(show => {\n    if (filters.city && show.city !== filters.city) return false;\n    if (filters.language && !show.languages.includes(filters.language)) return false;\n    if (filters.minRating && show.rating < filters.minRating) return false;\n    if (filters.maxPrice && show.minPrice > filters.maxPrice) return false;\n    if (filters.genre && !show.genres.includes(filters.genre)) return false;\n    return true;\n  }).sort((a, b) => b.rating - a.rating);\n}\n\nconst shows = [\n  { title: 'Avengers', city: 'Delhi', languages: ['English', 'Hindi'], rating: 4.5, minPrice: 300, genres: ['Action'] },\n  { title: 'Inception', city: 'Delhi', languages: ['English'], rating: 4.8, minPrice: 350, genres: ['Sci-Fi', 'Action'] },\n  { title: 'Dangal', city: 'Mumbai', languages: ['Hindi'], rating: 4.7, minPrice: 200, genres: ['Drama', 'Sports'] },\n  { title: 'RRR', city: 'Delhi', languages: ['Telugu', 'Hindi'], rating: 4.3, minPrice: 250, genres: ['Action'] },\n];\n\nconsole.log(searchShows(shows, { city: 'Delhi', genre: 'Action', maxPrice: 400 })\n  .map(s => `${s.title} ⭐${s.rating} ₹${s.minPrice}`));",
+      "output": "[\n  'Inception ⭐4.8 ₹350',\n  'Avengers ⭐4.5 ₹300',\n  'RRR ⭐4.3 ₹250'\n]"
+    },
+    {
+      "question": "Program 10: Booking confirmation receipt generator",
+      "code": "function generateReceipt(booking) {\n  const lines = [\n    '═══ BOOKING CONFIRMATION ═══',\n    `Booking ID: ${booking.id}`,\n    `Movie: ${booking.movie}`,\n    `Show: ${booking.showTime} | ${booking.screen}`,\n    `Venue: ${booking.venue}`,\n    `Seats: ${booking.seats.join(', ')} (${booking.category})`,\n    '───────────────────────────',\n    `Ticket Price: ₹${booking.baseAmount}`,\n    `Convenience Fee: ₹${booking.convenienceFee}`,\n    booking.discount > 0 ? `Discount: -₹${booking.discount}` : null,\n    '───────────────────────────',\n    `Total: ₹${booking.total}`,\n    `Payment: ${booking.paymentMethod}`,\n    '═══════════════════════════',\n  ].filter(Boolean);\n  return lines.join('\\n');\n}\n\nconsole.log(generateReceipt({\n  id: 'BMS-20240115-001',\n  movie: 'Inception IMAX',\n  showTime: '7:00 PM, Jan 15',\n  screen: 'Screen 3 (IMAX)',\n  venue: 'PVR Select City Walk, Delhi',\n  seats: ['G5', 'G6'],\n  category: 'Gold',\n  baseAmount: 700,\n  convenienceFee: 126,\n  discount: 70,\n  total: 786,\n  paymentMethod: 'UPI - user@paytm',\n}));",
+      "output": "═══ BOOKING CONFIRMATION ═══\nBooking ID: BMS-20240115-001\nMovie: Inception IMAX\nShow: 7:00 PM, Jan 15 | Screen 3 (IMAX)\nVenue: PVR Select City Walk, Delhi\nSeats: G5, G6 (Gold)\n───────────────────────────\nTicket Price: ₹700\nConvenience Fee: ₹126\nDiscount: -₹70\n───────────────────────────\nTotal: ₹786\nPayment: UPI - user@paytm\n═══════════════════════════"
+    }
+  ]
+}

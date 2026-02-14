@@ -1,0 +1,156 @@
+{
+  "id": "zomato-lld",
+  "title": "Zomato: Food Delivery Platform",
+  "category": "Company LLD",
+  "description": "Low-level design of Zomato's food ordering, restaurant search, delivery assignment, and real-time order tracking.",
+  "explanation": "Zomato handles millions of food orders daily across 1000+ cities. The system orchestrates customers, restaurants, and delivery partners in real-time. Key subsystems:\n\n**Restaurant Discovery & Search**:\n- Geo-spatial search: find restaurants within delivery radius (5-10km) using geohash or spatial index.\n- Filters: cuisine, rating, delivery time, price range, offers.\n- Ranking factors: proximity, ratings, order volume, delivery time estimate, promotions.\n- Menu management: restaurants update menus, pricing, availability in real-time.\n\n**Order Lifecycle**:\n1. Customer browses menu, adds items to cart.\n2. Checkout: validate cart (item availability, restaurant open hours, delivery address in range).\n3. Payment: process via payment gateway (UPI, cards, wallets). Hold amount.\n4. Order placed → Restaurant receives notification. Must accept within 60 seconds (auto-accept or manual).\n5. Restaurant confirms → Estimated preparation time (ETA). Kitchen starts.\n6. Delivery partner assignment: find nearest available partner (geo-proximity, current load, acceptance rate).\n7. Partner reaches restaurant → Picks up order.\n8. En route to customer → Real-time GPS tracking.\n9. Delivered → Payment settled. Partner paid. Customer can rate.\n\n**Delivery Assignment Algorithm**:\n- Geofenced search for available partners within 3km of restaurant.\n- Score each partner: distance (40%), acceptance rate (20%), current orders (20%), rating (20%).\n- Offer to top-scored partner. 30-second timeout. If rejected/timeout, offer to next.\n- Max 3 attempts before escalation (increase search radius or bonus).\n\n**ETA Calculation**:\n- Food prep time: ML model using restaurant's historical data, current order volume, item complexity.\n- Pickup time: partner distance to restaurant + traffic conditions.\n- Delivery time: restaurant-to-customer distance + traffic.\n- Total ETA = prep_time + max(0, pickup_time - prep_time) + delivery_time.\n\n**Surge Pricing**:\n- When demand > supply in a zone: increase delivery fee by 1.2x-2x.\n- Based on: active orders in zone, available partners in zone, weather, events.\n- Cap at 2x to prevent backlash.",
+  "code": "// Order management system\nclass OrderService {\n  constructor() {\n    this.orders = new Map();\n    this.orderCounter = 0;\n  }\n\n  placeOrder(customerId, restaurantId, items, address) {\n    const orderId = `ORD-${++this.orderCounter}`;\n    const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);\n    const order = {\n      orderId,\n      customerId,\n      restaurantId,\n      items,\n      address,\n      total,\n      deliveryFee: 30,\n      status: 'PLACED',\n      timeline: [{ status: 'PLACED', at: Date.now() }],\n      partnerId: null,\n      eta: null,\n    };\n    this.orders.set(orderId, order);\n    return order;\n  }\n\n  updateStatus(orderId, status, extra = {}) {\n    const order = this.orders.get(orderId);\n    if (!order) throw new Error('Order not found');\n    const validTransitions = {\n      PLACED: ['ACCEPTED', 'REJECTED'],\n      ACCEPTED: ['PREPARING'],\n      PREPARING: ['READY', 'CANCELLED'],\n      READY: ['PICKED_UP'],\n      PICKED_UP: ['EN_ROUTE'],\n      EN_ROUTE: ['DELIVERED'],\n    };\n    if (!validTransitions[order.status]?.includes(status)) {\n      return { error: `Cannot transition from ${order.status} to ${status}` };\n    }\n    order.status = status;\n    order.timeline.push({ status, at: Date.now(), ...extra });\n    if (extra.partnerId) order.partnerId = extra.partnerId;\n    if (extra.eta) order.eta = extra.eta;\n    return { orderId, status, timeline: order.timeline.length };\n  }\n\n  getOrder(orderId) {\n    return this.orders.get(orderId);\n  }\n}\n\nconst orderService = new OrderService();\nconst order = orderService.placeOrder('cust1', 'rest1', [\n  { name: 'Butter Chicken', price: 350, qty: 1 },\n  { name: 'Naan', price: 60, qty: 2 },\n], '123 Main St');\nconsole.log('Order:', order.orderId, 'Total:', order.total);\nconsole.log(orderService.updateStatus(order.orderId, 'ACCEPTED'));\nconsole.log(orderService.updateStatus(order.orderId, 'PREPARING'));\nconsole.log(orderService.updateStatus(order.orderId, 'READY'));\nconsole.log(orderService.updateStatus(order.orderId, 'PICKED_UP', { partnerId: 'dp1' }));\nconsole.log(orderService.updateStatus(order.orderId, 'EN_ROUTE'));\nconsole.log(orderService.updateStatus(order.orderId, 'DELIVERED'));",
+  "example": "// Delivery partner assignment algorithm\nfunction assignPartner(restaurant, availablePartners, maxDistance = 3) {\n  const candidates = availablePartners\n    .map(p => {\n      const dist = Math.sqrt(\n        Math.pow(p.lat - restaurant.lat, 2) + Math.pow(p.lng - restaurant.lng, 2)\n      ) * 111; // rough km conversion\n      return { ...p, distanceKm: +dist.toFixed(2) };\n    })\n    .filter(p => p.distanceKm <= maxDistance)\n    .map(p => {\n      // Score: lower distance is better, higher acceptance rate is better\n      const distScore = (1 - p.distanceKm / maxDistance) * 40;\n      const acceptScore = p.acceptanceRate * 20;\n      const loadScore = (1 - p.currentOrders / 3) * 20; // max 3 concurrent\n      const ratingScore = (p.rating / 5) * 20;\n      return { ...p, score: +(distScore + acceptScore + loadScore + ratingScore).toFixed(1) };\n    })\n    .sort((a, b) => b.score - a.score);\n\n  if (candidates.length === 0) return { assigned: false, reason: 'No partners nearby' };\n  return { assigned: true, partner: candidates[0], alternatives: candidates.length - 1 };\n}\n\nconst restaurant = { lat: 28.6139, lng: 77.2090 };\nconst partners = [\n  { id: 'dp1', lat: 28.615, lng: 77.210, acceptanceRate: 0.95, currentOrders: 0, rating: 4.8 },\n  { id: 'dp2', lat: 28.620, lng: 77.215, acceptanceRate: 0.80, currentOrders: 2, rating: 4.2 },\n  { id: 'dp3', lat: 28.630, lng: 77.220, acceptanceRate: 0.90, currentOrders: 1, rating: 4.5 },\n  { id: 'dp4', lat: 28.700, lng: 77.300, acceptanceRate: 0.99, currentOrders: 0, rating: 4.9 }, // too far\n];\nconsole.log(assignPartner(restaurant, partners));",
+  "useCase": "Food delivery platforms, ride-hailing dispatch, last-mile logistics, on-demand service marketplaces.",
+  "interviewQuestions": [
+    {
+      "question": "How do you find restaurants near a user's location efficiently?",
+      "answer": "Use geohash-based indexing. Convert lat/lng to geohash prefix. Query all restaurants with matching geohash prefix (and neighboring cells for edge cases). Secondary filter by actual distance. Index in Redis (sorted set by geohash) or PostGIS (spatial index). Result: O(1) lookup by prefix + O(n) filter on small candidate set."
+    },
+    {
+      "question": "How do you calculate delivery ETA accurately?",
+      "answer": "Three components: (1) Food prep time — ML model trained on restaurant's historical data, considers item complexity, current kitchen load, time of day. (2) Partner pickup time — distance to restaurant via routing API + traffic. (3) Delivery time — restaurant-to-customer routing. Total = prep + max(0, pickup - prep) + delivery. Update ETA in real-time based on GPS."
+    },
+    {
+      "question": "How do you handle order placement during peak hours?",
+      "answer": "Queue-based architecture. Orders go through validation → payment → placement queue. Rate limit per restaurant (prevent overwhelming kitchen). Surge pricing to balance demand/supply. Circuit breaker on overloaded restaurants. Show increased delivery times during peak. Auto-reject if estimated delivery > 90 minutes."
+    },
+    {
+      "question": "How does the delivery partner assignment work?",
+      "answer": "Geofenced search for available partners within 3km. Multi-factor scoring: proximity (40%), acceptance rate (20%), current load (20%), rating (20%). Offer to top scorer with 30s timeout. Cascade to next if rejected. After 3 rejections, expand radius or add bonus. Batch-optimize if multiple orders going to same area."
+    },
+    {
+      "question": "How do you handle menu item availability in real-time?",
+      "answer": "Restaurants mark items as available/unavailable via dashboard. Changes pushed via WebSocket to connected clients. Cart validation on checkout re-checks availability. If item becomes unavailable after order, restaurant can partially accept order. Push notification to customer for substitution approval."
+    },
+    {
+      "question": "How do you implement real-time GPS tracking?",
+      "answer": "Delivery partner's app sends GPS coordinates every 5-10 seconds. Updates stored in Redis (low latency). Customer app polls every 5 seconds or uses WebSocket for push updates. Show partner location on map with ETA update. Reduce update frequency when partner is far; increase when approaching."
+    },
+    {
+      "question": "How do you handle payment failures during checkout?",
+      "answer": "Idempotent payment: use order_id as idempotency key. If payment gateway times out, retry with same key. If failed, show retry UI. Support multiple payment methods as fallback. For COD orders, hold partner's security deposit. Reconciliation job runs every hour to catch discrepancies."
+    },
+    {
+      "question": "How do you prevent fraud in the delivery system?",
+      "answer": "GPS spoofing detection: check if partner's speed is realistic (not teleporting). Photo verification of delivery. Pattern detection: same partner always marking orders as delivered suspiciously fast. Customer-side: address verification, device fingerprinting, limit of maximum complaints before review."
+    },
+    {
+      "question": "How do you design the rating and review system?",
+      "answer": "After delivery: prompt customer to rate food (restaurant) and delivery (partner) separately. 1-5 stars + optional text. Only verified order customers can review. Weighted average: recent reviews weighted more. Remove outliers (bot detection). Display: aggregate score, review count, response rate."
+    },
+    {
+      "question": "How do surge pricing work without alienating users?",
+      "answer": "Transparent communication: show 'High demand in your area' with fee breakdown. Cap at 2x normal fee. Surge cooldown: don't change price mid-checkout. Zone-based: 1km hexagonal zones. Dynamic: recalculate every 5 minutes based on demand/supply ratio. Never surge essential items above 1.5x."
+    }
+  ],
+  "exercises": [
+    {
+      "type": "design",
+      "question": "Design the restaurant search and ranking system.",
+      "answer": "Index: PostGIS or Redis geohash. Query: find restaurants within 7km radius. Rank by composite score: relevance × (rating × 0.3 + delivery_speed × 0.25 + proximity × 0.2 + order_volume × 0.15 + promotion_boost × 0.1). Apply filters: cuisine, vegetarian, price range. Cache popular searches per zone. Personalize: boost restaurants user has ordered from."
+    },
+    {
+      "type": "estimation",
+      "question": "Zomato serves 3M orders/day in India. Average order has 3 items. How many item-availability checks per day?",
+      "answer": "Cart creation: ~10 item views per order = 30M views/day. Availability checks at: browsing (3M × 10 = 30M), add-to-cart (3M × 3 = 9M), checkout validation (3M). Total: ~42M checks/day. At peak (2 hours handling 30% of traffic): 42M × 0.3 / 7200 = 1750 checks/second."
+    },
+    {
+      "type": "scenario",
+      "question": "Rains heavily in a city. Order volume increases 3x, partner availability drops 50%. What happens?",
+      "answer": "1) Surge pricing activates (1.5-2x delivery fee). 2) Delivery ETA increases (traffic + fewer partners). 3) Expand partner search radius from 3km to 5km. 4) Incentive bonuses for active partners. 5) Temporarily disable promotions to reduce demand. 6) Priority to premium/Gold members. 7) Show 'Limited delivery availability' warning."
+    },
+    {
+      "type": "debug",
+      "question": "Delivery partners report that orders are getting auto-assigned to them even when they're offline. What could be the issue?",
+      "answer": "1) Online/offline status not syncing properly (stale status in cache). 2) Last GPS update still within range (partner closed app but didn't go offline). 3) Background location permission allowing updates after app close. Fix: heartbeat-based status — if no ping in 3 minutes, auto-set offline. Require active acknowledgment for orders."
+    },
+    {
+      "type": "design",
+      "question": "Design the order batching system where one partner picks up multiple orders from nearby restaurants.",
+      "answer": "Trigger: when 2+ orders within 1km radius have destination within 2km of each other. Constraints: max 2 orders per batch, max 15 min delivery delay per order. Algorithm: at assignment time, check pending unassigned orders near same restaurant. Score batch benefit (distance saved vs delay added). Show customer 'Your order is part of a multi-order delivery' with adjusted ETA."
+    },
+    {
+      "type": "estimation",
+      "question": "A partner makes 12 deliveries in an 8-hour shift. Average distance per delivery: 4km pickup + 3km delivery. Fuel cost?",
+      "answer": "Total distance: 12 × (4 + 3) = 84 km/day. Scooter mileage: ~40 km/l. Fuel: 84/40 = 2.1 liters. At ₹100/l: ₹210/day. As % of earnings (12 × ₹40 delivery fee = ₹480 base): fuel is 44% of base delivery fee. Hence need per-km compensation."
+    },
+    {
+      "type": "tricky",
+      "question": "Why not always assign the closest delivery partner?",
+      "answer": "Closest partner might: have full load (2 orders already), have low acceptance rate (likely to reject, wasting time), be heading away from restaurant, have poor rating. Multi-factor scoring balances proximity with reliability. Also, assigning closest may leave a zone without partners for subsequent orders."
+    },
+    {
+      "type": "design",
+      "question": "Design the refund and complaint resolution system.",
+      "answer": "Triggers: missing items, wrong order, quality issues, late delivery. Auto-refund: if delivery > 30 min late, auto-credit 20% as Zomato credits. Review required: >₹500 refunds need manual approval. Photo evidence for quality complaints. ML model flags repeat complainers (potential abuse). Escalation: auto → agent → supervisor. SLA: resolve within 4 hours."
+    },
+    {
+      "type": "scenario",
+      "question": "A restaurant's kitchen goes offline mid-order (power outage). 15 orders are in PREPARING state. What's the system response?",
+      "answer": "1) Restaurant's tablet loses connectivity — heartbeat missed. 2) After 3 min timeout, flag restaurant as 'Unreachable'. 3) Halt new order acceptance. 4) For in-progress orders: agent calls restaurant to verify. 5) If confirmed down: cancel + full refund + apology coupon. 6) Notify assigned partners (cancel pickup). 7) Send push notification to affected customers. 8) Resume when heartbeat restores."
+    },
+    {
+      "type": "output",
+      "question": "Surge multiplier = max(1, demand_ratio × 0.5 + 0.5) capped at 2. Zone has 50 orders and 15 partners. Normal ratio is 2:1. What's the surge multiplier?",
+      "answer": "Current ratio = 50/15 = 3.33. Demand_ratio = current/normal = 3.33/2 = 1.67. Multiplier = max(1, 1.67 × 0.5 + 0.5) = max(1, 1.335) = 1.335. Capped at 2 → final multiplier = 1.34x. Delivery fee: ₹30 × 1.34 = ₹40.2 ≈ ₹40."
+    }
+  ],
+  "programExercises": [
+    {
+      "question": "Program 1: Order lifecycle state machine",
+      "code": "class OrderFSM {\n  constructor(orderId) {\n    this.orderId = orderId;\n    this.state = 'PLACED';\n    this.transitions = {\n      PLACED: ['ACCEPTED', 'REJECTED'],\n      ACCEPTED: ['PREPARING'],\n      PREPARING: ['READY', 'CANCELLED'],\n      READY: ['PICKED_UP'],\n      PICKED_UP: ['EN_ROUTE'],\n      EN_ROUTE: ['DELIVERED'],\n    };\n    this.history = [{ state: 'PLACED', time: new Date().toISOString() }];\n  }\n  transition(to) {\n    if (!this.transitions[this.state]?.includes(to)) {\n      return `❌ Cannot go from ${this.state} to ${to}`;\n    }\n    this.state = to;\n    this.history.push({ state: to, time: new Date().toISOString() });\n    return `✅ ${this.orderId}: ${to}`;\n  }\n}\n\nconst order = new OrderFSM('ORD-001');\nconsole.log(order.transition('ACCEPTED'));\nconsole.log(order.transition('PREPARING'));\nconsole.log(order.transition('DELIVERED')); // invalid\nconsole.log(order.transition('READY'));\nconsole.log(order.transition('PICKED_UP'));\nconsole.log(order.transition('EN_ROUTE'));\nconsole.log(order.transition('DELIVERED'));\nconsole.log('Steps:', order.history.length);",
+      "output": "✅ ORD-001: ACCEPTED\n✅ ORD-001: PREPARING\n❌ Cannot go from PREPARING to DELIVERED\n✅ ORD-001: READY\n✅ ORD-001: PICKED_UP\n✅ ORD-001: EN_ROUTE\n✅ ORD-001: DELIVERED\nSteps: 7"
+    },
+    {
+      "question": "Program 2: Restaurant geosearch with geohash",
+      "code": "function simpleGeohash(lat, lng, precision = 4) {\n  // Simplified geohash for demo\n  return `${Math.floor(lat * precision)}:${Math.floor(lng * precision)}`;\n}\n\nclass RestaurantIndex {\n  constructor() { this.index = new Map(); this.all = []; }\n  add(restaurant) {\n    this.all.push(restaurant);\n    const hash = simpleGeohash(restaurant.lat, restaurant.lng);\n    if (!this.index.has(hash)) this.index.set(hash, []);\n    this.index.get(hash).push(restaurant);\n  }\n  search(lat, lng, maxKm) {\n    const hash = simpleGeohash(lat, lng);\n    const candidates = this.index.get(hash) || [];\n    return candidates\n      .map(r => ({\n        ...r,\n        distKm: +((Math.sqrt(Math.pow(r.lat-lat, 2) + Math.pow(r.lng-lng, 2)) * 111).toFixed(2)),\n      }))\n      .filter(r => r.distKm <= maxKm)\n      .sort((a, b) => a.distKm - b.distKm);\n  }\n}\n\nconst idx = new RestaurantIndex();\nidx.add({ id: 'r1', name: 'Pizza Place', lat: 28.614, lng: 77.209, rating: 4.5 });\nidx.add({ id: 'r2', name: 'Biryani House', lat: 28.615, lng: 77.211, rating: 4.2 });\nidx.add({ id: 'r3', name: 'Sushi Bar', lat: 28.700, lng: 77.300, rating: 4.8 }); // far\n\nconsole.log(idx.search(28.613, 77.209, 5));",
+      "output": "[\n  { id: 'r1', name: 'Pizza Place', lat: 28.614, lng: 77.209, rating: 4.5, distKm: 0.11 },\n  { id: 'r2', name: 'Biryani House', lat: 28.615, lng: 77.211, rating: 4.2, distKm: 0.30 }\n]"
+    },
+    {
+      "question": "Program 3: Delivery partner scoring and assignment",
+      "code": "function scoreAndAssign(restaurant, partners, maxDist = 3) {\n  const scored = partners\n    .map(p => {\n      const dist = Math.sqrt(Math.pow(p.lat - restaurant.lat, 2) + Math.pow(p.lng - restaurant.lng, 2)) * 111;\n      if (dist > maxDist) return null;\n      const score = (1 - dist/maxDist) * 40 + p.acceptRate * 20 + (1 - p.load/3) * 20 + (p.rating/5) * 20;\n      return { id: p.id, dist: dist.toFixed(2) + 'km', score: +score.toFixed(1), load: p.load };\n    })\n    .filter(Boolean)\n    .sort((a, b) => b.score - a.score);\n  \n  return scored.length > 0\n    ? { assigned: scored[0], candidates: scored.length }\n    : { assigned: null, reason: 'No partners in range' };\n}\n\nconsole.log(scoreAndAssign(\n  { lat: 28.614, lng: 77.209 },\n  [\n    { id: 'dp1', lat: 28.615, lng: 77.210, acceptRate: 0.95, load: 0, rating: 4.8 },\n    { id: 'dp2', lat: 28.618, lng: 77.215, acceptRate: 0.80, load: 2, rating: 4.0 },\n    { id: 'dp3', lat: 28.700, lng: 77.300, acceptRate: 0.99, load: 0, rating: 5.0 }, // too far\n  ]\n));",
+      "output": "{\n  assigned: { id: 'dp1', dist: '0.15km', score: 96.8, load: 0 },\n  candidates: 2\n}"
+    },
+    {
+      "question": "Program 4: Surge pricing calculator",
+      "code": "function calculateSurge(zones) {\n  return zones.map(zone => {\n    const demandRatio = zone.activeOrders / (zone.availablePartners || 1);\n    const normalRatio = 2; // baseline\n    let multiplier = demandRatio / normalRatio * 0.5 + 0.5;\n    multiplier = Math.max(1, Math.min(2, multiplier)); // clamp 1-2x\n    multiplier = +multiplier.toFixed(2);\n    const baseFee = 30;\n    return {\n      zone: zone.name,\n      demand: zone.activeOrders,\n      supply: zone.availablePartners,\n      ratio: +demandRatio.toFixed(1),\n      multiplier,\n      fee: Math.round(baseFee * multiplier),\n    };\n  });\n}\n\nconsole.log(calculateSurge([\n  { name: 'Downtown', activeOrders: 100, availablePartners: 20 },\n  { name: 'Suburbs', activeOrders: 20, availablePartners: 25 },\n  { name: 'Airport', activeOrders: 50, availablePartners: 5 },\n]));",
+      "output": "[\n  { zone: 'Downtown', demand: 100, supply: 20, ratio: 5, multiplier: 1.75, fee: 53 },\n  { zone: 'Suburbs', demand: 20, supply: 25, ratio: 0.8, multiplier: 1, fee: 30 },\n  { zone: 'Airport', demand: 50, supply: 5, ratio: 10, multiplier: 2, fee: 60 }\n]"
+    },
+    {
+      "question": "Program 5: ETA calculator",
+      "code": "function calculateETA(order) {\n  const { prepTimeMin, partnerToRestaurantMin, restaurantToCustomerMin } = order;\n  // Partner arrives during prep, or waits\n  const pickupWait = Math.max(0, partnerToRestaurantMin - prepTimeMin);\n  const totalMin = prepTimeMin + pickupWait + restaurantToCustomerMin;\n  return {\n    prepTime: prepTimeMin + ' min',\n    pickupTime: partnerToRestaurantMin + ' min',\n    deliveryTime: restaurantToCustomerMin + ' min',\n    wait: pickupWait + ' min',\n    totalETA: totalMin + ' min',\n    breakdown: `Prep(${prepTimeMin}) + Wait(${pickupWait}) + Delivery(${restaurantToCustomerMin}) = ${totalMin} min`,\n  };\n}\n\nconsole.log(calculateETA({ prepTimeMin: 20, partnerToRestaurantMin: 10, restaurantToCustomerMin: 15 }));\nconsole.log(calculateETA({ prepTimeMin: 10, partnerToRestaurantMin: 25, restaurantToCustomerMin: 12 }));",
+      "output": "{\n  prepTime: '20 min', pickupTime: '10 min', deliveryTime: '15 min',\n  wait: '0 min', totalETA: '35 min',\n  breakdown: 'Prep(20) + Wait(0) + Delivery(15) = 35 min'\n}\n{\n  prepTime: '10 min', pickupTime: '25 min', deliveryTime: '12 min',\n  wait: '15 min', totalETA: '37 min',\n  breakdown: 'Prep(10) + Wait(15) + Delivery(12) = 37 min'\n}"
+    },
+    {
+      "question": "Program 6: Cart validator",
+      "code": "function validateCart(cart, restaurant) {\n  const errors = [];\n  // Check restaurant open\n  const hour = new Date().getHours();\n  if (hour < restaurant.openHour || hour >= restaurant.closeHour) {\n    errors.push('Restaurant is currently closed');\n  }\n  // Check items available\n  cart.items.forEach(item => {\n    const menuItem = restaurant.menu.find(m => m.id === item.id);\n    if (!menuItem) errors.push(`Item '${item.name}' not found`);\n    else if (!menuItem.available) errors.push(`'${menuItem.name}' is currently unavailable`);\n    else if (item.qty > 10) errors.push(`Max 10 qty per item (${item.name})`);\n  });\n  // Check delivery distance\n  if (cart.distanceKm > restaurant.maxDeliveryKm) {\n    errors.push(`Delivery address too far (${cart.distanceKm}km > ${restaurant.maxDeliveryKm}km max)`);\n  }\n  // Min order\n  const total = cart.items.reduce((s, i) => s + (restaurant.menu.find(m => m.id === i.id)?.price || 0) * i.qty, 0);\n  if (total < restaurant.minOrder) errors.push(`Minimum order ₹${restaurant.minOrder} (current: ₹${total})`);\n  \n  return errors.length === 0 ? { valid: true, total } : { valid: false, errors };\n}\n\nconst restaurant = {\n  openHour: 10, closeHour: 23, maxDeliveryKm: 7, minOrder: 200,\n  menu: [\n    { id: 'm1', name: 'Paneer Tikka', price: 280, available: true },\n    { id: 'm2', name: 'Dal Makhani', price: 220, available: false },\n  ],\n};\n\nconsole.log(validateCart({ items: [{ id: 'm1', name: 'Paneer Tikka', qty: 1 }], distanceKm: 5 }, restaurant));\nconsole.log(validateCart({ items: [{ id: 'm2', name: 'Dal Makhani', qty: 1 }], distanceKm: 10 }, restaurant));",
+      "output": "{ valid: true, total: 280 }\n{ valid: false, errors: [\"'Dal Makhani' is currently unavailable\", 'Delivery address too far (10km > 7km max)'] }"
+    },
+    {
+      "question": "Program 7: Real-time GPS tracking simulator",
+      "code": "class DeliveryTracker {\n  constructor() { this.tracks = new Map(); }\n  \n  updateLocation(partnerId, lat, lng) {\n    if (!this.tracks.has(partnerId)) this.tracks.set(partnerId, []);\n    this.tracks.get(partnerId).push({ lat, lng, time: Date.now() });\n  }\n  \n  getETA(partnerId, destLat, destLng) {\n    const positions = this.tracks.get(partnerId);\n    if (!positions || positions.length < 2) return { eta: 'calculating...' };\n    const last = positions[positions.length - 1];\n    const prev = positions[positions.length - 2];\n    const distMoved = Math.sqrt(Math.pow(last.lat - prev.lat, 2) + Math.pow(last.lng - prev.lng, 2)) * 111;\n    const timeDelta = (last.time - prev.time) / 60000; // min\n    const speed = distMoved / timeDelta; // km/min\n    const remaining = Math.sqrt(Math.pow(destLat - last.lat, 2) + Math.pow(destLng - last.lng, 2)) * 111;\n    const etaMin = speed > 0 ? (remaining / speed).toFixed(1) : '∞';\n    return { speed: speed.toFixed(2) + ' km/min', remaining: remaining.toFixed(2) + ' km', eta: etaMin + ' min' };\n  }\n}\n\nconst tracker = new DeliveryTracker();\ntracker.updateLocation('dp1', 28.620, 77.215);\ntracker.tracks.get('dp1')[0].time -= 60000; // simulate 1 min ago\ntracker.updateLocation('dp1', 28.616, 77.211);\nconsole.log(tracker.getETA('dp1', 28.614, 77.209));",
+      "output": "{ speed: '0.59 km/min', remaining: '0.30 km', eta: '0.5 min' }"
+    },
+    {
+      "question": "Program 8: Restaurant rating aggregator",
+      "code": "class RatingService {\n  constructor() { this.ratings = new Map(); }\n  addRating(restaurantId, { food, delivery, customerId }) {\n    if (!this.ratings.has(restaurantId)) this.ratings.set(restaurantId, []);\n    this.ratings.get(restaurantId).push({ food, delivery, customerId, time: Date.now() });\n  }\n  getAggregate(restaurantId) {\n    const all = this.ratings.get(restaurantId) || [];\n    if (all.length === 0) return { rating: 'No ratings', count: 0 };\n    const avgFood = all.reduce((s, r) => s + r.food, 0) / all.length;\n    const avgDelivery = all.reduce((s, r) => s + r.delivery, 0) / all.length;\n    const overall = avgFood * 0.7 + avgDelivery * 0.3;\n    return {\n      overall: +overall.toFixed(1),\n      food: +avgFood.toFixed(1),\n      delivery: +avgDelivery.toFixed(1),\n      count: all.length,\n      distribution: [1,2,3,4,5].map(s => ({ stars: s, count: all.filter(r => Math.round(r.food) === s).length })),\n    };\n  }\n}\n\nconst rs = new RatingService();\nrs.addRating('r1', { food: 5, delivery: 4, customerId: 'c1' });\nrs.addRating('r1', { food: 4, delivery: 5, customerId: 'c2' });\nrs.addRating('r1', { food: 3, delivery: 3, customerId: 'c3' });\nrs.addRating('r1', { food: 5, delivery: 4, customerId: 'c4' });\nconsole.log(rs.getAggregate('r1'));",
+      "output": "{\n  overall: 4.0,\n  food: 4.3,\n  delivery: 4.0,\n  count: 4,\n  distribution: [\n    { stars: 1, count: 0 },\n    { stars: 2, count: 0 },\n    { stars: 3, count: 1 },\n    { stars: 4, count: 1 },\n    { stars: 5, count: 2 }\n  ]\n}"
+    },
+    {
+      "question": "Program 9: Order batching optimizer",
+      "code": "function batchOrders(pendingOrders, maxBatchSize = 2, maxExtraKm = 2) {\n  const batches = [];\n  const used = new Set();\n  \n  for (let i = 0; i < pendingOrders.length; i++) {\n    if (used.has(i)) continue;\n    const batch = [pendingOrders[i]];\n    used.add(i);\n    for (let j = i + 1; j < pendingOrders.length && batch.length < maxBatchSize; j++) {\n      if (used.has(j)) continue;\n      const restDist = Math.sqrt(\n        Math.pow(pendingOrders[i].restLat - pendingOrders[j].restLat, 2) +\n        Math.pow(pendingOrders[i].restLng - pendingOrders[j].restLng, 2)\n      ) * 111;\n      if (restDist <= maxExtraKm) {\n        batch.push(pendingOrders[j]);\n        used.add(j);\n      }\n    }\n    batches.push({ orders: batch.map(o => o.id), size: batch.length });\n  }\n  return batches;\n}\n\nconsole.log(batchOrders([\n  { id: 'O1', restLat: 28.614, restLng: 77.209 },\n  { id: 'O2', restLat: 28.615, restLng: 77.210 }, // near O1\n  { id: 'O3', restLat: 28.700, restLng: 77.300 }, // far\n  { id: 'O4', restLat: 28.614, restLng: 77.208 }, // near O1 but batch full\n]));",
+      "output": "[\n  { orders: [ 'O1', 'O2' ], size: 2 },\n  { orders: [ 'O3' ], size: 1 },\n  { orders: [ 'O4' ], size: 1 }\n]"
+    },
+    {
+      "question": "Program 10: Refund policy engine",
+      "code": "function processRefund(complaint) {\n  const policies = {\n    'missing_item': { autoRefund: true, refundPercent: 100, scope: 'item', maxAuto: 500 },\n    'wrong_order': { autoRefund: true, refundPercent: 100, scope: 'full', maxAuto: 1000 },\n    'late_delivery': { autoRefund: true, refundPercent: 20, scope: 'full', maxAuto: 200 },\n    'quality_issue': { autoRefund: false, refundPercent: 50, scope: 'item', maxAuto: 0 },\n    'not_delivered': { autoRefund: true, refundPercent: 100, scope: 'full', maxAuto: 2000 },\n  };\n  \n  const policy = policies[complaint.type];\n  if (!policy) return { action: 'ESCALATE', reason: 'Unknown complaint type' };\n  \n  const refundAmount = policy.scope === 'full'\n    ? complaint.orderTotal * (policy.refundPercent / 100)\n    : complaint.itemTotal * (policy.refundPercent / 100);\n  \n  if (policy.autoRefund && refundAmount <= policy.maxAuto) {\n    return { action: 'AUTO_REFUND', amount: `₹${Math.round(refundAmount)}`, method: 'Zomato Credits' };\n  }\n  return { action: 'MANUAL_REVIEW', amount: `₹${Math.round(refundAmount)}`, reason: 'Exceeds auto-limit or requires review' };\n}\n\nconsole.log(processRefund({ type: 'late_delivery', orderTotal: 500, itemTotal: 0 }));\nconsole.log(processRefund({ type: 'missing_item', orderTotal: 800, itemTotal: 280 }));\nconsole.log(processRefund({ type: 'quality_issue', orderTotal: 600, itemTotal: 350 }));",
+      "output": "{ action: 'AUTO_REFUND', amount: '₹100', method: 'Zomato Credits' }\n{ action: 'AUTO_REFUND', amount: '₹280', method: 'Zomato Credits' }\n{ action: 'MANUAL_REVIEW', amount: '₹175', reason: 'Exceeds auto-limit or requires review' }"
+    }
+  ]
+}
